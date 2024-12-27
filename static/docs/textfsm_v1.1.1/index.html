@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p><a href="https://travis-ci.org/networktocode/ntc-templates"><img src="https://travis-ci.org/networktocode/ntc-templates.svg?branch=master" alt="Build Status"></a></p>
+<h1 id="ntc-templates">NTC TEMPLATES</h1>
+<p>Repository of TextFSM Templates for Network Devices, and Python wrapper for TextFSM’s CliTable.</p>
+<p><a href="https://github.com/google/textfsm/wiki">TextFSM</a> is a project built by Google that takes CLI string output and passes each line through a series of regular expressions until it finds a match. The regular expressions use named capture groups to build a text table out of the significant text. The names of the capture groups are used as column headers, and the captured values are stored as rows in the table.</p>
+<p>This project provides a large collection of TextFSM Templates (text parsers) for a variety of Networking Vendors. In addition to the templates, there is a function that will convert the CLI output into a CliTable object; the resulting text table is converted into a list of dictionaries mapping the column headers with each row in the table.</p>
+<h2 id="installation-and-usage">Installation and Usage</h2>
+<p>The project can be installed using either Git or PyPI; if you would like to use the templates outside of this project, then Git is the recommended approach.</p>
+<h4 id="git">Git</h4>
+<pre class=" language-shell"><code class="prism  language-shell">$ git clone git@github.com:networktocode/ntc-templates.git
+$ 
+# Optional steps to install ntc-templates as a python package
+$ pip install -e ntc-templates/
+$ 
+</code></pre>
+<h4 id="pypi">PyPI</h4>
+<pre class=" language-shell"><code class="prism  language-shell">$ pip install ntc_templates
+$ 
+</code></pre>
+<h4 id="usage">Usage</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">from</span> ntc_templates<span class="token punctuation">.</span>parse <span class="token keyword">import</span> parse_output
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_output <span class="token operator">=</span> <span class="token punctuation">(</span>
+        <span class="token string">"VLAN Name                             Status    Ports\n"</span>
+        <span class="token string">"---- -------------------------------- --------- -------------------------------\n"</span>
+        <span class="token string">"1    default                          active    Gi0/1\n"</span>
+        <span class="token string">"10   Management                       active    \n"</span>
+        <span class="token string">"50   VLan50                           active    Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5,\n"</span>
+        <span class="token string">"                                                Fa0/6, Fa0/7, Fa0/8\n"</span>
+    <span class="token punctuation">)</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_parsed <span class="token operator">=</span> parse_output<span class="token punctuation">(</span>platform<span class="token operator">=</span><span class="token string">"cisco_ios"</span><span class="token punctuation">,</span> command<span class="token operator">=</span><span class="token string">"show vlan"</span><span class="token punctuation">,</span> data<span class="token operator">=</span>vlan_output<span class="token punctuation">)</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_parsed
+<span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'default'</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'Gi0/1'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'10'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'Management'</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'50'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'VLan50'</span><span class="token punctuation">,</span> <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'Fa0/1'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/2'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/3'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/4'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/5'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/6'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/7'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/8'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> 
+</code></pre>
+<h2 id="contributing">Contributing</h2>
+<p>Pull requests are welcomed and automatically built and tested through TravisCI.</p>
+<h3 id="new-templates">New Templates</h3>
+<p>To contribute new templates, each new pull request must include the following:</p>
+<ul>
+<li>TextFSM template</li>
+<li>Modified version of the <strong>index</strong> file</li>
+<li>Tests
+<ul>
+<li>Raw version of text to be parsed</li>
+<li>YAML file containing the expected parsed dictionary</li>
+</ul>
+</li>
+</ul>
+<h4 id="textfsm-template">TextFSM Template</h4>
+<p>TextFSM templates should be placed in the <code>./templates</code> directory and should adhere to the following NTC-Templates style.<br>
+The TextFSM template name should be in the following format:</p>
+<h5 id="naming">Naming</h5>
+<p>The template should be named using: <code>{{ vendor_os }}_{{ command_with_underscores }}.template</code></p>
+<blockquote>
+<p>Ex: cisco_ios_show_cdp_neighbors.template</p>
+</blockquote>
+<p>Note: The vendor name must be valid from the <a href="https://github.com/networktocode/ntc-templates/blob/master/tests/test_index_order.py#L59">os_choices</a> tests, which is primarily based on <a href="https://github.com/ktbyers/netmiko/tree/master/netmiko">Netmiko</a> list of supported vendors. New vendors added should adhere to <strong>vendor_os</strong>.</p>
+<blockquote>
+<p>Ex: vmware_nsx</p>
+</blockquote>
+<h5 id="values">Values</h5>
+<p>The capture group names should be in UPPERCASE.</p>
+<p>An example of the proper format is shown below.</p>
+<pre><code>Value TIME (\d+:\d+:\d+)
+Value TIMEZONE (\S+)
+Value DAYWEEK (\w+)
+Value MONTH (\d+)
+Value DAY (\d+)
+Value YEAR (\d+)
+
+Start
+  ^${TIME}\s+${TIMEZONE}\s+${DAYWEEK}\s+${DAY}/${MONTH}/${YEAR} -&gt; Record
+  ^. -&gt; Error
+</code></pre>
+<h5 id="states">States</h5>
+<p>If the raw output has a heading, the <code>Start</code> state should match on the column headings and then transition to another state that will match the device’s output table with the capture groups. This helps ensure the regex patterns for the capture groups are attempting to match the correct information, and allows templates to easily add additional States for tables that have different headings. Example:</p>
+<p><em>Raw Output</em></p>
+<pre><code>... omitted
+Network Next Hop Metric LocPrf Weight Path
+*&gt; 111.111.111.111/32 112.112.112.112 4294967295 4294967295 65535 1000 1000 1000 i
+</code></pre>
+<p><em>Sample Template</em></p>
+<pre><code>Start
+# Checking for header
+^\s*Network\s+Next(?:\s+|-)[Hh]op\s+Metric\s+LocPrf\s+Weight\s+Path\s*$$ -&gt; BGPTable
+
+BGPTable
+ ... omitted
+</code></pre>
+<p>Each <strong>state</strong> should end with <code>^. -&gt; Error</code>. This helps to ensure we’re accounting for every line within the raw output for the command. This doesn’t mean we have to capture all the data as a <strong>Value</strong>, but we do have to account for it. In addition, it is also good to provide an expression to match blank lines, <code>^\s*$$</code></p>
+<p>An example would be the following raw output:</p>
+<pre><code>NAME: "3640 chassis", DESCR: "3640 chassis"
+PID: , VID: 0xFF, SN: FF1045C5
+</code></pre>
+<p>The template would be the following:</p>
+<pre><code>Value NAME (.*)
+Value DESCRIPTION (.*)
+
+Start
+  ^NAME:\s+"${NAME}",\s*DESCR:\s+"${DESCRIPTION}"
+  ^PID:\s*,\s*VID:\s*\S+,\s*SN:\s*\S+
+  ^\s*$$
+  ^. -&gt; Error
+</code></pre>
+<p>Taking a look at the example template above, you notice that we’re using <strong>\s</strong>* and <strong>\s+</strong>. These are the preferred way to match space characters, and should be used over the literal space character. For example, <code>This\s+is\s+preferred\s*$$</code> vs <code>This is not preferred$$</code></p>
+<ul>
+<li><strong>\s</strong>* accounts for zero or more spaces (use when the output may or may not have a space between characters)</li>
+<li><strong>\s+</strong> accounts for one or more spaces (use when output will have a space, but could have more than one space)</li>
+</ul>
+<h4 id="index-file">Index File</h4>
+<p>The Index file binds the templates to the commands being run. Special care has been taken on ordering, as there is potential for issues. e.g. <code>show ip route</code> picking up for <code>show ip router vrf &lt;vrf-name&gt;</code>. We have used a combination of ordering, as defined:</p>
+<ul>
+<li>OS in alphabetical order</li>
+<li>Template name in length order</li>
+<li>When length is the same, use alphabetical order of command name</li>
+<li>Keep space between OS’s</li>
+</ul>
+<p>Example:</p>
+<pre><code>Template, Hostname, Platform, Command
+
+# same os, same length, used alphabetical order of command name
+arista_eos_show_mlag.template, .*, arista_eos, sh[[ow]] ml[[ag]]
+arista_eos_show_vlan.template, .*, arista_eos, sh[[ow]] vl[[an]]
+
+# os in alphabetical order and space between cisco_asa and arista_eos
+cisco_asa_dir.template,  .*, cisco_asa, dir
+
+# same os, template name length different and space between cisco_asa and cisco_ios
+cisco_ios_show_capability_feature_routing.template,  .*, cisco_ios, sh[[ow]] cap[[ability]] f[[eature]] r[[outing]]
+cisco_ios_show_interface_transceiver.template, .*, cisco_ios, sh[[ow]] int[[erface]] trans[[ceiver]]
+cisco_ios_show_cdp_neighbors_detail.template, .*, cisco_ios, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
+</code></pre>
+<h4 id="tests">Tests</h4>
+<p>Tests will be located in <code>./tests</code> with the following hierarchy:</p>
+<ul>
+<li><code>./tests/{{ vendor_os }}/{{ command_name }}/</code></li>
+</ul>
+<p>The <code>{{ command_name }}</code> directory should include the <code>.raw</code> file that includes the raw output of the command to be parsed, and the <code>.parsed</code> file of the returned structured data.</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">ls</span> tests/cisco_ios/show_clock/
+cisco_ios_show_clock.parsed
+cisco_ios_show_clock.raw
+$ 
+</code></pre>
+<h5 id="raw-version-of-input-text">Raw version of input text</h5>
+<p>The raw text file should contain <strong>only</strong> the output of the CLI command to be parsed. It should <strong>not</strong> contain the CLI command itself.</p>
+<p>An example of the proper format is shown below:</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">cat</span> tests/cisco_ios/show_clock/cisco_ios_show_clock.raw
+*18:57:38.347 UTC Mon Oct 19 2015
+$ 
+</code></pre>
+<h5 id="yaml-file-containing-expected-parsed-dictionary">YAML file containing expected parsed dictionary</h5>
+<p>The parsed file should match the data that is returned from the <code>parse_output</code> function discussed in the beginning. Dictionary keys should be in lowercase.</p>
+<p>The parsed text file should be placed in a directory in the <code>./tests</code> directory with the same name as the template file but replace <code>.template</code> file extension with <code>.parsed</code>. The raw text file and the parsed text file should be in the same directory.<br>
+<strong>ex. ./tests/cisco_ios/show_clock/</strong></p>
+<p>There is an available helper that uses <strong>Ansible</strong> and <strong>ntc-ansible</strong> custom modules to create the parsed file automatically into the correct format. Helpers are located within <code>./helpers/</code>.</p>
+<p>An example of the proper format is shown below:</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">cat</span> ./tests/cisco_ios/show_clock/cisco_ios_show_clock.parsed
+---
+parsed_sample:
+  - time: <span class="token string">"18:57:38.347"</span>
+    timezone: <span class="token string">"UTC"</span>
+    dayweek: <span class="token string">"Mon"</span>
+    month: <span class="token string">"Oct"</span>
+    day: <span class="token string">"19"</span>
+    year: <span class="token string">"2015"</span>
+$ 
+</code></pre>
+<p>Multiple <code>raw</code> and <code>parsed</code> files are supported per directory, and are encouraged, as there are differences depending on version, length, etc. Additional test files and more real life data helps ensure backwards compatibility is maintained as each template is updated and merged into the repo.</p>
+<h3 id="updatingfixing-existing-templates">Updating/Fixing Existing Templates</h3>
+<p>When either fixing a bug within a template or adding additional <strong>Values</strong> to be captured, additional test files should be added to ensure backwards compatibility and that the new data is being parsed correctly.</p>
+<p>To add additional raw/parsed tests for a command:</p>
+<ul>
+<li>Navigate to <code>./tests/{{ vendor_os }}/{{ command_name }}/</code></li>
+<li>Create new <code>.raw</code> and <code>.parsed</code> files within the directory, preferrably with a name identifying why the data is unique:
+<ul>
+<li>Existing raw: <code>./tests/cisco_ios/show_version/cisco_ios_show_version.raw</code></li>
+<li>New raw: <code>./tests/cisco_ios/show_version/cisco_ios_show_version_stack_platforms.raw</code></li>
+<li>Existing parsed: <code>./tests/cisco_ios/show_version/cisco_ios_show_version.parsed</code></li>
+<li>New parsed: <code>./tests/cisco_ios/show_version/cisco_ios_show_version_stack_platforms.parsed</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="testing">Testing</h4>
+<p>You can test your changes locally within your Git branch before submitting a PR. If you do not have <strong>tox</strong> already installed, you can do that using pip or your systems package manager. Tox should be ran inside the <strong>ntc-templates</strong> root directory. The tox file is configured to run against python3.6, so either python3.6 needs to be available, or the tox.ini file will need to be updated with an available Python version.</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ tox
+GLOB sdist-make: /home/admin/ntc-templates/setup.py
+py36 inst-nodeps: /home/admin/ntc-templates/.tox/dist/ntc_templates-1.1.0.zip
+py36 installed: atomicwrites<span class="token operator">==</span>1.3.0,attrs<span class="token operator">==</span>19.1.0,importlib-metadata<span class="token operator">==</span>0.18,more-itertools<span class="token operator">==</span>7.1.0,ntc-templates<span class="token operator">==</span>1.1.0,packaging<span class="token operator">==</span>19.0,pkg-resources<span class="token operator">==</span>0.0.0,pluggy<span class="token operator">==</span>0.12.0,py<span class="token operator">==</span>1.8.0,pyparsing<span class="token operator">==</span>2.4.0,pytest<span class="token operator">==</span>5.0.1,PyYAML<span class="token operator">==</span>5.1.1,six<span class="token operator">==</span>1.12.0,terminal<span class="token operator">==</span>0.4.0,textfsm<span class="token operator">==</span>0.4.1,wcwidth<span class="token operator">==</span>0.1.7,zipp<span class="token operator">==</span>0.5.2
+py36 runtests: PYTHONHASHSEED<span class="token operator">=</span><span class="token string">'1913863515'</span>
+py36 runtests: commands<span class="token punctuation">[</span>0<span class="token punctuation">]</span> <span class="token operator">|</span> pytest
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span> <span class="token function">test</span> session starts <span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+platform linux -- Python 3.6.8, pytest-5.0.1, py-1.8.0, pluggy-0.12.0
+rootdir: /home/admin/ntc-templates
+collected 364 items
+
+tests/test_index_order.py <span class="token keyword">.</span>                                                                                                                                                  <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_structured_data_against_parsed_reference_files.py <span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span>. <span class="token punctuation">[</span> 30%<span class="token punctuation">]</span>
+<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span> <span class="token punctuation">[</span> 78%<span class="token punctuation">]</span>
+<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span>.                                                                                              <span class="token punctuation">[</span> 99%<span class="token punctuation">]</span>
+tests/test_testcases_exists.py <span class="token keyword">.</span>                                                                                                                                             <span class="token punctuation">[</span>100%<span class="token punctuation">]</span>
+
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span> 364 passed <span class="token keyword">in</span> 15.69 seconds <span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+_____________________________________________________________________________________ summary ______________________________________________________________________________________
+  py36: commands succeeded
+  congratulations :<span class="token punctuation">)</span>
+</code></pre>
+<h2 id="questions">Questions</h2>
+<p>For any questions or comments, please feel free to swing by the <a href="https://networktocode.slack.com">networktocode slack channel</a>.</p>
+<p>Sign up <a href="http://slack.networktocode.com/">here</a></p>
+</div>
+</body>
+
+</html>
