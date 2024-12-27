@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Anthon van der Neut" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Working with Python classes - yaml</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        
+        
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Working with Python classes";
+        var mkdocs_page_input_path = "dumpcls.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+<script async type="text/javascript" src="../../../_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="yaml" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/dumpcls/" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../index.html" class="icon icon-home"> yaml
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="https://yaml.readthedocs.io/en/latest/search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installing</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../basicuse/index.html">Basic Usage</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="index.html">Working with Python classes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="index.html#dumping-python-classes">Dumping Python classes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="index.html#dataclass">Dataclass</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../detail/index.html">Details</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../example/index.html">Examples</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/index.html">Departure from previous API</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../pyyaml/index.html">Differences with PyYAML</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">yaml</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Working with Python classes</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="working-with-python-classes">Working with Python classes<a class="headerlink" href="index.html#working-with-python-classes" title="Permanent link">&para;</a></h1>
+<h2 id="dumping-python-classes">Dumping Python classes<a class="headerlink" href="index.html#dumping-python-classes" title="Permanent link">&para;</a></h2>
+<p>Only <code>yaml = YAML(typ='unsafe')</code> loads and dumps Python objects
+out-of-the-box. And since it loads <strong>any</strong> Python object, this can be
+unsafe, so don't use it.</p>
+<p>If you have instances of some class(es) that you want to dump or load,
+it is easy to allow the YAML instance to do that explicitly. You can
+either register the class with the <code>YAML</code> instance or decorate the
+class.</p>
+<p>Registering is done with <code>YAML.register_class()</code>:</p>
+<pre><code class="language-python">import sys
+import ruamel.yaml
+
+
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+yaml = ruamel.yaml.YAML()
+yaml.register_class(User)
+yaml.dump([User('Anthon', 18)], sys.stdout)
+</code></pre>
+<p>which gives as output::</p>
+<pre><code class="language-lang-none">- !User
+  name: Anthon
+  age: 18
+</code></pre>
+<p>The tag <code>!User</code> originates from the name of the class.</p>
+<p>You can specify a different tag by adding the attribute <code>yaml_tag</code>, and
+explicitly specify dump and/or load <em>classmethods</em> which have to be
+named <code>to_yaml</code> resp. <code>from_yaml</code>:</p>
+<pre><code class="language-python">import sys
+import ruamel.yaml
+
+
+class User:
+    yaml_tag = u'!user'
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def to_yaml(cls, representer, node):
+        return representer.represent_scalar(cls.yaml_tag,
+                                            u'{.name}-{.age}'.format(node, node))
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        return cls(*node.value.split('-'))
+
+
+yaml = ruamel.yaml.YAML()
+yaml.register_class(User)
+yaml.dump([User('Anthon', 18)], sys.stdout)
+</code></pre>
+<p>which gives as output::</p>
+<pre><code class="language-lang-none">- !user Anthon-18
+</code></pre>
+<p>When using the decorator, which takes the <code>YAML()</code> instance as a
+parameter, the <code>yaml = YAML()</code> line needs to be moved up in the file:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML, yaml_object
+
+yaml = YAML()
+
+
+@yaml_object(yaml)
+class User:
+    yaml_tag = u'!user'
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def to_yaml(cls, representer, node):
+        return representer.represent_scalar(cls.yaml_tag,
+                                            u'{.name}-{.age}'.format(node, node))
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        return cls(*node.value.split('-'))
+
+
+yaml.dump([User('Anthon', 18)], sys.stdout)
+</code></pre>
+<p>The <code>yaml_tag</code>, <code>from_yaml</code> and <code>to_yaml</code> work in the same way as when
+using <code>.register_class()</code>.</p>
+<p>Alternatively you can use the <code>register_class()</code> method as decorator,
+This also requires you have the yaml instance available:</p>
+<pre><code class="language-python">import sys
+import ruamel.yaml
+
+yaml = ruamel.yaml.YAML()
+
+@yaml.register_class
+class User:
+    yaml_tag = u'!user'
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def to_yaml(cls, representer, node):
+        return representer.represent_scalar(cls.yaml_tag,
+                                            u'{.name}-{.age}'.format(node, node))
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        return cls(*node.value.split('-'))
+
+
+yaml.dump([User('Anthon', 18)], sys.stdout)
+</code></pre>
+<p>This also gives:</p>
+<pre><code class="language-lang-none">- !user Anthon-18
+</code></pre>
+<p>If your class is dumped as a YAML mapping or sequence, there might be an (indirect)
+reference to the object itself in one or more of the mapping keys (in YAML these
+don't have to be simple scalars), mapping values or sequence entries.</p>
+<p>That means that re-creating an object in <code>to_yaml</code> cannot generally just create
+a <code>dict</code>/<code>list</code> from the <code>node</code> parameter and then create and return a complete
+object. The solution for this is to create an empty object and yield that
+and then fill in the content data afterwards. That way, if there is a self
+reference, and the same node is encountered <em>while creating the content for the
+object</em>, there is an <code>id</code> (from the yielded object) created for that node which
+can be assigned.</p>
+<pre><code class="language-python">from pathlib import Path
+import ruamel.yaml
+
+class Person:
+    def __init__(self, name, siblings=None):
+        self.name = name
+        self.siblings = [] if siblings is None else siblings
+
+arya = Person('Arya')   
+sansa = Person('Sansa')
+arya.siblings.append(sansa)  # there are better ways to represent this
+sansa.siblings.append(arya)
+
+yaml = ruamel.yaml.YAML()
+yaml.register_class(Person)
+
+path = Path('/tmp/arya.yaml')
+yaml.dump(arya, path)
+print(path.read_text())
+</code></pre>
+<p>dumping as:</p>
+<pre><code class="language-lang-none">&amp;id001 !Person
+name: Arya
+siblings:
+- !Person
+  name: Sansa
+  siblings:
+  - *id001
+</code></pre>
+<p>And you can load the output:</p>
+<pre><code class="language-python">from pathlib import Path
+import ruamel.yaml
+
+class Person:
+    def __init__(self, name, siblings=None):
+        self.name = name
+        self.siblings = [] if siblings is None else siblings
+
+    def __repr__(self):
+        return f'Person(name: {self.name}, siblings: {self.siblings})'
+
+path = Path('/tmp/arya.yaml')
+yaml = ruamel.yaml.YAML()
+yaml.register_class(Person)
+data = yaml.load(path)
+
+print(data)
+</code></pre>
+<p>giving:</p>
+<pre><code class="language-lang-none">Person(name: Arya, siblings: [Person(name: Sansa, siblings: [Person(name: Arya, siblings: [...])])])
+</code></pre>
+<p>But if you provide a (to) simple loader:</p>
+<pre><code class="language-python">from pathlib import Path
+import ruamel.yaml
+
+class Person:
+    def __init__(self, name, siblings=None):
+        self.name = name
+        self.siblings = [] if siblings is None else siblings
+
+    def __repr__(self):
+        return f'Person(name: {self.name}, siblings: {self.siblings})'
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        data = ruamel.yaml.CommentedMap()
+        constructor.construct_mapping(node, maptyp=data, deep=True)
+        return cls(**data)
+
+
+path = Path('/tmp/arya.yaml')
+yaml = ruamel.yaml.YAML()
+yaml.register_class(Person)
+data = yaml.load(path)
+print(data)
+</code></pre>
+<p>giving:</p>
+<pre><code class="language-lang-none">Person(name: Arya, siblings: [Person(name: Sansa, siblings: [None])])
+</code></pre>
+<p>As you can see, Sansa has no normal siblings after this load.</p>
+<p>What you need to do is yield the empty Person instance and fill it in
+afterwards:</p>
+<pre><code class="language-python">from pathlib import Path
+import ruamel.yaml
+
+class Person:
+    def __init__(self, name, siblings=None):
+        self.name = name
+        self.siblings = [] if siblings is None else siblings
+
+    def __repr__(self):
+        return f'Person(name: {self.name}, siblings: {self.siblings})'
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        person = Person(name='')
+        yield person
+        data = ruamel.yaml.CommentedMap()
+        constructor.construct_mapping(node, maptyp=data, deep=True)
+        for k, v in data.items():
+            setattr(person, k, v)
+
+
+path = Path('/tmp/arya.yaml')
+yaml = ruamel.yaml.YAML()
+yaml.register_class(Person)
+data = yaml.load(path)
+print(data)
+</code></pre>
+<p>giving:</p>
+<pre><code class="language-lang-none">Person(name: Arya, siblings: [Person(name: Sansa, siblings: [Person(name: Arya, siblings: [...])])])
+</code></pre>
+<h2 id="dataclass">Dataclass<a class="headerlink" href="index.html#dataclass" title="Permanent link">&para;</a></h2>
+<p>Although you could always register dataclasses, in 0.17.34 support was added to
+call <code>__post_init__()</code> on these classes, if available.</p>
+<pre><code class="language-python">from typing import ClassVar
+from dataclasses import dataclass
+import ruamel.yaml
+
+@dataclass
+class DC:
+    yaml_tag: ClassVar = '!dc_example'   # if you don't want !DC as tag
+    abc: int
+    klm: int
+    xyz: int = 0
+
+    def __post_init__(self) -&gt; None:
+        self.xyz = self.abc + self.klm
+
+yaml = ruamel.yaml.YAML()
+yaml.register_class(DC)
+dc = DC(abc=5, klm=42)
+assert dc.xyz == 47
+
+yaml_str = &quot;&quot;&quot;\
+!dc_example
+abc: 13
+klm: 37
+&quot;&quot;&quot;
+dc2 = yaml.load(yaml_str)
+print(f'{dc2.xyz=}')
+</code></pre>
+<p>printing:</p>
+<pre><code class="language-lang-none">dc2.xyz=50
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../basicuse/index.html" class="btn btn-neutral float-left" title="Basic Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../detail/index.html" class="btn btn-neutral float-right" title="Details">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../readthedocs-data.js"></script>
+      
+      
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Anthon van der Neut" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Examples - yaml</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        
+        
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Examples";
+        var mkdocs_page_input_path = "example.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+<script async type="text/javascript" src="../../../_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="yaml" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/example/" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../index.html" class="icon icon-home"> yaml
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="https://yaml.readthedocs.io/en/latest/search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../install/index.html">Installing</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../basicuse/index.html">Basic Usage</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dumpcls/index.html">Working with Python classes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../detail/index.html">Details</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="index.html">Examples</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="index.html#output-of-dump-as-a-string">Output of dump() as a string</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/index.html">Departure from previous API</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../pyyaml/index.html">Differences with PyYAML</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributing/index.html">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">yaml</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html" class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Examples</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="examples">Examples<a class="headerlink" href="index.html#examples" title="Permanent link">&para;</a></h1>
+<p>Basic round trip of parsing YAML to Python objects, modifying and
+generating YAML:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+
+inp = &quot;&quot;&quot;\
+# example
+name:
+  # details
+  family: Smith   # very common
+  given: Alice    # one of the siblings
+&quot;&quot;&quot;
+
+yaml = YAML()
+code = yaml.load(inp)
+code['name']['given'] = 'Bob'
+
+yaml.dump(code, sys.stdout)
+</code></pre>
+<p>Resulting in::</p>
+<pre><code class="language-lang-none"># example
+name:
+  # details
+  family: Smith   # very common
+  given: Bob      # one of the siblings
+</code></pre>
+<hr />
+<p>YAML handcrafted anchors and references as well as key merging are
+preserved. The merged keys can transparently be accessed using <code>[]</code> and
+<code>.get()</code>:</p>
+<pre><code class="language-python">from ruamel.yaml import YAML
+
+inp = &quot;&quot;&quot;\
+- &amp;CENTER {x: 1, y: 2}
+- &amp;LEFT {x: 0, y: 2}
+- &amp;BIG {r: 10}
+- &amp;SMALL {r: 1}
+# All the following maps are equal:
+# Explicit keys
+- x: 1
+  y: 2
+  r: 10
+  label: center/big
+# Merge one map
+- &lt;&lt;: *CENTER
+  r: 10
+  label: center/big
+# Merge multiple maps
+- &lt;&lt;: [*CENTER, *BIG]
+  label: center/big
+# Override
+- &lt;&lt;: [*BIG, *LEFT, *SMALL]
+  x: 1
+  label: center/big
+&quot;&quot;&quot;
+
+yaml = YAML()
+data = yaml.load(inp)
+assert data[7]['y'] == 2
+</code></pre>
+<p>The <code>CommentedMap</code>, which is the <code>dict</code> like construct one gets when
+round-trip loading, supports insertion of a key into a particular
+position, while optionally adding a comment:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+
+yaml_str = &quot;&quot;&quot;\
+first_name: Art
+occupation: Architect  # This is an occupation comment
+about: Art Vandelay is a fictional character that George invents...
+&quot;&quot;&quot;
+
+yaml = YAML()
+data = yaml.load(yaml_str)
+data.insert(1, 'last name', 'Vandelay', comment=&quot;new key&quot;)
+yaml.dump(data, sys.stdout)
+</code></pre>
+<p>gives::</p>
+<pre><code class="language-lang-none">first_name: Art
+last name: Vandelay    # new key
+occupation: Architect  # This is an occupation comment
+about: Art Vandelay is a fictional character that George invents...
+</code></pre>
+<p>Please note that the comment is aligned with that of its neighbour (if
+available).</p>
+<p>The above was inspired by a
+<a href="http://stackoverflow.com/a/36970608/1307905">question</a> posted by
+<em>demux</em> on StackOverflow.</p>
+<hr />
+<p>By default <code>ruamel.yaml</code> indents with two positions in block style, for
+both mappings and sequences. For sequences the indent is counted to the
+beginning of the scalar, with the dash taking the first position of the
+indented \"space\".</p>
+<p>You can change this default indentation by e.g. using <code>yaml.indent()</code>:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+
+d = dict(a=dict(b=2),c=[3, 4])
+yaml = YAML()
+yaml.dump(d, sys.stdout)
+print('0123456789')
+yaml = YAML()
+yaml.indent(mapping=4, sequence=6, offset=3)
+yaml.dump(d, sys.stdout)
+print('0123456789')
+</code></pre>
+<p>giving::</p>
+<pre><code class="language-lang-none">a:
+  b: 2
+c:
+- 3
+- 4
+0123456789
+a:
+    b: 2
+c:
+   -  3
+   -  4
+0123456789
+</code></pre>
+<p>If a block sequence or block mapping is the element of a sequence, the
+are, by default, displayed
+<a href="http://yaml.org/spec/1.2/spec.html#id2797686">compact</a> notation. This
+means that the dash of the \"parent\" sequence is on the same line as
+the first element resp. first key/value pair of the child collection.</p>
+<p>If you want either or both of these (sequence within sequence, mapping
+within sequence) to begin on the next line use <code>yaml.compact()</code>:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+
+d = [dict(b=2), [3, 4]]
+yaml = YAML()
+yaml.dump(d, sys.stdout)
+print('='*15)
+yaml = YAML()
+yaml.compact(seq_seq=False, seq_map=False)
+yaml.dump(d, sys.stdout)
+</code></pre>
+<p>giving::</p>
+<pre><code class="language-lang-none">- b: 2
+- - 3
+  - 4
+===============
+-
+  b: 2
+-
+  - 3
+  - 4
+</code></pre>
+<hr />
+<p>The following program uses three dumps on the same data, resulting in a
+stream with three documents:</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+
+data = {1: {1: [{1: 1, 2: 2}, {1: 1, 2: 2}], 2: 2}, 2: 42}
+
+yaml = YAML()
+yaml.explicit_start = True
+yaml.dump(data, sys.stdout)
+yaml.indent(sequence=4, offset=2)
+yaml.dump(data, sys.stdout)
+
+
+def sequence_indent_four(s):
+    # this will fail on direclty nested lists: {1; [[2, 3], 4]}
+    levels = []
+    ret_val = ''
+    for line in s.splitlines(True):
+        ls = line.lstrip()
+        indent = len(line) - len(ls)
+        if ls.startswith('- '):
+            if not levels or indent &gt; levels[-1]:
+                levels.append(indent)
+            elif levels:
+                if indent &lt; levels[-1]:
+                    levels = levels[:-1]
+            # same -&gt; do nothing
+        else:
+            if levels:
+                if indent &lt;= levels[-1]:
+                    while levels and indent &lt;= levels[-1]:
+                        levels = levels[:-1]
+        ret_val += '  ' * len(levels) + line
+    return ret_val
+
+yaml = YAML()
+yaml.explicit_start = True
+yaml.dump(data, sys.stdout, transform=sequence_indent_four)
+</code></pre>
+<p>gives as output::</p>
+<pre><code class="language-lang-none">---
+1:
+  1:
+  - 1: 1
+    2: 2
+  - 1: 1
+    2: 2
+  2: 2
+2: 42
+---
+1:
+  1:
+    - 1: 1
+      2: 2
+    - 1: 1
+      2: 2
+  2: 2
+2: 42
+---
+1:
+  1:
+    - 1: 1
+      2: 2
+    - 1: 1
+      2: 2
+  2: 2
+2: 42
+</code></pre>
+<p>The transform example, in the last document, was inspired by a <a href="https://stackoverflow.com/q/44388701/1307905">question
+posted by *nowox*</a> on
+StackOverflow.</p>
+<hr />
+<h2 id="output-of-dump-as-a-string">Output of <code>dump()</code> as a string<a class="headerlink" href="index.html#output-of-dump-as-a-string" title="Permanent link">&para;</a></h2>
+<p>The single most abused "feature" of the old API is not providing the
+(second) stream parameter to one of the <code>dump()</code> variants, in order to
+get a monolithic string representation of the stream back.</p>
+<p>Apart from being memory inefficient and slow, quite often people using
+this did not realise that <code>print(round_trip_dump(dict(a=1, b=2)))</code> gets
+you an extra, empty, line after <code>b: 2</code>.</p>
+<p>The real question is why this functionality, which is seldom really
+necessary, is available in the old API (and in PyYAML) in the first
+place. One explanation you get by looking at what someone would need to
+do to make this available if it weren\'t there already. Apart from
+subclassing the <code>Serializer</code> and providing a new <code>dump</code> method, which
+would ten or so lines, another <strong>hundred</strong> lines, essentially the whole
+<code>dumper.py</code> file, would need to be copied and to make use of this
+serializer.</p>
+<p>The fact is that one should normally be doing
+<code>round_trip_dump(dict(a=1, b=2)), sys.stdout)</code> and do away with 90% of
+the cases for returning the string, and that all post-processing YAML,
+before writing to stream, can be handled by using the <code>transform=</code>
+parameter of dump, being able to handle most of the rest. But it is also
+much easier in the new API to provide that YAML output as a string if
+you really need to have it (or think you do):</p>
+<pre><code class="language-python">import sys
+from ruamel.yaml import YAML
+from ruamel.yaml.compat import StringIO
+
+class MyYAML(YAML):
+    def dump(self, data, stream=None, **kw):
+        inefficient = False
+        if stream is None:
+            inefficient = True
+            stream = StringIO()
+        YAML.dump(self, data, stream, **kw)
+        if inefficient:
+            return stream.getvalue()
+
+yaml = MyYAML()   # or typ='safe'/'unsafe' etc
+</code></pre>
+<p>with about one tenth of the lines needed for the old interface, you can
+once more do:</p>
+<pre><code class="language-lang-none">print(yaml.dump(dict(a=1, b=2)))
+</code></pre>
+<p>instead of:</p>
+<pre><code class="language-lang-none">yaml.dump((dict(a=1, b=2)), sys.stdout)
+print()  # or sys.stdout.write('\n')
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../detail/index.html" class="btn btn-neutral float-left" title="Details"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../api/index.html" class="btn btn-neutral float-right" title="Departure from previous API">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../readthedocs-data.js"></script>
+      
+      
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
