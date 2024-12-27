@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="xmltodict">xmltodict</h1>
+<p><code>xmltodict</code> is a Python module that makes working with XML feel like you are working with <a href="http://docs.python.org/library/json.html">JSON</a>, as in this <a href="http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html">“spec”</a>:</p>
+<p><a href="http://travis-ci.org/martinblech/xmltodict"><img src="https://secure.travis-ci.org/martinblech/xmltodict.svg" alt="Build Status"></a></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">print</span><span class="token punctuation">(</span>json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>xmltodict<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token triple-quoted-string string">"""
+...  &lt;mydocument has="an attribute"&gt;
+...    &lt;and&gt;
+...      &lt;many&gt;elements&lt;/many&gt;
+...      &lt;many&gt;more elements&lt;/many&gt;
+...    &lt;/and&gt;
+...    &lt;plus a="complex"&gt;
+...      element as well
+...    &lt;/plus&gt;
+...  &lt;/mydocument&gt;
+...  """</span><span class="token punctuation">)</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token string">"mydocument"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"@has"</span><span class="token punctuation">:</span> <span class="token string">"an attribute"</span><span class="token punctuation">,</span> 
+        <span class="token string">"and"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token string">"many"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+                <span class="token string">"elements"</span><span class="token punctuation">,</span> 
+                <span class="token string">"more elements"</span>
+            <span class="token punctuation">]</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+        <span class="token string">"plus"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token string">"@a"</span><span class="token punctuation">:</span> <span class="token string">"complex"</span><span class="token punctuation">,</span> 
+            <span class="token string">"#text"</span><span class="token punctuation">:</span> <span class="token string">"element as well"</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="namespace-support">Namespace support</h2>
+<p>By default, <code>xmltodict</code> does no XML namespace processing (it just treats namespace declarations as regular node attributes), but passing <code>process_namespaces=True</code> will make it expand namespaces for you:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> xml <span class="token operator">=</span> <span class="token triple-quoted-string string">"""
+... &lt;root xmlns="http://defaultns.com/"
+...       xmlns:a="http://a.com/"
+...       xmlns:b="http://b.com/"&gt;
+...   &lt;x&gt;1&lt;/x&gt;
+...   &lt;a:y&gt;2&lt;/a:y&gt;
+...   &lt;b:z&gt;3&lt;/b:z&gt;
+... &lt;/root&gt;
+... """</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> xmltodict<span class="token punctuation">.</span>parse<span class="token punctuation">(</span>xml<span class="token punctuation">,</span> process_namespaces<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'http://defaultns.com/:root'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'http://defaultns.com/:x'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'http://a.com/:y'</span><span class="token punctuation">:</span> <span class="token string">'2'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'http://b.com/:z'</span><span class="token punctuation">:</span> <span class="token string">'3'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token punctuation">}</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token boolean">True</span>
+</code></pre>
+<p>It also lets you collapse certain namespaces to shorthand prefixes, or skip them altogether:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> namespaces <span class="token operator">=</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'http://defaultns.com/'</span><span class="token punctuation">:</span> <span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token comment"># skip this namespace</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'http://a.com/'</span><span class="token punctuation">:</span> <span class="token string">'ns_a'</span><span class="token punctuation">,</span> <span class="token comment"># collapse "http://a.com/" -&gt; "ns_a"</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> xmltodict<span class="token punctuation">.</span>parse<span class="token punctuation">(</span>xml<span class="token punctuation">,</span> process_namespaces<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> namespaces<span class="token operator">=</span>namespaces<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'root'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'x'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'ns_a:y'</span><span class="token punctuation">:</span> <span class="token string">'2'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'http://b.com/:z'</span><span class="token punctuation">:</span> <span class="token string">'3'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token boolean">True</span>
+</code></pre>
+<h2 id="streaming-mode">Streaming mode</h2>
+<p><code>xmltodict</code> is very fast (<a href="http://docs.python.org/library/pyexpat.html">Expat</a>-based) and has a streaming mode with a small memory footprint, suitable for big XML dumps like <a href="http://discogs.com/data/">Discogs</a> or <a href="http://dumps.wikimedia.org/">Wikipedia</a>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">def</span> <span class="token function">handle_artist</span><span class="token punctuation">(</span>_<span class="token punctuation">,</span> artist<span class="token punctuation">)</span><span class="token punctuation">:</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token keyword">print</span><span class="token punctuation">(</span>artist<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token keyword">return</span> <span class="token boolean">True</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> 
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> xmltodict<span class="token punctuation">.</span>parse<span class="token punctuation">(</span>GzipFile<span class="token punctuation">(</span><span class="token string">'discogs_artists.xml.gz'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     item_depth<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> item_callback<span class="token operator">=</span>handle_artist<span class="token punctuation">)</span>
+A Perfect Circle
+Fantômas
+King Crimson
+Chris Potter
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+</code></pre>
+<p>It can also be used from the command line to pipe objects to a script like this:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> sys<span class="token punctuation">,</span> marshal
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    _<span class="token punctuation">,</span> article <span class="token operator">=</span> marshal<span class="token punctuation">.</span>load<span class="token punctuation">(</span>sys<span class="token punctuation">.</span>stdin<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>article<span class="token punctuation">[</span><span class="token string">'title'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<pre class=" language-sh"><code class="prism  language-sh">$ bunzip2 enwiki-pages-articles.xml.bz2 | xmltodict.py 2 | myscript.py
+AccessibleComputing
+Anarchism
+AfghanistanHistory
+AfghanistanGeography
+AfghanistanPeople
+AfghanistanCommunications
+Autism
+...
+</code></pre>
+<p>Or just cache the dicts so you don’t have to parse that big XML file again. You do this only once:</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ bunzip2 enwiki-pages-articles.xml.bz2 | xmltodict.py 2 | gzip &gt; enwiki.dicts.gz
+</code></pre>
+<p>And you reuse the dicts with every script that needs them:</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ gunzip enwiki.dicts.gz | script1.py
+$ gunzip enwiki.dicts.gz | script2.py
+...
+</code></pre>
+<h2 id="roundtripping">Roundtripping</h2>
+<p>You can also convert in the other direction, using the <code>unparse()</code> method:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> mydict <span class="token operator">=</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'response'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'good'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             <span class="token string">'last_updated'</span><span class="token punctuation">:</span> <span class="token string">'2014-02-16T23:10:12Z'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token punctuation">}</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">print</span><span class="token punctuation">(</span>unparse<span class="token punctuation">(</span>mydict<span class="token punctuation">,</span> pretty<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token operator">&lt;</span>?xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"utf-8"</span>?<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span>response<span class="token operator">&gt;</span>
+	<span class="token operator">&lt;</span>status<span class="token operator">&gt;</span>good<span class="token operator">&lt;</span><span class="token operator">/</span>status<span class="token operator">&gt;</span>
+	<span class="token operator">&lt;</span>last_updated<span class="token operator">&gt;</span><span class="token number">2014</span><span class="token operator">-</span><span class="token number">02</span><span class="token operator">-</span>16T23<span class="token punctuation">:</span><span class="token number">10</span><span class="token punctuation">:</span>12Z<span class="token operator">&lt;</span><span class="token operator">/</span>last_updated<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>response<span class="token operator">&gt;</span>
+</code></pre>
+<p>Text values for nodes can be specified with the <code>cdata_key</code> key in the python dict, while node properties can be specified with the <code>attr_prefix</code> prefixed to the key name in the python dict. The default value for <code>attr_prefix</code> is <code>@</code> and the default value for <code>cdata_key</code> is <code>#text</code>.</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">import</span> xmltodict
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> 
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> mydict <span class="token operator">=</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token string">'text'</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'@color'</span><span class="token punctuation">:</span><span class="token string">'red'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'@stroke'</span><span class="token punctuation">:</span><span class="token string">'2'</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>         <span class="token string">'#text'</span><span class="token punctuation">:</span><span class="token string">'This is a test'</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>     <span class="token punctuation">}</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">}</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">print</span><span class="token punctuation">(</span>xmltodict<span class="token punctuation">.</span>unparse<span class="token punctuation">(</span>mydict<span class="token punctuation">,</span> pretty<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token operator">&lt;</span>?xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"utf-8"</span>?<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span>text stroke<span class="token operator">=</span><span class="token string">"2"</span> color<span class="token operator">=</span><span class="token string">"red"</span><span class="token operator">&gt;</span>This <span class="token keyword">is</span> a test<span class="token operator">&lt;</span><span class="token operator">/</span>text<span class="token operator">&gt;</span>
+</code></pre>
+<h2 id="ok-how-do-i-get-it">Ok, how do I get it?</h2>
+<h3 id="using-pypi">Using pypi</h3>
+<p>You just need to</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ pip install xmltodict
+</code></pre>
+<h3 id="rpm-based-distro-fedora-rhel-…">RPM-based distro (Fedora, RHEL, …)</h3>
+<p>There is an <a href="https://apps.fedoraproject.org/packages/python-xmltodict">official Fedora package for xmltodict</a>.</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ sudo yum install python-xmltodict
+</code></pre>
+<h3 id="arch-linux">Arch Linux</h3>
+<p>There is an <a href="https://www.archlinux.org/packages/community/any/python-xmltodict/">official Arch Linux package for xmltodict</a>.</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ sudo pacman -S python-xmltodict
+</code></pre>
+<h3 id="debian-based-distro-debian-ubuntu-…">Debian-based distro (Debian, Ubuntu, …)</h3>
+<p>There is an <a href="https://tracker.debian.org/pkg/python-xmltodict">official Debian package for xmltodict</a>.</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ sudo apt install python-xmltodict
+</code></pre>
+<h3 id="freebsd">FreeBSD</h3>
+<p>There is an <a href="https://svnweb.freebsd.org/ports/head/devel/py-xmltodict/">official FreeBSD port for xmltodict</a>.</p>
+<pre class=" language-sh"><code class="prism  language-sh">$ pkg install py36-xmltodict
+</code></pre>
+</div>
+</body>
+
+</html>
