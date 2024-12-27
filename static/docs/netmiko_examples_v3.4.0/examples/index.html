@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><img src="https://ktbyers.github.io/netmiko/images/netmiko_logo_gh.png" width="320">
+<h1 id="netmiko-examples">Netmiko Examples</h1>
+<p>A set of common Netmiko use cases.</p>
+<br>
+<h2 id="table-of-contents">Table of contents</h2>
+<h4 id="available-device-types">Available Device Types</h4>
+<ul>
+<li><a href="#available-device-types-1">Available device types</a></li>
+</ul>
+<h4 id="simple-examples">Simple Examples</h4>
+<ul>
+<li><a href="#simple-example">Simple example</a></li>
+<li><a href="#connect-using-a-dictionary">Connect using a dictionary</a></li>
+<li><a href="#dictionary-with-a-context-manager">Dictionary with a context manager</a></li>
+<li><a href="#enable-mode">Enable mode</a></li>
+</ul>
+<h4 id="multiple-devices-simple-example">Multiple Devices (simple example)</h4>
+<ul>
+<li><a href="#connecting-to-multiple-devices">Connecting to multiple devices</a></li>
+</ul>
+<h4 id="show-commands">Show Commands</h4>
+<ul>
+<li><a href="#executing-show-command">Executing a show command</a></li>
+<li><a href="#handling-commands-that-prompt-timing">Handling commands that prompt (timing)</a></li>
+<li><a href="#handling-commands-that-prompt-expect_string">Handling commands that prompt (expect_string)</a></li>
+<li><a href="#using-global_delay_factor">Using global_delay_factor</a></li>
+<li><a href="#adjusting-delay_factor">Adjusting delay_factor</a></li>
+</ul>
+<h4 id="parsers-textfsm-and-genie">Parsers (TextFSM and Genie)</h4>
+<ul>
+<li><a href="#using-textfsm">TextFSM example</a></li>
+<li><a href="#using-genie">Genie example</a></li>
+</ul>
+<h4 id="configuration-changes">Configuration Changes</h4>
+<ul>
+<li><a href="#configuration-changes-1">Configuration changes</a></li>
+<li><a href="#configuration-changes-from-a-file">Configuration changes from a file</a></li>
+</ul>
+<h4 id="ssh-keys-and-ssh-config_file">SSH keys and SSH config_file</h4>
+<ul>
+<li><a href="#ssh-keys">SSH keys</a></li>
+<li><a href="#ssh-config-file">SSH config file</a></li>
+</ul>
+<h4 id="logging-and-session-log">Logging and Session Log</h4>
+<ul>
+<li><a href="#session-log">Session log</a></li>
+<li><a href="#standard-logging">Standard logging</a></li>
+</ul>
+<h4 id="secure-copy">Secure Copy</h4>
+<ul>
+<li><a href="#secure-copy-1">Secure Copy</a></li>
+</ul>
+<h4 id="auto-detection-of-device-type">Auto Detection of Device Type</h4>
+<ul>
+<li><a href="#auto-detection-using-ssh">Auto detection using SSH</a></li>
+<li><a href="#auto-detection-using-snmpv3">Auto detection using SNMPv3</a></li>
+<li><a href="#auto-detection-using-snmpv2c">Auto detection using SNMPv2c</a></li>
+</ul>
+<h4 id="terminal-server-example">Terminal Server Example</h4>
+<ul>
+<li><a href="#terminal-server-and-redispatch">Terminal Server and Redispatch</a></li>
+</ul>
+<br>
+<h2 id="available-device-types-1">Available device types</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+
+<span class="token comment"># Just pick an 'invalid' device_type</span>
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"invalid"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> <span class="token string">"invalid"</span>
+<span class="token punctuation">}</span>
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="the-above-code-will-output-all-of-the-available-ssh-device-types.-switch-to-invalid_telnet-to-see-telnet-device-types.">The above code will output all of the available SSH device types. Switch to ‘invalid_telnet’ to see ‘telnet’ device types.</h4>
+<pre><code>Traceback (most recent call last):
+  File "invalid_device_type.py", line 12, in &lt;module&gt;
+    net_connect = ConnectHandler(**cisco1)
+  File "./netmiko/ssh_dispatcher.py", line 263, in ConnectHandler
+    "currently supported platforms are: {}".format(platforms_str)
+ValueError: Unsupported 'device_type' currently supported platforms are: 
+a10
+accedian
+alcatel_aos
+alcatel_sros
+apresia_aeos
+arista_eos
+aruba_os
+avaya_ers
+avaya_vsp
+... and a lot more.
+</code></pre>
+<br>
+<h2 id="simple-example">Simple example</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span>
+    device_type<span class="token operator">=</span><span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    host<span class="token operator">=</span><span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    username<span class="token operator">=</span><span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    password<span class="token operator">=</span>getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="connect-using-a-dictionary">Connect using a dictionary</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="dictionary-with-a-context-manager">Dictionary with a context manager</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># Will automatically 'disconnect()'</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="enable-mode">Enable mode</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+password <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span>
+secret <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter secret: "</span><span class="token punctuation">)</span>
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> password<span class="token punctuation">,</span>
+    <span class="token string">"secret"</span><span class="token punctuation">:</span> secret<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+<span class="token comment"># Call 'enable()' method to elevate privileges</span>
+net_connect<span class="token punctuation">.</span>enable<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="connecting-to-multiple-devices.">Connecting to multiple devices.</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+password <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> password<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+cisco2 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco2.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> password<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+nxos1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_nxos"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"nxos1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> password<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+srx1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"juniper_junos"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"srx1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> password<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">for</span> device <span class="token keyword">in</span> <span class="token punctuation">(</span>cisco1<span class="token punctuation">,</span> cisco2<span class="token punctuation">,</span> nxos1<span class="token punctuation">,</span> srx1<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="executing-show-command.">Executing show command.</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span> 
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># Show command that we execute.</span>
+command <span class="token operator">=</span> <span class="token string">"show ip int brief"</span>
+
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>command<span class="token punctuation">)</span>
+
+<span class="token comment"># Automatically cleans-up the output so that only the show output is returned</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution">Output from the above execution:</h4>
+<pre><code>Password: 
+
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+
+</code></pre>
+<br>
+<h2 id="adjusting-delay_factor">Adjusting delay_factor</h2>
+<p><a href="https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html">Additional details on delay_factor</a></p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> datetime <span class="token keyword">import</span> datetime
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+command <span class="token operator">=</span> <span class="token string">"copy flash:c880data-universalk9-mz.155-3.M8.bin flash:test1.bin"</span>
+
+<span class="token comment"># Start clock</span>
+start_time <span class="token operator">=</span> datetime<span class="token punctuation">.</span>now<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+
+<span class="token comment"># Netmiko normally allows 100 seconds for send_command to complete</span>
+<span class="token comment"># delay_factor=4 would allow 400 seconds.</span>
+output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command_timing<span class="token punctuation">(</span>
+    command<span class="token punctuation">,</span> strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> strip_command<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> delay_factor<span class="token operator">=</span><span class="token number">4</span>
+<span class="token punctuation">)</span>
+<span class="token comment"># Router prompted in this example:</span>
+<span class="token comment"># -------</span>
+<span class="token comment"># cisco1#copy flash:c880data-universalk9-mz.155-3.M8.bin flash:test1.bin</span>
+<span class="token comment"># Destination filename [test1.bin]? </span>
+<span class="token comment"># Copy in progress...CCCCCCC</span>
+<span class="token comment"># -------</span>
+<span class="token keyword">if</span> <span class="token string">"Destination filename"</span> <span class="token keyword">in</span> output<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Starting copy..."</span><span class="token punctuation">)</span>
+    output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span><span class="token string">"\n"</span><span class="token punctuation">,</span> delay_factor<span class="token operator">=</span><span class="token number">4</span><span class="token punctuation">,</span> expect_string<span class="token operator">=</span>r<span class="token string">"#"</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+end_time <span class="token operator">=</span> datetime<span class="token punctuation">.</span>now<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"\n{output}\n"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"done"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"Execution time: {start_time - end_time}"</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="using-global_delay_factor">Using global_delay_factor</h2>
+<p><a href="https://pynet.twb-tech.com/blog/automation/netmiko-what-is-done.html">Additional details on global_delay_factor</a></p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span> 
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token comment"># Multiple all of the delays by a factor of two</span>
+    <span class="token string">"global_delay_factor"</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+command <span class="token operator">=</span> <span class="token string">"show ip arp"</span>
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>command<span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"\n{output}\n"</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="using-textfsm">Using TextFSM</h2>
+<p><a href="https://pynet.twb-tech.com/blog/automation/netmiko-textfsm.html">Additional Details on Netmiko and TextFSM</a></p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> pprint <span class="token keyword">import</span> pprint
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+command <span class="token operator">=</span> <span class="token string">"show ip int brief"</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    <span class="token comment"># Use TextFSM to retrieve structured data</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>command<span class="token punctuation">,</span> use_textfsm<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+pprint<span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution-1">Output from the above execution:</h4>
+<pre><code>Password: 
+
+[{'intf': 'FastEthernet0',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet1',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet2',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet3',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'},
+ {'intf': 'FastEthernet4',
+  'ipaddr': '10.220.88.20',
+  'proto': 'up',
+  'status': 'up'},
+ {'intf': 'Vlan1',
+  'ipaddr': 'unassigned',
+  'proto': 'down',
+  'status': 'down'}]
+
+</code></pre>
+<br>
+<h2 id="using-ttp">Using TTP</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> pprint <span class="token keyword">import</span> pprint
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># write template to file</span>
+ttp_raw_template <span class="token operator">=</span> <span class="token triple-quoted-string string">"""
+interface {{ interface }}
+ description {{ description }}
+"""</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"show_run_interfaces.ttp"</span><span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> writer<span class="token punctuation">:</span>
+    writer<span class="token punctuation">.</span>write<span class="token punctuation">(</span>ttp_raw_template<span class="token punctuation">)</span>
+
+command <span class="token operator">=</span> <span class="token string">"show run | s interfaces"</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    <span class="token comment"># Use TTP to retrieve structured data</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>
+        command<span class="token punctuation">,</span> use_ttp<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> ttp_template<span class="token operator">=</span><span class="token string">"show_run_interfaces.ttp"</span>
+    <span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+pprint<span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution-2">Output from the above execution:</h4>
+<pre><code> [[[{'description': 'Router-id-loopback',
+     'interface': 'Loopback0'},
+    {'description': 'CPE_Acces_Vlan',
+     'interface': 'Vlan778'}]]]
+</code></pre>
+<br>
+<h2 id="using-genie">Using Genie</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> pprint <span class="token keyword">import</span> pprint
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+
+device <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span><span class="token string">"show ip interface brief"</span><span class="token punctuation">,</span> use_genie<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+pprint<span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution-3">Output from the above execution:</h4>
+<pre><code>$ python send_command_genie.py 
+Password: 
+
+{'interface': {'FastEthernet0': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet1': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet2': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet3': {'interface_is_ok': 'YES',
+                                 'ip_address': 'unassigned',
+                                 'method': 'unset',
+                                 'protocol': 'down',
+                                 'status': 'down'},
+               'FastEthernet4': {'interface_is_ok': 'YES',
+                                 'ip_address': '10.220.88.20',
+                                 'method': 'NVRAM',
+                                 'protocol': 'up',
+                                 'status': 'up'},
+               'Vlan1': {'interface_is_ok': 'YES',
+                         'ip_address': 'unassigned',
+                         'method': 'unset',
+                         'protocol': 'down',
+                         'status': 'down'}}}
+
+</code></pre>
+<br>
+<h2 id="handling-commands-that-prompt-timing">Handling commands that prompt (timing)</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+command <span class="token operator">=</span> <span class="token string">"del flash:/test3.txt"</span>
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+
+<span class="token comment"># CLI Interaction is as follows:</span>
+<span class="token comment"># cisco1#delete flash:/testb.txt</span>
+<span class="token comment"># Delete filename [testb.txt]? </span>
+<span class="token comment"># Delete flash:/testb.txt? [confirm]y</span>
+
+<span class="token comment"># Use 'send_command_timing' which is entirely delay based.</span>
+<span class="token comment"># strip_prompt=False and strip_command=False make the output</span>
+<span class="token comment"># easier to read in this context.</span>
+output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command_timing<span class="token punctuation">(</span>
+    command_string<span class="token operator">=</span>command<span class="token punctuation">,</span>
+    strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+<span class="token punctuation">)</span>
+<span class="token keyword">if</span> <span class="token string">"Delete filename"</span> <span class="token keyword">in</span> output<span class="token punctuation">:</span>
+    output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>send_command_timing<span class="token punctuation">(</span>
+        command_string<span class="token operator">=</span><span class="token string">"\n"</span><span class="token punctuation">,</span>
+        strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+        strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+    <span class="token punctuation">)</span>
+<span class="token keyword">if</span> <span class="token string">"confirm"</span> <span class="token keyword">in</span> output<span class="token punctuation">:</span>
+    output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>send_command_timing<span class="token punctuation">(</span>
+        command_string<span class="token operator">=</span><span class="token string">"y"</span><span class="token punctuation">,</span>
+        strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+        strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+    <span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution-4">Output from the above execution:</h4>
+<pre><code>Password: 
+
+del flash:/test3.txt
+Delete filename [test3.txt]? 
+Delete flash:/test3.txt? [confirm]y
+cisco1#
+cisco1#
+
+</code></pre>
+<br>
+<h2 id="handling-commands-that-prompt-expect_string">Handling commands that prompt (expect_string)</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+command <span class="token operator">=</span> <span class="token string">"del flash:/test4.txt"</span>
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+
+<span class="token comment"># CLI Interaction is as follows:</span>
+<span class="token comment"># cisco1#delete flash:/testb.txt</span>
+<span class="token comment"># Delete filename [testb.txt]? </span>
+<span class="token comment"># Delete flash:/testb.txt? [confirm]y</span>
+
+<span class="token comment"># Use 'send_command' and the 'expect_string' argument (note, expect_string uses </span>
+<span class="token comment"># RegEx patterns). Netmiko will move-on to the next command when the</span>
+<span class="token comment"># 'expect_string' is detected.</span>
+
+<span class="token comment"># strip_prompt=False and strip_command=False make the output</span>
+<span class="token comment"># easier to read in this context.</span>
+output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>
+    command_string<span class="token operator">=</span>command<span class="token punctuation">,</span>
+    expect_string<span class="token operator">=</span>r<span class="token string">"Delete filename"</span><span class="token punctuation">,</span>
+    strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+<span class="token punctuation">)</span>
+output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>
+    command_string<span class="token operator">=</span><span class="token string">"\n"</span><span class="token punctuation">,</span>
+    expect_string<span class="token operator">=</span>r<span class="token string">"confirm"</span><span class="token punctuation">,</span>
+    strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+<span class="token punctuation">)</span>
+output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>
+    command_string<span class="token operator">=</span><span class="token string">"y"</span><span class="token punctuation">,</span>
+    expect_string<span class="token operator">=</span>r<span class="token string">"#"</span><span class="token punctuation">,</span>
+    strip_prompt<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    strip_command<span class="token operator">=</span><span class="token boolean">False</span>
+<span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-the-above-execution-5">Output from the above execution:</h4>
+<pre><code>$ python send_command_prompting_expect.py 
+Password: 
+
+del flash:/test4.txt
+Delete filename [test4.txt]? 
+Delete flash:/test4.txt? [confirm]y
+cisco1#
+
+</code></pre>
+<br>
+<h2 id="configuration-changes-1">Configuration changes</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+device <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+commands <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"logging buffered 100000"</span><span class="token punctuation">]</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_config_set<span class="token punctuation">(</span>commands<span class="token punctuation">)</span>
+    output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>save_config<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="netmiko-will-automatically-enter-and-exit-config-mode.">Netmiko will automatically enter and exit config mode.</h4>
+<h4 id="output-from-the-above-execution-6">Output from the above execution:</h4>
+<pre><code>$ python config_change.py 
+Password: 
+
+configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+cisco1(config)#logging buffered 100000
+cisco1(config)#end
+cisco1#write mem
+Building configuration...
+[OK]
+cisco1#
+
+</code></pre>
+<br>
+<h2 id="configuration-changes-from-a-file">Configuration changes from a file</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+device1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># File in same directory as script that contains</span>
+<span class="token comment">#</span>
+<span class="token comment"># $ cat config_changes.txt </span>
+<span class="token comment"># --------------</span>
+<span class="token comment"># logging buffered 100000</span>
+<span class="token comment"># no logging console</span>
+
+cfg_file <span class="token operator">=</span> <span class="token string">"config_changes.txt"</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_config_from_file<span class="token punctuation">(</span>cfg_file<span class="token punctuation">)</span>
+    output <span class="token operator">+=</span> net_connect<span class="token punctuation">.</span>save_config<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="netmiko-will-automatically-enter-and-exit-config-mode.-1">Netmiko will automatically enter and exit config mode.</h4>
+<h4 id="output-from-the-above-execution-7">Output from the above execution:</h4>
+<pre><code>$ python config_change_file.py 
+Password: 
+
+configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+cisco1(config)#logging buffered 100000
+cisco1(config)#no logging console
+cisco1(config)#end
+cisco1#write mem
+Building configuration...
+[OK]
+cisco1#
+
+</code></pre>
+<br>
+<h2 id="ssh-keys">SSH keys</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+
+key_file <span class="token operator">=</span> <span class="token string">"~/.ssh/test_rsa"</span>
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"testuser"</span><span class="token punctuation">,</span>
+    <span class="token string">"use_keys"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"key_file"</span><span class="token punctuation">:</span> key_file<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span><span class="token string">"show ip arp"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"\n{output}\n"</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="ssh-config-file">SSH Config File</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token string">"ssh_config_file"</span><span class="token punctuation">:</span> <span class="token string">"~/.ssh/ssh_config"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span><span class="token string">"show users"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+</code></pre>
+<h4 id="contents-of-ssh_config-file">Contents of ‘ssh_config’ file</h4>
+<pre><code>host jumphost
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/test_rsa
+  User gituser
+  HostName pynetqa.lasthop.io
+
+host * !jumphost
+  User pyclass
+  # Force usage of this SSH config file
+  ProxyCommand ssh -F ~/.ssh/ssh_config -W %h:%p jumphost
+  # Alternate solution using netcat
+  #ProxyCommand ssh -F ./ssh_config jumphost nc %h %p
+</code></pre>
+<h4 id="script-execution">Script execution</h4>
+<pre><code># 3.82.44.123 is the IP address of the 'jumphost'
+$ python conn_ssh_proxy.py 
+Password: 
+
+Line       User       Host(s)              Idle       Location
+*  8 vty 0     pyclass    idle                 00:00:00 3.82.44.123
+
+  Interface    User               Mode         Idle     Peer Address
+
+</code></pre>
+<br>
+<h2 id="session-log">Session log</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token comment">#!/usr/bin/env python</span>
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token comment"># File name to save the 'session_log' to</span>
+    <span class="token string">"session_log"</span><span class="token punctuation">:</span> <span class="token string">"output.txt"</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># Show command that we execute</span>
+command <span class="token operator">=</span> <span class="token string">"show ip int brief"</span>
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span>command<span class="token punctuation">)</span>
+</code></pre>
+<h4 id="contents-of-output.txt-after-execution">Contents of ‘output.txt’ after execution</h4>
+<pre><code>$ cat output.txt 
+
+cisco1#
+cisco1#terminal length 0
+cisco1#terminal width 511
+cisco1#
+cisco1#show ip int brief
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0              unassigned      YES unset  down                  down    
+FastEthernet1              unassigned      YES unset  down                  down    
+FastEthernet2              unassigned      YES unset  down                  down    
+FastEthernet3              unassigned      YES unset  down                  down    
+FastEthernet4              10.220.88.20    YES NVRAM  up                    up      
+Vlan1                      unassigned      YES unset  down                  down    
+cisco1#
+cisco1#exit
+</code></pre>
+<br>
+<h2 id="standard-logging">Standard Logging</h2>
+<p>The below will create a file named “test.log”. This file will contain a lot of<br>
+low-level details.</p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+<span class="token comment"># Logging section ##############</span>
+<span class="token keyword">import</span> logging
+
+logging<span class="token punctuation">.</span>basicConfig<span class="token punctuation">(</span>filename<span class="token operator">=</span><span class="token string">"test.log"</span><span class="token punctuation">,</span> level<span class="token operator">=</span>logging<span class="token punctuation">.</span>DEBUG<span class="token punctuation">)</span>
+logger <span class="token operator">=</span> logging<span class="token punctuation">.</span>getLogger<span class="token punctuation">(</span><span class="token string">"netmiko"</span><span class="token punctuation">)</span>
+<span class="token comment"># Logging section ##############</span>
+
+cisco1 <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco1<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="secure-copy-1">Secure Copy</h2>
+<p><a href="https://pynet.twb-tech.com/blog/automation/netmiko-scp.html">Additional details on Netmiko and Secure Copy</a></p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler<span class="token punctuation">,</span> file_transfer
+
+cisco <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_ios"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># A secure copy server must be enable on the device ('ip scp server enable')</span>
+source_file <span class="token operator">=</span> <span class="token string">"test1.txt"</span>
+dest_file <span class="token operator">=</span> <span class="token string">"test1.txt"</span>
+direction <span class="token operator">=</span> <span class="token string">"put"</span>
+file_system <span class="token operator">=</span> <span class="token string">"flash:"</span>
+
+ssh_conn <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>cisco<span class="token punctuation">)</span>
+transfer_dict <span class="token operator">=</span> file_transfer<span class="token punctuation">(</span>
+    ssh_conn<span class="token punctuation">,</span>
+    source_file<span class="token operator">=</span>source_file<span class="token punctuation">,</span>
+    dest_file<span class="token operator">=</span>dest_file<span class="token punctuation">,</span>
+    file_system<span class="token operator">=</span>file_system<span class="token punctuation">,</span>
+    direction<span class="token operator">=</span>direction<span class="token punctuation">,</span>
+    <span class="token comment"># Force an overwrite of the file if it already exists</span>
+    overwrite_file<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>transfer_dict<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="auto-detection-using-ssh">Auto detection using SSH</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">from</span> netmiko <span class="token keyword">import</span> SSHDetect<span class="token punctuation">,</span> ConnectHandler
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+
+device <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"autodetect"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+guesser <span class="token operator">=</span> SSHDetect<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span>
+best_match <span class="token operator">=</span> guesser<span class="token punctuation">.</span>autodetect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>best_match<span class="token punctuation">)</span>  <span class="token comment"># Name of the best device_type to use further</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>guesser<span class="token punctuation">.</span>potential_matches<span class="token punctuation">)</span>  <span class="token comment"># Dictionary of the whole matching result</span>
+<span class="token comment"># Update the 'device' dictionary with the device_type</span>
+device<span class="token punctuation">[</span><span class="token string">"device_type"</span><span class="token punctuation">]</span> <span class="token operator">=</span> best_match
+
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span> <span class="token keyword">as</span> connection<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>connection<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="auto-detection-using-snmpv2c">Auto detection using SNMPv2c</h2>
+<p>Requires ‘pysnmp’.</p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">import</span> sys
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> netmiko<span class="token punctuation">.</span>snmp_autodetect <span class="token keyword">import</span> SNMPDetect
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+
+host <span class="token operator">=</span> <span class="token string">"cisco1.lasthop.io"</span>
+device <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> host<span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span> 
+    <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+snmp_community <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter SNMP community: "</span><span class="token punctuation">)</span>
+my_snmp <span class="token operator">=</span> SNMPDetect<span class="token punctuation">(</span>
+    host<span class="token punctuation">,</span> snmp_version<span class="token operator">=</span><span class="token string">"v2c"</span><span class="token punctuation">,</span> community<span class="token operator">=</span>snmp_community
+<span class="token punctuation">)</span>
+device_type <span class="token operator">=</span> my_snmp<span class="token punctuation">.</span>autodetect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>device_type<span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> device_type <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token string">"SNMP failed!"</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Update the device dictionary with the device_type and connect</span>
+device<span class="token punctuation">[</span><span class="token string">"device_type"</span><span class="token punctuation">]</span> <span class="token operator">=</span> device_type
+<span class="token keyword">with</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span> <span class="token keyword">as</span> net_connect<span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="auto-detection-using-snmpv3">Auto detection using SNMPv3</h2>
+<p>Requires ‘pysnmp’.</p>
+<pre class=" language-py"><code class="prism  language-py"><span class="token keyword">import</span> sys
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> netmiko<span class="token punctuation">.</span>snmp_autodetect <span class="token keyword">import</span> SNMPDetect
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler
+
+device <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"host"</span><span class="token punctuation">:</span> <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span> <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"pyclass"</span><span class="token punctuation">,</span> <span class="token string">"password"</span><span class="token punctuation">:</span> getpass<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+snmp_key <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter SNMP community: "</span><span class="token punctuation">)</span>
+my_snmp <span class="token operator">=</span> SNMPDetect<span class="token punctuation">(</span>
+    <span class="token string">"cisco1.lasthop.io"</span><span class="token punctuation">,</span>
+    snmp_version<span class="token operator">=</span><span class="token string">"v3"</span><span class="token punctuation">,</span>
+    user<span class="token operator">=</span><span class="token string">"pysnmp"</span><span class="token punctuation">,</span>
+    auth_key<span class="token operator">=</span>snmp_key<span class="token punctuation">,</span>
+    encrypt_key<span class="token operator">=</span>snmp_key<span class="token punctuation">,</span>
+    auth_proto<span class="token operator">=</span><span class="token string">"sha"</span><span class="token punctuation">,</span>
+    encrypt_proto<span class="token operator">=</span><span class="token string">"aes128"</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span>
+device_type <span class="token operator">=</span> my_snmp<span class="token punctuation">.</span>autodetect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>device_type<span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> device_type <span class="token keyword">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token string">"SNMP failed!"</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Update the device_type with information discovered using SNMP</span>
+device<span class="token punctuation">[</span><span class="token string">"device_type"</span><span class="token punctuation">]</span> <span class="token operator">=</span> device_type
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2 id="terminal-server-and-redispatch">Terminal server and redispatch</h2>
+<pre class=" language-py"><code class="prism  language-py"><span class="token triple-quoted-string string">"""
+This is a complicated example.
+
+It illustrates both using a terminal server and bouncing through multiple
+devices.
+
+It also illustrates using 'redispatch()' to change the Netmiko class.
+
+The setup is:
+
+Linux Server 
+  --&gt; Small Switch (SSH)
+        --&gt; Terminal Server (telnet)
+              --&gt; Juniper SRX (serial)
+"""</span>
+<span class="token keyword">import</span> os
+<span class="token keyword">from</span> getpass <span class="token keyword">import</span> getpass
+<span class="token keyword">from</span> netmiko <span class="token keyword">import</span> ConnectHandler<span class="token punctuation">,</span> redispatch
+
+<span class="token comment"># Hiding these IP addresses</span>
+terminal_server_ip <span class="token operator">=</span> os<span class="token punctuation">.</span>environ<span class="token punctuation">[</span><span class="token string">"TERMINAL_SERVER_IP"</span><span class="token punctuation">]</span>
+public_ip <span class="token operator">=</span> os<span class="token punctuation">.</span>environ<span class="token punctuation">[</span><span class="token string">"PUBLIC_IP"</span><span class="token punctuation">]</span>
+
+s300_pass <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter password of s300: "</span><span class="token punctuation">)</span>
+term_serv_pass <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter the terminal server password: "</span><span class="token punctuation">)</span>
+srx2_pass <span class="token operator">=</span> getpass<span class="token punctuation">(</span><span class="token string">"Enter SRX2 password: "</span><span class="token punctuation">)</span>
+
+<span class="token comment"># For internal reasons I have to bounce through this small switch to access</span>
+<span class="token comment"># my terminal server.</span>
+device <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"device_type"</span><span class="token punctuation">:</span> <span class="token string">"cisco_s300"</span><span class="token punctuation">,</span>
+    <span class="token string">"host"</span><span class="token punctuation">:</span> public_ip<span class="token punctuation">,</span>
+    <span class="token string">"username"</span><span class="token punctuation">:</span> <span class="token string">"admin"</span><span class="token punctuation">,</span>
+    <span class="token string">"password"</span><span class="token punctuation">:</span> s300_pass<span class="token punctuation">,</span>
+    <span class="token string">"session_log"</span><span class="token punctuation">:</span> <span class="token string">"output.txt"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># Initial connection to the S300 switch</span>
+net_connect <span class="token operator">=</span> ConnectHandler<span class="token punctuation">(</span><span class="token operator">**</span>device<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Update the password as the terminal server uses different credentials</span>
+net_connect<span class="token punctuation">.</span>password <span class="token operator">=</span> term_serv_pass
+net_connect<span class="token punctuation">.</span>secret <span class="token operator">=</span> term_serv_pass
+<span class="token comment"># Telnet to the terminal server</span>
+command <span class="token operator">=</span> f<span class="token string">"telnet {terminal_server_ip}\n"</span>
+net_connect<span class="token punctuation">.</span>write_channel<span class="token punctuation">(</span>command<span class="token punctuation">)</span>
+<span class="token comment"># Use the telnet_login() method to handle the login process</span>
+net_connect<span class="token punctuation">.</span>telnet_login<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Made it to the terminal server (this terminal server is "cisco_ios")</span>
+<span class="token comment"># Use redispatch to re-initialize the right class.</span>
+redispatch<span class="token punctuation">(</span>net_connect<span class="token punctuation">,</span> device_type<span class="token operator">=</span><span class="token string">"cisco_ios"</span><span class="token punctuation">)</span>
+net_connect<span class="token punctuation">.</span>enable<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Now connect to the end-device via the terminal server (Juniper SRX2)</span>
+net_connect<span class="token punctuation">.</span>write_channel<span class="token punctuation">(</span><span class="token string">"srx2\n"</span><span class="token punctuation">)</span>
+<span class="token comment"># Update the credentials for SRX2 as these are different.</span>
+net_connect<span class="token punctuation">.</span>username <span class="token operator">=</span> <span class="token string">"pyclass"</span>
+net_connect<span class="token punctuation">.</span>password <span class="token operator">=</span> srx2_pass
+<span class="token comment"># Use the telnet_login() method to connect to the SRX</span>
+net_connect<span class="token punctuation">.</span>telnet_login<span class="token punctuation">(</span><span class="token punctuation">)</span>
+redispatch<span class="token punctuation">(</span>net_connect<span class="token punctuation">,</span> device_type<span class="token operator">=</span><span class="token string">"juniper_junos"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>net_connect<span class="token punctuation">.</span>find_prompt<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Now we could do something on the SRX</span>
+output <span class="token operator">=</span> net_connect<span class="token punctuation">.</span>send_command<span class="token punctuation">(</span><span class="token string">"show version"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+
+net_connect<span class="token punctuation">.</span>disconnect<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="output-from-execution-of-this-code-slightly-cleaned-up.">Output from execution of this code (slightly cleaned-up).</h4>
+<pre><code>$ python term_server.py 
+Enter password of s300: 
+Enter the terminal server password: 
+Enter SRX2 password: 
+
+sf-dc-sw1#
+
+twb-dc-termsrv&gt;
+twb-dc-termsrv#
+
+pyclass@srx2&gt;
+
+Hostname: srx2
+Model: srx110h2-va
+JUNOS Software Release []
+
+</code></pre>
+</div>
+</body>
+
+</html>
