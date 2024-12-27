@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connection Manager &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Connection Class" href="class.html" />
+    <link rel="prev" title="Integration" href="integration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Connection Meta</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integration.html">Integration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Connection Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modelling">Modelling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interworkings">Interworkings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-instantiate-connect">Method: instantiate(), connect()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-disconnect">Method: disconnect()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-destroy">Method: destroy()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-is-connected">Method: is_connected()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-disconnect-all">Method: disconnect_all()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-destroy-all">Method: destroy_all()</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="class.html">Connection Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hook.html">Connection Hook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sharing.html">Connection Sharing</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Connection Meta</a></li>
+      <li class="breadcrumb-item active">Connection Manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="connection-manager">
+<span id="id1"></span><h1>Connection Manager<a class="headerlink" href="#connection-manager" title="Permalink to this heading">¶</a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Confucius Say…</p>
+<p>The information here onwards is for users interested in <code class="docutils literal notranslate"><span class="pre">connections</span></code>
+internals &amp; how it works only.</p>
+<p>If you are new to this, do not read on. These advanced topics may
+further fuel your confusion.</p>
+</aside>
+<p>As the behind-the-scene director, <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> is pivotal in binding
+each connections to <code class="docutils literal notranslate"><span class="pre">topology.Device</span></code>.</p>
+<p>This section details how this integration works, and may provide insights as to
+how users may leverage the design and do more with it.</p>
+<section id="modelling">
+<h2>Modelling<a class="headerlink" href="#modelling" title="Permalink to this heading">¶</a></h2>
+<p>Connection instances are bound to their corresponding device instances through
+a <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code>. The following describes the rules governing this
+relationship:</p>
+<ul class="simple">
+<li><p>all connections are created &amp; managed by a device’s <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code>.</p>
+<ul>
+<li><p>each <code class="docutils literal notranslate"><span class="pre">topology.Device</span></code> instance receives its own <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code>.</p></li>
+</ul>
+</li>
+<li><p>each connection is modelled as an instance of a connection class.</p></li>
+<li><p>each connection instance is assigned an alias (eg, keyword <code class="docutils literal notranslate"><span class="pre">alias</span></code>), unique
+to that device.</p>
+<ul>
+<li><p>if none is provided, the default alias is <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p></li>
+</ul>
+</li>
+<li><p>each connection must be provided with a certain <em>path</em> (eg, keyword <code class="docutils literal notranslate"><span class="pre">via</span></code>),
+describing the “how-to” and route taken in order to connect.</p>
+<ul>
+<li><p>paths should already defined in this device’s <code class="docutils literal notranslate"><span class="pre">.connections</span></code> attribute.</p></li>
+<li><p>there is <strong>no default path</strong>: if no path is specified (eg, not providing
+<code class="docutils literal notranslate"><span class="pre">via</span></code> argument, it is up to the connection class implementor to select a
+path most appropriate for itself, available for the current device object.</p></li>
+</ul>
+</li>
+<li><p>after a connection is created, all communication methods it offers (eg,
+<code class="docutils literal notranslate"><span class="pre">execute</span></code>/<code class="docutils literal notranslate"><span class="pre">config</span></code>) are called <em>services</em>, and should appear as methods
+to that class.</p></li>
+<li><p>if defined, <code class="docutils literal notranslate"><span class="pre">Device.connections['defaults']</span></code> dictionary may contain
+key/values that alter the “default” behavior of its connection manager:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">class:</span> <span class="pre">&lt;class</span> <span class="pre">object&gt;</span></code> changes the default connection class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alias:</span> <span class="pre">&lt;str&gt;</span></code> changes the default connection alias</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">via:</span> <span class="pre">&lt;str&gt;</span></code> sets a default connection path</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>ConnectionManager</strong> class is always automatically instantiated for each device
+object, and stored as its <code class="docutils literal notranslate"><span class="pre">.connectionmgr</span></code> attribute. It is always unique to
+the device it serves, storing internally a <em>weakref</em> of its parent device.</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">ConnectionManager Attributes &amp; Methods</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device</span></code></p></td>
+<td><p>parent device object which this manager belongs to</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">connections</span></code></p></td>
+<td><p>dictionary storing connection instances by their alias</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">instantiate()</span></code></p></td>
+<td><p>creates the connection/pool object without connecting to it</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">connect()</span></code></p></td>
+<td><p>establish connection/, create the connection object if not already created</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disconnect()</span></code></p></td>
+<td><p>api to disconnect an existing connection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">destroy()</span></code></p></td>
+<td><p>api to destroy/delete a connection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_connected()</span></code></p></td>
+<td><p>api to check whether a connection is alive</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disconnect_all()</span></code></p></td>
+<td><p>api to disconnect all existing connections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">destroy_all()</span></code></p></td>
+<td><p>api to destroy/delete all connections</p></td>
+</tr>
+</tbody>
+</table>
+<p>With the exception of <code class="docutils literal notranslate"><span class="pre">disconnect_all()</span></code> and <code class="docutils literal notranslate"><span class="pre">destroy_all</span></code>, all apis accepts
+the <code class="docutils literal notranslate"><span class="pre">alias</span></code> argument, specifying the connection instance to operate on. If not
+provided, it defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   behind-the-scene integration &amp; apis</span>
+
+<span class="c1"># assume we had a device object</span>
+<span class="n">device</span>
+<span class="c1"># &lt;Device phoenix at 0xf7714c0c&gt;</span>
+
+<span class="c1"># it always features its own connection manager</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span>
+<span class="c1"># &lt;pyats.connections.ConnectionManager object at 0xf76f1c4c&gt;</span>
+
+<span class="c1"># if we make the default connection</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># and dice things further</span>
+<span class="c1"># eg, single out the connection manager</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span>
+
+<span class="c1"># notice that each manager is unique to its parent device</span>
+<span class="n">manager</span><span class="o">.</span><span class="n">device</span>
+<span class="c1"># &lt;Device phoenix at 0xf7714c0c&gt;</span>
+
+<span class="c1"># and contains a dictionary of connections it currently knows</span>
+<span class="c1"># stored as alias: object mapping</span>
+<span class="c1"># note how the default connection is assigned with alias &quot;default&quot;</span>
+<span class="n">manager</span><span class="o">.</span><span class="n">connections</span>
+<span class="c1"># AttrDict({&#39;default&#39;: &lt;Connection phoenix at 0xf76c3d08&gt;})</span>
+</pre></div>
+</div>
+</section>
+<section id="interworkings">
+<h2>Interworkings<a class="headerlink" href="#interworkings" title="Permalink to this heading">¶</a></h2>
+<p>At the <code class="docutils literal notranslate"><span class="pre">topology.Device</span></code> object level, all connection-related method calls
+described in <a class="reference internal" href="integration.html#connection-integration"><span class="std std-ref">connection integration</span></a> are actually
+translated to a corresponding call to the <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> instance.</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Device &amp; ConnectionManager API Mappings</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Device Method</p></th>
+<th class="head"><p>ConnectionManager Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Device.instantiate()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.instantiate()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Device.connect()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.connect()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Device.disconnect()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.disconnect()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Device.destroy()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.destroy()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Device.is_connected()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.is_connected()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Device.disconnect_all()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.disconnect_all()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Device.destroy_all()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.destroy_all()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Device.&lt;service&gt;()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.connections['default'].&lt;service&gt;()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Device.&lt;alias&gt;.&lt;service&gt;()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Device.connectionmgr.connections[&lt;alias&gt;].&lt;service&gt;()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   demonstrating the above translations</span>
+
+<span class="c1"># given any device, take a look at the repr() of its connection methods</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span>
+<span class="c1"># &lt;bound method ConnectionManager.connect of &lt;pyats.connections.ConnectionManager object at 0xf75d03ec&gt;&gt;</span>
+<span class="n">device</span><span class="o">.</span><span class="n">disconnect</span>
+<span class="c1"># &lt;bound method ConnectionManager.disconnect of &lt;pyats.connections.ConnectionManager object at 0xf75d03ec&gt;&gt;</span>
+
+<span class="c1"># connect and take a look at the service bindings</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">device</span><span class="o">.</span><span class="n">execute</span>
+<span class="c1"># &lt;connection.services.router_services.ExecService object at 0xf705e1ac&gt;</span>
+<span class="n">device</span><span class="o">.</span><span class="n">configure</span>
+<span class="c1"># &lt;connection.services.router_services.ConfigService object at 0xf705e1ad&gt;</span>
+
+<span class="c1"># ergo, the mappings are equal</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connect</span>
+<span class="c1"># True</span>
+<span class="n">device</span><span class="o">.</span><span class="n">execute</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">execute</span>
+<span class="c1"># True</span>
+<span class="n">device</span><span class="o">.</span><span class="n">configure</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">configure</span>
+<span class="c1"># True</span>
+</pre></div>
+</div>
+<p>In order words, the above mapping relationship hides the users from having to
+deal with <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> directly and making long &amp; chained method calls.
+Of course, if any defaults were changed (eg, through <code class="docutils literal notranslate"><span class="pre">connections[defaults]</span></code>),
+this behavior would change accordingly, eg:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#     changing defaults of ConnectionManager</span>
+<span class="kn">from</span> <span class="nn">myconnection</span> <span class="kn">import</span> <span class="n">MyConnectionClass</span>
+
+<span class="c1"># if the device object had the following connections attribute</span>
+<span class="c1"># (note that this could be coming from loading YAML file, or set manually)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;defaults&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">MyConnectionClass</span><span class="p">,</span>
+        <span class="s1">&#39;alias&#39;</span><span class="p">:</span> <span class="s1">&#39;ironman&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;via&#39;</span><span class="p">:</span> <span class="s1">&#39;highway&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;highway&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;telnet&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ip&#39;</span><span class="p">:</span> <span class="s1">&#39;1.1.1.1&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># the following call</span>
+<span class="c1">#  - would use MyConnectionClass() as the connection class,</span>
+<span class="c1">#  - would have a default alias of &#39;ironman&#39;</span>
+<span class="c1">#  - and via &#39;highway&#39;</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># and thus the following would be true instead</span>
+<span class="n">device</span><span class="o">.</span><span class="n">execute</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;highway&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">execute</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;highway&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="n">MyConnectionClass</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;highway&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">via</span> <span class="o">==</span> <span class="s1">&#39;highway&#39;</span>
+</pre></div>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>sometimes black magic like above are a <em>necessary evil</em>: it provides
+code layering from an architectural design perspective without taxing the
+user experience.</p>
+</div>
+</section>
+<section id="method-instantiate-connect">
+<h2>Method: instantiate(), connect()<a class="headerlink" href="#method-instantiate-connect" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.instantiate()</span></code> method creates a new connection class/pool
+instance without starting up the connection.
+<code class="docutils literal notranslate"><span class="pre">ConnectionManager.connect()</span></code> method establishes full connectivity to the
+device using the above connection object. In effect, internally, <code class="docutils literal notranslate"><span class="pre">connect()</span></code>
+calls <code class="docutils literal notranslate"><span class="pre">instantiate()</span></code> when needed to create a new connection object.</p>
+<p>These are <a class="reference external" href="https://en.wikipedia.org/wiki/Factory_method_pattern">factory methods</a>: eg, it instantiates a new connection instance
+based on input parameters and internal defaults. Behaviors are as follows:</p>
+<ul class="simple">
+<li><p>takes in a <a class="reference internal" href="class.html#connection-class"><span class="std std-ref">Connection Class</span></a> via argument <code class="docutils literal notranslate"><span class="pre">cls</span></code>.</p></li>
+<li><p>requires an alias for each connection. Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p></li>
+<li><p><strong>[optional]</strong> if <code class="docutils literal notranslate"><span class="pre">pool_size</span></code> argument is provided, creates a
+<a class="reference internal" href="sharing.html#connectionpool"><span class="std std-ref">pool of new connections</span></a> (for parallel execution).</p></li>
+<li><p>if the provided alias already exists, use that existing connection instance
+associated with that alias, and call its <code class="docutils literal notranslate"><span class="pre">.connect()</span></code> method.</p></li>
+<li><p>if the provided alias doesn’t exist, instantiate a new connection object, and
+call its <code class="docutils literal notranslate"><span class="pre">.connect()</span></code> method.</p></li>
+<li><p>stores the new connection under <code class="docutils literal notranslate"><span class="pre">ConnectionManager.connections</span></code> dictionary
+as <code class="docutils literal notranslate"><span class="pre">&lt;alias&gt;:</span> <span class="pre">&lt;object&gt;</span></code>.</p></li>
+</ul>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">ConnectionManager.connect() and instantiate() Arguments</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cls</span></code></p></td>
+<td><p><a class="reference internal" href="class.html#connection-class"><span class="std std-ref">Connection Class</span></a> to use to create this connection or pool worker</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alias</span></code></p></td>
+<td><p>alias/name of this connection, unique. Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pool_size</span></code></p></td>
+<td><p>number of connection instances to be started in pool</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pool_timeout</span></code></p></td>
+<td><p>max time to wait for an available worker from the pool,
+defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code> (forever)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">via</span></code></p></td>
+<td><p>path to use to create this connection, must be defined in
+<code class="docutils literal notranslate"><span class="pre">Device.connections</span></code> dict</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*args,</span> <span class="pre">**kwargs</span></code></p></td>
+<td><p>all other argument to be propagated to the actual
+connection’s <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.connect() and .instantiate() method</span>
+<span class="c1">#   (simple/single connection class instance)</span>
+
+<span class="c1"># given a device connection manager object</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span>
+<span class="c1"># &lt;pyats.connections.ConnectionManager object at 0xf76f1c4c&gt;</span>
+
+<span class="c1"># we could establish connections using the default class</span>
+<span class="c1"># ------------------------------------------------------</span>
+<span class="c1"># just connect</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.connect()</span>
+
+<span class="c1"># connect using a different path and alias</span>
+<span class="c1"># (this requires device.connections[&#39;mgmt&#39;] to be populated)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;vty_1&#39;</span><span class="p">,</span> <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.connect(alias = &#39;vty_1&#39;, via = &#39;mgmt&#39;)</span>
+
+<span class="c1"># we could establish connections using another class</span>
+<span class="c1"># --------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">some_connection_lib</span> <span class="kn">import</span> <span class="n">AltConnImpl</span>
+
+<span class="c1"># just connect using it</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.connect(cls = AltConnImpl)</span>
+
+<span class="c1"># connect using a different path and alias and that class</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">,</span> <span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;vty_1&#39;</span><span class="p">,</span> <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.connect(cls = AltConnImpl,</span>
+<span class="c1">#                                             alias = &#39;vty_1&#39;,</span>
+<span class="c1">#                                             via = &#39;mgmt&#39;)</span>
+
+<span class="c1"># additionally, we could instantiate the object first</span>
+<span class="c1"># ---------------------------------------------------</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">)</span>
+<span class="c1"># and modify various attributes before we connect</span>
+<span class="n">connection</span><span class="o">.</span><span class="n">new_attribute</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+<span class="n">connection</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="c1"># note that after device.instantiate() is called, the newly created</span>
+<span class="c1"># connection object is saved both under the given alias in the connection</span>
+<span class="c1"># manager, and returned for your direct access.</span>
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># all other arguments to connect() api are propagated to the connection class</span>
+<span class="c1"># (assuming AltConnImpl took arguments timeout, term_width and max_buffer)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">,</span>
+               <span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;session_1&#39;</span><span class="p">,</span>
+               <span class="n">timeout</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+               <span class="n">term_width</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
+               <span class="n">max_buffer</span> <span class="o">=</span> <span class="mi">999999</span><span class="p">)</span>
+<span class="c1"># eg, equivalent to:</span>
+<span class="c1"># device.connectionmgr.connections[&#39;session_1&#39;] = AltConnImpl(timeout = 100,</span>
+<span class="c1">#                                                             term_width = 512,</span>
+<span class="c1">#                                                             max_buffer = 999999)</span>
+<span class="c1"># device.connectionmgr.connections[&#39;session_1&#39;].connect()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.connect() and .instantiate() method</span>
+<span class="c1">#   (starting pool of connections)</span>
+
+<span class="c1"># given a device connection manager object</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span>
+<span class="c1"># &lt;pyats.connections.ConnectionManager object at 0xf76f1c4c&gt;</span>
+
+<span class="c1"># we could establish a pool of connections using the default class</span>
+<span class="c1"># ----------------------------------------------------------------</span>
+<span class="c1"># just give the alias &#39;pool&#39; for simplicity</span>
+<span class="c1"># and start it with 3 workers</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">pool_size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># or connect using a different path</span>
+<span class="c1"># (this requires device.connections[&#39;mgmt&#39;] to be populated)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">pool_size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">)</span>
+
+<span class="c1"># we could establish a pool of workers using another class</span>
+<span class="c1"># --------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">some_connection_lib</span> <span class="kn">import</span> <span class="n">AltConnImpl</span>
+
+<span class="c1"># start pool directly (default path)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">pool_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">)</span>
+
+<span class="c1"># start pool using a different path and this class</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">pool_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+               <span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">,</span>
+               <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">)</span>
+
+<span class="c1"># additionally, we could instantiate the pool object first</span>
+<span class="c1"># --------------------------------------------------------</span>
+<span class="n">pool</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="n">pool_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                          <span class="bp">cls</span> <span class="o">=</span> <span class="n">AltConnImpl</span><span class="p">,</span>
+                          <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">)</span>
+<span class="c1"># and modify various attributes before we connect</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">new_attribute</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># once a pool is started, use it like any other connection</span>
+<span class="c1"># --------------------------------------------------------</span>
+<span class="c1"># calls are redirected to the first available worker</span>
+<span class="n">device</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;command&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When a connection pool is created using <code class="docutils literal notranslate"><span class="pre">pool_size=N</span></code>, it behaves like
+any other direct connections and internally distributes the api calls/work
+to its workers. All other means of disconnecting, destroying, etc mentioned
+in the rest of this documentation also applies to connection pools.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When using connection pools, appling changes on any connection (regardless
+of pool worker) may affect the whole system, eg, don’t reload a router
+in one worker and expect show tech output in the other. Keep this in mind…</p>
+</div>
+<p>For more information on how connection pools work, please refer to
+<a class="reference internal" href="sharing.html#connectionpool"><span class="std std-ref">Connection Pools</span></a> guide.</p>
+</section>
+<section id="method-disconnect">
+<h2>Method: disconnect()<a class="headerlink" href="#method-disconnect" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.disconnect()</span></code> method disconnects a given connection from
+its host device by first looking up the connection object using the provided
+<code class="docutils literal notranslate"><span class="pre">alias</span></code>, then calling that object’s <code class="docutils literal notranslate"><span class="pre">.disconnect()</span></code> api.</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">ConnectionManager.disconnect() Arguments</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alias</span></code></p></td>
+<td><p>alias/name of connection to disconnect. Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.disconnect() method</span>
+
+<span class="c1"># disconnect the default aliased connection</span>
+<span class="n">device</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.disconnect(alias = &#39;default&#39;)</span>
+
+<span class="c1"># disconnect a specific alias</span>
+<span class="n">device</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;vty_1&#39;</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.disconnect(alias = &#39;vty_1&#39;)</span>
+
+<span class="c1"># in effect, it is the same as doing:</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;vty_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>keep in mind that disconnect is only a <strong>change of state</strong> from a connection
+class perspective. Eg: the class instance still exists, but the pipe is
+no longer active. Calling <code class="docutils literal notranslate"><span class="pre">.connect()</span></code> again simply re-establishes the
+pipe.</p>
+</div>
+</section>
+<section id="method-destroy">
+<h2>Method: destroy()<a class="headerlink" href="#method-destroy" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.destroy()</span></code> method disconnects a given connection from
+its host device, and also destroys/deletes the connection object. Behavior:</p>
+<ul class="simple">
+<li><p>lookup the connection object by the provided alias, and call its
+<code class="docutils literal notranslate"><span class="pre">.disconnect()</span></code> api.</p></li>
+<li><p>delete that connection object from <code class="docutils literal notranslate"><span class="pre">ConnectionManager.connections</span></code>
+dictionary.</p></li>
+</ul>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">ConnectionManager.destroy() Arguments</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alias</span></code></p></td>
+<td><p>alias/name of connection to destroy. Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.destroy() method</span>
+
+<span class="c1"># destroy the default aliased connection</span>
+<span class="n">device</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.destroy(alias = &#39;default&#39;)</span>
+
+<span class="c1"># destroy a specific alias</span>
+<span class="n">device</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;vty_1&#39;</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.destroy(alias = &#39;vty_1&#39;)</span>
+
+<span class="c1"># in effect, it is the same as doing:</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;vty_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;vty_1&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>destroy is a non-recoverable call: the object representing the connection
+is deleted.</p>
+</div>
+</section>
+<section id="method-is-connected">
+<h2>Method: is_connected()<a class="headerlink" href="#method-is-connected" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.is_connected()</span></code> method returns <code class="docutils literal notranslate"><span class="pre">True</span></code>/<code class="docutils literal notranslate"><span class="pre">False</span></code> depending
+on whether a connection object (referred to by its alias) is in a connected
+state or not. Behavior:</p>
+<ul class="simple">
+<li><p>lookup the connection object by the provided alias, and get its
+<code class="docutils literal notranslate"><span class="pre">.connected</span></code> property.</p></li>
+<li><p>if a connection alias/object doesn’t exist, return <code class="docutils literal notranslate"><span class="pre">False</span></code> anyway, do not
+error out.</p></li>
+</ul>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">ConnectionManager.is_connected() Arguments</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alias</span></code></p></td>
+<td><p>alias/name of connection to lookup. Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.is_connected() method</span>
+
+<span class="c1"># lookup the default aliased connection</span>
+<span class="n">device</span><span class="o">.</span><span class="n">is_connected</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.is_connected(alias = &#39;default&#39;)</span>
+
+<span class="c1"># lookup a specific alias</span>
+<span class="n">device</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;vty_1&#39;</span><span class="p">)</span>
+<span class="c1"># equivalent to: device.connectionmgr.is_connected(alias = &#39;vty_1&#39;)</span>
+
+<span class="c1"># in effect, it is the same as doing:</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="s1">&#39;vty_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">connected</span>
+</pre></div>
+</div>
+</section>
+<section id="method-disconnect-all">
+<h2>Method: disconnect_all()<a class="headerlink" href="#method-disconnect-all" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.disconnect_all()</span></code> method attempts to change all current
+connection’s state to disconnected. It accepts no arguments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.disconnect_all() method</span>
+
+<span class="c1"># disconnect everything!</span>
+<span class="n">device</span><span class="o">.</span><span class="n">disconnect_all</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.disconnect_all()</span>
+
+<span class="c1"># in effect, it is the same as doing:</span>
+<span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="method-destroy-all">
+<h2>Method: destroy_all()<a class="headerlink" href="#method-destroy-all" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConnectionManager.destroy_all()</span></code> method attempts to change all current
+connection’s state to disconnected, then removes the connection object. It
+accepts no arguments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   ConnectionManager.destroy_all() method</span>
+
+<span class="c1"># destroy_all everything!</span>
+<span class="n">device</span><span class="o">.</span><span class="n">destroy_all</span><span class="p">()</span>
+<span class="c1"># equivalent to: device.connectionmgr.destroy_all()</span>
+
+<span class="c1"># in effect, it is the same as doing:</span>
+<span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="integration.html" class="btn btn-neutral float-left" title="Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class.html" class="btn btn-neutral float-right" title="Connection Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

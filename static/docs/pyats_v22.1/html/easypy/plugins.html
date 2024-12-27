@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plugin System &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Automatic Reruns" href="rerun.html" />
+    <link rel="prev" title="Email Notification" href="email.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Easypy - Runtime Environment</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jobfile.html">Jobfile &amp; Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usages.html">Using Easypy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behavior.html">Behavior &amp; Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="email.html">Email Notification</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plugin System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#concept-rules">Concept &amp; Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-plugins">Creating Plugins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plugin-errors">Plugin Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-plugin-disable">Runtime Plugin Disable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-plugin-entrypoints">Custom Plugin Entrypoints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rerun.html">Automatic Reruns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Easypy - Runtime Environment</a></li>
+      <li class="breadcrumb-item active">Plugin System</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plugin-system">
+<span id="easypy-plugin"></span><h1>Plugin System<a class="headerlink" href="#plugin-system" title="Permalink to this heading">¶</a></h1>
+<p>Easypy is designed around a modular plugin-based architecture. The end goal
+is to allow maximum developer configurability &amp; extendability without
+sacrificing overall structure, flow and code-base integrity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Easypy plugins are not for the faint of heart: it is intended for advanced
+developers to provide optional <em>pluggable</em> Easypy features for other
+developers to use.</p>
+</div>
+<section id="concept-rules">
+<h2>Concept &amp; Rules<a class="headerlink" href="#concept-rules" title="Permalink to this heading">¶</a></h2>
+<p>Plugins offers <em>optional</em> functionalities that may be added to Easypy. Each
+plugin must be configured first via a configuration YAML file before they can
+be loaded, instantiated and run at various stages of execution.</p>
+<p>All plugins must obey the following rules of development:</p>
+<ul class="simple">
+<li><p>plugins may be configured globally (for all runs in this pyATS instance) by
+creating a  <code class="docutils literal notranslate"><span class="pre">easypy_config.yaml</span></code> in the root pyATS installation folder.</p></li>
+<li><p>plugins may be configured locally (for this run only) by passing in a config
+YAML via a command-line argument called <code class="docutils literal notranslate"><span class="pre">--configuration</span></code>.</p></li>
+<li><p>plugins may also be configured by setting the environment variable as shown
+below <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYATS_CONFIGURATION_EASYPY=path/to/easypy_config.yaml</span></code></p></li>
+<li><p>plugins shall be independent from all other plugins &amp; test scripts.</p></li>
+<li><p>plugins must inherit from <code class="docutils literal notranslate"><span class="pre">easypy.plugins.bases.BasePlugin</span></code> class</p></li>
+<li><p>plugins may contain its own argument parser. Such parsers shall follow the
+<a class="reference internal" href="usages.html#easypy-argument-propagation"><span class="std std-ref">Argument Propagation</span></a> scheme, and shall not contain positional
+arguments.</p></li>
+<li><p>plugins may modify <code class="docutils literal notranslate"><span class="pre">easypy.runtime</span></code> attributes, but it is the responsibility
+of the plugin owner to diagnose and support any failures due to such changes.</p></li>
+<li><p>plugins may self-disable during any point of execution by setting
+<code class="docutils literal notranslate"><span class="pre">self.disable</span> <span class="pre">=</span> <span class="pre">True</span></code>. This will remove it from execution stack.</p></li>
+</ul>
+<p>There are four available stages where plugins may run its actions, and each
+plugin may choose to run its actions in any or all of these available stages.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Easypy Plugin Stages</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pre_job</span></code></p></td>
+<td><p>run before the jobfile starts</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pre_task</span></code></p></td>
+<td><p>run before the start of each <a class="reference internal" href="jobfile.html#easypy-tasks"><span class="std std-ref">Task</span></a>, within the
+task process</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">post_task</span></code></p></td>
+<td><p>run after the finish of each <a class="reference internal" href="jobfile.html#easypy-tasks"><span class="std std-ref">Task</span></a>, within
+the task process</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">post_job</span></code></p></td>
+<td><p>run after the jobfile finishes</p></td>
+</tr>
+</tbody>
+</table>
+<p>During <code class="docutils literal notranslate"><span class="pre">pre_job</span></code> and <code class="docutils literal notranslate"><span class="pre">pre_task</span></code> stages, plugins are run in the same sequence
+as they appear in the <code class="docutils literal notranslate"><span class="pre">order</span></code> definition section of the easypy configuration
+YAML file. During <code class="docutils literal notranslate"><span class="pre">post_task</span></code> and <code class="docutils literal notranslate"><span class="pre">post_job</span></code> stages, plugins are
+run in exactly the same but reverse order.</p>
+</section>
+<section id="creating-plugins">
+<h2>Creating Plugins<a class="headerlink" href="#creating-plugins" title="Permalink to this heading">¶</a></h2>
+<p>To create a plugin, simply subclass <code class="docutils literal notranslate"><span class="pre">easypy.plugins.bases.BasePlugin</span></code> class
+and define the stages where your plugin needs to run.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># --------</span>
+<span class="c1">#</span>
+<span class="c1">#   hello-world plugin</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">from</span> <span class="nn">pyats.easypy.plugins.bases</span> <span class="kn">import</span> <span class="n">BasePlugin</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">HelloWorldPlugin</span><span class="p">(</span><span class="n">BasePlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;HelloWorld Plugin</span>
+
+<span class="sd">    Runs before and after each job and task, saluting the world and printing</span>
+<span class="sd">    out the job/task runtime if a custom flag is used.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># each plugin may have a unique name</span>
+    <span class="c1"># set it by setting the &#39;name&#39; class variable.</span>
+    <span class="c1"># (defaults to the current class name)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;HelloWorld&#39;</span>
+
+    <span class="c1"># each plugin may have a parser to parse its own command line arguments.</span>
+    <span class="c1"># these parsers are expected to add arguments to the main easypy parser</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">configure_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">legacy_cli</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        plugin parser configurations</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">            parser: main program parser to update</span>
+<span class="sd">            legacy_cli: boolean indicating whether to support legacy args or</span>
+<span class="sd">                        not</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># always create a plugin&#39;s own parser group</span>
+        <span class="n">hello_world_grp</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;My Hello World&quot;</span><span class="p">)</span>
+
+        <span class="c1"># custom arguments shall always use -- as prefix</span>
+        <span class="c1"># positional custom arguments are NOT allowed.</span>
+        <span class="n">hello_world_grp</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--print-timestamp&#39;</span><span class="p">,</span>
+                                     <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                     <span class="n">default</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># plugins may define its own class constructor __init__, though, it</span>
+    <span class="c1"># must respect the parent __init__, so super() needs to be called.</span>
+    <span class="c1"># any additional arguments defined in the plugin config file would be</span>
+    <span class="c1"># passed to here as keyword arguments</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># define your plugin&#39;s stage actions as methods</span>
+    <span class="c1"># as this plugin should run pre and post job</span>
+    <span class="c1"># we need to deifne &#39;pre_job&#39; and &#39;post_job&#39; methods.</span>
+
+    <span class="c1"># define the pre-job action</span>
+    <span class="c1"># if &#39;job&#39; is specified as a function argument, the current Job</span>
+    <span class="c1"># object is provided as input to this action method when called</span>
+    <span class="k">def</span> <span class="nf">pre_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+
+        <span class="c1"># plugin parser results are stored under self.runtime.args</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">print_timestamp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">job_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Current time is: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_start</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-Job </span><span class="si">%s</span><span class="s1">: Hello World!&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># define post_job action</span>
+    <span class="k">def</span> <span class="nf">post_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">print_timestamp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">job_end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Job run took: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_start</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Post-Job </span><span class="si">%s</span><span class="s1">: Hello World!&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># similarly, with pre and post-task methods</span>
+    <span class="c1"># if a &#39;task&#39; argument is specified as a function argument, the current</span>
+    <span class="c1"># Task object is provided as input to this action method on call.</span>
+    <span class="k">def</span> <span class="nf">pre_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">print_timestamp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Current time is: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_start</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-Task </span><span class="si">%s</span><span class="s1">: Hello World!&#39;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">taskid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">post_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">print_timestamp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Task run took: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">task_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_start</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Post-Task </span><span class="si">%s</span><span class="s1">: Hello World!&#39;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">taskid</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is possible to retrieve the full results of a job run from a plugin
+post-job method. <code class="docutils literal notranslate"><span class="pre">self.runtime.details()</span></code> will retrieve the full suite of
+test results from the reporter. The attributes follow the same values as
+the YAML file, which can be seen in the <a class="reference internal" href="../reporter/index.html#reporter"><span class="std std-ref">Reporter</span></a> section.</p>
+</div>
+<p>After defining a plugin class, it needs to be configured in order to run. The
+<code class="docutils literal notranslate"><span class="pre">easypy</span></code> plugin manager automatically reads plugin configurations from a YAML
+file, <code class="docutils literal notranslate"><span class="pre">easypy_config.yaml</span></code>, located under top level folder of pyats instance
+or the file path can be provided with <code class="docutils literal notranslate"><span class="pre">--configuration</span></code> parameter.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   example easypy configuration file for plugins</span>
+
+<span class="nt">plugins</span><span class="p">:</span><span class="w">                   </span><span class="c1"># top level key for plugins</span>
+
+<span class="w">    </span><span class="nt">HelloWorldPlugin</span><span class="p">:</span><span class="w">   </span><span class="c1"># this is the plugin name we defined</span>
+<span class="w">                        </span><span class="c1"># enabled, module and order keys are</span>
+<span class="w">                        </span><span class="c1"># mandatory. Any additional key/values are</span>
+<span class="w">                        </span><span class="c1"># used as arguments to the plugin class</span>
+<span class="w">                        </span><span class="c1"># constructor.</span>
+
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">           </span><span class="c1"># flag marking it as &quot;enabled&quot;</span>
+<span class="w">                              </span><span class="c1"># set to False to disable a plugin</span>
+
+<span class="w">      </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">module.where.plugin.is.defined</span><span class="w">      </span><span class="c1"># module path where this</span>
+<span class="w">                                                  </span><span class="c1"># plugin can be imported</span>
+
+<span class="w">      </span><span class="nt">order</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">                </span><span class="c1"># defines the order of execution of plugins</span>
+<span class="w">                                </span><span class="c1"># it&#39;s just a number that allows users to</span>
+<span class="w">                                </span><span class="c1"># specify plugin order.</span>
+<span class="w">                                </span><span class="c1"># - smaller numbers runs first</span>
+</pre></div>
+</div>
+<p>And <code class="docutils literal notranslate"><span class="pre">easypy</span></code> automatically discovers, loads your plugin, and runs its
+actions as part of its standard execution stage.</p>
+</section>
+<section id="plugin-errors">
+<h2>Plugin Errors<a class="headerlink" href="#plugin-errors" title="Permalink to this heading">¶</a></h2>
+<p>Because plugins are a fundamental building block of Easypy, any unhandled
+exceptions raised from plugin actions result in catastrophic failures:
+make <strong>double sure</strong> that your plugin is well tested and robust against all
+possible environments and outcomes.  Please also see <a class="reference internal" href="behavior.html#easypy-return-codes"><span class="std std-ref">Easypy Return Codes</span></a>.</p>
+<p>By default, all plugin errors are automatically caught and handled by
+<code class="docutils literal notranslate"><span class="pre">BasePlugin.error_handler()</span></code> method, which registers the error and prevent
+the system from crashing. Plugin developers may overwrite this method to
+develop custom error handling schemes.</p>
+<p>When a plugin registers an exception during a <strong>pre_job</strong> stage:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the job file will not be run</p></li>
+<li><p>all plugins that ran up until the errored plugin will be run in the
+reverse order, calling the corresponding <strong>post_job</strong> stage for cleaning
+up.</p></li>
+</ul>
+</div></blockquote>
+<p>When a plugin registers and exception during a <strong>pre_task</strong> stage:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>this current task will not be run</p></li>
+<li><p>all plugins that ran up until the errored plugin will be run in the
+reverse order, calling the corresponding <strong>post_task</strong> stage for cleaning
+up.</p></li>
+</ul>
+</div></blockquote>
+<p>Whenever plugins error out, your email report will contain the detailed
+exception.</p>
+</section>
+<section id="runtime-plugin-disable">
+<h2>Runtime Plugin Disable<a class="headerlink" href="#runtime-plugin-disable" title="Permalink to this heading">¶</a></h2>
+<p>By default, if a plugin is enabled in the configuration YAML file, it will be
+loaded and run. However, if ever there is a need to disable a loaded plugin from
+running again - you can do so by settings its attribute <code class="docutils literal notranslate"><span class="pre">enabled</span></code> to
+<code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   a plugin that disables it self when pre_job is run</span>
+
+<span class="k">class</span> <span class="nc">MyControlPlugin</span><span class="p">(</span><span class="n">BasePlugin</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">pre_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span>
+
+    <span class="c1"># from here onwards, the plugin&#39;s various stages</span>
+    <span class="c1"># will no longer be run.</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-plugin-entrypoints">
+<h2>Custom Plugin Entrypoints<a class="headerlink" href="#custom-plugin-entrypoints" title="Permalink to this heading">¶</a></h2>
+<p>Easypy can also automatically run any customized user-developed plugins that
+are installed within the same python virtual environment, even if they aren’t
+explicitly specified in the easypy plugin configuration YAML file. Simply ensure
+that the custom user-developed plugin package is registered with and advertises
+entrypoint <code class="docutils literal notranslate"><span class="pre">pyats.easypy.plugins</span></code> within the package’s setup.py file. This
+will allow the Easypy plugin manager to find and execute the plugin.</p>
+<aside class="sidebar">
+<p class="sidebar-title">Useful Reading</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://setuptools.readthedocs.io/en/latest/pkg_resources.html#entry-points">Entry Points</a></p></li>
+</ul>
+</aside>
+<p>Loading the entrypoint should provide a Python dictionary that contains all the
+necessary information of the easypy plugin including the plugin name, class,
+module, etc. as defined in the example below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Easypy plugin dict for user-developed plugin</span>
+<span class="n">custom_plugin</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;plugins&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;CustomPlugin&#39;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">CustomPlugin</span><span class="p">,</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s1">&#39;module&#39;</span><span class="p">:</span> <span class="s1">&#39;custom.plugin&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;CustomPlugin&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>By default, user-developed plugins that are loaded via entrypoints will be
+sorted to execute at the end of the pyATS task and job by the Easypy plugin
+manager. Alternatively, user’s can specify the order in the plugin dict returned
+by loading the entrypoint.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="email.html" class="btn btn-neutral float-left" title="Email Notification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rerun.html" class="btn btn-neutral float-right" title="Automatic Reruns" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

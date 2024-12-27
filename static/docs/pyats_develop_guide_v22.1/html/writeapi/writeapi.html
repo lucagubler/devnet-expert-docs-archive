@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write an API &mdash; pyATS Development Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=83f4edbc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/tabs.js?v=3030b3cb"></script>
+      <script src="../_static/js/custom.js?v=80dc6f7b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Write a trigger" href="../writetrigger/writetrigger.html" />
+    <link rel="prev" title="Write a parser" href="../writeparser/writeparser.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS Development Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Write a script</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/structureofastatement.html">Everything is Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writescripts/writepythonscript.html">Write a Python script</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contribute to pyATS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../writeparser/writeparser.html">Write a parser</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Write an API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configure">Configure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get">Get</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unit-testing">Unit Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../writetrigger/writetrigger.html">Write a trigger</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-docs/docs/blitz/index.html">pyATS Blitz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/contribute.html">Contribution guidelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/keyconcepts.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS Development Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Write an API</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+.question {background-color: yellow; font-weight:bold; padding: .25em;}
+.monospace {font-family: monospace; color: #404040; font-size: 14px;}
+.border {border: 1px #404040;}
+</style><section id="write-an-api">
+<span id="write-api"></span><h1>Write an API<a class="headerlink" href="#write-an-api" title="Link to this heading"></a></h1>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Before beginning development of a new API, be sure to raise an issue on GitHub letting the community know which API you will be creating. This allows us to avoid duplicate API development.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All APIs are contained within <code class="docutils literal notranslate"><span class="pre">genielibs/src/sdk/apis</span></code>. This is where any new APIs should be added.</p>
+</div>
+<p>APIs are the functional tools of Genie. They are designed to do one task and one task only, and should be as simple as
+possible. When making an API ask yourself: <em>what will this API do</em>? Configure a service? Get some information? Verify a
+configuration has been set correctly? Whatever you decide, the API should only do a single task. This is by design, and helps to make APIs reusable. When building APIs, the goal is to have many small APIs that perform individual tasks rather than one single, large API that performs all necessary tasks.</p>
+<p>In these examples, we will be creating 3 types of APIs: one for configuring a device, one for getting information from a device, and one for verifying &lt;something&gt; on a device.</p>
+<p>These APIs will be placed in these files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>genielibs/src/sdk/apis/iosxe/interface/configure.py
+genielibs/src/sdk/apis/iosxe/interface/get.py
+genielibs/src/sdk/apis/iosxe/interface/verify.py
+</pre></div>
+</div>
+<section id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Link to this heading"></a></h2>
+<p>Configure APIs connect to the given device and execute commands to perform a task.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">1</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">2</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.core.errors</span> <span class="kn">import</span> <span class="n">SubCommandFailure</span>
+
+<span class="k">def</span> <span class="nf">shut_interface</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">interface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Shut interface</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (`obj`): Device object</span>
+<span class="sd">            interface (`str`): Interface name</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            SubCommandFailure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>In this case, we want to create a configure API that will shutdown a given interface. To start we import SubCommandFailure to be used later, then define the function shut_interface. <code class="docutils literal notranslate"><span class="pre">device</span></code> is a required argument for all APIs, but since we also want to pass in an interface to shutdown, we include that as a parameter as well.
+A docstring detailing what the API does, its arguments, its return value, and what exceptions it might raise is required. This will be used to populate the public API documenation.</p>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.core.errors</span> <span class="kn">import</span> <span class="n">SubCommandFailure</span>
+
+<span class="k">def</span> <span class="nf">shut_interface</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">interface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Shut interface</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (`obj`): Device object</span>
+<span class="sd">            interface (`str`): Interface name</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            SubCommandFailure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">device</span><span class="o">.</span><span class="n">configure</span><span class="p">([</span>
+        <span class="s2">&quot;interface </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interface</span><span class="p">),</span>
+        <span class="s2">&quot;shutdown&quot;</span>
+    <span class="p">])</span>
+<span class="k">except</span> <span class="n">SubCommandFailure</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">SubCommandFailure</span><span class="p">(</span>
+        <span class="s2">&quot;Could not shut down interface </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we have tried to run the commands <code class="docutils literal notranslate"><span class="pre">interface</span> <span class="pre">&lt;interface&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">shutdown</span></code> on the device’s configuration dialog. If this succeeds, no error will be thrown and our script will continue on. If it fails, a SubCommandFailure exception will be thrown for us to catch in our script.</p>
+</div></div>
+</section>
+<section id="get">
+<h2>Get<a class="headerlink" href="#get" title="Link to this heading"></a></h2>
+<p>Get APIs retrieve information and return them to our scripts.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">1</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">2</button><button aria-controls="panel-1-1-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-2" name="1-2" role="tab" tabindex="-1">3</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.metaparser.util.exceptions</span> <span class="kn">import</span> <span class="n">SchemaEmptyParserError</span>
+
+<span class="k">def</span> <span class="nf">get_interface_names</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the names of all interfaces on the device</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device (obj): Device object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of interface names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Here we are importing <code class="docutils literal notranslate"><span class="pre">SchemaEmptyParserError</span></code> for later use, and defining our API. Again, each API is required to have a docstring detailing what is does, its arguments, and its return values. Note that <code class="docutils literal notranslate"><span class="pre">device</span></code> is a mandatory parameter for all APIs.</p>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.metaparser.util.exceptions</span> <span class="kn">import</span> <span class="n">SchemaEmptyParserError</span>
+
+<span class="k">def</span> <span class="nf">get_interface_names</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the names of all interfaces on the device</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device (obj): Device object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of interface names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show interface&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SchemaEmptyParserError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>With this we are calling the existing parser for <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">interface</span></code> and getting the parsed output. If the output is empty, it will raise a <code class="docutils literal notranslate"><span class="pre">SchemaEmptyParserError</span></code> which we can catch and then return <code class="docutils literal notranslate"><span class="pre">None</span></code> back to our scripts.</p>
+</div><div aria-labelledby="tab-1-1-2" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-2" name="1-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.metaparser.util.exceptions</span> <span class="kn">import</span> <span class="n">SchemaEmptyParserError</span>
+
+<span class="k">def</span> <span class="nf">get_interface_names</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the names of all interfaces on the device</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device (obj): Device object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of interface names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show interface&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SchemaEmptyParserError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+</pre></div>
+</div>
+<p>Since the output of our parser gives us a dictionary with the interface names as the keys, we can use list comprehension to quickly gather the names and return them back.</p>
+</div></div>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Verification APIs are designed to verify that a configuration has been set correctly. They don’t have a return value, and only communicate with the device to retrieve data.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">1</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">2</button><button aria-controls="panel-2-2-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-2" name="2-2" role="tab" tabindex="-1">3</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.utils.timeout</span> <span class="kn">import</span> <span class="n">Timeout</span>
+
+<span class="k">def</span> <span class="nf">verify_interface_state_down</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify interface state is down and and line protocol is down</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (`obj`): Device object</span>
+<span class="sd">            interface (`str`): Interface name</span>
+<span class="sd">            max_time (`int`): max time</span>
+<span class="sd">            check_interval (`int`): check interval</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            result(`bool`): True if is up else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>We start the verification API by importing <code class="docutils literal notranslate"><span class="pre">Timeout</span></code>. This is a necessary tool used to loop a section of code until it either confirms what we want it to, or times out. Aside from that, we’re again creating the API function with the mandatory <code class="docutils literal notranslate"><span class="pre">device</span></code> argument, the <code class="docutils literal notranslate"><span class="pre">interface</span></code> argument we need for this specific API, and two parameters that are mandatory for the verify APIs, <code class="docutils literal notranslate"><span class="pre">max_time</span></code> and <code class="docutils literal notranslate"><span class="pre">check_interval</span></code>, which must be set with default values. Again, the docstring is required.</p>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.utils.timeout</span> <span class="kn">import</span> <span class="n">Timeout</span>
+
+<span class="k">def</span> <span class="nf">verify_interface_state_down</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify interface state is down and and line protocol is down</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (`obj`): Device object</span>
+<span class="sd">            interface (`str`): Interface name</span>
+<span class="sd">            max_time (`int`): max time</span>
+<span class="sd">            check_interval (`int`): check interval</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            result(`bool`): True if is up else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">timeout</span> <span class="o">=</span> <span class="n">Timeout</span><span class="p">(</span><span class="n">max_time</span><span class="p">,</span> <span class="n">check_interval</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">timeout</span><span class="o">.</span><span class="n">iterate</span><span class="p">():</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>Here we are creating and starting our timeout. If <code class="docutils literal notranslate"><span class="pre">max_time</span></code> and <code class="docutils literal notranslate"><span class="pre">check_interval</span></code> are not passed when calling this API, it will default to a 60 second run, checking in 10 second intervals. This results in a total of six attempts.</p>
+</div><div aria-labelledby="tab-2-2-2" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-2" name="2-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.utils.timeout</span> <span class="kn">import</span> <span class="n">Timeout</span>
+
+<span class="k">def</span> <span class="nf">verify_interface_state_down</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify interface state is down and and line protocol is down</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (`obj`): Device object</span>
+<span class="sd">            interface (`str`): Interface name</span>
+<span class="sd">            max_time (`int`): max time</span>
+<span class="sd">            check_interval (`int`): check interval</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            result(`bool`): True if is up else False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">timeout</span> <span class="o">=</span> <span class="n">Timeout</span><span class="p">(</span><span class="n">max_time</span><span class="p">,</span> <span class="n">check_interval</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">timeout</span><span class="o">.</span><span class="n">iterate</span><span class="p">():</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;show interfaces </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interface</span><span class="p">))</span>
+
+        <span class="n">oper_status</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">interface</span><span class="p">][</span><span class="s2">&quot;oper_status&quot;</span><span class="p">]</span>
+        <span class="n">line_protocol</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">interface</span><span class="p">][</span><span class="s2">&quot;line_protocol&quot;</span><span class="p">]</span>
+
+        <span class="n">enabled</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">interface</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">oper_status</span> <span class="o">==</span> <span class="n">line_protocol</span> <span class="o">==</span> <span class="s2">&quot;down&quot;</span> <span class="ow">and</span> <span class="n">enabled</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">timeout</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>Let’s break down what is happening here. Each time the loop runs, it:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Gets the parsed output of <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">interface</span> <span class="pre">&lt;interface&gt;</span></code></p></li>
+<li><p>Gets the <code class="docutils literal notranslate"><span class="pre">oper_status</span></code> and <code class="docutils literal notranslate"><span class="pre">line_protocol</span></code> of our desired <code class="docutils literal notranslate"><span class="pre">interface</span></code></p></li>
+<li><p>Gets the <code class="docutils literal notranslate"><span class="pre">enabled</span></code> status of our desired <code class="docutils literal notranslate"><span class="pre">interface</span></code></p></li>
+<li><p>Checks to see if <code class="docutils literal notranslate"><span class="pre">oper_status</span></code> and <code class="docutils literal notranslate"><span class="pre">line_protocol</span></code> are <code class="docutils literal notranslate"><span class="pre">down</span></code>, and <code class="docutils literal notranslate"><span class="pre">enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<ul>
+<li><p>If all conditions are met, it will return <code class="docutils literal notranslate"><span class="pre">True</span></code>, breaking out of the loop and ending the API.</p></li>
+<li><p>If all conditions are not met, the Timeout will sleep for <code class="docutils literal notranslate"><span class="pre">check_interval</span></code> seconds and then loop again.</p></li>
+<li><p>If the loop times out, the API will return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>This boolean response will allow us to go forward or stop in our main testscript.</p>
+</div></div>
+<p>Once your parser or API is merged into its respective repository, it will be available for production use in the next official release.</p>
+</section>
+<section id="unit-testing">
+<h2>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading"></a></h2>
+<p>To make sure that your newly developed API works correctly and that future changes will not accidentally change its expected behavior, it is necessary to develop unit tests.
+Consequently, the code is protected and makes it possible to perform automated checks on the API.</p>
+<p>In order to facilitate this process, a script was developed that allows generating unit tests for an API or an API module in a simplified way.
+This script is called <strong>api_unittest_generator.py</strong> and can be found in <code class="docutils literal notranslate"><span class="pre">src/genie/libs/sdk/apis/</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The API Unit Test Generator relies on Unicon playback to generate unit tests, so it does not work with other connection types.
+For the same reason, it does not work with ha devices, as only one device connection can be recorded at a time.</p>
+</div>
+<p>To generate unit tests, the script needs to be able to connect to a device, and because of that, can generate unit tests for one OS at a time.
+The following arguments can be passed to the script:</p>
+<ul class="simple">
+<li><p><strong>--testbed-file</strong> - path to the testbed file</p></li>
+<li><p><strong>--device</strong> - name of the device the script should connect to</p></li>
+<li><p><strong>--test-arguments</strong> - string containing comma-separated key-value pairs (e.g. interface: GigabitEthernet1, delay_type: down)</p></li>
+<li><p><strong>--test-arguments-yaml</strong> - YAML file containing test arguments</p></li>
+<li><p><strong>--module</strong> - the name of the module (e.g. interface.get, vrf.get) <a class="footnote-reference brackets" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
+<li><p><strong>--module-path</strong> - a full path to a genielibs API file (e.g. ~/dev/my_env/genie/genielibs/pkgs/sdk-pkg/src/genie/libs/sdk/apis/iosxe/interface/get.py)</p></li>
+<li><p><strong>--api</strong> (optional) - the name of the API (if no API is specified, the script will try to generate tests for all APIs in the module)</p></li>
+<li><p><strong>--destination</strong> (optional) - folder where tests will be created (default value is current working directory)</p></li>
+</ul>
+<p>Below is an example of a valid command that will generate unit tests for all APIs in the module <code class="docutils literal notranslate"><span class="pre">interface.get</span></code> on a <code class="docutils literal notranslate"><span class="pre">nxos</span></code> device:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>api_unittest_generator.py<span class="w"> </span>--module<span class="w"> </span>interface.get<span class="w"> </span>--testbed-file<span class="w"> </span>devices.yaml<span class="w"> </span>--device<span class="w"> </span>R3_nx<span class="w"> </span>--test-arguments-yaml<span class="w"> </span>R3_interface_get.yaml
+</pre></div>
+</div>
+<p>The API Unit Test Generator detects the OS based on the device and generates unit tests only for this OS.
+If you wish to generate unit tests for other OSs, you may have to create different test argument YAML files, as test arguments may vary.</p>
+<p>Since different APIs may need different arguments, the test generator is able to interpret a YAML file containing the arguments needed to execute the APIs.
+Building this file is simple, but there are a few rules that must be followed. There are 2 levels of arguments that can be created:</p>
+<p><strong>default</strong> arguments are available to all APIs and only need to be declared once.
+They must be declared under default and arguments in the YAML file.
+Below you can see how the default argument interface can be declared.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">interface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GigabitEthernet1</span>
+</pre></div>
+</div>
+<p><strong>API specific</strong> arguments must be declared under a key with the same name as the API and arguments. If an argument with the same name was already declared in default, the API will only considered the value declared in this item, but the default value will work for the other APIs.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">interface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GigabitEthernet1</span>
+<span class="nt">is_interface_changed_state_log</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">interface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Tunnel2</span>
+<span class="nt">verify_interface_bundled_interfaces_mode</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">interfaces</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gi6</span>
+</pre></div>
+</div>
+<p>In the example above, interface is changed to Tunnel2 only for the API <code class="docutils literal notranslate"><span class="pre">is_interface_changed_state_log</span></code>. Moreover, <code class="docutils literal notranslate"><span class="pre">verify_interface_bundled_interfaces_mode</span></code> has an argument that is exclusive to that API.</p>
+<p>Ocasionally, it may be necessary to create more than one unit test per API, in order to increase code coverage. For these cases, you can declare a list of test arguments for the API, like the following:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">get_interface_carrier_delay</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">down</span>
+</pre></div>
+</div>
+<p>Each list of arguments represents a separate test and each test would also have access to default arguments, if they are specified.</p>
+<p>You can verify if the device will return a specific output.
+To do this, you can add <cite>expected_output</cite> as an argument to the test list and the Test Generator will compare the results.
+If the API return does not match the expected output, the unit test will not be generated.
+Below is an example of how to use this feature. The expected output in this case is <cite>None</cite>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">get_interface_carrier_delay</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up</span>
+<span class="w">          </span><span class="nt">expected_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">down</span>
+</pre></div>
+</div>
+<p>If you wish to create unit tests for some APIs in a module, but not all of them, you can declare a list containing the names of all the APIs you want to ignore and place them under <code class="docutils literal notranslate"><span class="pre">exclude</span></code>.
+The item would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">exclude</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">question_mark_retrieve</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">int_to_mask</span>
+<span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+<p>In this scenario, unit tests for <code class="docutils literal notranslate"><span class="pre">question_mark_retrieve</span></code> and <code class="docutils literal notranslate"><span class="pre">int_to_mask</span></code> would not be generated.
+A regex can be used to filter out APIs, instead of a list.
+To do that, you need to add the keyword ‘regex’ to exclude, followed by a pattern.
+In the example below, all APIs with the prefix <code class="docutils literal notranslate"><span class="pre">get_</span></code> would be filtered out.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">exclude</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get_</span>
+</pre></div>
+</div>
+<p>A comprehensive example of all features previously introduced can be seen below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">exclude</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">question_mark_retrieve</span>
+<span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">interface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GigabitEthernet1</span>
+<span class="w">        </span><span class="nt">interface_list</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GigabitEthernet1</span>
+<span class="w">        </span><span class="nt">ip_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.16.1.139</span>
+<span class="w">        </span><span class="nt">vrf</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VRF1</span>
+<span class="nt">get_interface_carrier_delay</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">arguments</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">down</span>
+</pre></div>
+</div>
+<p>If you wish to create a test for a single API and you do not want to create a YAML file because as you only need to pass a few arguments to the API, you can use <code class="docutils literal notranslate"><span class="pre">--test-arguments</span></code> instead.
+This argument accepts a string containing comma-separated key-value pairs. Each key-value pair is separated by a colon.
+In this case, you can pass the argument like this (as part of the command):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>api_unittest_generator.py<span class="w"> </span>--test-arguments<span class="w"> </span>interface:GigabitEthernet1,vrf:VRF1<span class="w"> </span>...
+</pre></div>
+</div>
+<p>Note that for this type of declaration, you do not have to declare <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">arguments</span></code> or a specific API name as part of the string.
+All arguments will be considered default arguments and their data types will be string.</p>
+<p>At the end of its run, the API Unit Test Generator creates a folder structure according to the API/module structure.
+For example, for the API <code class="docutils literal notranslate"><span class="pre">get_bundled_interface</span></code> of the <code class="docutils literal notranslate"><span class="pre">interface.get</span></code> module on <code class="docutils literal notranslate"><span class="pre">iosxe</span></code>, it would create the following folder structure:</p>
+<img alt="../_images/ut_1.png" src="../_images/ut_1.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Each API test folder created by this script will contain:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A <strong>mock_data</strong> folder, containing the mocked data recorded when the test was generated.</p></li>
+<li><p>A <strong>test script</strong>  (test_api_&lt;api name&gt;.py) that contains all tests declared for the API.</p></li>
+</ul>
+</div></blockquote>
+<p>To run the generated tests, you just need to navigate to the test directory and run the following command:
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">unittest</span></code></p>
+<p>If everything is working properly, the test script will be executed and you will see how many tests were ran, followed by an <cite>OK</cite>.</p>
+<img alt="../_images/ut_2.png" src="../_images/ut_2.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Notice that you do not have to provide the full path to the module, just what comes after genie.libs.sdk.apis.&lt;os&gt;</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../writeparser/writeparser.html" class="btn btn-neutral float-left" title="Write a parser" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../writetrigger/writetrigger.html" class="btn btn-neutral float-right" title="Write a trigger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Cisco Systems Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

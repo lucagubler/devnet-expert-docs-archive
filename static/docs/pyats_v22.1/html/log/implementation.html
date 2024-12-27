@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implementation &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Integration with Easypy" href="integration.html" />
+    <link rel="prev" title="Log Module" href="logging.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Logging</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept.html">Logging Concept</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Log Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#screenhandler">ScreenHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#taskloghandler">TaskLogHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#screenformatter">ScreenFormatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tasklogformatter">TaskLogFormatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciscologrecord">CiscoLogRecord</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="integration.html">Integration with Easypy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Logging Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Logging</a></li>
+      <li class="breadcrumb-item active">Implementation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="implementation">
+<h1>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading">¶</a></h1>
+<p>As previously established, <code class="docutils literal notranslate"><span class="pre">log</span></code> itself does not configure <code class="docutils literal notranslate"><span class="pre">logging</span></code>. It
+only offers the formatters &amp; handlers necessary to adhere to CiscoLog standard.</p>
+<dl class="simple">
+<dt>Handlers</dt><dd><p>Handlers handle each <a class="reference external" href="https://docs.python.org/3.4/library/logging.html#logging.LogRecord">LogRecord</a> by sending them to the appropriate
+destination. In pyATS <code class="docutils literal notranslate"><span class="pre">log</span></code>, there are two common destinations for
+most users: the shell screen, and a runtime log (TaskLog). These two
+destinations are handled by two different handler classes.</p>
+</dd>
+<dt>Formatters</dt><dd><p>Formatters are responsible for converting a <a class="reference external" href="https://docs.python.org/3.4/library/logging.html#logging.LogRecord">LogRecord</a> to a properly
+formatted string that can be interpreted by human or an external system,
+which, in pyATS, is either screen, or to log file. <code class="docutils literal notranslate"><span class="pre">log</span></code> module
+features two formatters.</p>
+</dd>
+</dl>
+<section id="screenhandler">
+<h2>ScreenHandler<a class="headerlink" href="#screenhandler" title="Permalink to this heading">¶</a></h2>
+<p>Enables print-to-screen functionality for log messages. Outputs to STDOUT by
+default, and when attached to a logger, prints log messages to screen. This
+handler automatically sets <a class="reference internal" href="#screenformatter">ScreenFormatter</a> as its formatter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   attaching ScreenHandler to root logger, enabling all log messages to be</span>
+<span class="c1">#   printed to screen</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pyats.log</span> <span class="kn">import</span> <span class="n">ScreenHandler</span>
+
+<span class="c1"># get the root logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># create handler (defaults to STDOUT)</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">ScreenHandler</span><span class="p">()</span>
+<span class="c1"># or, if you want to output to STDERR, use below instead</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">ScreenHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+<span class="c1"># add handler to logger</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+<span class="c1"># now try logging :)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;a critical message&#39;</span><span class="p">)</span>
+
+<span class="c1"># disable coloured output</span>
+<span class="c1"># (default to enabled)</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">coloured</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+<section id="taskloghandler">
+<span id="tasklog-handler"></span><h2>TaskLogHandler<a class="headerlink" href="#taskloghandler" title="Permalink to this heading">¶</a></h2>
+<p>Enables saving log messages in standard CiscoLog format to log files. Also has
+an API enabling easy changing of current active log file to a different file.
+Automatically uses <a class="reference internal" href="#tasklogformatter">TaskLogFormatter</a> as its formatter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   attaching TaskLogHandler to root logger, enabling all log messages to be</span>
+<span class="c1">#   logged to a particular file, and then changing the file to log to</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pyats.log</span> <span class="kn">import</span> <span class="n">TaskLogHandler</span>
+
+<span class="c1"># get the root logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># create handler (with full path to log file)</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">TaskLogHandler</span><span class="p">(</span><span class="s1">&#39;/path/to/my/TaskLog-A.log&#39;</span><span class="p">)</span>
+
+<span class="c1"># add handler to logger</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+<span class="c1"># set logging level a bit lower to enable INFO</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># now try logging</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;an info message&#39;</span><span class="p">)</span>
+
+<span class="c1"># get current log directory and file</span>
+<span class="n">logdir</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">logdir</span>
+<span class="n">logfile</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">logfile</span>
+
+<span class="c1"># change log file to a different file</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">changeFile</span><span class="p">(</span><span class="s1">&#39;/path/to/my/TaskLog-B.log&#39;</span><span class="p">)</span>
+
+<span class="c1"># log again, it appears in second file</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;another info message&#39;</span><span class="p">)</span>
+
+<span class="c1"># enable/disable on-fork create new logfile</span>
+<span class="c1"># (this behavior is inherited in child processes)</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">enableForked</span><span class="p">()</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">disableForked</span><span class="p">()</span>
+
+<span class="c1"># enable coloured output</span>
+<span class="c1"># (default to disabled - enabling will cause ANSI colour codes to appear</span>
+<span class="c1">#  in your task log, which the log viewer may not support)</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">coloured</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">TaskLogHandler</span></code> file/folder handling behavior is described by the following:</p>
+<ul class="simple">
+<li><p>if no logfile is provided (eg, <code class="docutils literal notranslate"><span class="pre">''</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>), log stream is set to
+<code class="docutils literal notranslate"><span class="pre">/dev/null</span></code> in order to keep stream functionality consistent.</p></li>
+<li><p>if full logfile path is provided, the current log directory is set to the
+directory where the log file is.</p></li>
+<li><p>if absolute file path is not provided on the creation of TaskLogHandler, the
+current working directory is used as log file directory.</p></li>
+<li><p>if absolute file path is not provided when calling <code class="docutils literal notranslate"><span class="pre">changeFile</span></code> method, the
+current known log directory is used.</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">enableForked()</span></code> is called, <code class="docutils literal notranslate"><span class="pre">TasklogHandler</span></code> becomes process aware:
+when python <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> is called to fork a new child processes, the
+child process’s TaskLog is automatically redirected to a new file, and
+the parent TaskLog contains a message/link to the new child log.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   TaskLogHandler behavior example.</span>
+<span class="c1">#   no logger is used in this example. only showing how the handler works.</span>
+
+<span class="kn">from</span> <span class="nn">pyats.log</span> <span class="kn">import</span> <span class="n">TaskLogHandler</span>
+
+<span class="c1"># create handler (with full path to log file)</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">TaskLogHandler</span><span class="p">(</span><span class="s1">&#39;/path/to/my/logdir/TaskLog-A.log&#39;</span><span class="p">)</span>
+
+<span class="c1"># now the logging active directory is &quot;/path/to/my/logdir/&quot;</span>
+<span class="c1"># let&#39;s change the tasklog file:</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">changeFile</span><span class="p">(</span><span class="s1">&#39;TaskLog-B.log&#39;</span><span class="p">)</span>
+<span class="c1"># following logging behavior, TaskLog-B.log is created under</span>
+<span class="c1"># &quot;/path/to/my/logdir/TaskLog-B.log&quot;</span>
+
+<span class="c1"># but if we provide an absolute path</span>
+<span class="n">handler</span><span class="o">.</span><span class="n">changeFile</span><span class="p">(</span><span class="s1">&#39;/path/to/newdir/TaskLog-C.log&#39;</span><span class="p">)</span>
+<span class="c1"># logging directory changes to &quot;/path/to/newdir/</span>
+
+<span class="c1"># to use present-working-directory, create handler with logfile as None</span>
+<span class="n">handler</span> <span class="o">=</span> <span class="n">TaskLogHandler</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="c1"># note that if you only change current logfile to None, the last logdir</span>
+<span class="c1"># does not change</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">changeFile</span></code> method is a method of the handler class, and not a
+functionality of logger class. Thus in order to change the output file for a
+TaskLogHandler, you need to beware of which handler you want to use and
+track it (eg, store the variable somewhere).</p>
+</div>
+</section>
+<section id="screenformatter">
+<span id="id1"></span><h2>ScreenFormatter<a class="headerlink" href="#screenformatter" title="Permalink to this heading">¶</a></h2>
+<p>Formats log messages to be printed to screen. Screen formatter formats messages
+by adding a basic time stamp and the module name from where the message came
+from. Note that this is not the standard CiscoLog format.</p>
+<p>Usually this class does not need to be used by the end user: it is automatically
+used when using <a class="reference internal" href="#screenhandler">ScreenHandler</a>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Format
+------
+
+%(asctime)s: %%%(appname)s-%(msgname)s: %(message)s
+
+where:
+    acstime     time when the log message was created
+    appname     name of module where log message was called
+    msgname     text logging level for the message (eg, INFO/DEBUG/WARNING)
+    messages    the log message itself
+
+Example Message
+---------------
+
+2014-12-02T10:10:45: %root-INFO: this is an informational message
+2014-12-02T10:11:00: %root-WARNING: this is a warning message
+</pre></div>
+</div>
+</section>
+<section id="tasklogformatter">
+<span id="id2"></span><h2>TaskLogFormatter<a class="headerlink" href="#tasklogformatter" title="Permalink to this heading">¶</a></h2>
+<p>Formats log messages to standard CiscoLog format, ready to be saved to log
+files, hence the name “TaskLog Formatter”.</p>
+<p>Usually this class does not need to be used by the end user: it is automatically
+used when using <a class="reference internal" href="#taskloghandler">TaskLogHandler</a>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># the format itself, in Python logging formatter style
+# ----------------------------------------------------
+
+{seqnum}: {hostname}: {time}: %{appname}-{severity}-{msgname}: {tags}: {message}%
+
+seqnum      - message sequence number, starts with 1
+hostname    - current host name
+time        - timestamp in yyyy-mm-ddThh:mm:ss format
+appname     - name of module where log message was called
+severity    - message severity, range 1-7
+msgname     - text logging level for the message (eg, INFO/DEBUG/WARNING)
+tags        - optional tags associated with this message
+message     - message given by the user
+
+# default tags included per message
+# ---------------------------------
+pname       - process name
+pid         - process id
+part        - log message part number, if the message is multi-part/line
+
+# Example
+# -------
+
+70: my-server: 2014-08-06T11:21:30: %AETEST-6-INFO: %[pname=python][pid=11295][tid=MainThread]: a log message
+71: my-server: 2014-08-06T11:21:30: %AETEST-6-INFO: %[pname=python][pid=11295][tid=MainThread]: another log message
+</pre></div>
+</div>
+</section>
+<section id="ciscologrecord">
+<h2>CiscoLogRecord<a class="headerlink" href="#ciscologrecord" title="Permalink to this heading">¶</a></h2>
+<p>Extends basic <code class="docutils literal notranslate"><span class="pre">logging.LogRecord</span></code> class and adds support for more default
+values such as <code class="docutils literal notranslate"><span class="pre">seqnum</span></code>, <code class="docutils literal notranslate"><span class="pre">hostname</span></code>, and <code class="docutils literal notranslate"><span class="pre">tags</span></code>, and is backwards
+compatible.</p>
+<p>When either <code class="docutils literal notranslate"><span class="pre">TaskLogFormatter</span></code> or <code class="docutils literal notranslate"><span class="pre">ScreenFormatter</span></code> is enabled on a handler,
+this class replaces the default <code class="docutils literal notranslate"><span class="pre">logging.LogRecord</span></code> factory class through
+<code class="docutils literal notranslate"><span class="pre">logging.setLogRecordFactory</span></code> api call.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="logging.html" class="btn btn-neutral float-left" title="Log Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="integration.html" class="btn btn-neutral float-right" title="Integration with Easypy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

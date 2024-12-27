@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debugging Python &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Changelog" href="../changelog/index.html" />
+    <link rel="prev" title="Test Bench Development" href="testbench.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Resources</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="testbench.html">Test Bench Development</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Debugging Python</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pdb">PDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-code-modification-evaluation">Dynamic Code Modification &amp; Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rapid-prototyping">Rapid Prototyping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debugging-in-ides">Debugging in IDEs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Resources</a></li>
+      <li class="breadcrumb-item active">Debugging Python</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="debugging-python">
+<span id="resources-debugging-python"></span><h1>Debugging Python<a class="headerlink" href="#debugging-python" title="Permalink to this heading">¶</a></h1>
+<p>The best way to debug Python is to use the built in <code class="docutils literal notranslate"><span class="pre">pdb</span></code> debugger. It
+provides an interactive source code debugger for Python programs, including
+setting breakpoints and stepping, etc.</p>
+<section id="pdb">
+<h2>PDB<a class="headerlink" href="#pdb" title="Permalink to this heading">¶</a></h2>
+<p>Everything you need to know about <code class="docutils literal notranslate"><span class="pre">PDB</span></code> is here:
+<a class="reference external" href="https://docs.python.org/3/library/pdb.html">The Python Debugger</a>.</p>
+<p>Everyone should thoroughly read it. There is no better, native way to debug
+python programs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   putting a break in your code</span>
+
+<span class="c1"># yourPythonCode.py</span>
+
+<span class="c1"># code ...</span>
+<span class="c1"># code ..</span>
+<span class="c1"># code .</span>
+
+<span class="c1"># import python debugger and start to trace</span>
+<span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+<span class="c1"># code .</span>
+<span class="c1"># code ..</span>
+<span class="c1"># code ...</span>
+</pre></div>
+</div>
+<p>When your code executes to <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pdb;</span> <span class="pre">pdb.set_trace()</span></code>, it breaks and
+goes into an interactive shell:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># output ...
+# output ..
+# output .
+
+(pdb)
+</pre></div>
+</div>
+<p>This is not the same as your typical python interactive shell. There are some
+differences, for example, built-in commands like <code class="docutils literal notranslate"><span class="pre">w(here)</span></code>, <code class="docutils literal notranslate"><span class="pre">a(rgs)</span></code> etc.
+Refer to the above documentation for details.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>there is also a module called <code class="docutils literal notranslate"><span class="pre">ipdb</span></code> from IPython, which provides all
+the functionality of <code class="docutils literal notranslate"><span class="pre">pdb</span></code> along all of IPython’s goodies.</p>
+</div>
+</section>
+<section id="dynamic-code-modification-evaluation">
+<h2>Dynamic Code Modification &amp; Evaluation<a class="headerlink" href="#dynamic-code-modification-evaluation" title="Permalink to this heading">¶</a></h2>
+<p>If you’re asking this question, you are likely to be coming from a Tcl coding
+background. Unfortunately, there’s no equivalent support for Tcl commands like
+<code class="docutils literal notranslate"><span class="pre">edprocs</span></code>, <code class="docutils literal notranslate"><span class="pre">interpreter</span></code> and etc. It’s just not Python or Pythonic.</p>
+<blockquote>
+<div><p>Didn’t they say you can <code class="docutils literal notranslate"><span class="pre">reload</span></code> a module?</p>
+</div></blockquote>
+<p>Yes, but reloading has severe disadvantages and limitations. Checkout the
+documentation on <code class="docutils literal notranslate"><span class="pre">importlib.reload</span></code>
+(<a class="reference external" href="https://docs.python.org/3.4/library/importlib.html?highlight=reload#importlib.reload">Link</a>):</p>
+<ul class="simple">
+<li><p>Existing class instances are not reloaded when their parent class module is
+reloaded. They continue to use the old class methods.</p></li>
+<li><p>Modules that are designed to be instantiated once will be broken.</p></li>
+<li><p>Reloading a module does not reload its dictionary: it is retained. Only
+redefinition of names will override its old definitions.</p></li>
+</ul>
+<p>Keep in mind that Python is all about classes and objects. You cannot change
+an object’s class after it’s created.</p>
+<blockquote>
+<div><p>Can’t you use <code class="docutils literal notranslate"><span class="pre">eval</span></code> and <code class="docutils literal notranslate"><span class="pre">exec</span></code> to dynamically evaluate code?</p>
+</div></blockquote>
+<p>Yes, but that’s a <strong>highly</strong> unsuggested way to execute python code. If you’re
+using them, you’re doing it wrong. Just because Python provides you a tool,
+doesn’t mean you should abuse it. There are many reasons why you shouldn’t do
+it, and they are well covered from many sources.</p>
+</section>
+<section id="rapid-prototyping">
+<h2>Rapid Prototyping<a class="headerlink" href="#rapid-prototyping" title="Permalink to this heading">¶</a></h2>
+<p>The trick with interpreted language is to use the interpreter: go into the
+interactive mode and try stuff.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python
+Python 3.4.1 (default, Nov 12 2014, 13:34:48)
+[GCC 4.4.6 20120305 (Red Hat 4.4.6-4)] on linux
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt;
+</pre></div>
+</div>
+<p>You can do anything and everything. Try to code rapidly in the interpreter, or
+create your own stub environment in a lightweight Python script, before you put
+them into a big library/script and running the whole schebang. This method of
+development will save you a ton of time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   what a quick edit/test script could look like in pyATS</span>
+
+<span class="c1"># working with a testbed</span>
+<span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">Testbed</span>
+
+<span class="c1"># working with tcl</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">tcl</span>
+
+<span class="c1"># import result codes</span>
+<span class="kn">from</span> <span class="nn">pyats.results</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># create a tb</span>
+<span class="n">tb</span> <span class="o">=</span> <span class="n">Testbed</span><span class="p">(</span><span class="n">config_file</span> <span class="o">=</span> <span class="s1">&#39;/path/to/testbed.yaml&#39;</span><span class="p">)</span>
+
+<span class="c1"># grab a device</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">]</span>
+
+<span class="c1"># connect it if needed</span>
+<span class="n">d</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># now you can do whatever you want.</span>
+<span class="c1"># throw your testcode in here.</span>
+<span class="k">def</span> <span class="nf">myTestcaseSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># code...</span>
+
+    <span class="k">pass</span>
+
+<span class="c1"># wait, what&#39;s this self thing, isn&#39;t it part of a class?</span>
+<span class="c1"># yes and no. :) read up on it.</span>
+<span class="c1"># http://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self-in-python</span>
+<span class="bp">self</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;myTestcase&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;script_args&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;testbed&#39;</span><span class="p">:</span> <span class="n">tb</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">Passed</span><span class="p">}</span>
+
+<span class="c1"># test it</span>
+<span class="n">myTestcaseSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<span class="c1"># throw in a debugger for kicks</span>
+<span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now you have a quick-test environment where you can code and test.. without
+running the whole test script, as long as your testbed is configured up front.
+The only thing that might take a while is the device connection itself. However,
+once you’re paused at <code class="docutils literal notranslate"><span class="pre">pdb</span></code>, you can interactively do more… sky’s the limit.</p>
+</section>
+<section id="debugging-in-ides">
+<h2>Debugging in IDEs<a class="headerlink" href="#debugging-in-ides" title="Permalink to this heading">¶</a></h2>
+<p>Some python IDEs, such as Visual Studio Code, PyCharm and Eclipse, comes with native support for
+breakpoints and debugging. Use at your own discretion.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="testbench.html" class="btn btn-neutral float-left" title="Test Bench Development" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../changelog/index.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

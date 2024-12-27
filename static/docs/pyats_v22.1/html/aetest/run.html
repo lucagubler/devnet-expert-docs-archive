@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running TestScripts &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Section Processors" href="processors.html" />
+    <link rel="prev" title="Section Steps" href="steps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">AEtest - Test Infrastructure</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Script Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects.html">Object Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="behavior.html">Runtime Behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Test Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loop.html">Looping Sections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html">Section Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steps.html">Section Steps</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running TestScripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#argument-propagation">Argument Propagation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#standalone-execution">Standalone Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#easypy-execution">Easypy Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#standard-arguments">Standard Arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testable">Testable</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="processors.html">Section Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datafile.html">Datafile Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control.html">Flow Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reports.html">Report Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">AEtest - Test Infrastructure</a></li>
+      <li class="breadcrumb-item active">Running TestScripts</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-testscripts">
+<span id="running-aetest-script"></span><h1>Running TestScripts<a class="headerlink" href="#running-testscripts" title="Permalink to this heading">¶</a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Helpful Reading</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3.4/library/__main__.html">__main__</a></p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONPATH">PYTHONPATH</a></p></li>
+<li><p><a class="reference external" href="http://linuxcommand.org/lc3_writing_shell_scripts.php">Shell Scripts</a></p></li>
+</ul>
+</aside>
+<p>There are two primary methods of running <code class="docutils literal notranslate"><span class="pre">aetest</span></code> testscripts directly.</p>
+<dl>
+<dt>Standalone</dt><dd><p>running the testscript directly through Linux command-line, within a
+pyats instance. This allows independent execution of <code class="docutils literal notranslate"><span class="pre">aetest</span></code>
+scripts, with all logging outputs defaulted to screen printing only.</p>
+<p><em>Best suited for rapid, lightweight script development &amp; iteration cycles
+without the need to create log archives, etc.</em></p>
+</dd>
+<dt>Through Easypy</dt><dd><p>running the testscript as a task through Easypy <a class="reference internal" href="../easypy/jobfile.html#easypy-jobfile"><span class="std std-ref">Jobfiles</span></a>. This
+method requires the use of <a class="reference internal" href="../easypy/index.html#easypy"><span class="std std-ref">Easypy - Runtime Environment</span></a>, leverages all of the benefits it
+has to offer, and produces log &amp; archives.</p>
+<p><em>Best suited for sanity/regression (official) executions where standard
+environments, reporting &amp; log archiving is required, and when post-mortem
+debugging is necessary.</em></p>
+</dd>
+</dl>
+<section id="argument-propagation">
+<span id="aetest-argument-propagation"></span><h2>Argument Propagation<a class="headerlink" href="#argument-propagation" title="Permalink to this heading">¶</a></h2>
+<p>Before heading into execution modes, we need to first expand on how <code class="docutils literal notranslate"><span class="pre">aetest</span></code>
+parses and propagates command-line arguments. <code class="docutils literal notranslate"><span class="pre">aetest</span></code> uses Python standard
+module <a class="reference external" href="https://docs.python.org/3.4/library/argparse.html">argparse</a> to parse command-line arguments stored in <a class="reference external" href="https://docs.python.org/3.4/library/sys.html#sys.argv">sys.argv</a>.
+This process can be summarized into the following rules of thumb:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>all known arguments (<a class="reference internal" href="#aetest-standard-arguments"><span class="std std-ref">Standard Arguments</span></a>) are parsed by
+<code class="docutils literal notranslate"><span class="pre">aetest</span></code>, and removed from <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> list.</p></li>
+<li><p>all unknown arguments (arguments that aren’t part of the standard argument
+list) are kept in <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> as they were and untouched.</p></li>
+</ul>
+</div></blockquote>
+<p>For example, when <code class="docutils literal notranslate"><span class="pre">aetest</span></code> is started, and <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> contains the following
+command line arguments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;python script.py&#39;</span><span class="p">,</span> <span class="s1">&#39;-loglevel=INFO&#39;</span><span class="p">,</span> <span class="s1">&#39;-my_arg=1&#39;</span><span class="p">,</span> <span class="s1">&#39;-your_arg=2&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">aetest</span></code> takes away <code class="docutils literal notranslate"><span class="pre">-loglevel=INFO</span></code>, and leave the rest in
+<code class="docutils literal notranslate"><span class="pre">sys.argv</span></code>.</p>
+<p>This argument propagation scheme allows users to pass additional arguments to
+the testscript from the command line, and create their own parsers (eg, within
+a <code class="docutils literal notranslate"><span class="pre">subsection</span></code>) to make use of that additional information.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>when writing your own parsers using <a class="reference external" href="https://docs.python.org/3.4/library/argparse.html">argparse</a>, use <code class="docutils literal notranslate"><span class="pre">parse_known_args()</span></code>
+to parse arguments. This ensures the continuity of this argument
+propgation scheme, and avoids unknown argument exceptions when additional
+arguments are encountered.</p>
+</div>
+</section>
+<section id="standalone-execution">
+<span id="aetest-standalone-execution"></span><h2>Standalone Execution<a class="headerlink" href="#standalone-execution" title="Permalink to this heading">¶</a></h2>
+<p>Script executions are considered <em>standalone</em> when they are run via one of the
+following mechanisms:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>directly calling <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> function within a user script/area, or,</p></li>
+<li><p>indirectly calling <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> function by invoking Python’s
+<a class="reference external" href="https://docs.python.org/3.4/library/__main__.html">__main__</a> mechanism</p></li>
+</ul>
+</div></blockquote>
+<p>In other words, user has the absolute control of the execution environment, and
+<code class="docutils literal notranslate"><span class="pre">aetest</span></code> is simply running as the <strong>standalone</strong> execution infrastructure. Do
+not confuse this concept with dependencies: <code class="docutils literal notranslate"><span class="pre">aetest</span></code> is still dependent on the
+current given <em>environment</em>, such as log settings, etc.</p>
+<p>The following is a description of default script behaviors during standalone
+execution. Keep in mind that these can be modified if necessary, as environment
+control is entirely at the hands of the user.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Limited to a single script per invocation.</p></li>
+<li><p>Runtime folder is the present working directory <code class="docutils literal notranslate"><span class="pre">pwd</span></code>.</p></li>
+<li><p>All logging is redirected to <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code> and <code class="docutils literal notranslate"><span class="pre">STDERR</span></code>.</p></li>
+<li><p>No <a class="reference internal" href="../log/concept.html#tasklog"><span class="std std-ref">TaskLog</span></a>, result report and archive generation.</p></li>
+<li><p>Uses the <a class="reference internal" href="reports.html#aetest-standalone-reporter"><span class="std std-ref">Standalone Reporter</span></a> which tracks result and prints
+summary to <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Because of the quick and easy nature of this execution mode, it is mostly used
+during script development, where quick turn-arounds are key to success.</p>
+<p>Generally speaking, to run your testscript under standalone mode, run the script
+by invoking <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> mechanism yourself. For example, the following
+enables running your script directly through Linux command line.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   enabling standalone execution</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="c1"># your testscript sections, testscases &amp; etc</span>
+<span class="c1"># ...</span>
+<span class="c1">#</span>
+
+<span class="c1"># add the following as the absolute last block in your testscript</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># control the environment</span>
+    <span class="c1"># eg, change some log levels for debugging</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyats.aetest&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+    <span class="c1"># aetest.main() api starts the testscript execution.</span>
+    <span class="c1"># defaults to aetest.main(testable = &#39;__main__&#39;)</span>
+    <span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>you may also add a <a class="reference external" href="http://en.wikipedia.org/wiki/Shebang_%28Unix%29">Shebang</a> to your script and make it a direct executable
+under Linux. This is a Linux prerequisite skillset, and is not covered as
+part of this document.</p>
+</div>
+<p>This enables your script to be executed using <code class="docutils literal notranslate"><span class="pre">python</span></code> executable:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   running an aetest script standalone using python executable</span>
+<span class="c1">#   (output timestamp removed for legibility purpose)</span>
+
+<span class="o">(</span>pyats<span class="o">)</span><span class="w"> </span><span class="o">[</span>tony@jarvis:pyats<span class="o">]</span>$<span class="w"> </span>python<span class="w"> </span>/path/to/your/script.py
+
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                            </span>Starting<span class="w"> </span>common<span class="w"> </span>setup<span class="w">                             </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                      </span>Starting<span class="w"> </span>subsection<span class="w"> </span>subsection_one<span class="w">                      </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>subsection<span class="w"> </span>subsection_one<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                      </span>Starting<span class="w"> </span>subsection<span class="w"> </span>subsection_two<span class="w">                      </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>subsection<span class="w"> </span>subsection_two<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>common<span class="w"> </span>setup<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                          </span>Starting<span class="w"> </span>testcase<span class="w"> </span>Testcase<span class="w">                          </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                          </span>Starting<span class="w"> </span>section<span class="w"> </span>test_one<span class="w">                           </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>section<span class="w"> </span>test_one<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                          </span>Starting<span class="w"> </span>section<span class="w"> </span>test_two<span class="w">                           </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>section<span class="w"> </span>test_two<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                         </span>Starting<span class="w"> </span>section<span class="w"> </span>test_three<span class="w">                          </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>section<span class="w"> </span>test_three<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>The<span class="w"> </span>result<span class="w"> </span>of<span class="w"> </span>testcase<span class="w"> </span>Testcase<span class="w"> </span><span class="nv">is</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                               </span>Detailed<span class="w"> </span>Results<span class="w">                               </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">     </span>SECTIONS/TESTCASES<span class="w">                                                    </span>RESULT
+<span class="w">    </span>--------------------------------------------------------------------------------
+<span class="w">     </span>.
+<span class="w">     </span><span class="p">|</span>--<span class="w"> </span>CommonSetup<span class="w">                                                       </span>PASSED
+<span class="w">     </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>subsection_one<span class="w">                                                </span>PASSED
+<span class="w">     </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>subsection_two<span class="w">                                                </span>PASSED
+<span class="w">     </span><span class="sb">`</span>--<span class="w"> </span>Testcase<span class="w">                                                          </span>PASSED
+<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>test_one<span class="w">                                                      </span>PASSED
+<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>test_two<span class="w">                                                      </span>PASSED
+<span class="w">         </span><span class="sb">`</span>--<span class="w"> </span>test_three<span class="w">                                                    </span>PASSED
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">    </span><span class="p">|</span><span class="w">                                   </span>Summary<span class="w">                                    </span><span class="p">|</span>
+<span class="w">    </span>+------------------------------------------------------------------------------+
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>ABORTED<span class="w">                                                            </span><span class="m">0</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>BLOCKED<span class="w">                                                            </span><span class="m">0</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>ERRORED<span class="w">                                                            </span><span class="m">0</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>FAILED<span class="w">                                                             </span><span class="m">0</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>PASSED<span class="w">                                                             </span><span class="m">2</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>PASSX<span class="w">                                                              </span><span class="m">0</span>
+<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>SKIPPED<span class="w">                                                            </span><span class="m">0</span>
+<span class="w">    </span>--------------------------------------------------------------------------------
+</pre></div>
+</div>
+<p>In essence, the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function is what actually starts up the <code class="docutils literal notranslate"><span class="pre">aetest</span></code>
+script execution under standalone mode. It is the primary entry point to
+<code class="docutils literal notranslate"><span class="pre">aetest</span></code>, and accepts the following optional arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">testable</span></code>, the <a class="reference internal" href="#aetest-testable"><span class="std std-ref">Testable</span></a> to be loaded and tested. Defaults
+to <code class="docutils literal notranslate"><span class="pre">'__main__'</span></code>.</p></li>
+<li><p>any <code class="docutils literal notranslate"><span class="pre">aetest</span></code> <a class="reference internal" href="#aetest-standard-arguments"><span class="std std-ref">Standard Arguments</span></a> as keyword arguments.</p></li>
+<li><p>and all other additional <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> keyword arguments are used as
+<a class="reference internal" href="parameters.html#script-args"><span class="std std-ref">Script Arguments</span></a> parameters during this execution.</p></li>
+</ul>
+</div></blockquote>
+<p>If your scripts require any input arguments from the command line (eg, script
+arguments), you will need to write your own argument parser, and provide that
+parsed information as <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> to <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> so that they become
+<a class="reference internal" href="parameters.html#test-parameters"><span class="std std-ref">Test Parameters</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   parsing script arguments in standalone mode</span>
+
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="k">class</span> <span class="nc">Testcase</span><span class="p">(</span><span class="n">aetest</span><span class="o">.</span><span class="n">Testcase</span><span class="p">):</span>
+
+    <span class="c1"># defining a test that prints out the current parameters</span>
+    <span class="c1"># in order to demonstrate argument passing to parameters</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parameters = &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+<span class="c1"># do the parsing within the __main__ block,</span>
+<span class="c1"># and pass the parsed arguments to aetest.main()</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># local imports under __main__ section</span>
+    <span class="c1"># this is done here because we don&#39;t want to pollute the namespace</span>
+    <span class="c1"># when the script isn&#39;t run under standalone</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+    <span class="c1"># creating our own parser to parse script arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;standalone parser&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--testbed&#39;</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;testbed&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--vlan&#39;</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;vlan&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># do the parsing</span>
+    <span class="c1"># always use parse_known_args, as aetest needs to parse any</span>
+    <span class="c1"># remainder arguments that this parser does not understand</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="c1"># and pass all arguments to aetest.main() as kwargs</span>
+    <span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">testbed</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">testbed</span><span class="p">,</span> <span class="n">vlan</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">vlan</span><span class="p">)</span>
+
+
+<span class="c1"># Let&#39;s run this script with the following command</span>
+<span class="c1">#   example_script.py --testbed /path/to/my/testbed.yaml --vlan 50</span>
+
+<span class="c1"># output of the script:</span>
+<span class="c1">#</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   |                          Starting testcase Testcase                          |</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   |                            Starting section test                             |</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   Parameters = {&#39;testbed&#39;: &lt;Testbed object at 0xf717578c&gt;, &#39;vlan&#39;: 50})</span>
+<span class="c1">#   The result of section test is =&gt; PASSED</span>
+<span class="c1">#   The result of testcase Testcase is =&gt; PASSED</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>when writing standalone argument parsers, try to only parse known arguments
+using <code class="docutils literal notranslate"><span class="pre">parse_known_args()</span></code>. This allows all remaining <code class="docutils literal notranslate"><span class="pre">aetest</span></code> only
+arguments to propagate upstream, adhering to <code class="docutils literal notranslate"><span class="pre">aetest</span></code>
+<a class="reference internal" href="#aetest-argument-propagation"><span class="std std-ref">Argument Propagation</span></a> scheme.</p>
+</div>
+<p>There are many other possible use cases of <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> under standalone
+execution. This mechanism provides maximum flexibility &amp; debuggability to the
+end user, and simply runs <code class="docutils literal notranslate"><span class="pre">aetest</span></code> test infrastructure as is. For example,
+it can also be called directly in a python interactive shell, as long as you
+provide it the right arguments.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   demonstrating the usages of aetest.main()</span>
+<span class="c1">#   (this is a python interpreter demo)</span>
+
+<span class="c1"># launch the python interpreter</span>
+<span class="c1"># and call main() by providing the script to be run as testable</span>
+
+<span class="o">(</span>pyats<span class="o">)</span><span class="w"> </span><span class="o">[</span>tony@jarvis:pyats<span class="o">]</span>$<span class="w"> </span>python
+Python<span class="w"> </span><span class="m">3</span>.4.1<span class="w"> </span><span class="o">(</span>default,<span class="w"> </span>Nov<span class="w"> </span><span class="m">12</span><span class="w"> </span><span class="m">2014</span>,<span class="w"> </span><span class="m">13</span>:34:48<span class="o">)</span>
+<span class="o">[</span>GCC<span class="w"> </span><span class="m">4</span>.4.6<span class="w"> </span><span class="m">20120305</span><span class="w"> </span><span class="o">(</span>Red<span class="w"> </span>Hat<span class="w"> </span><span class="m">4</span>.4.6-4<span class="o">)]</span><span class="w"> </span>on<span class="w"> </span>linux
+Type<span class="w"> </span><span class="s2">&quot;help&quot;</span>,<span class="w"> </span><span class="s2">&quot;copyright&quot;</span>,<span class="w"> </span><span class="s2">&quot;credits&quot;</span><span class="w"> </span>or<span class="w"> </span><span class="s2">&quot;license&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>more<span class="w"> </span>information.
+&gt;&gt;&gt;<span class="w"> </span>from<span class="w"> </span>pyats.aetest<span class="w"> </span>import<span class="w"> </span>main
+&gt;&gt;&gt;<span class="w"> </span>main<span class="o">(</span><span class="nv">testable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/path/to/your/script.py&#39;</span><span class="o">)</span>
+...<span class="w"> </span>execution<span class="w"> </span>output<span class="w"> </span>...
+&gt;&gt;&gt;
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you want the test script’s bash exit code to reflect the outcome of the
+tests in your test scrip, then save the result of <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> and pass
+it into <code class="docutils literal notranslate"><span class="pre">aetest.exit_cli_code()</span></code> like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">exit_cli_code</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">aetest.exit_cli_code</span></code> will cause the script to exit and returns 0 or 1 to
+the environment as the exit code. 0 is returned if all tests in the script
+pass and 1 is returned if one or more tests fail (or if all tests are
+skipped).</p>
+</div>
+</section>
+<section id="easypy-execution">
+<span id="aetest-jobfile-execution"></span><h2>Easypy Execution<a class="headerlink" href="#easypy-execution" title="Permalink to this heading">¶</a></h2>
+<p>Scripts executed with <a class="reference internal" href="../easypy/index.html#easypy"><span class="std std-ref">Easypy - Runtime Environment</span></a> is called <em>Easypy Execution</em>. In this mode,
+all environment handling and control is set by the Easypy launcher. For example, the
+following features are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>multiple <code class="docutils literal notranslate"><span class="pre">aetest</span></code> test scripts can be executed together, aggregated
+within a <a class="reference internal" href="../easypy/jobfile.html#easypy-jobfile"><span class="std std-ref">job file</span></a>.</p></li>
+<li><p>initial logging configuration is done by <a class="reference internal" href="../easypy/index.html#easypy"><span class="std std-ref">Easypy - Runtime Environment</span></a>, with user
+customizations within the job file.</p></li>
+<li><p><a class="reference internal" href="../log/concept.html#tasklog"><span class="std std-ref">TaskLog</span></a>, result report and archives are generated.</p></li>
+<li><p>uses <a class="reference internal" href="../reporter/index.html#reporter"><span class="std std-ref">Reporter</span></a> for reporting &amp; result tracking,
+generating result YAML file and result details and summary XML files.</p></li>
+</ul>
+</div></blockquote>
+<p>Easypy execution is the typical way of running <code class="docutils literal notranslate"><span class="pre">aetest</span></code> scripts for production
+testing purposes such as sanity/regression testing. It offers a standard,
+managed &amp; replicable test environment for script execution; and most
+importantly, creates an archive file containing log outputs &amp; environment
+information for post-mortem debugging.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>this section only expands on <code class="docutils literal notranslate"><span class="pre">aetest</span></code> behaviors when executed through
+Easypy. <a class="reference internal" href="../easypy/index.html#easypy"><span class="std std-ref">Easypy - Runtime Environment</span></a> understanding is a prerequisite.</p>
+</div>
+<p>Each <code class="docutils literal notranslate"><span class="pre">aetest</span></code> script ran within a job file is called a <em>task</em>. Here’s an
+example of a simple job file with a single task.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   pyats job file example, integrating aetest scripts</span>
+
+<span class="kn">from</span> <span class="nn">pyats.easypy</span> <span class="kn">import</span> <span class="n">run</span>
+
+<span class="c1"># job file needs to have a main() definition</span>
+<span class="c1"># which is the primary entry point for starting job files</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="c1"># run a testscript</span>
+    <span class="c1"># ----------------</span>
+    <span class="c1"># easypy.run() api defaults to using aetest as the test infrastructure</span>
+    <span class="c1"># to execute the testscript. Eg, this is the exact same as doing:</span>
+    <span class="c1">#   run(testscript=&#39;/path/to/your/script.py&#39;,</span>
+    <span class="c1">#       testinfra = &#39;pyats.aetest&#39;)</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">testscript</span><span class="o">=</span><span class="s1">&#39;/path/to/your/script.py&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In essence, during Easypy execution, each job file’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> api invokes
+<code class="docutils literal notranslate"><span class="pre">aetest</span></code> infrastructure independently and runs the provided testscript. The
+following behaviors are observed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>all <code class="docutils literal notranslate"><span class="pre">aetest</span></code> <a class="reference internal" href="#aetest-standard-arguments"><span class="std std-ref">Standard Arguments</span></a> are accepted as keyword
+arguments.</p></li>
+<li><p>all <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> keyword arguments to <code class="docutils literal notranslate"><span class="pre">run()</span></code> api propagate to
+the testscript as <a class="reference internal" href="parameters.html#script-args"><span class="std std-ref">Script Arguments</span></a>.</p></li>
+<li><p>in addition, if <code class="docutils literal notranslate"><span class="pre">pyats</span> <span class="pre">run</span> <span class="pre">job</span></code> was launched with a testbed file (through
+<code class="docutils literal notranslate"><span class="pre">--testbed-file</span></code> or <code class="docutils literal notranslate"><span class="pre">--logical-testbed-file</span></code> arguments,
+see <a class="reference internal" href="../easypy/usages.html#easypy-arguments"><span class="std std-ref">Standard Arguments</span></a>), the corresponding testbed object
+propagates to the testscript as argument <code class="docutils literal notranslate"><span class="pre">testbed</span></code>.</p></li>
+<li><p>If neither <code class="docutils literal notranslate"><span class="pre">--testbed-file</span></code> nor <code class="docutils literal notranslate"><span class="pre">--logical-testbed-file</span></code> was
+provided to <code class="docutils literal notranslate"><span class="pre">pyats</span> <span class="pre">run</span> <span class="pre">job</span></code>, then the argument
+<code class="docutils literal notranslate"><span class="pre">testbed</span></code> is set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   pyats job file example, with script arguments</span>
+
+<span class="kn">from</span> <span class="nn">pyats.easypy</span> <span class="kn">import</span> <span class="n">run</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="c1"># providing a couple custom script arguments as **kwargs</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">testscript</span><span class="o">=</span><span class="s1">&#39;/path/to/your/script.py&#39;</span><span class="p">,</span>
+        <span class="n">pyats_is_awesome</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">aetest_is_legendary</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># if this job file was run with the following command:</span>
+<span class="c1">#   pyats run job example_job.py --testbed-file /path/to/my/testbed.yaml</span>
+<span class="c1">#</span>
+<span class="c1"># and the script had one testcase that prints out the script&#39;s parameters,</span>
+<span class="c1"># the output of the script ought to be:</span>
+<span class="c1">#</span>
+<span class="c1">#   starting test execution for testscript &#39;a.py&#39;</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   |                          Starting testcase Testcase                          |</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   |                            Starting section test                             |</span>
+<span class="c1">#   +------------------------------------------------------------------------------+</span>
+<span class="c1">#   Parameters = {&#39;testbed&#39;: &lt;Testbed object at 0xf742f74c&gt;,</span>
+<span class="c1">#                 &#39;pyats_is_awesome&#39;: True,</span>
+<span class="c1">#                 &#39;aetest_is_legendary&#39;: True}</span>
+<span class="c1">#   The result of section test is =&gt; PASSED</span>
+<span class="c1">#   The result of testcase Testcase is =&gt; PASSED</span>
+</pre></div>
+</div>
+</section>
+<section id="standard-arguments">
+<span id="aetest-standard-arguments"></span><h2>Standard Arguments<a class="headerlink" href="#standard-arguments" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aetest</span></code> accepts a number of standard arguments that can be used to influence
+and/or change script execution behaviors. They can be provided either as command
+line arguments when running directly under Linux shell, or used as keyword
+arguments to <code class="docutils literal notranslate"><span class="pre">aetest.main()</span></code> and <code class="docutils literal notranslate"><span class="pre">easypy.run()</span></code>.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">AETest Standard Arguments</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Keyword</p></th>
+<th class="head"><p>Command Line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>n/a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-help</span></code></p></td>
+<td><p>display help information</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">uids</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-uids</span></code></p></td>
+<td><p>specify the list of section uids to run (logic
+expression)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">groups</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-groups</span></code></p></td>
+<td><p>specify the list of testcase groups to run (logic
+expression)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">datafile</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-datafile</span></code></p></td>
+<td><p>input datafile/value for this script</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">random</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-random</span></code></p></td>
+<td><p>flag to enable testcase randomization</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">random_seed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-random_seed</span></code></p></td>
+<td><p>testcase randomization seed</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_failures</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-max_failures</span></code></p></td>
+<td><p>max acceptable number of failures</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pdb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-pdb</span></code></p></td>
+<td><p>start interactive debugger on failure</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">step_debug</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-step_debug</span></code></p></td>
+<td><p>step debug input file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pause_on</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-pause_on</span></code></p></td>
+<td><p>pause on phrase input string/file</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loglevel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-loglevel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aetest</span></code> logging level</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">submitter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-submitter</span></code></p></td>
+<td><p>submitter of this script (defaults to
+current user)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Table Legend
+------------
+
+Keyword: keyword argument name
+Command Line: command-line argument name
+</pre></div>
+</div>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">-help</span></code></dt><dd><p>used under command-line to provide help information w.r.t. available command
+line arguments and how to use them.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>/path/to/my/script.py<span class="w"> </span>-help
+bash$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pyats.aetest<span class="w"> </span>-help
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">uids</span></code>, <code class="docutils literal notranslate"><span class="pre">-uids</span></code></dt><dd><p>specify the list of section uids to be executed using a callable expression.
+This argument takes in a <code class="docutils literal notranslate"><span class="pre">callable</span></code> that returns True or False for each
+section uid input, controlling whether the section is run or not. (Docs &#64;
+<a class="reference internal" href="control.html#aetest-uids"><span class="std std-ref">Run IDS</span></a>)</p>
+<p>When using this argument in command line, the input is required to be of
+valid python syntax, evaluatable by <a class="reference internal" href="../datastructures/logic.html#logic-from-str"><span class="std std-ref">Logic String Inputs</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-uids<span class="w"> </span><span class="s2">&quot;And(&#39;pattern_1&#39;, &#39;pattern_2&#39;)&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example using datastructure logic</span>
+<span class="kn">from</span> <span class="nn">pyats.datastructures.logic</span> <span class="kn">import</span> <span class="n">Or</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">uids</span> <span class="o">=</span> <span class="n">Or</span><span class="p">(</span><span class="s1">&#39;common_setup&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;^test_.*&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;common_cleanup&#39;</span><span class="p">))</span>
+
+<span class="c1"># easypy.run() example (job file snippet) using lambda</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">uids</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">tc</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="kc">None</span><span class="p">:</span> <span class="n">tc</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;common_setup&#39;</span><span class="p">,</span> <span class="s1">&#39;test_one&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">groups</span></code>, <code class="docutils literal notranslate"><span class="pre">-groups</span></code></dt><dd><p>expression specifying the group(s) of testcases to execute. This argument
+accepts a <code class="docutils literal notranslate"><span class="pre">callable</span></code> evaluating to True/False, where each testcase’s
+groups field is supplied as input, to test whether that
+testcase should run or not (Docs &#64; <a class="reference internal" href="control.html#aetest-groups"><span class="std std-ref">Testcase Grouping</span></a>)</p>
+<p>When using this argument in command line, the input is required to be of
+valid python syntax, evaluatable by <a class="reference internal" href="../datastructures/logic.html#logic-from-str"><span class="std std-ref">Logic String Inputs</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-groups<span class="o">=</span><span class="s2">&quot;And(Or(&#39;group1&#39;,&#39;group2&#39;), &#39;group3&#39;)&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example using datastructure logic</span>
+<span class="kn">from</span> <span class="nn">pyats.datastructures.logic</span> <span class="kn">import</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">Or</span><span class="p">(</span><span class="s1">&#39;group1&#39;</span><span class="p">,</span><span class="s1">&#39;group2&#39;</span><span class="p">),</span> <span class="s1">&#39;group3&#39;</span><span class="p">))</span>
+
+<span class="c1"># easypy.run() example (job file snippet) using datastructure logic</span>
+<span class="kn">from</span> <span class="nn">pyats.datastructures.logic</span> <span class="kn">import</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">And</span><span class="p">(</span><span class="n">Or</span><span class="p">(</span><span class="s1">&#39;group1&#39;</span><span class="p">,</span><span class="s1">&#39;group2&#39;</span><span class="p">),</span> <span class="s1">&#39;group3&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">datafile</span></code>, <code class="docutils literal notranslate"><span class="pre">-datafile</span></code></dt><dd><p>full name and path or URL to the script input datafile file in YAML format.
+For full detail on use cases and examples, refer to <a class="reference internal" href="datafile.html#aetest-datafile"><span class="std std-ref">Datafile Inputs</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-datafile<span class="o">=</span><span class="s2">&quot;/path/to/datafile.yaml&quot;</span>
+bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-datafile<span class="o">=</span><span class="s2">&quot;http://&lt;url&gt;/datafile.yaml&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">datafile</span> <span class="o">=</span> <span class="s2">&quot;/path/to/datafile.yaml&quot;</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">datafile</span> <span class="o">=</span> <span class="s2">&quot;/path/to/datafile.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">random</span></code>, <code class="docutils literal notranslate"><span class="pre">-random</span></code></dt><dd><p>flag to enable testcase randomization, allowing a script’s testcase orders
+to be randomly shuffled before execution. To learn more about testcase
+randomization, refer to <a class="reference internal" href="control.html#aetest-testcase-randomization"><span class="std std-ref">Testcase Randomization</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-random
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">random_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">-random_seed</span></code></dt><dd><p>randomization seed integer, used to fix the randomizer and re-generate the
+same testcase sequence, useful for debugging purposes. Requires testcase
+randomization to be turned on first. To learn more about it, refer to
+<a class="reference internal" href="control.html#aetest-testcase-randomization"><span class="std std-ref">Testcase Randomization</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-random<span class="w"> </span>-random_seed<span class="w"> </span><span class="m">42</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">random_seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">random_seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">max_failures</span></code>, <code class="docutils literal notranslate"><span class="pre">-max_failures</span></code></dt><dd><p>integer specifying the maximum number of failures allowed before the script
+auto-aborts. Refer to <a class="reference internal" href="control.html#aetest-max-failures"><span class="std std-ref">Maximum Failures</span></a> for details.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-max_failures<span class="w"> </span><span class="m">13</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">max_failures</span> <span class="o">=</span> <span class="mi">13</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">max_failures</span> <span class="o">=</span> <span class="mi">13</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">pdb</span></code>, <code class="docutils literal notranslate"><span class="pre">-pdb</span></code></dt><dd><p>flag, allowing AEtest to automatically invoke the python interactive
+debugger <code class="docutils literal notranslate"><span class="pre">pdb</span></code> on failure/errors. Refer to <a class="reference internal" href="debugging.html#aetest-pdb"><span class="std std-ref">PDB on Failure</span></a> for details.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-pdb
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">pdb</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">pdb</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">step_debug</span></code>, <code class="docutils literal notranslate"><span class="pre">-step_debug</span></code></dt><dd><p>full name and path to step debug file, containing debug commands to run at
+each testcase steps. To learn more about steps, refer to <a class="reference internal" href="steps.html#aetest-steps"><span class="std std-ref">Section Steps</span></a>
+documentation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-step_debug<span class="o">=</span><span class="s2">&quot;/path/to/my/stepdebugfile&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">step_debug</span> <span class="o">=</span> <span class="s2">&quot;/path/to/my/stepdebugfile&quot;</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">step_debug</span> <span class="o">=</span> <span class="s2">&quot;/path/to/my/stepdebugfile&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">pause_on</span></code>, <code class="docutils literal notranslate"><span class="pre">-pause_on</span></code></dt><dd><p>full name and path to pause on phrase file, its dictionary content in
+string format, or a plain string. For full detail on use cases and examples,
+refer to <a class="reference internal" href="debugging.html#aetest-pause-on-phase"><span class="std std-ref">Pause on Phrase</span></a> documentation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-pause_on<span class="o">=</span><span class="s2">&quot;some string to pause&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">pause_on</span> <span class="o">=</span> <span class="s2">&quot;/path/to/my/pause_on_file&quot;</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">pause_on</span> <span class="o">=</span> <span class="s2">&quot;/path/to/my/pause_on_file&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">loglevel</span></code>, <code class="docutils literal notranslate"><span class="pre">-loglevel</span></code>:</dt><dd><p>changes the <code class="docutils literal notranslate"><span class="pre">pyats.aetest</span></code> logger loglevel. Defaults to <code class="docutils literal notranslate"><span class="pre">logging.INFO</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-loglevel<span class="o">=</span>DEBUG
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">loglevel</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">loglevel</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">submitter</span></code>, <code class="docutils literal notranslate"><span class="pre">-submitter</span></code>:</dt><dd><p>changes the submitter user id. Defaults to current Linux shell user.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash$<span class="w"> </span>python<span class="w"> </span>testscript.py<span class="w"> </span>-submitter<span class="o">=</span><span class="s2">&quot;tonystark&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># aetest.main() example</span>
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">submitter</span><span class="o">=</span><span class="s2">&quot;blackwidow&quot;</span><span class="p">)</span>
+
+<span class="c1"># easypy.run() example (job file snippet)</span>
+<span class="n">run</span><span class="p">(</span><span class="n">testscript</span> <span class="o">=</span> <span class="s1">&#39;testscript.py&#39;</span><span class="p">,</span> <span class="n">submitter</span><span class="o">=</span><span class="s2">&quot;warmachine68&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</section>
+<section id="testable">
+<span id="aetest-testable"></span><h2>Testable<a class="headerlink" href="#testable" title="Permalink to this heading">¶</a></h2>
+<p>The definition of a <em>testable</em> in <code class="docutils literal notranslate"><span class="pre">aetest</span></code> is any object that can be loaded
+by <code class="docutils literal notranslate"><span class="pre">aetest.loader</span></code> module into a <code class="docutils literal notranslate"><span class="pre">TestScript</span></code> class instance and executed
+as a testscript without throwing errors.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   aetest loader</span>
+
+<span class="kn">from</span> <span class="nn">pyats.aetest</span> <span class="kn">import</span> <span class="n">loader</span>
+
+<span class="c1"># load a testscript file directly into an object</span>
+<span class="c1"># and check the object type.</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testable</span> <span class="o">=</span> <span class="s1">&#39;/path/to/testScript.py&#39;</span><span class="p">)</span>
+<span class="n">obj</span>
+<span class="c1"># &lt;class &#39;TestScript&#39; uid=&#39;pyats.aetest.testscript&#39;&gt;</span>
+</pre></div>
+</div>
+<p>The following are acceptable as <strong>testables</strong>:</p>
+<blockquote>
+<div><ul>
+<li><p>full path/name to a python file ending with <code class="docutils literal notranslate"><span class="pre">.py</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">testable</span> <span class="o">=</span> <span class="s1">&#39;/paty/to/your/test/script/file.py&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>any module name that is part of current <a class="reference external" href="https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONPATH">PYTHONPATH</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">testable</span> <span class="o">=</span> <span class="s1">&#39;regression.bgp.traffic_suite&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>any non built-in module objects (instances of <code class="docutils literal notranslate"><span class="pre">types.ModuleType</span></code>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">regression.bgp</span> <span class="kn">import</span> <span class="n">traffic_suite</span>
+
+<span class="n">aetest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">testable</span> <span class="o">=</span> <span class="n">traffic_suite</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>Do not confuse <strong>testables</strong> with <em>testscripts that generate meaningful testing
+and results</em>. Because of python’s specific <strong>inspect &amp; run</strong> mechanism, it is
+possible to pass meaningless modules (such as <code class="docutils literal notranslate"><span class="pre">urllib</span></code>) to <code class="docutils literal notranslate"><span class="pre">aetest</span></code>, and
+generate 0 results because even-though it passes as a testable, it contains no
+actual tests.</p>
+<blockquote>
+<div><p><em>Just because you can run it as a testscript doesn’t mean it performs any
+consequential testing.</em></p>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="steps.html" class="btn btn-neutral float-left" title="Section Steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="processors.html" class="btn btn-neutral float-right" title="Section Processors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

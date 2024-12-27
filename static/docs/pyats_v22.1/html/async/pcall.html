@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parallel Call &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Multiprocessing" href="multiprocessing.html" />
+    <link rel="prev" title="Module Integration" href="integration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Asynchronous Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="versus.html">Asynchronous Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integration.html">Module Integration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parallel Call</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#usages">Usages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#single-target">Single Target</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multiple-targets">Multiple Targets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#errors-and-timeouts">Errors and Timeouts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcall-object">Pcall Object</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="multiprocessing.html">Using Multiprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="semaphores.html">Semaphores</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Asynchronous Library</a></li>
+      <li class="breadcrumb-item active">Parallel Call</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parallel-call">
+<span id="async-pcall"></span><h1>Parallel Call<a class="headerlink" href="#parallel-call" title="Permalink to this heading">¶</a></h1>
+<p>Parallel call <code class="docutils literal notranslate"><span class="pre">pcall</span></code> is an API provided by <code class="docutils literal notranslate"><span class="pre">async</span></code> module that supports
+calling procedures and functions in parallel using <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> fork,
+without having to write boilerplate code to handle the overhead of process
+creation, waiting and terminations.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pcall</span></code> supports calling any and all procedures, functions and methods in
+parallel, as long as they satisfy the following requirements:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the return of called target must be a <strong>pickleable</strong> object.
+(refer to: <a class="reference external" href="https://docs.python.org/3.4/library/pickle.html#what-can-be-pickled-and-unpickled">What can be pickled</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Consider <code class="docutils literal notranslate"><span class="pre">pcall</span></code> as a shortcut library to <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>, intended to
+satisfying most users’ need for parallel processing. However, for more custom
+&amp; advanced use cases, stick with direct usages of <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>.</p>
+<section id="usages">
+<h2>Usages<a class="headerlink" href="#usages" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pcall</span></code> API allows users to call any function/method (a.k.a. <strong>target</strong>) in
+parallel. It comes with the following built-in features:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>builds arguments for each child process/instance</p></li>
+<li><p>creates, handles and gracefully terminates all processes</p></li>
+<li><p>returns target results in their called order</p></li>
+<li><p>re-raises child process errors in the parent process</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   a simple parallel call</span>
+
+<span class="c1"># import pcall</span>
+<span class="kn">from</span> <span class="nn">pyats.async_</span> <span class="kn">import</span> <span class="n">pcall</span>
+
+<span class="c1"># define a function to be called in parallel</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="c1"># invoke parallel calling of the above function</span>
+<span class="c1"># to calculate 1 + 4, 2 + 5, 3 + 6</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pcall</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="c1"># (5, 7, 9)</span>
+</pre></div>
+</div>
+<p>In essense, arguments to <code class="docutils literal notranslate"><span class="pre">pcall</span></code> are zipped together to create multiple calls
+to the given target(s), and run concurrently through forked child processes.
+The number of child processes forked is automatically optimized based on the
+number of target calls, arguments and so on.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pcall</span></code> argument builder is coded with python <code class="docutils literal notranslate"><span class="pre">zip</span></code>, and follows the <code class="docutils literal notranslate"><span class="pre">zip</span></code>
+mentality: the iterator stops when the shortest input iterable is exhausted,
+instead of throwing an exception about iterable length mismatches.</p>
+<p>The final results of all child processes is automatically aggregated together
+into a tuple and returned to the user. The order of these results appear exactly
+as the order of arguments provided and used to built/launch each child process
+with.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Pcall Argument List</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">targets</span></code></p></td>
+<td><p>a single, or a list of callable targets to be invoked in
+parallel</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
+<td><p>max runtime of any single child process in seconds</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cargs</span></code></p></td>
+<td><p>positional arguments common to all target calls</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iargs</span></code></p></td>
+<td><p>list of specific positional argument for each target</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ckwargs</span></code></p></td>
+<td><p>keyword-arguments common to all target calls</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ikwargs</span></code></p></td>
+<td><p>list of specific keyword arguments for each target</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">varkwargs</span></code></p></td>
+<td><p>any other variable keyword arguments and value lists for
+each target</p></td>
+</tr>
+</tbody>
+</table>
+<p>Do not be discouraged by the above list of available arguments: they’re mostly
+optional. The intent is to present an interface sufficient for all possible
+types of usages scenarios. The examples below cover most of the useful
+combinations.</p>
+</section>
+<section id="single-target">
+<h2>Single Target<a class="headerlink" href="#single-target" title="Permalink to this heading">¶</a></h2>
+<p>When only a single <strong>target</strong> function is passed through <code class="docutils literal notranslate"><span class="pre">pcall</span></code>, the number
+of parallel instances is controlled by the number of instance arguments. If
+both positional and keyword instance arguments are used together, their numbers
+of iterations must match, otherwise any extra iterations are tossed away.
+This is inline with  Python <code class="docutils literal notranslate"><span class="pre">zip()</span></code> function behavior.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   pcall argument combinations (single target)</span>
+<span class="c1">#   (using a lot of tuples instead of lists)</span>
+
+<span class="c1"># import pcall</span>
+<span class="kn">from</span> <span class="nn">pyats.async_</span> <span class="kn">import</span> <span class="n">pcall</span>
+
+<span class="c1"># define a function to be called by pcall</span>
+<span class="c1"># (this function returns all of its arguments back to the caller)</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># positional argument building</span>
+<span class="c1"># ----------------------------</span>
+<span class="c1">#   child 1: args=(1, 2, 3, 4), kwargs= {}</span>
+<span class="c1">#   child 2: args=(1, 2, 3, 5), kwargs= {}</span>
+<span class="c1">#   child 3: args=(1, 2, 3, 6), kwargs= {}</span>
+<span class="n">pcall</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cargs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">iargs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">4</span><span class="p">,),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,))</span>
+
+<span class="c1"># keyword argument building</span>
+<span class="c1"># -------------------------</span>
+<span class="c1">#   child 1: args=(), kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3}</span>
+<span class="c1">#   child 2: args=(), kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 4}</span>
+<span class="c1">#   child 3: args=(), kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 5}</span>
+<span class="n">pcall</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ckwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}])</span>
+
+<span class="c1"># variable keyword argument building</span>
+<span class="c1"># ----------------------------------</span>
+<span class="c1">#   child 1: args=(), kwargs= {&#39;x&#39;: 1, &#39;y&#39;: 4, &#39;z&#39;: 7}</span>
+<span class="c1">#   child 2: args=(), kwargs= {&#39;x&#39;: 2, &#39;y&#39;: 5, &#39;z&#39;: 8}</span>
+<span class="c1">#   child 2: args=(), kwargs= {&#39;x&#39;: 3, &#39;y&#39;: 6, &#39;z&#39;: 9}</span>
+<span class="n">pcall</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+<span class="c1"># combo is always fun</span>
+<span class="c1"># -------------------</span>
+<span class="c1">#   child 1: args=(1, 2, 3, 6, 7),</span>
+<span class="c1">#            kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3, &#39;x&#39;: 10, &#39;y&#39;: 100}</span>
+<span class="c1">#   child 2: args=(1, 2, 3, 8, 9),</span>
+<span class="c1">#            kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 4, &#39;x&#39;: 20, &#39;y&#39;: 200}</span>
+<span class="n">pcall</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">cargs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">iargs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+            <span class="n">ckwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}),</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+
+<span class="c1"># iargs and ikwargs&#39;s number of iterations must match</span>
+<span class="c1"># ---------------------------------------------------</span>
+<span class="c1">#   child 1: args=(1, 2), kwargs= {&#39;a&#39;: 1}</span>
+<span class="c1">#   child 2: args=(3, 4), kwargs= {&#39;a&#39;: 2}</span>
+<span class="c1"># there is no child #3, as there is no ikwargs to match (5, 6) of iargs</span>
+<span class="n">pcall</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">iargs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)),</span>
+            <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}))</span>
+</pre></div>
+</div>
+</section>
+<section id="multiple-targets">
+<h2>Multiple Targets<a class="headerlink" href="#multiple-targets" title="Permalink to this heading">¶</a></h2>
+<p>When a <strong>list of target</strong> functions is provided to <code class="docutils literal notranslate"><span class="pre">pcall</span></code>, each target is run
+within its own child process, and elements of <code class="docutils literal notranslate"><span class="pre">iargs</span></code> and <code class="docutils literal notranslate"><span class="pre">ikwargs</span></code> directly
+corresponds to each target in the same order as they appear.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   pcall argument combinations (multiple target)</span>
+<span class="c1">#   (using a lot of lists this time for a change)</span>
+
+<span class="c1"># import pcall</span>
+<span class="kn">from</span> <span class="nn">pyats.async_</span> <span class="kn">import</span> <span class="n">pcall</span>
+
+<span class="c1"># define a couple function to be called by pcall</span>
+<span class="k">def</span> <span class="nf">func1</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;func1&#39;</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">func2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;func2&#39;</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">func3</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;func3&#39;</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># positional argument building</span>
+<span class="c1"># ----------------------------</span>
+<span class="c1">#   child 1: name=&#39;func1&#39;, args=(1, 2, 3, 4, 5, 6), kwargs={}</span>
+<span class="c1">#   child 2: name=&#39;func2&#39;, args=(1, 2, 3, 7, 8, 9), kwargs={}</span>
+<span class="c1">#   child 3: name=&#39;func3&#39;, args=(1, 2, 3, 9, 10, 11), kwargs={}</span>
+<span class="n">pcall</span><span class="p">([</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">func3</span><span class="p">],</span> <span class="n">cargs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                             <span class="n">iargs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">]])</span>
+
+<span class="c1"># keyword argument building</span>
+<span class="c1"># ----------------------------</span>
+<span class="c1">#   child 1: name=&#39;func1&#39;, args=(), kwargs={&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3}</span>
+<span class="c1">#   child 2: name=&#39;func2&#39;, args=(), kwargs={&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 4}</span>
+<span class="c1">#   child 3: name=&#39;func3&#39;, args=(), kwargs={&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 5}</span>
+<span class="n">pcall</span><span class="p">([</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">func3</span><span class="p">],</span> <span class="n">ckwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                             <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                                        <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+                                        <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}])</span>
+
+<span class="c1"># combine it all together</span>
+<span class="c1"># -----------------------</span>
+<span class="c1">#   child 1: name=&#39;func1&#39;,</span>
+<span class="c1">#            args=(1, 2, 3, 6, 7),</span>
+<span class="c1">#            kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3, &#39;x&#39;: 10, &#39;y&#39;: 100}</span>
+<span class="c1">#   child 2: name=&#39;func2&#39;,</span>
+<span class="c1">#            args=(1, 2, 3, 8, 9),</span>
+<span class="c1">#            kwargs= {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 4, &#39;x&#39;: 20, &#39;y&#39;: 200}</span>
+<span class="n">pcall</span><span class="p">([</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">],</span> <span class="n">cargs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                      <span class="n">iargs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+                      <span class="n">ckwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                      <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}),</span>
+                      <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+
+<span class="c1"># as usual, iargs and ikwargs&#39;s number of iterations must match</span>
+<span class="c1"># -------------------------------------------------------------</span>
+<span class="c1">#   child 1: name=&#39;func1&#39;, args=(1, 2), kwargs= {&#39;a&#39;: 1}</span>
+<span class="c1">#   child 2: name=&#39;func2&#39;, args=(3, 4), kwargs= {&#39;a&#39;: 2}</span>
+<span class="c1"># there is no child #3, as there is no ikwargs to match (5, 6) of iargs, and</span>
+<span class="c1"># thus not enough knowledge on how to call func3</span>
+<span class="n">pcall</span><span class="p">([</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">func3</span><span class="p">],</span> <span class="n">iargs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)),</span>
+                             <span class="n">ikwargs</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}))</span>
+</pre></div>
+</div>
+</section>
+<section id="errors-and-timeouts">
+<h2>Errors and Timeouts<a class="headerlink" href="#errors-and-timeouts" title="Permalink to this heading">¶</a></h2>
+<p>When exceptions occur in child processes invoked by <code class="docutils literal notranslate"><span class="pre">pcall</span></code>, they are caught,
+and re-raised within the calling process as <code class="docutils literal notranslate"><span class="pre">ChildProcessException</span></code>. The
+details and traceback of the original exception is attached as the <em>cause</em> of
+this <code class="docutils literal notranslate"><span class="pre">ChildProcessException</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>this is only available in python-3. In python-2, only the exception message
+is raised (without traceback). This is a limitation of python-2 language.</p>
+</div>
+<p>When child processes exceed the provided <code class="docutils literal notranslate"><span class="pre">timeout</span></code> value, <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> is sent
+to each child process, and <code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code> is raised in the calling process.</p>
+</section>
+<section id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this heading">¶</a></h2>
+<p>By default, each Pcall process will log to its own forked tasklog file while it
+runs. This ensures that concurrent log messages are not interleaved within the
+same file.</p>
+<p>Once the Pcall finishes (eg, <code class="docutils literal notranslate"><span class="pre">Pcall.join()</span></code> is called), the log files will
+automatically be joined into the main tasklog, with each process having its own
+section.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &gt;&gt;&gt;&gt; Begin child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88466
+3: SERVER: 2018-10-09T13:47:46: %SCRIPT-6-INFO: this is a message from 88466
+4: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &lt;&lt;&lt;&lt; End child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88466
+2: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &gt;&gt;&gt;&gt; Begin child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88467
+3: SERVER: 2018-10-09T13:47:46: %SCRIPT-6-INFO: this is a message from 88467
+4: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &lt;&lt;&lt;&lt; End child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88467
+2: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &gt;&gt;&gt;&gt; Begin child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88468
+3: SERVER: 2018-10-09T13:47:46: %SCRIPT-6-INFO: this is a message from 88468
+4: SERVER: 2018-10-09T13:47:46: %LOG-6-INFO: &lt;&lt;&lt;&lt; End child log /path/to//basic_example_job.2018Oct09_13:47:44.782943/TaskLog.Task-1:pid-88468
+</pre></div>
+</div>
+</section>
+<section id="pcall-object">
+<h2>Pcall Object<a class="headerlink" href="#pcall-object" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pcall</span></code> API is atually a classmethod of <code class="docutils literal notranslate"><span class="pre">Pcall</span></code> class, intended to further
+minimize the number of lines of boilerplate code in user libraries and scripts.
+You can instantiate your own instances of <code class="docutils literal notranslate"><span class="pre">Pcall</span></code> to poll and control the
+forked parallel processes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pcall</span></code> class methods are similar to those of <code class="docutils literal notranslate"><span class="pre">multiprocessing.Pool</span></code>. In
+fact, they only differ in the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Pool</span></code> allows users to create a fixed number of worker processes to do
+generic processing. <code class="docutils literal notranslate"><span class="pre">Pcall</span></code> automatically creates processes based on
+user inputs and only runs the given procedure/function once.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pcall</span></code> builds argument for each function/process. <code class="docutils literal notranslate"><span class="pre">Pool</span></code> expects the
+user to provide it the exact arguments per invocation.</p></li>
+</ul>
+</div></blockquote>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Pcall Class Methods/Properties</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__init__</span></code></p></td>
+<td><p>takes in the exact same arguments as <code class="docutils literal notranslate"><span class="pre">pcall</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pids</span></code></p></td>
+<td><p>tuple of all child processes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">living</span></code></p></td>
+<td><p>tuple of all currently alive child processes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">results</span></code></p></td>
+<td><p>tuple of results from all child processes. None if no results
+currently available</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start()</span></code></p></td>
+<td><p>starts all child worker processes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">join()</span></code></p></td>
+<td><p>blocks the current process and wait for all childs to finish,
+or until <code class="docutils literal notranslate"><span class="pre">timeout</span></code> is reached</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">terminate()</span></code></p></td>
+<td><p>terminates all children processes with SIGTERM</p></td>
+</tr>
+</tbody>
+</table>
+<p>Once all processes are started using <code class="docutils literal notranslate"><span class="pre">start()</span></code> method, make sure to call
+<code class="docutils literal notranslate"><span class="pre">join()</span></code> so that results can be collected. <code class="docutils literal notranslate"><span class="pre">results</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>
+when the process has not yet started, or joined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   using the Pcall class</span>
+
+<span class="kn">from</span> <span class="nn">pyats.async_</span> <span class="kn">import</span> <span class="n">Pcall</span>
+
+<span class="c1"># define a function to be called in</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="c1"># create a Pcall object</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Pcall</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="c1"># start all child processes</span>
+<span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># wait for everything to finish</span>
+<span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+<span class="c1"># collect results</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">results</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="integration.html" class="btn btn-neutral float-left" title="Module Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multiprocessing.html" class="btn btn-neutral float-right" title="Using Multiprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

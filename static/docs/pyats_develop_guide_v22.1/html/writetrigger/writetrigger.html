@@ -1,0 +1,653 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write a trigger &mdash; pyATS Development Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=83f4edbc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/custom.js?v=80dc6f7b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contribution guidelines" href="../contribute/contribute.html" />
+    <link rel="prev" title="Write an API" href="../writeapi/writeapi.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS Development Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Write a script</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/structureofastatement.html">Everything is Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writescripts/writepythonscript.html">Write a Python script</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contribute to pyATS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../writeparser/writeparser.html">Write a parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writeapi/writeapi.html">Write an API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Write a trigger</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#triggers-verifications-and-test-cases">Triggers, verifications, and test cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose-of-triggers">Purpose of triggers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-triggers-and-verifications-work">How triggers and verifications work</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-of-a-trigger-file">Example of a trigger file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-a-trigger">Structure of a trigger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-example-trigger">Run the example trigger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#write-your-own-trigger">Write your own trigger</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#write-a-simple-trigger">Write a simple trigger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-new-trigger-datafile">Create a new trigger datafile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-new-job-file">Create a new job file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-of-a-trigger-with-verifications">Example of a trigger with verifications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-docs/docs/blitz/index.html">pyATS Blitz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/contribute.html">Contribution guidelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/keyconcepts.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS Development Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Write a trigger</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+.question {background-color: yellow; font-weight:bold; padding: .25em;}
+.monospace {font-family: monospace; color: #404040; font-size: 14px;}
+.border {border: 1px #404040;}
+</style><section id="write-a-trigger">
+<span id="write-trigger"></span><h1>Write a trigger<a class="headerlink" href="#write-a-trigger" title="Link to this heading"></a></h1>
+<p>This topic describes how to write your own triggers when you want to extend the pyATS Library functionality to meet your network automation requirements.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <em>Get Started with pyATS</em> guide, <a class="reference external" href="https://pubhub.devnetcloud.com/media/pyats-getting-started/docs/quickstart/runtestcase.html#run-a-test-case">Run a test case</a> section explains the concepts that you need to know before you begin to write a trigger.</p>
+</div>
+<section id="triggers-verifications-and-test-cases">
+<h2>Triggers, verifications, and test cases<a class="headerlink" href="#triggers-verifications-and-test-cases" title="Link to this heading"></a></h2>
+<p id="genie-trigger">A trigger is an action or sequence of actions performed on a device, which changes the device state or configuration.</p>
+<p>You can think of a trigger and its associated <a class="reference internal" href="../quickstart/keyconcepts.html#term-Verification"><span class="xref std std-term">verifications</span></a> as a reusable pyATS test case. In pyATS, you embed triggers within your test script. With the pyATS Library, you import and run the trigger as a Python library. Triggers make it easy to change the order of your test cases without having to write a new script.</p>
+<section id="purpose-of-triggers">
+<h3>Purpose of triggers<a class="headerlink" href="#purpose-of-triggers" title="Link to this heading"></a></h3>
+<p>Triggers provide a way to:</p>
+<ul class="simple">
+<li><p>Make tests independent of specific devices, topologies, and hostnames.</p></li>
+<li><p>Remove dependencies on one, specific configuration.</p></li>
+<li><p>Reuse a test in combination with other tests.</p></li>
+<li><p>Grow the pyATS Library “pool” of triggers to make future automation easier!</p></li>
+<li><p>Make the logs readable, so that you can easily understand why tests fail. We do this by:</p>
+<ul>
+<li><p>Dividing the test into separate, specific actions.</p></li>
+<li><p>Logging the right information at the right level of detail. <br /> <br /></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="how-triggers-and-verifications-work">
+<h3>How triggers and verifications work<a class="headerlink" href="#how-triggers-and-verifications-work" title="Link to this heading"></a></h3>
+<p>The pyATS Library components work together so that you can:</p>
+<ul class="simple">
+<li><p>Pick and choose the test cases (triggers and verifications) that you need.</p></li>
+<li><p>Use the pyATS Library infrastructure (<code class="docutils literal notranslate"><span class="pre">gRun</span></code>) to create a dynamic test suite.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Nothing is hard-coded, everything is reusable, and the flow is exactly as you determine.</p>
+</div>
+<p>To run triggers using the <code class="docutils literal notranslate"><span class="pre">harness</span></code>, you need at least three files, as described in the following table.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Files required to run triggers</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File type</p></th>
+<th class="head"><p>Format</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Trigger</p></td>
+<td><p>Python (.py)</p></td>
+<td><p>Defines the trigger class or classes.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Trigger datafile</p></td>
+<td><p>YAML (.yaml)</p></td>
+<td><p>Lists the triggers and arguments to pass to each trigger.</p></td>
+</tr>
+<tr class="row-even"><td><p>Job file</p></td>
+<td><p>Python (.py)</p></td>
+<td><p>Imports <code class="docutils literal notranslate"><span class="pre">gRun</span></code> functionality from the <code class="docutils literal notranslate"><span class="pre">harness</span></code> package. Points to a specific datafile and identifies which triggers and (optional) verifications to run.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following diagram shows how the triggers, datafiles, and job files interact when you use the pyATS Library harness to run test cases.</p>
+<img alt="../_images/harness_run_job.png" src="../_images/harness_run_job.png" />
+</section>
+</section>
+<section id="example-of-a-trigger-file">
+<h2>Example of a trigger file<a class="headerlink" href="#example-of-a-trigger-file" title="Link to this heading"></a></h2>
+<section id="structure-of-a-trigger">
+<h3>Structure of a trigger<a class="headerlink" href="#structure-of-a-trigger" title="Link to this heading"></a></h3>
+<p>In the following example, you can see the structure of the trigger. This trigger shuts and unshuts BGP on the <span class="monospace">uut</span> device defined in the testbed YAML file. Note that:</p>
+<ol class="arabic simple">
+<li><p>A trigger is a Python class.</p></li>
+<li><p>One Python file can have more than one trigger class.</p></li>
+<li><p>Triggers inherit from the base <span class="monospace">Trigger</span> class, which contains common setup and cleanup tasks and checks. These tasks help you to identify any unexpected changes to testbed devices that are not under test. For more information about common setup and cleanup, see the topic <a class="reference external" href="https://pubhub.devnetcloud.com/media/pyats-getting-started/docs/quickstart/runtestcase.html#automated-testing-process">Automated testing process</a> in the <em>Get Started with pyATS</em> guide.</p></li>
+<li><p>Trigger setup steps typically check for any prerequisites and configure the device to meet the required pre-test conditions.</p></li>
+<li><p>For each trigger, if a step marked as <span class="monospace">&#64;aetest.setup</span> fails, the steps marked as <span class="monospace">aetest.test</span> do not run.</p></li>
+<li><p>The pyATS Library triggers typically have a</p>
+<ul class="simple">
+<li><p>test step, to change a device configuration or operational state, and</p></li>
+<li><p>a recovery step, to restore the pre-test conditions.</p></li>
+</ul>
+</li>
+<li><p>Within a step, you can call any of <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/apis">our pre-built API functions</a>. These are clearly-named, reusable actions that can save you time and effort. For more information, see the topic <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-docs/docs/userguide/apis/index.html?highlight=apis#functions">Functions</a>.</p></li>
+</ol>
+<p>Have a look at the following example, and then we’ll explain it step-by-step in the section <a class="reference internal" href="#write-simple-trigger"><span class="std std-ref">Write a simple trigger</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python imports</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># pyATS import</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+<span class="kn">from</span> <span class="nn">genie.harness.base</span> <span class="kn">import</span> <span class="n">Trigger</span>
+
+<span class="c1"># Set up logging</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+
+<span class="c1"># Define the trigger class and steps</span>
+<span class="c1"># This class inherits from the Trigger class</span>
+<span class="k">class</span> <span class="nc">ShutNoShutBgp</span><span class="p">(</span><span class="n">Trigger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Shut and unshut bgp&#39;&#39;&#39;</span>
+
+    <span class="c1"># Setup steps</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">setup</span>
+    <span class="k">def</span> <span class="nf">prerequisites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Check whether bgp is configured and running&#39;&#39;&#39;</span>
+
+        <span class="c1"># Parse the BGP output on uut</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check for a bgp_id</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;bgp_tag&#39;</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span><span class="p">(</span><span class="s2">&quot;No Bgp is configured for &quot;</span>\
+                        <span class="s2">&quot;device &#39;</span><span class="si">{d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">uut</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="c1"># Check that BGP is running</span>
+        <span class="k">if</span> <span class="s1">&#39;bgp_protocol_state&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span> <span class="ow">or</span>\
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;running&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span><span class="p">(</span><span class="s2">&quot;Bgp is not operational on &quot;</span>
+                        <span class="s2">&quot;device &#39;</span><span class="si">{d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">uut</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="c1"># Store the initial parsed output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Test steps</span>
+
+    <span class="c1"># Shut BGP on uut</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">shut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Shut bgp&#39;&#39;&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">router bgp </span><span class="si">{id}</span>
+<span class="s1">shutdown&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+    <span class="c1"># Verify the new configuration</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Verify if the shut worked&#39;&#39;&#39;</span>
+        <span class="c1"># Parse the BGP output on uut</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check that the bgp_id still shows in the output</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Bgp id </span><span class="si">{bgp_id}</span><span class="s2"> no longer shows in the &quot;</span>
+                        <span class="s2">&quot;output, this is &quot;</span>
+                        <span class="s2">&quot;unexpected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+        <span class="c1"># Check that BGP is shut down</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;shutdown&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Shut on Bgp </span><span class="si">{bgp_id}</span><span class="s2"> did not work as it is not &quot;</span>
+                        <span class="s2">&quot;shutdown&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+    <span class="c1"># Recover the initial config, unshut BGP on uut</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">unshut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Unshut bgp&#39;&#39;&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">router bgp </span><span class="si">{id}</span>
+<span class="s1">no shutdown&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+    <span class="c1"># Verify the recovered configuration</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">verify_recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Figure out if bgp is configured and up&#39;&#39;&#39;</span>
+
+        <span class="c1"># Parse the BGP output on uut</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check that the bgp_id still shows in the output</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Bgp id </span><span class="si">{bgp_id}</span><span class="s2"> no longer shows in the &quot;</span>
+                        <span class="s2">&quot;output, this is &quot;</span>
+                        <span class="s2">&quot;unexpected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+        <span class="c1"># Check that BGP is running</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;running&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Reconfigure of Bgp </span><span class="si">{bgp_id}</span><span class="s2"> did not work as it is not &quot;</span>
+                        <span class="s2">&quot;running&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="run-the-example-trigger">
+<h3>Run the example trigger<a class="headerlink" href="#run-the-example-trigger" title="Link to this heading"></a></h3>
+<p>Complete the following steps to see the trigger in action on a mock device.</p>
+<ol class="arabic">
+<li><p>In your virtual environment, create a directory with the name <span class="monospace">testcases</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">testcases</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference download internal" download="" href="../_downloads/c66fa1940e168f94f3e1d6be401ce393/trigger.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">the</span> <span class="pre">attached</span> <span class="pre">zip</span> <span class="pre">file</span></code></a>, and then extract the files to the <span class="monospace">testcases</span> directory. <br /> <br /></p></li>
+<li><p>Change to the <span class="monospace">testcases</span> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">testcases</span>
+</pre></div>
+</div>
+</li>
+<li><p>Because this example uses a mock device, you must set the Python path and source the trigger example.</p>
+<ul>
+<li><p>For Bash:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PYTHONPATH=$VIRTUAL_ENV
+source trigger_example.sh
+</pre></div>
+</div>
+</li>
+<li><p>For C shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>setenv PYTHONPATH $VIRTUAL_ENV
+source trigger_example.csh
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Run the job:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyats</span> <span class="n">run</span> <span class="n">job</span> <span class="n">example_job</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">testbed</span><span class="o">-</span><span class="n">file</span> <span class="n">testbed</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">devices</span> <span class="n">uut</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you’re a DevNet user and you want to receive an email with the results, add the argument <code class="docutils literal notranslate"><span class="pre">--mailto</span> <span class="pre">yourname&#64;company.domain</span></code>.</p>
+</div>
+<p><em>Result</em>: The harness runs the trigger specified in <span class="monospace">example_job.py</span>, using arguments from <span class="monospace">trigger_datafile.yaml</span>, and defined by <span class="monospace">shutnoshut.py</span>.</p>
+<p>Your terminal shows the step-by-step actions and the following detailed list of results:</p>
+<a class="reference internal image-reference" href="../_images/trigger_results.png"><img alt="../_images/trigger_results.png" src="../_images/trigger_results.png" style="width: 75%;" />
+</a>
+</li>
+</ol>
+</section>
+</section>
+<section id="write-your-own-trigger">
+<h2>Write your own trigger<a class="headerlink" href="#write-your-own-trigger" title="Link to this heading"></a></h2>
+<section id="write-a-simple-trigger">
+<span id="write-simple-trigger"></span><h3>Write a simple trigger<a class="headerlink" href="#write-a-simple-trigger" title="Link to this heading"></a></h3>
+<p>The following steps describe how you can write a simple trigger using the <span class="monospace">ShutNoShutBgp</span> trigger example as a guide.</p>
+<ol class="arabic">
+<li><p>Open a text editor and start a new <span class="monospace">.py</span> file. <br /> <br /></p></li>
+<li><p>Import the functionality that you need from Python, pyATS, and the pyATS Library, and set up logging. For a description of the more commonly used functionality that you might want to import, see the topic <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-docs/docs/userguide/utils/index.html#useful-libraries">Useful Libraries</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python imports</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c1"># pyATS import</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+<span class="kn">from</span> <span class="nn">genie.harness.base</span> <span class="kn">import</span> <span class="n">Trigger</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You don’t need to import the <code class="docutils literal notranslate"><span class="pre">genie.testbed</span></code> <code class="docutils literal notranslate"><span class="pre">load</span></code> function, because you don’t have to specify a testbed file in your trigger. Instead, you specify the testbed file when you run the job file, and the pyATS Library <code class="docutils literal notranslate"><span class="pre">Harness</span></code> pulls all of the data together, including arguments from the datafile. This makes your trigger reusable.</p>
+</div>
+</li>
+<li><p>Define the <span class="monospace">ShutNoShutBgp</span> trigger class and inherit from the standard <span class="monospace">Trigger</span> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShutNoShutBgp</span><span class="p">(</span><span class="n">Trigger</span><span class="p">):</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define the setup steps to:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Parse the show command output.</p></li>
+<li><p>Check that BGP is configured on the device.</p></li>
+<li><p>Check the current operational state.</p></li>
+<li><p>Store the initial parsed output to compare later.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@aetest</span><span class="o">.</span><span class="n">setup</span>
+<span class="k">def</span> <span class="nf">prerequisites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;bgp_tag&#39;</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span><span class="p">(</span><span class="s2">&quot;No Bgp is configured for &quot;</span>\
+                    <span class="s2">&quot;device &#39;</span><span class="si">{d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">uut</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="s1">&#39;bgp_protocol_state&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span> <span class="ow">or</span>\
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;running&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span><span class="p">(</span><span class="s2">&quot;Bgp is not operational on &quot;</span>
+                    <span class="s2">&quot;device &#39;</span><span class="si">{d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">uut</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If a setup step fails, the trigger stops.</p>
+</div>
+</li>
+<li><p>Define the first test step (<span class="monospace">shut</span>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">shut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Shut bgp&#39;&#39;&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">router bgp </span><span class="si">{id}</span>
+<span class="s1">shutdown&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define steps for the second test (<span class="monospace">verify</span>):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Parse the show command output.</p></li>
+<li><p>Check that BGP is configured on the device.</p></li>
+<li><p>Check the current operational state.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+<span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Verify if the shut worked&#39;&#39;&#39;</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Bgp id </span><span class="si">{bgp_id}</span><span class="s2"> no longer shows in the &quot;</span>
+                    <span class="s2">&quot;output, this is &quot;</span>
+                    <span class="s2">&quot;unexpected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;shutdown&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Shut on Bgp </span><span class="si">{bgp_id}</span><span class="s2"> did not work as it is not &quot;</span>
+                    <span class="s2">&quot;shutdown&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define steps for the third test (<span class="monospace">unshut</span>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">shut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Shut bgp&#39;&#39;&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">router bgp </span><span class="si">{id}</span>
+<span class="s1">no shutdown&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define steps for the fourth test (<span class="monospace">verify_recover</span>):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Parse the show command output.</p></li>
+<li><p>Check that BGP is configured on the device.</p></li>
+<li><p>Check the current operational state.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+<span class="k">def</span> <span class="nf">verify_recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">wait_time</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Figure out if bgp is configured and up&#39;&#39;&#39;</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show bgp process vrf all&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_tag&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Bgp id </span><span class="si">{bgp_id}</span><span class="s2"> no longer shows in the &quot;</span>
+                    <span class="s2">&quot;output, this is &quot;</span>
+                    <span class="s2">&quot;unexpected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;bgp_protocol_state&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;running&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">(</span><span class="s2">&quot;Reconfigure of Bgp </span><span class="si">{bgp_id}</span><span class="s2"> did not work as it is not &quot;</span>
+                    <span class="s2">&quot;running&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bgp_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bgp_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p>Save your file as <span class="monospace">shutnoshut.py</span> .</p></li>
+</ol>
+</section>
+<section id="create-a-new-trigger-datafile">
+<h3>Create a new trigger datafile<a class="headerlink" href="#create-a-new-trigger-datafile" title="Link to this heading"></a></h3>
+<p>When you write your own trigger, you must also create a YAML trigger datafile. The following example shows the trigger datafile for the simple trigger described in the previous sections:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TriggerShutNoShutBgp</span><span class="p">:</span>
+   <span class="n">source</span><span class="p">:</span>
+     <span class="n">class</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">shutnoshut</span><span class="o">.</span><span class="n">ShutNoShutBgp</span>
+   <span class="n">devices</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="monospace">TriggerShutNoShutBgp</span> is the name of the trigger that you call in the job file.</p></li>
+<li><p><span class="monospace">path</span> is the location of your trigger file.</p></li>
+<li><p><span class="monospace">shutnoshut</span> is the name of your trigger file.</p></li>
+<li><p><span class="monospace">ShutNoShutBgp</span> is the trigger class.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you use the standard pyATS Library triggers, you don’t have to provide a trigger datafile. The system uses the default datafile stored in your virtual environment at <code class="docutils literal notranslate"><span class="pre">/genie_yamls/&lt;uut_os&gt;/trigger_datafile_&lt;uut_os&gt;.yaml</span></code>. The default trigger datafile specifies the device <span class="monospace">uut</span>, which you define in your <a class="reference internal" href="../quickstart/keyconcepts.html#term-Testbed-YAML-file"><span class="xref std std-term">testbed yaml file</span></a>.</p>
+</div>
+</section>
+<section id="create-a-new-job-file">
+<h3>Create a new job file<a class="headerlink" href="#create-a-new-job-file" title="Link to this heading"></a></h3>
+<p>The Python job file specifies the trigger datafile and triggers to run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+ <span class="kn">from</span> <span class="nn">genie.harness.main</span> <span class="kn">import</span> <span class="n">gRun</span>
+
+ <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+     <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+     <span class="n">gRun</span><span class="p">(</span><span class="n">trigger_uids</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;TriggerShutNoShutBgp&#39;</span><span class="p">),</span>
+         <span class="n">trigger_datafile</span><span class="o">=</span><span class="s1">&#39;new_trigger_datafile.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To run the job file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pyats</span> <span class="n">run</span> <span class="n">job</span> <span class="n">example_job</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">testbed</span><span class="o">-</span><span class="n">file</span> <span class="n">testbed</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">devices</span> <span class="n">uut</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-of-a-trigger-with-verifications">
+<h2>Example of a trigger with verifications<a class="headerlink" href="#example-of-a-trigger-with-verifications" title="Link to this heading"></a></h2>
+<p>A trigger verifies the expected results. For example, a trigger can check that BGP is down after you take the action to shut it down.</p>
+<p>You can use <a class="reference internal" href="../quickstart/keyconcepts.html#term-Verification"><span class="xref std std-term">verifications</span></a> to check for <em>unexpected</em> results, such as changes to the feature that you didn’t initiate. When you add a verification to your test case, it runs before and after every trigger. This enables you to compare the device’s operational state before and after the trigger (change to a device) and to verify that nothing unexpected happened.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see a list of all available verifications, go to <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/verifications">https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/verifications</a>.</p>
+</div>
+<ol class="arabic">
+<li><p>To add verifications, simply add the verification class to your job file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">genie.harness.main</span> <span class="kn">import</span> <span class="n">gRun</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+    <span class="n">gRun</span><span class="p">(</span><span class="n">verification_uids</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Verify_BgpProcessVrfAll.uut&#39;</span><span class="p">),</span>
+        <span class="n">trigger_uids</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;TriggerShutNoShutBgp&#39;</span><span class="p">),</span>
+        <span class="n">trigger_datafile</span><span class="o">=</span><span class="s1">&#39;new_trigger_datafile.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, <span class="monospace">Verify_BgpProcessVrfAll</span> is a standard verification that parses output for the show command <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">bgp</span> <span class="pre">process</span> <span class="pre">vrf</span> <span class="pre">all</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You don’t have to specify a verification datafile when you use a standard verification. The pyATS Library harness uses a default datafile that works with all standard triggers and verifications.</p>
+</div>
+</li>
+<li><p>If you write your own verification, you must create a verification datafile:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Verify_Bgp</span><span class="p">:</span>
+    <span class="n">cmd</span><span class="p">:</span>
+        <span class="n">class</span><span class="p">:</span> <span class="n">show_bgp</span><span class="o">.</span><span class="n">ShowBgpAll</span>
+        <span class="n">pkg</span><span class="p">:</span> <span class="n">genie</span><span class="o">.</span><span class="n">libs</span><span class="o">.</span><span class="n">parser</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">cli</span>
+    <span class="n">source</span><span class="p">:</span>
+        <span class="n">class</span><span class="p">:</span> <span class="n">genie</span><span class="o">.</span><span class="n">harness</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Template</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">]</span>
+    <span class="n">iteration</span><span class="p">:</span>
+    <span class="n">attempt</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="n">exclude</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">if_handle</span>
+    <span class="o">-</span> <span class="n">keepalives</span>
+    <span class="o">-</span> <span class="n">last_reset</span>
+    <span class="o">-</span> <span class="n">reset_reason</span>
+    <span class="o">-</span> <span class="n">foreign_port</span>
+    <span class="o">-</span> <span class="n">local_port</span>
+    <span class="o">-</span> <span class="n">msg_rcvd</span>
+    <span class="o">-</span> <span class="n">msg_sent</span>
+    <span class="o">-</span> <span class="n">up_down</span>
+    <span class="o">-</span> <span class="n">bgp_table_version</span>
+    <span class="o">-</span> <span class="n">routing_table_version</span>
+    <span class="o">-</span> <span class="n">tbl_ver</span>
+    <span class="o">-</span> <span class="n">table_version</span>
+    <span class="o">-</span> <span class="n">memory_usage</span>
+    <span class="o">-</span> <span class="n">updates</span>
+    <span class="o">-</span> <span class="n">mss</span>
+    <span class="o">-</span> <span class="n">total</span>
+    <span class="o">-</span> <span class="n">total_bytes</span>
+    <span class="o">-</span> <span class="n">up_time</span>
+    <span class="o">-</span> <span class="n">bgp_negotiated_keepalive_timers</span>
+    <span class="o">-</span> <span class="n">hold_time</span>
+    <span class="o">-</span> <span class="n">keepalive_interval</span>
+    <span class="o">-</span> <span class="n">sent</span>
+    <span class="o">-</span> <span class="n">received</span>
+    <span class="o">-</span> <span class="n">status_codes</span>
+    <span class="o">-</span> <span class="n">holdtime</span>
+    <span class="o">-</span> <span class="n">router_id</span>
+    <span class="o">-</span> <span class="n">connections_dropped</span>
+    <span class="o">-</span> <span class="n">connections_established</span>
+    <span class="o">-</span> <span class="n">advertised</span>
+    <span class="o">-</span> <span class="n">prefixes</span>
+    <span class="o">-</span> <span class="n">routes</span>
+    <span class="o">-</span> <span class="n">state_pfxrcd</span>
+</pre></div>
+</div>
+<p>The <span class="monospace">exclude</span> block defines keys that are unrelated to your test case. Excluded keys typically have dynamic values, and you don’t use them in your test cases. <br /> <br /></p>
+</li>
+<li><p>Add the verification datafile and verification class to the job file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">genie.harness.main</span> <span class="kn">import</span> <span class="n">gRun</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+    <span class="n">gRun</span><span class="p">(</span><span class="n">verification_uids</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Verify_Bgp.uut&#39;</span><span class="p">),</span>
+        <span class="n">trigger_uids</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;TriggerShutNoShutBgp&#39;</span><span class="p">),</span>
+        <span class="n">verification_datafile</span><span class="o">=</span><span class="s1">&#39;new_verification_datafile.yaml&#39;</span>
+        <span class="n">trigger_datafile</span><span class="o">=</span><span class="s1">&#39;new_trigger_datafile.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, <span class="monospace">Verify_Bgp</span> is the name of the verification class that you defined in the verification datafile. <br /> <br /></p>
+</li>
+<li><p>To run the job:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyats</span> <span class="n">run</span> <span class="n">job</span> <span class="n">job</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">testbed</span><span class="o">-</span><span class="n">file</span> <span class="n">tb</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>where <span class="monospace">tb.yaml</span> is your testbed file.</p>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../writeapi/writeapi.html" class="btn btn-neutral float-left" title="Write an API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contribute/contribute.html" class="btn btn-neutral float-right" title="Contribution guidelines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Cisco Systems Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

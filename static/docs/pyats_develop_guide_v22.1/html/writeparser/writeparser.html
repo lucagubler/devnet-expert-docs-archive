@@ -1,0 +1,1364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write a parser &mdash; pyATS Development Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=83f4edbc" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/custom.js?v=80dc6f7b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Write an API" href="../writeapi/writeapi.html" />
+    <link rel="prev" title="Write a Python script" href="../writescripts/writepythonscript.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS Development Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Write a script</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/structureofastatement.html">Everything is Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writescripts/writepythonscript.html">Write a Python script</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contribute to pyATS</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Write a parser</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-a-parser">1. What is a parser?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-write-a-parser">2. Why write a parser?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-the-library-parsers-work">3. How the pyATS Library parsers work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-your-development-environment">4. Setting up your development environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-schema-class">5. Writing the Schema Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-schema">5.1 Creating a schema</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#keys-from-show-command">5.1.1 Identifying keys directy from show command output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#keys-from-xml">5.1.2 Identifying keys from XML output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#keys-from-yang">5.1.3 Identifying keys from the YANG data model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-schema-based-on-an-existing-model">5.2 Creating a schema based on an existing model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#explore-other-pyats-schemas">5.3 Explore other pyATS schemas</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-parser-class">6. Writing the Parser Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#writing-a-parser-class-with-regex">6.1 Writing a parser class with RegEx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-a-parser-class-with-the-parsergen-package">6.2 Writing a parser class with the parsergen package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-your-parser">7. Testing your parser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#make-json">Make JSON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#folder-based-testing-asa-ios-and-iosxe">7.1 Folder based testing (ASA, IOS, and IOSXE)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#golden-output-example-files">Golden output example files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#unittest-based-testing">7.2 Unittest based testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-your-work-to-the-pyats-project">8. Contributing your work to the pyATS project</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../writeapi/writeapi.html">Write an API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writetrigger/writetrigger.html">Write a trigger</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-docs/docs/blitz/index.html">pyATS Blitz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute/contribute.html">Contribution guidelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart/keyconcepts.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS Development Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Write a parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+.question {background-color: yellow; font-weight:bold; padding: .25em;}
+.monospace {font-family: monospace; color: #404040; font-size: 14px;}
+.border {border: 1px #404040;}
+</style><section id="write-a-parser">
+<span id="write-parser"></span><h1>Write a parser<a class="headerlink" href="#write-a-parser" title="Link to this heading"></a></h1>
+<p>This topic describes why and how to write your own parsers to meet your network automation requirements.</p>
+<p>Remember to share your new parser with the rest of the pyATS user community! Please see the topic <a class="reference internal" href="../contribute/contribute.html#contribute"><span class="std std-ref">Contribution guidelines</span></a> for more information.</p>
+<p>Heads up! This guide contains lots useful information and handy examples, which
+also means that there’s a lot to read before you can actually get to parts about coding a
+parser. If you want to skip the reading and just get right to the fun stuff, then
+by all means, skip ahead by clicking <a class="reference internal" href="#regex-parser"><span class="std std-ref">here</span></a>. We get it, it’s cool.
+Just be sure to read the rest of this guide before
+contributing to the Genie parser repo. It will save you (and us) time in the end.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you’re the kind of person who prefers to learn by video
+instead of reading about it, then please checkout these great videos
+about making pyATS parsers:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><a class="reference external" href="https://youtu.be/ibLNilSfdTc">How to write a Genie parser for Cisco!</a> - uploaded by <a class="reference external" href="https://www.youtube.com/channel/UCA0EsjQEEJac9XIidC6v6Rg">Juhi Mahajan</a></dt><dd><ul>
+<li><p>Juhi provides a good overview of parser creation process</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><a class="reference external" href="https://youtu.be/knxkbWTamBY">Creating a pyATS | Genie Parser from SCRATCH</a> - uploaded by <a class="reference external" href="https://www.youtube.com/channel/UCi7SD3zfCjkiDWvSFthIQSg">Data Knox</a></dt><dd><ul>
+<li><p>Data Knox gives a full hands-on parser writing guide from start to finish</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line">1. <a class="reference internal" href="#what-is-a-parser"><span class="std std-ref">What is a parser?</span></a></div>
+<div class="line">2. <a class="reference internal" href="#why-write-a-parser"><span class="std std-ref">Why write a parser?</span></a></div>
+<div class="line">3. <a class="reference internal" href="#how-the-parsers-work"><span class="std std-ref">How the pyATS Library parsers work</span></a></div>
+<div class="line">4. <a class="reference internal" href="#setting-up-your-environment"><span class="std std-ref">Setting up your development environment</span></a></div>
+<div class="line">5. <a class="reference internal" href="#writing-the-schema-class"><span class="std std-ref">Writing the Schema Class</span></a></div>
+<div class="line-block">
+<div class="line">5.1 <a class="reference internal" href="#creating-a-schema"><span class="std std-ref">Creating a schema</span></a></div>
+<div class="line-block">
+<div class="line">5.1.1. <a class="reference internal" href="#keys-from-show-command"><span class="std std-ref">Identifying keys directly from show command output</span></a></div>
+<div class="line">5.1.2. <a class="reference internal" href="#keys-from-xml"><span class="std std-ref">Identifying keys from XML output</span></a></div>
+<div class="line">5.1.3. <a class="reference internal" href="#keys-from-yang"><span class="std std-ref">Identifying keys from the YANG data model</span></a></div>
+</div>
+<div class="line">5.2. <a class="reference internal" href="#schema-on-existing-model"><span class="std std-ref">Creating a schema based on an existing model</span></a></div>
+<div class="line">5.3. <a class="reference internal" href="#schemaexamples"><span class="std std-ref">Explore other pyATS schemas</span></a></div>
+</div>
+<div class="line">6. <a class="reference internal" href="#writing-the-parser-class"><span class="std std-ref">Writing the Parser Class</span></a></div>
+<div class="line-block">
+<div class="line">6.1. <a class="reference internal" href="#regex-parser"><span class="std std-ref">Writing a parser class with RegEx</span></a></div>
+<div class="line">6.2. <a class="reference internal" href="#parsergen"><span class="std std-ref">Writing a parser class with the parsergen package</span></a></div>
+</div>
+<div class="line">7. <a class="reference internal" href="#testingyourparser"><span class="std std-ref">Testing your parser</span></a></div>
+<div class="line-block">
+<div class="line">7.1. <a class="reference internal" href="#folder-based-testing"><span class="std std-ref">Folder based testing</span></a></div>
+<div class="line">7.2. <a class="reference internal" href="#unittest-based-testing"><span class="std std-ref">Unittest based testing</span></a></div>
+</div>
+<div class="line">8. <a class="reference internal" href="#contributing-your-work"><span class="std std-ref">Contributing your work to the pyATS project</span></a></div>
+</div>
+<section id="what-is-a-parser">
+<span id="id1"></span><h2>1. What is a parser?<a class="headerlink" href="#what-is-a-parser" title="Link to this heading"></a></h2>
+<p>A parser converts device output into a Python dictionary, which stores the
+device data as a set of key-value pairs. This process harmonizes the data
+structure for different types of communication interfaces, including CLI, REST, NETCONF, and others.</p>
+<p>The pyATS Library parsers create standardized output for commands, which means
+that you can write and run reusable automation scripts. In the pyATS ecosystem,
+parsers are typically written using the <code class="docutils literal notranslate"><span class="pre">genie.metaparser</span></code> module.</p>
+<ul class="simple">
+<li><p>For a basic introduction to the pyATS Library parsers, see the topic <a class="reference external" href="https://pubhub.devnetcloud.com/media/pyats-getting-started/docs/quickstart/parseoutput.html#parse-device-output">Parse device output</a> in the <em>Get Started with pyATS</em> guide (recommended).</p></li>
+<li><p>For more information about the <code class="docutils literal notranslate"><span class="pre">metaparser</span></code> package, see the topic <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-metaparser/docs/index.html#genie-metaparser-package">Metaparser Package</a>.</p></li>
+</ul>
+</section>
+<section id="why-write-a-parser">
+<span id="id2"></span><h2>2. Why write a parser?<a class="headerlink" href="#why-write-a-parser" title="Link to this heading"></a></h2>
+<p>The pyATS Library provides you with many out-of-the box <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/parsers">parsers</a> for use with the most frequently-used Cisco show commands and OS/platform combinations.</p>
+<p>But if you want to modify a parser, make a new parser, or if you need to parse output for a feature that does not yet have a pyATS Library model, you can easily write your own parser.</p>
+</section>
+<section id="how-the-library-parsers-work">
+<span id="how-the-parsers-work"></span><h2>3. How the pyATS Library parsers work<a class="headerlink" href="#how-the-library-parsers-work" title="Link to this heading"></a></h2>
+<p>A parser is composed of two Python classes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#writing-the-schema-class"><span class="std std-ref">Schema class</span></a></p></li>
+<li><p><a class="reference internal" href="#writing-the-parser-class"><span class="std std-ref">Parser class</span></a></p></li>
+</ul>
+<div class="line-block">
+<div class="line">Each schema defines:</div>
+<div class="line-block">
+<div class="line">1. What the structure of the parsed data will be.</div>
+<div class="line">2. The data types used for the key-value pairs in the parsed output.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Each parser performs four main actions:</div>
+<div class="line-block">
+<div class="line">1. Run a show command and collect the device output.</div>
+<div class="line">2. Define patterns that will be looked for in the device output.</div>
+<div class="line">3. Iterate through each line of the device output data.</div>
+<div class="line">4. Look for patterns in the output and add any matching patterns to a Python dictionary.</div>
+</div>
+</div>
+<p>Using these classes together results in output that is standardized
+and reliably structured. This is crucial for network automation
+scripts to work across different types of OS’s and communication
+protocols.</p>
+<p>Later sections will describe this process in more detail and multiple examples
+will be provided.</p>
+</section>
+<section id="setting-up-your-development-environment">
+<span id="setting-up-your-environment"></span><h2>4. Setting up your development environment<a class="headerlink" href="#setting-up-your-development-environment" title="Link to this heading"></a></h2>
+<p>If this is your first time writing a pyATS parser or if you’re looking for an easy way
+to jump right into things, then start here. This section will outline how to
+easily set up a development environment that can be used for writing a parser.</p>
+<div class="line-block">
+<div class="line">Things you’ll need before starting:</div>
+<div class="line-block">
+<div class="line">- Python 3.6 (or newer)</div>
+<div class="line">- pip (inlcuded with Python)</div>
+<div class="line">- git</div>
+</div>
+</div>
+<ol class="arabic">
+<li><p><a class="reference external" href="https://docs.github.com/en/github/getting-started-with-github/fork-a-repo">Fork</a> the <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser">https://github.com/CiscoTestAutomation/genieparser</a> repo.</p>
+<img alt="../_images/fork_repo.png" src="../_images/fork_repo.png" />
+</li>
+<li><p>Create a python virtual environment, activate it, and install pyATS into it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="o">&lt;</span><span class="n">directory_of_your_choice</span><span class="o">&gt;</span>
+<span class="err">$</span> <span class="n">source</span> <span class="o">&lt;</span><span class="n">directory_of_your_choice</span><span class="o">&gt;/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<span class="err">$</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">pyats</span><span class="p">[</span><span class="n">full</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Once the installation has finished, clone your <code class="docutils literal notranslate"><span class="pre">genieparser</span></code> repo (replace <code class="docutils literal notranslate"><span class="pre">YOUR_USERNAME</span></code> with your Gihub account username) and run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">develop</span></code> to get your environment ready to work in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/&lt;</span><span class="n">YOUR_USERNAME</span><span class="o">&gt;/</span><span class="n">genieparser</span>
+<span class="err">$</span> <span class="n">cd</span> <span class="n">genieparser</span>
+<span class="err">$</span> <span class="n">make</span> <span class="n">develop</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>At this point, you are now ready to start writing your parser, but if you’d
+like to follow along with some of the examples in this guide, then
+follow these next few steps to set up a mock network environment.
+First, <a class="reference download internal" download="" href="../_downloads/2841eee52d9945a7e6ac7e810f7d75e1/mock_parser.zip"><code class="xref download docutils literal notranslate"><span class="pre">download</span> <span class="pre">the</span> <span class="pre">zip</span> <span class="pre">file</span></code></a> and extract the contents
+to a directory of your choice, such as <span class="monospace">mock_parser</span>. It’s recommended
+to use a seperate terminal for your mock network operations.</p>
+<ol class="arabic">
+<li><p>Go to the directory that contains the extracted files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd mock_parser
+$ python
+</pre></div>
+</div>
+</li>
+<li><p>In your Python interpreter, load the <a class="reference internal" href="../quickstart/keyconcepts.html#term-Testbed-YAML-file"><span class="xref std std-term">Testbed YAML file</span></a>, and connect to a device.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.testbed</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;mock_parser.yaml&#39;</span><span class="p">)</span>
+<span class="n">dev</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;iosxe1&#39;</span><span class="p">]</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ignore the prompt to continue to connect.</p>
+</div>
+</li>
+</ol>
+<p>Now that you have your development environment and mock network set up,
+it’s time to get programming!</p>
+</section>
+<section id="writing-the-schema-class">
+<span id="id3"></span><h2>5. Writing the Schema Class<a class="headerlink" href="#writing-the-schema-class" title="Link to this heading"></a></h2>
+<p>A good schema is one of the most crucial
+(and in some cases, most challenging) aspects of creating a parser.
+It’s where you must examine the output from a device
+and determine what information is important and how that information should be
+structured. In pyATS, a schema is used to define all of the key-value pairs that will
+be stored in a Python dictionary. This dictionary is what will contain all of
+the output from our parser.</p>
+<p>If you intend to contribute your parser to the pyATS project, then you must
+build and implement a schema class as it results in the following benefits:</p>
+<ul class="simple">
+<li><p><em>Time-saving</em>: You can quickly see the data structure without having to read hundreds of lines of regex output. This saves you time when troubleshooting.</p></li>
+<li><p><em>Future-proof</em> and <em>robust</em>: When you or others modify code, you’re less likely to break something.</p></li>
+<li><p><em>Scalable</em>: It’s more efficient to modify a schema than to have multiple developers working with just the regex output.</p></li>
+</ul>
+<section id="creating-a-schema">
+<span id="id4"></span><h3>5.1 Creating a schema<a class="headerlink" href="#creating-a-schema" title="Link to this heading"></a></h3>
+<p>This section covers the making of your own new schema.</p>
+<p>To start creating a new schema, you’ll first need to gather device output.
+Once you have some, you can identify the keys that you’ll need in a number of ways, including:</p>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#keys-from-show-command"><span class="std std-ref">5.1.1</span></a> Examining the <code class="docutils literal notranslate"><span class="pre">show</span></code> command output directly.</div>
+<div class="line"><a class="reference internal" href="#keys-from-xml"><span class="std std-ref">5.1.2</span></a> Using the XML output option with a <code class="docutils literal notranslate"><span class="pre">show</span></code> command to display the output as key-value pairs.</div>
+<div class="line"><a class="reference internal" href="#keys-from-yang"><span class="std std-ref">5.1.3</span></a> Using the YANG data model to identify the relevant keys.</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can also <span class="xref std std-ref">create a schema based on an existing model</span></p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can find more examples of schemas <a class="reference internal" href="#schemaexamples"><span class="std std-ref">here</span></a></p>
+</div>
+<section id="keys-from-show-command">
+<span id="identifying-keys-directy-from-show-command-output"></span><h4>5.1.1 Identifying keys directy from show command output<a class="headerlink" href="#keys-from-show-command" title="Link to this heading"></a></h4>
+<p>Writing a schema based on device output can range from straightforward to
+surprisingly complex. Having multiple examples of device output for a given
+command can be incredibly helpful when designing a schema.</p>
+<p>For example, the output from the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">track</span></code> command for IOSXE can look like
+this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Track</span> <span class="mi">1</span>
+<span class="n">Interface</span> <span class="n">GigabitEthernet3</span><span class="mf">.420</span> <span class="n">line</span><span class="o">-</span><span class="n">protocol</span>
+<span class="n">Line</span> <span class="n">protocol</span> <span class="ow">is</span> <span class="n">Up</span>
+    <span class="mi">1</span> <span class="n">change</span><span class="p">,</span> <span class="n">last</span> <span class="n">change</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">27</span>
+<span class="n">Tracked</span> <span class="n">by</span><span class="p">:</span>
+    <span class="n">VRRP</span> <span class="n">GigabitEthernet3</span><span class="mf">.420</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>Or it can look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Track</span> <span class="mi">2</span>
+<span class="n">IP</span> <span class="n">route</span> <span class="mf">10.21.12.0</span> <span class="mf">255.255.255.0</span> <span class="n">reachability</span>
+<span class="n">Reachability</span> <span class="ow">is</span> <span class="n">Down</span> <span class="p">(</span><span class="n">no</span> <span class="n">ip</span> <span class="n">route</span><span class="p">),</span> <span class="n">delayed</span> <span class="n">Up</span> <span class="p">(</span><span class="mi">1</span> <span class="n">sec</span> <span class="n">remaining</span><span class="p">)</span> <span class="p">(</span><span class="n">connected</span><span class="p">)</span>
+    <span class="mi">1</span> <span class="n">change</span><span class="p">,</span> <span class="n">last</span> <span class="n">change</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">24</span>
+<span class="n">Delay</span> <span class="n">up</span> <span class="mi">20</span> <span class="n">secs</span><span class="p">,</span> <span class="n">down</span> <span class="mi">10</span> <span class="n">secs</span>
+<span class="n">First</span><span class="o">-</span><span class="n">hop</span> <span class="n">interface</span> <span class="ow">is</span> <span class="n">unknown</span> <span class="p">(</span><span class="n">was</span> <span class="n">Ethernet1</span><span class="o">/</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">Tracked</span> <span class="n">by</span><span class="p">:</span>
+    <span class="n">HSRP</span> <span class="n">Ethernet0</span><span class="o">/</span><span class="mi">0</span> <span class="mi">3</span>
+    <span class="n">HSRP</span> <span class="n">Ethernet0</span><span class="o">/</span><span class="mi">1</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Or even this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Track</span> <span class="mi">1</span>
+<span class="n">IP</span> <span class="n">route</span> <span class="mf">172.16.52.0</span> <span class="mf">255.255.255.0</span> <span class="n">metric</span> <span class="n">threshold</span>
+<span class="n">Metric</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="n">Down</span> <span class="p">(</span><span class="n">no</span> <span class="n">route</span><span class="p">)</span>
+    <span class="mi">1</span> <span class="n">change</span><span class="p">,</span> <span class="n">last</span> <span class="n">change</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">35</span>
+<span class="n">Metric</span> <span class="n">threshold</span> <span class="n">down</span> <span class="mi">255</span> <span class="n">up</span> <span class="mi">254</span>
+<span class="n">Delay</span> <span class="n">up</span> <span class="mi">2</span> <span class="n">secs</span><span class="p">,</span> <span class="n">down</span> <span class="mi">1</span> <span class="n">sec</span>
+<span class="n">First</span><span class="o">-</span><span class="n">hop</span> <span class="n">interface</span> <span class="ow">is</span> <span class="n">unknown</span>
+</pre></div>
+</div>
+<p>Comparing these three outputs reveals a lot about the structure of the information
+given by that particular show command. Using these output examples, a schema that
+looks like this can be created:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShowTrackSchema</span><span class="p">(</span><span class="n">MetaParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Schema for &#39;show track&#39; &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">Any</span><span class="p">():</span> <span class="p">{</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;mask&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;state_description&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;delayed&#39;</span><span class="p">):</span> <span class="p">{</span>
+                    <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;delayed_state&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                    <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;secs_remaining&#39;</span><span class="p">):</span> <span class="nb">float</span><span class="p">,</span>
+                    <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;connection_state&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;change_count&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s1">&#39;last_change&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;threshold_down&#39;</span><span class="p">):</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;threshold_up&#39;</span><span class="p">):</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;delay_up_secs&#39;</span><span class="p">):</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;delay_down_secs&#39;</span><span class="p">):</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;first_hop_interface_state&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;prev_first_hop_interface&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;tracked_by&#39;</span><span class="p">):</span> <span class="p">{</span>
+            <span class="n">Optional</span><span class="p">(</span><span class="n">Any</span><span class="p">()):</span> <span class="p">{</span>   <span class="c1">#increasing index 0, 1, 2, 3, ...</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;interface&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+                <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;group_id&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>If you want to jump ahead and see what the parsed output is when using this
+schema, then click <a class="reference internal" href="#golden-output-example"><span class="std std-ref">here</span></a>.
+The file that contains the above ShowTrackSchema class can be found <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser/blob/master/src/genie/libs/parser/iosxe/show_track.py">here</a>.</p>
+<p>In the above schema example, you can see the use of two schema subclasses; <code class="docutils literal notranslate"><span class="pre">Any</span></code> and <code class="docutils literal notranslate"><span class="pre">Optional</span></code>.
+As you might expect, <code class="docutils literal notranslate"><span class="pre">Any</span></code> is used to match anything and is often used in larger
+or more complicated schemas. <code class="docutils literal notranslate"><span class="pre">Optional</span></code> is used to indicate that a key may or
+may not exist in the device output.</p>
+<p>There are other helpful subclasses that can be used in the creation of your schema such as <code class="docutils literal notranslate"><span class="pre">Default</span></code>, <code class="docutils literal notranslate"><span class="pre">And</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">Or</span></code>. Visit the <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-metaparser/docs/advanced/schemaengine.html#other-types-of-schema">Schema Engine Documentation</a> to read more about them and how to use them.</p>
+<section id="generate-mock-device-output">
+<h5>Generate mock device output<a class="headerlink" href="#generate-mock-device-output" title="Link to this heading"></a></h5>
+<p>Follow the mock device example below to generate some sample device output for yourself,
+examine output indentation behaviour, see how you might want
+to group data into containers, and use the Python’s pretty print module.</p>
+<ol class="arabic">
+<li><p>Get some device out put by executing the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">interfaces</span></code> command in your mock exmaple.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dev</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show interfaces&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Result</em>: The system displays the unparsed output. The following example shows some of the output that you can use to identify keys for your parser:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GigabitEthernet1</span> <span class="ow">is</span> <span class="n">up</span><span class="p">,</span> <span class="n">line</span> <span class="n">protocol</span> <span class="ow">is</span> <span class="n">up</span>
+    <span class="n">Hardware</span> <span class="ow">is</span> <span class="n">CSR</span> <span class="n">vNIC</span><span class="p">,</span> <span class="n">address</span> <span class="ow">is</span> <span class="mf">0800.2729.3800</span> <span class="p">(</span><span class="n">bia</span> <span class="mf">0800.2729.3800</span><span class="p">)</span>
+    <span class="n">Internet</span> <span class="n">address</span> <span class="ow">is</span> <span class="mf">10.0.2.15</span><span class="o">/</span><span class="mi">24</span>
+    <span class="n">MTU</span> <span class="mi">1500</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">BW</span> <span class="mi">1000000</span> <span class="n">Kbit</span><span class="o">/</span><span class="n">sec</span><span class="p">,</span> <span class="n">DLY</span> <span class="mi">10</span> <span class="n">usec</span><span class="p">,</span>
+        <span class="n">reliability</span> <span class="mi">255</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="n">txload</span> <span class="mi">1</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="n">rxload</span> <span class="mi">1</span><span class="o">/</span><span class="mi">255</span>
+    <span class="n">Encapsulation</span> <span class="n">ARPA</span><span class="p">,</span> <span class="n">loopback</span> <span class="ow">not</span> <span class="nb">set</span>
+    <span class="n">Keepalive</span> <span class="nb">set</span> <span class="p">(</span><span class="mi">10</span> <span class="n">sec</span><span class="p">)</span>
+    <span class="n">Full</span> <span class="n">Duplex</span><span class="p">,</span> <span class="mi">1000</span><span class="n">Mbps</span><span class="p">,</span> <span class="n">link</span> <span class="nb">type</span> <span class="ow">is</span> <span class="n">auto</span><span class="p">,</span> <span class="n">media</span> <span class="nb">type</span> <span class="ow">is</span> <span class="n">Virtual</span>
+    <span class="n">output</span> <span class="n">flow</span><span class="o">-</span><span class="n">control</span> <span class="ow">is</span> <span class="n">unsupported</span><span class="p">,</span> <span class="nb">input</span> <span class="n">flow</span><span class="o">-</span><span class="n">control</span> <span class="ow">is</span> <span class="n">unsupported</span>
+    <span class="n">ARP</span> <span class="nb">type</span><span class="p">:</span> <span class="n">ARPA</span><span class="p">,</span> <span class="n">ARP</span> <span class="n">Timeout</span> <span class="mi">04</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+    <span class="n">Last</span> <span class="nb">input</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span> <span class="n">output</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span> <span class="n">output</span> <span class="n">hang</span> <span class="n">never</span>
+    <span class="n">Last</span> <span class="n">clearing</span> <span class="n">of</span> <span class="s2">&quot;show interface&quot;</span> <span class="n">counters</span> <span class="n">never</span>
+    <span class="o">...</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check the indentation in the output. The indentation tells you about the parent-child relationship of the keys.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remember to use the indentation (parent-child relationships) to ensure that values don’t overwrite other values at the same level. In the following example, the keys for <span class="monospace">interface_name</span> are indented so that the <span class="monospace">mac_address</span> value for Interface1 won’t be overwritten by the <span class="monospace">mac_address</span> value for Interface2.</p>
+</div>
+<p>Your schema might begin with the following lines:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;interfaces&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="n">Any</span><span class="p">():</span> <span class="p">{</span>                  <span class="c1"># GigabitEthernet1</span>
+        <span class="s1">&#39;oper_status&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>   <span class="c1"># up</span>
+        <span class="s1">&#39;line_protocol&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="c1"># up</span>
+        <span class="s1">&#39;hardware&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>      <span class="c1"># CSR vNIC</span>
+        <span class="s1">&#39;mac_address&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>   <span class="c1"># 0800.2729.3800</span>
+        <span class="o">...</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>You can also check for ways to group the data based on counters, input and output, as well as other statistics. For the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">4243</span> <span class="n">packets</span> <span class="nb">input</span><span class="p">,</span> <span class="mi">361948</span> <span class="nb">bytes</span><span class="p">,</span> <span class="mi">0</span> <span class="n">no</span> <span class="n">buffer</span>
+<span class="n">Received</span> <span class="mi">0</span> <span class="n">broadcasts</span> <span class="p">(</span><span class="mi">0</span> <span class="n">IP</span> <span class="n">multicasts</span><span class="p">)</span>
+<span class="mi">0</span> <span class="n">runts</span><span class="p">,</span> <span class="mi">0</span> <span class="n">giants</span><span class="p">,</span> <span class="mi">0</span> <span class="n">throttles</span>
+<span class="mi">0</span> <span class="nb">input</span> <span class="n">errors</span><span class="p">,</span> <span class="mi">0</span> <span class="n">CRC</span><span class="p">,</span> <span class="mi">0</span> <span class="n">frame</span><span class="p">,</span> <span class="mi">0</span> <span class="n">overrun</span><span class="p">,</span> <span class="mi">0</span> <span class="n">ignored</span>
+<span class="mi">0</span> <span class="n">watchdog</span><span class="p">,</span> <span class="mi">0</span> <span class="n">multicast</span><span class="p">,</span> <span class="mi">0</span> <span class="n">pause</span> <span class="nb">input</span>
+<span class="mi">3616</span> <span class="n">packets</span> <span class="n">output</span><span class="p">,</span> <span class="mi">1637917</span> <span class="nb">bytes</span><span class="p">,</span> <span class="mi">0</span> <span class="n">underruns</span>
+<span class="mi">0</span> <span class="n">output</span> <span class="n">errors</span><span class="p">,</span> <span class="mi">0</span> <span class="n">collisions</span><span class="p">,</span> <span class="mi">0</span> <span class="n">interface</span> <span class="n">resets</span>
+<span class="mi">0</span> <span class="n">unknown</span> <span class="n">protocol</span> <span class="n">drops</span>
+<span class="mi">0</span> <span class="n">babbles</span><span class="p">,</span> <span class="mi">0</span> <span class="n">late</span> <span class="n">collision</span><span class="p">,</span> <span class="mi">0</span> <span class="n">deferred</span>
+<span class="mi">0</span> <span class="n">lost</span> <span class="n">carrier</span><span class="p">,</span> <span class="mi">0</span> <span class="n">no</span> <span class="n">carrier</span><span class="p">,</span> <span class="mi">0</span> <span class="n">pause</span> <span class="n">output</span>
+<span class="mi">0</span> <span class="n">output</span> <span class="n">buffer</span> <span class="n">failures</span><span class="p">,</span> <span class="mi">0</span> <span class="n">output</span> <span class="n">buffers</span> <span class="n">swapped</span> <span class="n">out</span>
+</pre></div>
+</div>
+<p>Your schema could be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;counters&#39;</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># categorize the value as &#39;counters&#39;</span>
+    <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="p">{</span>   <span class="c1"># categorize the &#39;input&#39; related values</span>
+        <span class="s1">&#39;packets&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">&#39;bytes&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+
+    <span class="p">},</span>
+    <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;packets&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">&#39;bytes&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>To see the output with a more readable structure, you can use Python’s “pretty-print” module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show interfaces&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Result</em>: The following snippet shows the output formatted so that it’s easier to read:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;GigabitEthernet1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;arp_timeout&#39;</span><span class="p">:</span> <span class="s1">&#39;04:00:00&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;arp_type&#39;</span><span class="p">:</span> <span class="s1">&#39;arpa&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;auto_negotiate&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="s1">&#39;bandwidth&#39;</span><span class="p">:</span> <span class="mi">1000000</span><span class="p">,</span>
+                  <span class="s1">&#39;counters&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;in_broadcast_pkts&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                               <span class="s1">&#39;in_crc_errors&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                               <span class="s1">&#39;in_errors&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                               <span class="s1">&#39;in_frame&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="keys-from-xml">
+<span id="identifying-keys-from-xml-output"></span><h4>5.1.2 Identifying keys from XML output<a class="headerlink" href="#keys-from-xml" title="Link to this heading"></a></h4>
+<p>NXOS device <code class="docutils literal notranslate"><span class="pre">show</span></code> commands have an XML option that formats the output as key-value pairs. If you have an IOSXE or IOSXR device, you can usually find a similar NXOS command to run so that you can see the XML output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nx-osv9000-1# show interface | xml
+</pre></div>
+</div>
+<p><em>Result</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+&lt;nf:rpc-reply xmlns=&quot;http://www.cisco.com/nxos:1.0:if_manager&quot; xmlns:nf=&quot;urn:iet
+f:params:xml:ns:netconf:base:1.0&quot;&gt;
+&lt;nf:data&gt;
+&lt;show&gt;
+&lt;interface&gt;
+    &lt;__XML__OPT_Cmd_show_interface_quick&gt;
+    &lt;__XML__OPT_Cmd_show_interface___readonly__&gt;
+    &lt;__readonly__&gt;
+    &lt;TABLE_interface&gt;
+        &lt;ROW_interface&gt;
+        &lt;interface&gt;mgmt0&lt;/interface&gt;
+        &lt;state&gt;up&lt;/state&gt;
+        &lt;admin_state&gt;up&lt;/admin_state&gt;
+        &lt;eth_hw_desc&gt;Ethernet&lt;/eth_hw_desc&gt;
+        &lt;eth_hw_addr&gt;5e01.c005.0000&lt;/eth_hw_addr&gt;
+        &lt;eth_bia_addr&gt;5e01.c005.0000&lt;/eth_bia_addr&gt;
+        &lt;eth_ip_addr&gt;10.0.0.0&lt;/eth_ip_addr&gt;
+</pre></div>
+</div>
+<p>In this example, your schema could include the keys <span class="monospace">state</span>, <span class="monospace">admin_state</span>, <span class="monospace">eth_hw_desc</span>, and others.</p>
+</section>
+<section id="keys-from-yang">
+<span id="identifying-keys-from-the-yang-data-model"></span><h4>5.1.3 Identifying keys from the YANG data model<a class="headerlink" href="#keys-from-yang" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>Install the <code class="docutils literal notranslate"><span class="pre">pyang</span></code> package in your virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyang</span>
+</pre></div>
+</div>
+</li>
+<li><p>Clone the git repository for the YANG model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">YangModels</span><span class="o">/</span><span class="n">yang</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+</li>
+<li><p>Look for the latest model. (At the time of writing, this is <br /> <span class="monospace">./yang/experimental/ietf-extracted-YANG-modules/ietf-arp&#64;2019-11-04.yang</span>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">|</span> <span class="n">grep</span> <span class="n">ietf</span><span class="o">-</span><span class="n">arp</span>
+</pre></div>
+</div>
+</li>
+<li><p>View the model and identify the keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyang</span> <span class="o">-</span><span class="n">f</span> <span class="n">tree</span> <span class="o">./</span><span class="n">yang</span><span class="o">/</span><span class="n">experimental</span><span class="o">/</span><span class="n">ietf</span><span class="o">-</span><span class="n">extracted</span><span class="o">-</span><span class="n">YANG</span><span class="o">-</span><span class="n">modules</span><span class="o">/</span><span class="n">ietf</span><span class="o">-</span><span class="n">arp</span><span class="o">@</span><span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mf">04.</span><span class="n">yang</span>
+</pre></div>
+</div>
+<p><em>Result</em>: You can see the YANG model with the keys and data types:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>module: ietf-arp
+   +--rw arp
+       +--rw dynamic-learning?   boolean
+
+   augment /if:interfaces/if:interface/ip:ipv4:
+       +--rw arp
+       +--rw expiry-time?        uint32
+       +--rw dynamic-learning?   boolean
+       +--rw proxy-arp
+       |  +--rw mode?   enumeration
+       +--rw gratuitous-arp
+       |  +--rw enable?     boolean
+       |  +--rw interval?   uint32
+       +--ro statistics
+           +--ro in-requests-pkts?      yang:counter32
+           +--ro in-replies-pkts?       yang:counter32
+           +--ro in-gratuitous-pkts?    yang:counter32
+           +--ro out-requests-pkts?     yang:counter32
+           +--ro out-replies-pkts?      yang:counter32
+           +--ro out-gratuitous-pkts?   yang:counter32
+   augment /if:interfaces/if:interface/ip:ipv4/ip:neighbor:
+       +--ro remaining-expiry-time?   uint32
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="creating-a-schema-based-on-an-existing-model">
+<span id="schema-on-existing-model"></span><h3>5.2 Creating a schema based on an existing model<a class="headerlink" href="#creating-a-schema-based-on-an-existing-model" title="Link to this heading"></a></h3>
+<p>Check Genie Model to check if the parser feature you are working on has a Model: Genie Models</p>
+<blockquote>
+<div><p>Check the Model Ops structure
+Create the Parser Schema to be as close as possible to the Genie Model Ops Structure</p>
+</div></blockquote>
+<p>If you want to create a new schema, you can base it on the keys for an existing feature.</p>
+<ol class="arabic">
+<li><p>In a web browser, go to the <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/models">list of models</a> on which you can base a new parser schema.</p></li>
+<li><p>For this example, select <strong>interface</strong>, and then select <strong>MODEL</strong> to open a PDF file that contains the interface model.</p></li>
+<li><p>Navigate to the <strong>Interface Ops structure</strong> section.</p>
+<a class="reference internal image-reference" href="../_images/ops_structure.png"><img alt="../_images/ops_structure.png" src="../_images/ops_structure.png" style="width: 317.20000000000005px; height: 207.60000000000002px;" />
+</a>
+<p><br />  <em>Result</em>: The ops structure lists the keys that you can use to create your own parser schema. <br /></p>
+</li>
+<li><p>In a text editor, define the schema class, and then add the keys that you want your parser to return, as shown in the following example of part of a schema definition. Use JSON format and save the file as a <span class="monospace">*.py</span> file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShowInterfacesSchema</span><span class="p">(</span><span class="n">MetaParser</span><span class="p">):</span>
+<span class="sd">&quot;&quot;&quot;schema for show interfaces</span>
+<span class="sd">              show interfaces &lt;interface&gt;&quot;&quot;&quot;</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">Any</span><span class="p">():</span> <span class="p">{</span>
+            <span class="s1">&#39;oper_status&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;line_protocol&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;connected&#39;</span><span class="p">):</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You must specify the value type, such as integer, float, string, boolean, or list.</p>
+</div>
+<p>You can see <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser/blob/master/src/genie/libs/parser/iosxe/show_interface.py#L178">the complete parser file on GitHub</a>.</p>
+</li>
+</ol>
+</section>
+<section id="explore-other-pyats-schemas">
+<span id="schemaexamples"></span><h3>5.3 Explore other pyATS schemas<a class="headerlink" href="#explore-other-pyats-schemas" title="Link to this heading"></a></h3>
+<p>If you want to do some exploration of existing schemas, or if you
+want to see more schema examples to help with the creation of your own,
+then go check out all of the available parsers on the <a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/parsers">Parsers List
+website</a>!</p>
+<ol class="arabic simple">
+<li><p>At the top of the page, search for a show command, such as <span class="monospace">show interfaces</span>.</p></li>
+<li><p>Select an OS, in this example, <strong>IOSXE</strong>.</p></li>
+<li><p>Select <strong>show interfaces</strong>, and then scroll down to the IOSXE schema. The following illustration shows part of the schema.</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/schema_example.png"><img alt="../_images/schema_example.png" class="align-center" src="../_images/schema_example.png" style="width: 371.0px; height: 378.7px;" />
+</a>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="writing-the-parser-class">
+<span id="id5"></span><h2>6. Writing the Parser Class<a class="headerlink" href="#writing-the-parser-class" title="Link to this heading"></a></h2>
+<p>The pyATS Library parsers look for specific patterns in the device output and then structure the output as a set of key-value pairs. When you write a parser, you specify the patterns that you want the parser to match. For example, the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">interfaces</span></code> parser looks for patterns and returns the information as a set of key-value pairs, as shown in the following example of a section of parsed output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="s2">&quot;GigabitEthernet1&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="s2">&quot;arp_timeout&quot;</span><span class="p">:</span> <span class="s2">&quot;04:00:00&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;arp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;arpa&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;auto_negotiate&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+   <span class="s2">&quot;bandwidth&quot;</span><span class="p">:</span> <span class="mi">1000000</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>There are two main ways to write the parser class:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#regex-parser"><span class="std std-ref">Writing a parser class with regular expressions.</span></a></p></li>
+<li><p><a class="reference internal" href="#parsergen"><span class="std std-ref">Writing a parser class with the parsergen package.</span></a></p></li>
+</ol>
+<p>Most of the parsers in the pyATS parser library are written using regular
+expressions. It’s a little more work to write regexes for each piece of
+data, but it offers excellent control for pattern matching and for assigning
+the right values to the right keys in the right way.</p>
+<p>The pyATS Library parsers use regular expressions (regex) to match patterns in the device output. Regexes are the backbone of all parsers, so you must know how to use them before you can write a parser.</p>
+<p>The following references provide detailed information about how to use regular expressions:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.learnpython.org/en/Regular_Expressions">https://www.learnpython.org/en/Regular_Expressions</a></p></li>
+<li><p><a class="reference external" href="https://regexone.com/references/python">https://regexone.com/references/python</a></p></li>
+<li><p><a class="reference external" href="https://www.dataquest.io/blog/regex-cheatsheet/">https://www.dataquest.io/blog/regex-cheatsheet/</a></p></li>
+</ul>
+<p>The following online tools can help you build and test Python regular expressions:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pythex.org/">https://pythex.org/</a></p></li>
+<li><p><a class="reference external" href="https://regex101.com/">https://regex101.com/</a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The pyATS Library standard parsers use regular expressions for scalability. You can, however, write a parser that uses any of the following tools:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/google/textfsm/wiki/TextFSM">TextFSM</a></p></li>
+<li><p><a class="reference external" href="https://ttp.readthedocs.io/en/latest/">Template Text Parser (TTP)</a></p></li>
+<li><p><a class="reference internal" href="#parsergen"><span class="std std-ref">Parsergen</span></a></p></li>
+</ul>
+</div>
+<section id="writing-a-parser-class-with-regex">
+<span id="regex-parser"></span><h3>6.1 Writing a parser class with RegEx<a class="headerlink" href="#writing-a-parser-class-with-regex" title="Link to this heading"></a></h3>
+<p>When you write a new parser class, you can define the regular expressions used to match patterns in the device output. The parser adds the matched patterns as key-value pairs to a Python dictionary. The parser class inherits from the schema class to ensure that the resulting Python dictionary exactly follows the format of the defined schema.</p>
+<p>The following example shows a schema and parser class for the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">lisp</span> <span class="pre">session</span></code> command. As you can see, the schema and parser classes are defined in the same Python file. Take a look at the example, and then we’ll explain how it works.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Metaparser</span>
+<span class="kn">from</span> <span class="nn">genie.metaparser</span> <span class="kn">import</span> <span class="n">MetaParser</span>
+<span class="kn">from</span> <span class="nn">genie.metaparser.util.schemaengine</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="c1"># ==============================</span>
+<span class="c1"># Schema for &#39;show lisp session&#39;</span>
+<span class="c1"># ==============================</span>
+<span class="k">class</span> <span class="nc">ShowLispSessionSchema</span><span class="p">(</span><span class="n">MetaParser</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Schema for &quot;show lisp session&quot; &#39;&#39;&#39;</span>
+
+<span class="c1"># These are the key-value pairs to add to the parsed dictionary</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;vrf&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">Any</span><span class="p">():</span> <span class="p">{</span>
+                <span class="s1">&#39;sessions&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                    <span class="s1">&#39;established&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                    <span class="s1">&#39;peers&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="n">Any</span><span class="p">():</span> <span class="p">{</span>
+                            <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                            <span class="s1">&#39;total_in&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                            <span class="s1">&#39;total_out&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                            <span class="n">Optional</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">):</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="c1"># Python (this imports the Python re module for RegEx)</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="c1"># ==============================</span>
+<span class="c1"># Parser for &#39;show lisp session&#39;</span>
+<span class="c1"># ==============================</span>
+
+<span class="c1"># The parser class inherits from the schema class</span>
+<span class="k">class</span> <span class="nc">ShowLispSession</span><span class="p">(</span><span class="n">ShowLispSessionSchema</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Parser for &quot;show lisp session&quot;&#39;&#39;&#39;</span>
+
+    <span class="n">cli_command</span> <span class="o">=</span> <span class="s1">&#39;show lisp session&#39;</span>
+
+    <span class="c1"># Defines a function to run the cli_command</span>
+    <span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cli_command</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">output</span>
+
+        <span class="c1"># Initializes the Python dictionary variable</span>
+        <span class="n">parsed_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Defines the regex for the first line of device output, which is:</span>
+        <span class="c1"># Sessions for VRF default, total: 3, established: 3</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Sessions +for +VRF +(?P&lt;vrf&gt;(\S+)),&#39;</span>
+                        <span class="s1">&#39; +total: +(?P&lt;total&gt;(\d+)),&#39;</span>
+                        <span class="s1">&#39; +established: +(?P&lt;established&gt;(\d+))$&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Defines the regex for the next line of device output, which is:</span>
+        <span class="c1"># Peer                           State      Up/Down        In/Out    Users</span>
+        <span class="c1"># 2.2.2.2                        Up         00:51:38        8/13     3</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?P&lt;peer&gt;(\S+)) +(?P&lt;state&gt;(Up|Down)) +(?P&lt;time&gt;(\S+))&#39;</span>
+                        <span class="s1">&#39; +(?P&lt;in&gt;(\d+))\/(?P&lt;out&gt;(\d+)) +(?P&lt;users&gt;(\d+))$&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Defines the &quot;for&quot; loop, to pattern match each line of output</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="c1"># Processes the matched patterns for the first line of output</span>
+            <span class="c1"># Sessions for VRF default, total: 3, established: 3</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+                <span class="n">vrf</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;vrf&#39;</span><span class="p">]</span>
+                <span class="n">vrf_dict</span> <span class="o">=</span> <span class="n">parsed_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;vrf&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span>\
+                            <span class="n">setdefault</span><span class="p">(</span><span class="n">vrf</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;sessions&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">vrf_dict</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">])</span>
+                <span class="n">vrf_dict</span><span class="p">[</span><span class="s1">&#39;established&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;established&#39;</span><span class="p">])</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Processes the matched patterns for the second line of output</span>
+            <span class="c1"># Peer                           State      Up/Down        In/Out    Users</span>
+            <span class="c1"># 2.2.2.2                        Up         00:51:38        8/13     3</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">p2</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+                <span class="n">peer</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;peer&#39;</span><span class="p">]</span>
+                <span class="n">peer_dict</span> <span class="o">=</span> <span class="n">vrf_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;peers&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">peer</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">peer_dict</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">peer_dict</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+                <span class="n">peer_dict</span><span class="p">[</span><span class="s1">&#39;total_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;in&#39;</span><span class="p">])</span>
+                <span class="n">peer_dict</span><span class="p">[</span><span class="s1">&#39;total_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])</span>
+                <span class="n">peer_dict</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">])</span>
+                <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">parsed_dict</span>
+</pre></div>
+</div>
+<p>The following table describes the structure of the parser class in more detail.</p>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Structure of a parser class</span><a class="headerlink" href="#id8" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 48.0%" />
+<col style="width: 52.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Line</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="monospace">class ShowLispSession(ShowLispSessionSchema):</span></p></td>
+<td><p>Defines the parser class and the schema class from which it inherits.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="monospace">cli_command = ‘show lisp session’</span></p></td>
+<td><p>Tells the parser to run a specific show command or commands. The value of command would be string or list.</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="monospace">def cli(self, output=None):</span></p></td>
+<td><p>This is a Python function that tells the parser to execute the <code class="docutils literal notranslate"><span class="pre">cli_command</span></code>, store the output in the variable <code class="docutils literal notranslate"><span class="pre">out</span></code>, and perform the pattern matching on the string captured by the variable <code class="docutils literal notranslate"><span class="pre">out</span></code> to create the Python dictionary. If show command in cli_command has placeholder, the placeholder name should be passed as argument here.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="monospace">parsed_dict = {}</span></p></td>
+<td><p>Initializes the parsed and structured output in the Python dictionary object named <code class="docutils literal notranslate"><span class="pre">parsed_dict</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="monospace">p1 = re.compile…</span> <br />
+<span class="monospace">p2 = re.compile…</span></p></td>
+<td><p>Defines the regex for each line of device output. <code class="docutils literal notranslate"><span class="pre">re.compile</span></code> is a Python module that performs regex matching operations.</p>
+<p>In this example of router output, each line of output has unique values, but the pattern of each line repeats for every vrf.   For example:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vrf</span> <span class="pre">default</span></code> has <strong>3</strong> sessions with <strong>3</strong> established.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vrf</span> <span class="pre">red</span></code>  has <strong>15</strong> sessions with <strong>5</strong> established.</p></li>
+</ul>
+</div></blockquote>
+<p>For <code class="docutils literal notranslate"><span class="pre">p1</span></code>, the search pattern matches on the keys from a specific line of the device output, specifically, the session details.</p>
+<p><code class="docutils literal notranslate"><span class="pre">p2</span></code> defines the search pattern for another line of device output, specifically, the vrf details.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><span class="monospace">for line in out.splitlines():</span> <br />
+<span class="monospace">line = line.strip()</span></p></td>
+<td><p>Tells the parser to “loop” over each line of the device output and test each line against the regex pattern.</p>
+<p><span class="monospace">splitlines</span> breaks the output into individual lines.</p>
+<p><span class="monospace">strip</span> removes leading and trailing spaces before and after the matched pattern.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><span class="monospace">m = p1.match(line)</span></p></td>
+<td><p>Creates an object <code class="docutils literal notranslate"><span class="pre">m</span></code> that contains the matched patterns for the line associated with p1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="monospace">if m:</span> (and the code that follows)</p></td>
+<td><p>If a line matches the regex pattern, tells the parser to create the key-value pairs defined in the schema. The code that follows creates objects to store  values that match the structure defined by the schema.</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="monospace">return parsed_dict</span></p></td>
+<td><p>After the loop exhausts (reaches the last line), this ends the execution of the parser and returns the parsed output as a Python dictionary.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For consistency and compatibility when an interface name is parsed in its shortened form
+it should be converted to a standard format.
+The easiest way to accomplish this is with use of the Common library, found in /genie/parser/utils/common.py.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># take the example of a Ten Gigabit Ethernet port. When parsed out it may look like this:</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">interface_name</span> <span class="o">=</span> <span class="s2">&quot;Te0/0/1&quot;</span>
+
+<span class="c1"># for consistency and compatibility we want to convert this to be a standardized name.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">genie.libs.parser.utils.common</span> <span class="kn">import</span> <span class="n">Common</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">interface_name</span>
+<span class="s1">&#39;Te0/0/1&#39;</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">converted_name</span> <span class="o">=</span> <span class="n">Common</span><span class="o">.</span><span class="n">convert_intf_name</span><span class="p">(</span><span class="n">interface_name</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">converted_name</span>
+<span class="s1">&#39;TenGigabitEthernet0/0/1&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You need to know the patterns that you want to match before you write the parser class. These patterns can be some or all of the keys defined in the schema class.</p>
+</div>
+</section>
+<section id="writing-a-parser-class-with-the-parsergen-package">
+<span id="parsergen"></span><h3>6.2 Writing a parser class with the parsergen package<a class="headerlink" href="#writing-a-parser-class-with-the-parsergen-package" title="Link to this heading"></a></h3>
+<p>The pyATS Library <code class="docutils literal notranslate"><span class="pre">parsergen</span></code> package provides a one-step parsing mechanism that can parse dynamic tabular and non-tabular device output. The <code class="docutils literal notranslate"><span class="pre">parsergen</span></code> produces significantly fewer lines of code than standard parsing mechanisms.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">parsergen</span></code> package is a generic parser for show commands. You can use the package to create a parser class for any given show command, and then reuse your new class to create tests for the output values.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">parsergen</span></code> to create a parser class is particularly useful when you don’t have a pyATS Library model for a feature. In this example, we’ll create a new parser class for the VXLAN related parser.</p>
+<ol class="arabic">
+<li><p>In a Python interpreter, import the required pyATS Library and Python functionality (<code class="docutils literal notranslate"><span class="pre">re</span></code> is the Python regex functionality):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">genie.testbed</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">genie</span> <span class="kn">import</span> <span class="n">parsergen</span>
+</pre></div>
+</div>
+</li>
+<li><p>Load the testbed, create the device object, and connect to the device:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">testbed</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;mock_parser.yaml&#39;</span><span class="p">)</span>
+<span class="n">dev</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;iosxe1&#39;</span><span class="p">]</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>Execute the show command and store the output in the variable <code class="docutils literal notranslate"><span class="pre">output</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show nve vni&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Result</em>: You can see the tabular output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Interface</span>  <span class="n">VNI</span>        <span class="n">Multicast</span><span class="o">-</span><span class="n">group</span> <span class="n">VNI</span> <span class="n">state</span>  <span class="n">Mode</span>  <span class="n">BD</span>    <span class="n">cfg</span> <span class="n">vrf</span>
+<span class="n">nve1</span>       <span class="mi">6010</span>       <span class="n">N</span><span class="o">/</span><span class="n">A</span>             <span class="n">Up</span>         <span class="n">L2DP</span>  <span class="mi">1</span>     <span class="n">CLI</span> <span class="n">N</span><span class="o">/</span><span class="n">A</span>
+<span class="n">nve2</span>       <span class="mi">6020</span>       <span class="n">N</span><span class="o">/</span><span class="n">A</span>             <span class="n">Up</span>         <span class="n">L2DP</span>  <span class="mi">2</span>     <span class="n">CLI</span> <span class="n">N</span><span class="o">/</span><span class="n">A</span>
+<span class="n">nve3</span>       <span class="mi">6030</span>       <span class="n">N</span><span class="o">/</span><span class="n">A</span>             <span class="n">Up</span>         <span class="n">L2DP</span>  <span class="mi">3</span>     <span class="n">CLI</span> <span class="n">N</span><span class="o">/</span><span class="n">A</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define a variable <code class="docutils literal notranslate"><span class="pre">header</span></code> that contains the list of header names from the table. The names must exactly match the output:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Interface&#39;</span><span class="p">,</span> <span class="s1">&#39;VNI&#39;</span><span class="p">,</span> <span class="s1">&#39;Multicast-group&#39;</span><span class="p">,</span> <span class="s1">&#39;VNI state&#39;</span><span class="p">,</span> <span class="s1">&#39;Mode&#39;</span><span class="p">,</span> <span class="s1">&#39;BD&#39;</span><span class="p">,</span> <span class="s1">&#39;cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;vrf&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">parsergen</span></code> to parse the output, where index 0 is the <span class="monospace">Interface</span> column header. This process creates a Python dictionary of operational statistics per interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">parsergen</span><span class="o">.</span><span class="n">oper_fill_tabular</span><span class="p">(</span><span class="n">device_output</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">device_os</span><span class="o">=</span><span class="s1">&#39;iosxe&#39;</span><span class="p">,</span> <span class="n">header_fields</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</li>
+<li><p>Print the value of the <code class="docutils literal notranslate"><span class="pre">result</span></code> object that contains the dictionary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">entries</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Result</em>: Easy-to-read and easy-to-automate structured data:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{&#39;nve1&#39;: {&#39;BD&#39;: &#39;1&#39;,
+        &#39;Interface&#39;: &#39;nve1&#39;,
+        &#39;Mode&#39;: &#39;L2DP&#39;,
+        &#39;Multicast-group&#39;: &#39;N/A&#39;,
+        &#39;VNI&#39;: &#39;6010&#39;,
+        &#39;VNI state&#39;: &#39;Up&#39;,
+        &#39;cfg&#39;: &#39;CLI&#39;,
+        &#39;vrf&#39;: &#39;N/A&#39;},
+&#39;nve2&#39;: {&#39;BD&#39;: &#39;2&#39;,
+        &#39;Interface&#39;: &#39;nve2&#39;,
+        &#39;Mode&#39;: &#39;L2DP&#39;,
+        &#39;Multicast-group&#39;: &#39;N/A&#39;,
+        &#39;VNI&#39;: &#39;6020&#39;,
+        &#39;VNI state&#39;: &#39;Up&#39;,
+        &#39;cfg&#39;: &#39;CLI&#39;,
+        &#39;vrf&#39;: &#39;N/A&#39;},
+&#39;nve3&#39;: {&#39;BD&#39;: &#39;3&#39;,
+        &#39;Interface&#39;: &#39;nve3&#39;,
+        &#39;Mode&#39;: &#39;L2DP&#39;,
+        &#39;Multicast-group&#39;: &#39;N/A&#39;,
+        &#39;VNI&#39;: &#39;6030&#39;,
+        &#39;VNI state&#39;: &#39;Up&#39;,
+        &#39;cfg&#39;: &#39;CLI&#39;,
+        &#39;vrf&#39;: &#39;N/A&#39;}}
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can run all of these commands as a script. <a class="reference download internal" download="" href="../_downloads/afa3c93e897a4e8aa378e4da0e70d2cb/parsergen_script.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">the</span> <span class="pre">attached</span> <span class="pre">zip</span> <span class="pre">file</span></code></a>, extract the file to a directory of your choice, cd to that directory, and then run the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(pyats) $ python parsergen_script.py
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="testing-your-parser">
+<span id="testingyourparser"></span><h2>7. Testing your parser<a class="headerlink" href="#testing-your-parser" title="Link to this heading"></a></h2>
+<p>Now that you’ve finished writing your parser, the time has come to test it!</p>
+<p>There are currently two types of tests, those being Folder Based and Unittest Based.
+The testing strategy is currently in a state of transition.
+Moving to folder based testing helps us avoid merge conflicts and duplicate boilerplate code
+while ensuring tests are faster and easier create and use.
+When creating tests for a new parser do so in the Folder Based style.</p>
+<p><a class="reference internal" href="#folder-based-testing"><span class="std std-ref">Folder based testing</span></a> is currently completed for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ASA</p></li>
+<li><p>IOS</p></li>
+<li><p>IOSXE</p></li>
+<li><p>IOSXR</p></li>
+<li><p>JUNOS</p></li>
+</ul>
+</div></blockquote>
+<p>All other OS’s are in transition from <a class="reference internal" href="#unittest-based-testing"><span class="std std-ref">unittest based testing</span></a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you want to contribute your new parser to the open-source pyATS feature
+libraries and components, you must attach Folder Based testing results for each parser
+that you want to contribute.</p>
+</div>
+<section id="make-json">
+<h3>Make JSON<a class="headerlink" href="#make-json" title="Link to this heading"></a></h3>
+<p>Before we can run any tests, we need to incorporate your new parser into the pyATS
+<code class="docutils literal notranslate"><span class="pre">genie.libs.parser</span></code> package using the <cite>make json</cite> command.</p>
+<p>The <cite>make json</cite> command makes it easy to let pyATS know about how to use your new
+parser. Simply navigate to the root directory of the genieparser repo and execute
+<cite>make json</cite>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.../genieparser$<span class="w"> </span>make<span class="w"> </span>json
+</pre></div>
+</div>
+<p><cite>make json</cite> will then create/update a json file which will link commands to
+their related class.
+This json file will be used when device.parse is executed in order to find
+the correct parser class based on the given command.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Remember to execute <cite>make json</cite> every time you create a new parser!
+Without <cite>make json</cite>, device.parse will not be able to find the parser class
+and you’ll end up with a <code class="docutils literal notranslate"><span class="pre">Could</span> <span class="pre">not</span> <span class="pre">find</span> <span class="pre">parser</span></code> error when trying to test
+your parser.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Try your parser on a real device</strong></p>
+<p>If possible, it is recommended to run your parser on a real device to make sure
+that you get the expected parsed output. The following example shows how to do
+this in pure Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">genie.testbed</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="n">tb</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;yourtestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">dev</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">]</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">parsed_output</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;show inventory&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="folder-based-testing-asa-ios-and-iosxe">
+<span id="folder-based-testing"></span><h3>7.1 Folder based testing (ASA, IOS, and IOSXE)<a class="headerlink" href="#folder-based-testing-asa-ios-and-iosxe" title="Link to this heading"></a></h3>
+<p>To create a folder based test with cli based output, follow these simple tests.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Create a folder in the tests directory named exactly the same as the class name in the respective folder.</p>
+<ul>
+<li><p>As an example, the code <cite>class ShowClock(ShowClockSchema)</cite> would point you to creating a folder called <cite>ShowClock</cite>.</p></li>
+<li><p>The <cite>tests</cite> directory is a OS specific folder such as <cite>src/genie/libs/parser/iosxe/tests/</cite>.</p></li>
+</ul>
+</li>
+<li><p>Create a folder within the class name directory called <cite>cli</cite>.</p>
+<ul>
+<li><p>e.g. <cite>src/genie/libs/parser/iosxe/tests/ShowClock/cli</cite>.</p></li>
+</ul>
+</li>
+<li><p>Create folders for <cite>empty</cite> and <cite>equal</cite> within the <cite>cli</cite> folder.</p>
+<ul>
+<li><p>e.g. <cite>src/genie/libs/parser/iosxe/tests/ShowClock/cli/empty</cite>.</p></li>
+<li><p>e.g. <cite>src/genie/libs/parser/iosxe/tests/ShowClock/cli/equal</cite>.</p></li>
+</ul>
+</li>
+<li><p>Within the <cite>empty</cite> folder create a file that ends with <cite>_output.txt</cite></p>
+<ul>
+<li><p>e.g. <cite>src/genie/libs/parser/iosxe/tests/ShowClock/cli/empty/empty_output.txt</cite>.</p></li>
+<li><p>This file should be either empty or partial output that will not raise a <cite>SchemaEmptyParserError</cite> error.</p></li>
+</ul>
+</li>
+<li><p>Within the <cite>equal</cite> folder create the raw output, expected value, and potential arguments.</p>
+<ul>
+<li><p>The files are grouped together by stripping <cite>_output.txt</cite>, <cite>_expected.py</cite>, and <cite>_arguments.json</cite> and comparing the names that match.</p>
+<ul>
+<li><p>As an example <cite>golden_output1_arguments.json</cite>, <cite>golden_output1_expected.py</cite>, and <cite>golden_output1_output.txt</cite> are understood to be part of the same test.</p></li>
+</ul>
+</li>
+<li><p>The output file, should be a simple txt file with the expected output.</p></li>
+<li><p>The expected Python file, should be a Python file with a single variable called <cite>expected_output</cite> that has the expected data structure.</p></li>
+<li><p>The arguments JSON file, should be a single dictionary that is a set of key/value pairs.</p></li>
+</ul>
+</li>
+<li><p>Repeat this process for as many tests outputs you would like to verify, meaning you are not limited to a single test per command. This is helpful when output may be different based on any number of conditions.</p></li>
+</ul>
+</div></blockquote>
+<p>Following that process, you should end up with a folder structure that looks similar to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ShowClock
+└──<span class="w"> </span>cli
+<span class="w">    </span>├──<span class="w"> </span>empty
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>empty_output_output.txt
+<span class="w">    </span>└──<span class="w"> </span>equal
+<span class="w">        </span>├──<span class="w"> </span>golden_output_expected.py
+<span class="w">        </span>└──<span class="w"> </span>golden_output_output.txt
+
+<span class="m">4</span><span class="w"> </span>directories,<span class="w"> </span><span class="m">3</span><span class="w"> </span>files
+</pre></div>
+</div>
+<p>Ideally, this entire process once known, should only take a few seconds to create files and a few minutes to populate those files. For testing purposes you can run the tests locally. You can either run all tests, run a single OS tests, or run a single command tests for a single OS, as shown below from <em>within the tests folder</em>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.../genieparser/tests$<span class="w"> </span>python<span class="w"> </span>folder_parsing_job.py
+.../genieparser/tests$<span class="w"> </span>python<span class="w"> </span>folder_parsing_job.py<span class="w"> </span>-o<span class="w"> </span>iosxe
+.../genieparser/tests$<span class="w"> </span>python<span class="w"> </span>folder_parsing_job.py<span class="w"> </span>-o<span class="w"> </span>iosxe<span class="w"> </span>-c<span class="w"> </span>ShowClock
+</pre></div>
+</div>
+<p>The output will show you the something similar, which will provide the <cite>PASSED</cite> and <cite>FAILED</cite> results.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.../genieparser/tests$<span class="w"> </span>python<span class="w"> </span>folder_parsing_job.py<span class="w"> </span>-o<span class="w"> </span>iosxe<span class="w"> </span>-c<span class="w"> </span>ShowClock
+&lt;cut<span class="w"> </span><span class="k">for</span><span class="w"> </span>brevity&gt;
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span><span class="p">|</span><span class="w">                               </span>Detailed<span class="w"> </span>Results<span class="w">                               </span><span class="p">|</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>+------------------------------------------------------------------------------+
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>SECTIONS/TESTCASES<span class="w">                                                      </span>RESULT
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>--------------------------------------------------------------------------------
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>.
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span><span class="sb">`</span>--<span class="w"> </span>FileBasedTest<span class="w">                                                         </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">     </span><span class="sb">`</span>--<span class="w"> </span>check_os_folder<span class="o">[</span><span class="nv">operating_system</span><span class="o">=</span>iosxe<span class="o">]</span><span class="w">                           </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>Step<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>iosxe<span class="w"> </span>-&gt;<span class="w"> </span>ShowClock<span class="w">                                    </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>Step<span class="w"> </span><span class="m">1</span>.1:<span class="w"> </span>Test<span class="w"> </span>Golden<span class="w"> </span>-&gt;<span class="w"> </span>iosxe<span class="w"> </span>-&gt;<span class="w"> </span>ShowClock<span class="w">                   </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>Step<span class="w"> </span><span class="m">1</span>.1.1:<span class="w"> </span>Gold<span class="w"> </span>-&gt;<span class="w"> </span>iosxe<span class="w"> </span>-&gt;<span class="w"> </span>ShowClock<span class="w"> </span>-&gt;<span class="w"> </span>golden_output<span class="w">       </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">         </span><span class="p">|</span>--<span class="w"> </span>Step<span class="w"> </span><span class="m">1</span>.2:<span class="w"> </span>Test<span class="w"> </span>Empty<span class="w"> </span>-&gt;<span class="w"> </span>iosxe<span class="w"> </span>-&gt;<span class="w"> </span>ShowClock<span class="w">                    </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">         </span><span class="sb">`</span>--<span class="w"> </span>Step<span class="w"> </span><span class="m">1</span>.2.1:<span class="w"> </span>Empty<span class="w"> </span>-&gt;<span class="w"> </span>iosxe<span class="w"> </span>-&gt;<span class="w"> </span>ShowClock<span class="w"> </span>-&gt;<span class="w"> </span>empty_output<span class="w">       </span>PASSED
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>+------------------------------------------------------------------------------+
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span><span class="p">|</span><span class="w">                                   </span>Summary<span class="w">                                    </span><span class="p">|</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>+------------------------------------------------------------------------------+
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>ABORTED<span class="w">                                                            </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>BLOCKED<span class="w">                                                            </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>ERRORED<span class="w">                                                            </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>FAILED<span class="w">                                                             </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>PASSED<span class="w">                                                             </span><span class="m">1</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>PASSX<span class="w">                                                              </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>SKIPPED<span class="w">                                                            </span><span class="m">0</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Total<span class="w"> </span>Number<span class="w">                                                                 </span><span class="m">1</span>
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w">  </span>Success<span class="w"> </span>Rate<span class="w">                                                            </span><span class="m">100</span>.0%
+<span class="m">2020</span>-09-19T16:14:17:<span class="w"> </span>%AETEST-INFO:<span class="w"> </span>--------------------------------------------------------------------------------
+root@197979f5dbd6:/genieparser/tests$
+</pre></div>
+</div>
+<section id="golden-output-example-files">
+<span id="golden-output-example"></span><h4>Golden output example files<a class="headerlink" href="#golden-output-example-files" title="Link to this heading"></a></h4>
+<p>In section  <a class="reference internal" href="#keys-from-show-command"><span class="std std-ref">5.1.1</span></a>, there are examples of the output from the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">track</span></code>
+command for IOSXE. Below is what the parsed output from one of those
+examples looks like. You can explore these test files yourself by
+clicking <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser/tree/master/src/genie/libs/parser/iosxe/tests/ShowTrack/cli/equal">here</a>.</p>
+<p>So, given this device output in <code class="docutils literal notranslate"><span class="pre">golden_output1_output.txt</span></code>,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Track</span> <span class="mi">2</span>
+  <span class="n">IP</span> <span class="n">route</span> <span class="mf">10.21.12.0</span> <span class="mf">255.255.255.0</span> <span class="n">reachability</span>
+  <span class="n">Reachability</span> <span class="ow">is</span> <span class="n">Down</span> <span class="p">(</span><span class="n">no</span> <span class="n">ip</span> <span class="n">route</span><span class="p">),</span> <span class="n">delayed</span> <span class="n">Up</span> <span class="p">(</span><span class="mi">1</span> <span class="n">sec</span> <span class="n">remaining</span><span class="p">)</span> <span class="p">(</span><span class="n">connected</span><span class="p">)</span>
+    <span class="mi">1</span> <span class="n">change</span><span class="p">,</span> <span class="n">last</span> <span class="n">change</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">24</span>
+  <span class="n">Delay</span> <span class="n">up</span> <span class="mi">20</span> <span class="n">secs</span><span class="p">,</span> <span class="n">down</span> <span class="mi">10</span> <span class="n">secs</span>
+  <span class="n">First</span><span class="o">-</span><span class="n">hop</span> <span class="n">interface</span> <span class="ow">is</span> <span class="n">unknown</span> <span class="p">(</span><span class="n">was</span> <span class="n">Ethernet1</span><span class="o">/</span><span class="mi">0</span><span class="p">)</span>
+  <span class="n">Tracked</span> <span class="n">by</span><span class="p">:</span>
+    <span class="n">HSRP</span> <span class="n">Ethernet0</span><span class="o">/</span><span class="mi">0</span> <span class="mi">3</span>
+    <span class="n">HSRP</span> <span class="n">Ethernet0</span><span class="o">/</span><span class="mi">1</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>the expected output from the parser in <code class="docutils literal notranslate"><span class="pre">golden_output1_expected.py</span></code> would be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">expected_output</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;IP route&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="s1">&#39;10.21.12.0&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="s1">&#39;255.255.255.0&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;Down&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;state_description&#39;</span><span class="p">:</span> <span class="s1">&#39;no ip route&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;delayed&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;delayed_state&#39;</span><span class="p">:</span> <span class="s1">&#39;Up&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;secs_remaining&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+                <span class="s1">&#39;connection_state&#39;</span><span class="p">:</span> <span class="s1">&#39;connected&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;change_count&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;last_change&#39;</span><span class="p">:</span> <span class="s1">&#39;00:00:24&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;delay_up_secs&#39;</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="s1">&#39;delay_down_secs&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="s1">&#39;first_hop_interface_state&#39;</span><span class="p">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;prev_first_hop_interface&#39;</span><span class="p">:</span> <span class="s1">&#39;Ethernet1/0&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tracked_by&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;HSRP&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interface&#39;</span><span class="p">:</span> <span class="s1">&#39;Ethernet0/0&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;group_id&#39;</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span>
+        <span class="p">},</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;HSRP&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interface&#39;</span><span class="p">:</span> <span class="s1">&#39;Ethernet0/1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;group_id&#39;</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="unittest-based-testing">
+<span id="id7"></span><h3>7.2 Unittest based testing<a class="headerlink" href="#unittest-based-testing" title="Link to this heading"></a></h3>
+<p>The old testing strategy leverages unittest. The <a class="reference external" href="https://docs.python.org/3/library/unittest.mock.html">Python unittest.mock library</a> returns mock device output. Use your parser class to parse the mock data and return a Python dictionary that contains the results.</p>
+<p>The following example shows how to create a unit test file for <a class="reference internal" href="#regex-parser"><span class="std std-ref">the show lisp session example</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the Python mock functionality</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
+
+<span class="c1"># pyATS</span>
+<span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">Device</span>
+<span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+
+<span class="c1"># Metaparser</span>
+<span class="kn">from</span> <span class="nn">genie.metaparser.util.exceptions</span> <span class="kn">import</span> <span class="n">SchemaEmptyParserError</span><span class="p">,</span> <span class="n">SchemaMissingKeyError</span>
+
+<span class="c1"># iosxe show_lisp</span>
+<span class="kn">from</span> <span class="nn">genie.libs.parser.iosxe.show_lisp</span> <span class="kn">import</span> <span class="n">ShowLispSession</span>
+
+<span class="c1"># =================================</span>
+<span class="c1"># Unit test for &#39;show lisp session&#39;</span>
+<span class="c1"># =================================</span>
+<span class="k">class</span> <span class="nc">test_show_lisp_session</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Unit test for &quot;show lisp session&quot;&#39;&#39;&#39;</span>
+
+    <span class="n">empty_output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;execute.return_value&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+
+    <span class="c1"># Specify the expected result for the parsed output</span>
+    <span class="n">golden_parsed_output1</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;vrf&#39;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;sessions&#39;</span><span class="p">:</span>
+                    <span class="p">{</span><span class="s1">&#39;established&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="s1">&#39;peers&#39;</span><span class="p">:</span>
+                        <span class="p">{</span><span class="s1">&#39;2.2.2.2&#39;</span><span class="p">:</span>
+                            <span class="p">{</span><span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;up&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;00:51:38&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;total_in&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+                            <span class="s1">&#39;total_out&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+                            <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                        <span class="s1">&#39;6.6.6.6&#39;</span><span class="p">:</span>
+                            <span class="p">{</span><span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;up&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;00:51:53&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;total_in&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                            <span class="s1">&#39;total_out&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                            <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                        <span class="s1">&#39;8.8.8.8&#39;</span><span class="p">:</span>
+                            <span class="p">{</span><span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;up&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;00:52:15&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;total_in&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+                            <span class="s1">&#39;total_out&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+                            <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}},</span>
+                    <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Specify the expected unparsed output</span>
+    <span class="n">golden_output1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;execute.return_value&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        204-MSMR#show lisp session</span>
+<span class="s1">        Sessions for VRF default, total: 3, established: 3</span>
+<span class="s1">        Peer                           State      Up/Down        In/Out    Users</span>
+<span class="s1">        2.2.2.2                        Up         00:51:38        8/13     3</span>
+<span class="s1">        6.6.6.6                        Up         00:51:53        3/10     1</span>
+<span class="s1">        8.8.8.8                        Up         00:52:15        8/13     3</span>
+<span class="s1">        &#39;&#39;&#39;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_show_lisp_session_full1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDiff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">golden_output1</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">ShowLispSessionNew</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">parsed_output</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">parsed_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">golden_parsed_output1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_show_lisp_session_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDiff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">empty_output</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">ShowLispSessionNew</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">SchemaEmptyParserError</span><span class="p">):</span>
+            <span class="n">parsed_output</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To create your own unit test, complete the following steps.</p>
+<ol class="arabic">
+<li><p>Make sure to save your parser file in the directory for the device OS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">genie</span><span class="o">/</span><span class="n">libs</span><span class="o">/</span><span class="n">parser</span><span class="o">/</span><span class="n">iosxe</span><span class="o">/</span><span class="n">show_lisp</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The idea where adding your parser is, if show command is <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">lisp</span> <span class="pre">&lt;something&gt;</span></code>,
+add to <cite>show_lisp.py</cite>. So that we can easily find the parser code based on file name.</p>
+</li>
+<li><p>Open a new text file, and save it in the <span class="monospace">tests</span> folder for the OS.</p></li>
+<li><p>In this new file, import the functionality shown in the example. Also, import your new parser class. In this example, <span class="monospace">show_lisp</span> is the parser file and <span class="monospace">ShowLispSessionNew</span> is the new parser class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
+<span class="kn">from</span> <span class="nn">ats.topology</span> <span class="kn">import</span> <span class="n">Device</span>
+<span class="kn">from</span> <span class="nn">ats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">genie.metaparser.util.exceptions</span> <span class="kn">import</span> <span class="n">SchemaEmptyParserError</span><span class="p">,</span> <span class="n">SchemaMissingKeyError</span>
+<span class="kn">from</span> <span class="nn">genie.libs.parser.iosxe.show_lisp</span> <span class="kn">import</span> <span class="n">ShowLispSession</span>
+</pre></div>
+</div>
+</li>
+<li><p>Define the expected parsed and unparsed output. We refer to this as the “golden” output.</p></li>
+<li><p>Define the tests as shown in the example, and use your new parser class name for the <code class="docutils literal notranslate"><span class="pre">obj</span></code> variable.</p></li>
+<li><p>Execute the tests:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>test_show_lisp.py<span class="w"> </span>-v
+</pre></div>
+</div>
+</div></blockquote>
+<p><em>Result</em>:</p>
+<img alt="../_images/unit_test_results.png" src="../_images/unit_test_results.png" />
+</li>
+<li><p>After you push your parser code to your branch, GitHub Actions will check it on your pull request. Please make sure your parser testing passes.</p></li>
+</ol>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Test on real devices whenever possible. If you use the Python mock functionality, make sure the expected output is from a real device.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="contributing-your-work-to-the-pyats-project">
+<span id="contributing-your-work"></span><h2>8. Contributing your work to the pyATS project<a class="headerlink" href="#contributing-your-work-to-the-pyats-project" title="Link to this heading"></a></h2>
+<p>You’ve written your parser, you’ve run tests on your parser, and you’re ready
+to contribute your parser. Great! For your convenience, the steps required to
+make a good pull request are outlined here, but before you start them, go read the
+<a class="reference external" href="https://pubhub.devnetcloud.com/media/pyats-development-guide/docs/contribute/contribute.html#contribute">pyATS contribution guide</a>.
+Seriously. It’s good stuff. Please follow the steps closely as it saves time for you and also for our
+development team! The <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser#genie-parser">genieparser repo README</a>
+also contains useful information on submitting your parser.</p>
+<ol class="arabic simple">
+<li><p>Make sure your testing passed via GitHub Actions.</p></li>
+<li><p>Fix any errors found in GitHub Actions result.</p></li>
+<li><p>Create a new changelog file in <code class="docutils literal notranslate"><span class="pre">genieparser/changelog/undistributed/</span></code>. The genieparser repo README explains how in the <a class="reference external" href="https://github.com/CiscoTestAutomation/genieparser#how-to-write-changelog">how to write changelog</a> section.</p></li>
+<li><p>Commit and push your changes to your forked genieparser repo.</p></li>
+<li><p>Create a pull request</p></li>
+<li><p>Fill out the Description, Motivation and Context, Impact, and Screenshots sections of the pull request form.</p></li>
+<li><p>Complete the Checklist section.</p></li>
+<li><p>Submit your pull request!</p></li>
+</ol>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+<p>See also…</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/RunSi/DEVWKS-2601">Cisco Live DevNet workshop 2601 - pyATS/GENIE ops and parsers</a></p></li>
+<li><p><a class="reference external" href="https://pubhub.devnetcloud.com/media/genie-feature-browser/docs/#/parsers">Available parsers</a></p></li>
+<li><p><a class="reference external" href="https://anirudhkamath.github.io/network-automation-blog/notes/genie-parsing.html">This excellent blog post</a> by <a class="reference external" href="https://github.com/anirudhkamath">Anirudh Kamath</a></p></li>
+<li><p><a class="reference internal" href="../contribute/contribute.html#contribute"><span class="std std-ref">Contribution guidelines</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../writescripts/writepythonscript.html" class="btn btn-neutral float-left" title="Write a Python script" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../writeapi/writeapi.html" class="btn btn-neutral float-right" title="Write an API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Cisco Systems Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

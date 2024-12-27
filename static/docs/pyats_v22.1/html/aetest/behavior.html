@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Runtime Behavior &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Test Parameters" href="parameters.html" />
+    <link rel="prev" title="Object Model" href="objects.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">AEtest - Test Infrastructure</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Script Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objects.html">Object Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Runtime Behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#runtime">runtime</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#self">self</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parent">parent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#section-ordering">Section Ordering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Test Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loop.html">Looping Sections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html">Section Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steps.html">Section Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run.html">Running TestScripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processors.html">Section Processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datafile.html">Datafile Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control.html">Flow Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reports.html">Report Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Debugging Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">AEtest - Test Infrastructure</a></li>
+      <li class="breadcrumb-item active">Runtime Behavior</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="runtime-behavior">
+<h1>Runtime Behavior<a class="headerlink" href="#runtime-behavior" title="Permalink to this heading">¶</a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Helpful Reading</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3.4/tutorial/classes.html#random-remarks">Classes Remarks</a></p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/weakref.html">Weak References</a></p></li>
+</ul>
+</aside>
+<p>This section covers native runtime behaviors of your testscript. It is an
+addendum to the <a class="reference internal" href="objects.html#object-model"><span class="std std-ref">Object Model</span></a> chapter, focusing on the behavior of class
+instances, and how to benefit the most from the object model relationships.</p>
+<p>The word <strong>runtime</strong>, in this context, refers to the behavior and/or objects
+available when <code class="docutils literal notranslate"><span class="pre">aetest</span></code> scripts are executed via one of the two official ways
+described in <a class="reference internal" href="run.html#running-aetest-script"><span class="std std-ref">Running TestScripts</span></a>.</p>
+<section id="runtime">
+<span id="aetest-runtime"></span><h2>runtime<a class="headerlink" href="#runtime" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aetest.runtime</span></code> object provides users access to runtime and <code class="docutils literal notranslate"><span class="pre">aetest</span></code> input
+argument information that are normally not accessible via script test objects.
+To access, import <code class="docutils literal notranslate"><span class="pre">runtime</span></code> as a module, and simply query runtime information
+via object attributes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   querying runtime information inside testscripts</span>
+
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="k">class</span> <span class="nc">CommonSetup</span><span class="p">(</span><span class="n">aetest</span><span class="o">.</span><span class="n">CommonSetup</span><span class="p">):</span>
+
+    <span class="c1"># this common setup subsection validates</span>
+    <span class="c1"># uids and groups input arguments default to empty</span>
+    <span class="nd">@subsection</span>
+    <span class="k">def</span> <span class="nf">validate_skip_uids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">aetest</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">uids</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">aetest</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">groups</span>
+</pre></div>
+</div>
+<p>The following variables are currently accessible through <code class="docutils literal notranslate"><span class="pre">runtime</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uids</span></code>: current script execution <a class="reference internal" href="control.html#aetest-uids"><span class="std std-ref">Run IDS</span></a> configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">groups</span></code>: current script <a class="reference internal" href="control.html#aetest-groups"><span class="std std-ref">Testcase Grouping</span></a> configuration</p></li>
+</ul>
+</div></blockquote>
+<p>In time, we’ll expand this access list as needed.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">runtime</span></code> is the only official way to query runtime environment info in
+<code class="docutils literal notranslate"><span class="pre">aetest</span></code>. There are other inconspicuous methods, but they are unsupported
+and may go away and/or be changed as part of internal refactorings.</p>
+</div>
+</section>
+<section id="self">
+<span id="self-behavior"></span><h2>self<a class="headerlink" href="#self" title="Permalink to this heading">¶</a></h2>
+<p>Within container classes such as <code class="docutils literal notranslate"><span class="pre">CommonSetup</span></code>, <code class="docutils literal notranslate"><span class="pre">Testcase</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CommonCleanup</span></code>, <code class="docutils literal notranslate"><span class="pre">self</span></code> refers to the instance of that class, and remains
+consistent throughout the execution of that container.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   self, consistency explained</span>
+
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="c1"># define a testcase where its tests</span>
+<span class="c1"># expects self.value to be set by the setup section,</span>
+<span class="c1"># and continues to be carried throughout</span>
+<span class="k">class</span> <span class="nc">Testcase</span><span class="p">(</span><span class="n">aetest</span><span class="o">.</span><span class="n">Testcase</span><span class="p">):</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">setup</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">test_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">2</span>
+
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">test_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">3</span>
+
+<span class="c1"># run the Testcase</span>
+<span class="n">tc</span> <span class="o">=</span> <span class="n">Testcase</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tc</span><span class="p">())</span>
+<span class="c1"># passed</span>
+</pre></div>
+</div>
+<p>As demonstrated in the above example, <code class="docutils literal notranslate"><span class="pre">self.value</span></code>, initially created within
+the <code class="docutils literal notranslate"><span class="pre">setup</span></code> section, was carried throughout the testcase, and each <code class="docutils literal notranslate"><span class="pre">test</span></code>
+was able to add to it and check that the expected values are consistent.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>in other words, each container class is only instantiated once, and every
+section (method) within it shares the same instance object, and can
+influence each other’s behaviors.</p>
+</div>
+<p>This enables linear relationships within container classes, where users can
+carry objects &amp; values around by setting &amp; getting attributes on instance object
+<code class="docutils literal notranslate"><span class="pre">self</span></code>, and where the next section’s behavior can be influenced by a previous
+section’s values and result.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>this behavior is drastically different vs. python <code class="docutils literal notranslate"><span class="pre">unittest</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pytest</span></code>, where each test method (starting with <code class="docutils literal notranslate"><span class="pre">test_</span></code>) has its own
+class instance, and is independent of all other test methods.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">self</span></code> is not a keyword in Python. It is merely a <a class="reference external" href="https://docs.python.org/3.4/tutorial/classes.html#random-remarks">convention</a> where the
+first argument to a method is always named <code class="docutils literal notranslate"><span class="pre">self</span></code> for readability &amp;
+consistency. This section intends to focus on the class instance object
+that it represents, and thus, for the sake of consistency and simplicity,
+we are just referring to it as <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+</div>
+</section>
+<section id="parent">
+<span id="id1"></span><h2>parent<a class="headerlink" href="#parent" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aetest</span></code> testscripts follow a tree-style parent-child object relationship. The
+following provides a graphical view.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>                            +--------------+
+                            |  TestScript  |
+                            +-------+------+
+                                    |
+       +----------------------------+---------------------------+
+       |                            |                           |
++------+------+            +--------+-------+           +-------+-------+
+| CommonSetup |            |   Testcases    |           | CommonCleanup |
++------+------+            +--------+-------+           +-------+-------+
+       |                            |                           |
++------+------+                     |                    +------+------+
+| subsections |          +----------+-----------+        | subsections |
++-------------+          |          |           |        +-------------+
+                     +---+---+  +---+---+  +----+----+
+                     | setup |  | tests |  | cleanup |
+                     +-------+  +-------+  +---------+
+</pre></div>
+</div>
+<p>This relationship can be observed and accessed during runtime via the object
+<code class="docutils literal notranslate"><span class="pre">parent</span></code> attribute:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>in <code class="docutils literal notranslate"><span class="pre">CommonSetup</span></code>, <code class="docutils literal notranslate"><span class="pre">Testcase</span></code> and <code class="docutils literal notranslate"><span class="pre">CommonCleanup</span></code>, <code class="docutils literal notranslate"><span class="pre">self.parent</span></code>
+refers to the <code class="docutils literal notranslate"><span class="pre">TestScript</span></code> instance.</p></li>
+<li><p>in each test method (subsection/setup/tests/cleanup), its parent is
+naturally accessed with <code class="docutils literal notranslate"><span class="pre">self</span></code> (the method parent instance). This is
+a trivial Python behavior.</p></li>
+<li><p>subsection/setup/test/cleanup section’s internal corresponding
+<code class="docutils literal notranslate"><span class="pre">Subsection</span></code>, <code class="docutils literal notranslate"><span class="pre">SetupSection</span></code>, <code class="docutils literal notranslate"><span class="pre">TestSection</span></code> and <code class="docutils literal notranslate"><span class="pre">CleanupSection</span></code>
+class objects also has <code class="docutils literal notranslate"><span class="pre">parent</span></code> attribute, pointing to their
+container. This is an FYI - these objects are normally not referenced by
+the user.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TestScript</span></code> instance’s <code class="docutils literal notranslate"><span class="pre">parent</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, because it is the root
+of all other objects.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   parenthood is not easy</span>
+<span class="c1">#</span>
+<span class="c1">#   note that the same relationships described below</span>
+<span class="c1">#   also applies to CommonSetup &amp; CommonCleanup</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="k">class</span> <span class="nc">Testcase</span><span class="p">(</span><span class="n">aetest</span><span class="o">.</span><span class="n">Testcase</span><span class="p">):</span>
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">setup</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># within a method (subsection/setup/test/cleanup)</span>
+        <span class="c1"># self refers to its parent. (trivial)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aetest</span><span class="o">.</span><span class="n">Testcase</span><span class="p">)</span>
+
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># within a method (subsection/setup/test/cleanup)</span>
+        <span class="c1"># self.parent refers to the Testcase parent</span>
+        <span class="c1"># note that Object Models: TestScript.module refers to this module</span>
+        <span class="c1"># so let&#39;s test this.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">module</span> <span class="ow">is</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In order to avoid circular references, <code class="docutils literal notranslate"><span class="pre">parent</span></code> is internally implemented as
+<a class="reference external" href="https://docs.python.org/3/library/weakref.html">Weak References</a>, but returns the actual object to the end user when accessed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">parent</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> when <code class="docutils literal notranslate"><span class="pre">aetest</span></code> objects are instantiated
+outside of the runtime environment. For example, during
+<a class="reference internal" href="../resources/testbench.html#testbench"><span class="std std-ref">Test Bench Development</span></a> scenarios.</p>
+</div>
+</section>
+<section id="section-ordering">
+<span id="aetest-section-ordering"></span><h2>Section Ordering<a class="headerlink" href="#section-ordering" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aetest</span></code> script content runs in a logical, reproducible order. This ensures
+that repeated runs of the same scripts in the same environment yields the same
+execution order, a property much needed in feature testing.</p>
+<p>The following rules are applied when the top-level <code class="docutils literal notranslate"><span class="pre">TestContainer</span></code> classes
+are discovered and run:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CommonSetup</span></code> section always runs first</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Testcase</span></code> runs in order as they are defined/appear in the script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommonCleanup</span></code> section always runs last</p></li>
+</ul>
+</div></blockquote>
+<p>Within each <code class="docutils literal notranslate"><span class="pre">TestContainer</span></code>, the following rules applies to child sections
+(methods):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">setup</span></code> section always runs first (if applicable)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subsection</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> order is slightly more complicated:</p>
+<ul>
+<li><p>section methods defined in parent classes (through inheritance) are
+run first (parents first)</p></li>
+<li><p>otherwise, run in the order as they are defined/appear in the script</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cleanup</span></code> section always runs last (if applicable)</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   section ordering example</span>
+
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">aetest</span>
+
+<span class="c1"># assume that we are importing another testcase from a base_script</span>
+<span class="c1"># and inheriting it to create a new, extended testcase</span>
+<span class="kn">from</span> <span class="nn">base_script</span> <span class="kn">import</span> <span class="n">BaseTestcase</span>
+
+<span class="c1"># pretend that the BaseTase looks like this</span>
+<span class="c1"># class BaseTestcase(self):</span>
+<span class="c1">#</span>
+<span class="c1">#     @aetest.test</span>
+<span class="c1">#     def test_one(self):</span>
+<span class="c1">#         print(&#39;i am test 1&#39;)</span>
+<span class="c1">#</span>
+<span class="c1">#     @aetest.test</span>
+<span class="c1">#     def test_two(self):</span>
+<span class="c1">#         print(&#39;i am test 2&#39;)</span>
+
+<span class="c1"># the local testcase inherits it</span>
+<span class="k">class</span> <span class="nc">LocalTestcase</span><span class="p">(</span><span class="n">BaseTestcase</span><span class="p">):</span>
+
+    <span class="nd">@aetest</span><span class="o">.</span><span class="n">test</span>
+    <span class="k">def</span> <span class="nf">test_three</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;i am test 3&#39;</span><span class="p">)</span>
+
+<span class="c1"># when this local test is run,</span>
+<span class="c1"># the two tests from parent class runs first.</span>
+<span class="n">tc</span> <span class="o">=</span> <span class="n">LocalTestcase</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tc</span><span class="p">())</span>
+<span class="c1"># i am test 1</span>
+<span class="c1"># i am test 2</span>
+<span class="c1"># i am test 3</span>
+</pre></div>
+</div>
+<p>These rules enables the “what you see is what you get” behavior, where the order
+of script sections ran is the same as the order they appear in the testscript,
+except for special conditions such as inheritances and setup/cleanup sections.</p>
+<p>This is important because each <code class="docutils literal notranslate"><span class="pre">test</span></code> section could potentially be dependent
+on a previous one, due to the specific behavior of <a class="reference internal" href="#self-behavior"><span class="std std-ref">self</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>this behavior is drastically different vs. python <code class="docutils literal notranslate"><span class="pre">unittest</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pytest</span></code>, where the infrastructure does not attempt to sort run-order at
+all, and leaves them in whatever order they were discovered.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="objects.html" class="btn btn-neutral float-left" title="Object Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parameters.html" class="btn btn-neutral float-right" title="Test Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

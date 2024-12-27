@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connection Class &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Connection Hook" href="hook.html" />
+    <link rel="prev" title="Connection Manager" href="manager.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../topology/index.html">Testbed &amp; Topology Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Connection Meta</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integration.html">Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manager.html">Connection Manager</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Connection Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fundamentals">Fundamentals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#baseconnection">BaseConnection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-implementation">Sample Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hook.html">Connection Hook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sharing.html">Connection Sharing</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Connection Meta</a></li>
+      <li class="breadcrumb-item active">Connection Class</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="connection-class">
+<span id="id1"></span><h1>Connection Class<a class="headerlink" href="#connection-class" title="Permalink to this heading">¶</a></h1>
+<p>Connection classes are the workhorse of the connection model: their
+implementation represents the actual connection pipeline, carrying information
+back and forth from the scripter’s realm to their testbed devices.</p>
+<p>As there are <em>over nine thousand</em> types of different devices and methods to
+connect to them, the Connections module does not come with a built-in,
+universal connector class. Rather, it features <code class="docutils literal notranslate"><span class="pre">BaseConnection</span></code>: a base class
+template, offering a set of standards, guidelines, rules &amp; tools for anyone to
+build on.</p>
+<section id="fundamentals">
+<h2>Fundamentals<a class="headerlink" href="#fundamentals" title="Permalink to this heading">¶</a></h2>
+<p>The fundamental idea behind standardizing using <code class="docutils literal notranslate"><span class="pre">BaseConnection</span></code> is to
+enable basic connector-swapping through <a class="reference external" href="https://en.wikipedia.org/wiki/Duck_typing">duck typing</a>: changing connection
+types &amp; classes without impacting the library &amp; user scripts (within reason, of
+course). This also gives all connection implementations the same look &amp;
+feel, allowing for ease of extension, debugging &amp; maintenance, etc.</p>
+<p>Therefore, all connection implementations shall follow the same set of
+rules &amp; guidelines:</p>
+<ul class="simple">
+<li><p>always subclass from <code class="docutils literal notranslate"><span class="pre">connections.BaseConnection</span></code></p></li>
+<li><p>respect the basic design: arguments, properties, methods &amp; etc.</p></li>
+<li><p>each instance should only represent a single connection pipe (eg, a single
+telnet instance, etc)</p></li>
+<li><p>all connections shall have a maximum timeout limit, and should <strong>never</strong>
+block forever.</p></li>
+<li><p>avoid race conditions &amp; deadlocks when your connection instance is shared
+between processes/threads: use <a class="reference external" href="https://en.wikipedia.org/wiki/Semaphore_(programming)">semaphores</a>.</p></li>
+<li><p>always implement using a bottom-up approach:</p>
+<ul>
+<li><p>start with the basic building blocks: <code class="docutils literal notranslate"><span class="pre">send</span></code>/<code class="docutils literal notranslate"><span class="pre">receive</span></code></p></li>
+<li><p>then build the next level: <code class="docutils literal notranslate"><span class="pre">expect</span></code>, <code class="docutils literal notranslate"><span class="pre">dialogs</span></code></p></li>
+<li><p>then wrap up with top-levels: <code class="docutils literal notranslate"><span class="pre">execute</span></code>, <code class="docutils literal notranslate"><span class="pre">configure</span></code>, etc.</p></li>
+</ul>
+</li>
+</ul>
+<p>In essence, a connection class models the various ways of communicating with a
+target device using object methods (also known as <strong>services</strong>). These methods
+(<strong>services</strong>) vasly simplify the underlying protocol/behavior details into
+arguments, datastructure inputs and returns.</p>
+</section>
+<section id="baseconnection">
+<h2>BaseConnection<a class="headerlink" href="#baseconnection" title="Permalink to this heading">¶</a></h2>
+<p>Base class to all connection implementations, <code class="docutils literal notranslate"><span class="pre">BaseConnection</span></code> is a simple set
+abstract concepts &amp; of bare-minimum methods. The following is a table describing
+each attribute/method and how it should be used.</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">BaseConnection Attributes &amp; Methods</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></p></td>
+<td><p>should always be called to instantiate a connection class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device</span></code></p></td>
+<td><p>property, storing the connected Device object as weakref</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">connection_info</span></code></p></td>
+<td><p>property, returns the dictionary of connection info based
+on path (<code class="docutils literal notranslate"><span class="pre">via</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">connected</span></code></p></td>
+<td><p>property, returns the current connection state boolean</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">connect()</span></code></p></td>
+<td><p>abstract method: open/establish this connection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disconnect()</span></code></p></td>
+<td><p>abstract method: disconnect/close this connection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">send()</span></code></p></td>
+<td><p>abstract method: send a text string through this connection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">receive()</span></code></p></td>
+<td><p>abstract method: receive whatever is currently in the buffer</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">execute()</span></code></p></td>
+<td><p>abstract method: high-level api to execute a command and
+collect its full return</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">configure()</span></code></p></td>
+<td><p>abstract method: configure the device through this
+connection</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>** abstract methods are to be implemented in user&#39;s subclass.
+</pre></div>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>do not confuse <code class="docutils literal notranslate"><span class="pre">ConnectionManager.connect()</span></code> and connection class’
+<code class="docutils literal notranslate"><span class="pre">YourConnection.connect()</span></code>: the former is a factory class creating new
+connection instances; the latter is the action that opens/establishes
+the actual connection.</p>
+</div>
+</section>
+<section id="sample-implementation">
+<h2>Sample Implementation<a class="headerlink" href="#sample-implementation" title="Permalink to this heading">¶</a></h2>
+<p>The following is a pseudo-code implementation of a connection class cooked up
+under 10 minutes. The idea is to walk you through how writing your own
+connection class looks &amp; feels like.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   a very rudimentry implementation of telnet connection</span>
+
+<span class="c1"># using python&#39;s built-in library</span>
+<span class="c1"># to handle telnet connections client</span>
+<span class="kn">import</span> <span class="nn">telnetlib</span>
+
+<span class="kn">from</span> <span class="nn">pyats.connections</span> <span class="kn">import</span> <span class="n">BaseConnection</span>
+
+<span class="k">class</span> <span class="nc">TelnetConnection</span><span class="p">(</span><span class="n">BaseConnection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;TelnetConnection</span>
+
+<span class="sd">    Sample implementation of Telnet connection to linux, based on pyATS</span>
+<span class="sd">    BaseConnection, allowing devices to telnet to end routers</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;__init__</span>
+
+<span class="sd">        instantiate a single connection instance.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># instantiate parent BaseConnection</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># create an instance of telnetlib.Telnet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span> <span class="o">=</span> <span class="n">telnetlib</span><span class="o">.</span><span class="n">Telnet</span><span class="p">()</span>
+
+        <span class="c1"># let&#39;s hard code the expected prompt</span>
+        <span class="c1"># (and assume it&#39;s a bash shell prompt)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prompt</span> <span class="o">=</span> <span class="s1">&#39;bash$ &#39;</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;connect</span>
+
+<span class="sd">        opens the telnet connection and log us in.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># open the telnet session</span>
+        <span class="c1"># self.connection_info is inherited from BaseConnection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_info</span><span class="p">[</span><span class="s1">&#39;ip&#39;</span><span class="p">],</span>
+                          <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_info</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">])</span>
+
+        <span class="c1"># process login</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;login: &quot;</span><span class="p">)</span>
+
+        <span class="c1"># send the login name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">tacacs</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">])</span>
+
+        <span class="c1"># process password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;password: &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">passwords</span><span class="p">[</span><span class="s1">&#39;tacacs&#39;</span><span class="p">])</span>
+
+        <span class="c1"># find the prompt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prompt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;send</span>
+
+<span class="sd">        low-level api: sends raw text through telnet session.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># remember to convert string to bytes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;receive</span>
+
+<span class="sd">        low-level api: reads from the telnet session and returns whatever is</span>
+<span class="sd">        currently in the buffer</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># remember to convert back from bytes to string</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">read_eager</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;execute</span>
+
+<span class="sd">        high-level api: sends a command through the session, expect it to</span>
+<span class="sd">        be executed, and return back to prompt.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># send the command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+        <span class="c1"># expect the prompt</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telnet</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prompt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+
+        <span class="c1"># convert the output to string</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+        <span class="c1"># remove the telnet echo of our original command</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">lstrp</span><span class="p">(</span><span class="n">command</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># we&#39;re done!</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;just configure using execute api!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The code above is <strong>very</strong> rudimentry, but hopefully gives you a basic idea as
+to how connection classes work, and how it should be implemented.</p>
+<p>Word of advice: don’t try to enhance this for production use. I can think of 42
+ways it could go wrong, and 47 unhandled corner cases that will cause your
+script to hang. (Hmm, this makes a great interview question).</p>
+<blockquote>
+<div><p><em>“For everything, there is a first time.” - Spock</em></p>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="manager.html" class="btn btn-neutral float-left" title="Connection Manager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hook.html" class="btn btn-neutral float-right" title="Connection Hook" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

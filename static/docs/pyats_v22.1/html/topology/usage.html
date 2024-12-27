@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Topology Objects &mdash; pyATS Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Topology Schema" href="schema.html" />
+    <link rel="prev" title="Creating Topology" href="creation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyATS
+          </a>
+              <div class="version">
+                24.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli/index.html">Command Line Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../aetest/index.html">AEtest - Test Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../easypy/index.html">Easypy - Runtime Environment</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Testbed &amp; Topology Information</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept.html">Everything is an Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creation.html">Creating Topology</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Using Topology Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#device-connection-manager">Device Connection Manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connect-to-all-devices">Connect To All Devices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disconnect-from-all-devices">Disconnect From All Devices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#destroy-connections-to-all-device">Destroy connections to all device</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#querying-topology">Querying Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#device-interface-aliases">Device &amp; Interface Aliases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-modify-delete">Add, Modify &amp; Delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references-and-weak-references">References and Weak References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="schema.html">Topology Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example.html">Example Testbed File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kleenex/index.html">Testbed &amp; Device Cleaning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connections/index.html">Connection Meta</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Supporting Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../async/index.html">Asynchronous Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructures/index.html">Datastructures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcl/index.html">Tcl Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../log/index.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../results/index.html">Result Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reporter/index.html">Reporter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manifest/index.html">Manifest</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../terminology.html">Terminologies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/index.html">Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Doc</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyATS</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Testbed &amp; Topology Information</a></li>
+      <li class="breadcrumb-item active">Using Topology Objects</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-topology-objects">
+<span id="topology-usage"></span><h1>Using Topology Objects<a class="headerlink" href="#using-topology-objects" title="Permalink to this heading">¶</a></h1>
+<p>As previously indicated, topology objects are interconnected together via object
+attributes &amp; property references (pointers), representing the physical testbed
+topology. This section provides more details on how this can be done.</p>
+<section id="device-connection-manager">
+<h2>Device Connection Manager<a class="headerlink" href="#device-connection-manager" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Device</span></code> class natively only contains the meta-data and the interconnect
+information related to testbed device. For example, device <code class="docutils literal notranslate"><span class="pre">connections</span></code>
+attribute is simply a dictionary describing the many ways to connect to the
+actual device it represent. With the help of <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> class,
+<code class="docutils literal notranslate"><span class="pre">Device</span></code> objects are effectively transformed into a compound object that both
+handles the above, as well as the actual connections (Eg. telnet/ssh).</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">Device</span></code> object is instantiated with a <code class="docutils literal notranslate"><span class="pre">connectionmgr</span></code> attribute that
+contains an instance of <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code>, and contains all of the current
+active connections to the managed device.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   connecting to device</span>
+
+<span class="c1"># using the sample topology file from</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># pick a device</span>
+<span class="n">n7k5</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k5&#39;</span><span class="p">]</span>
+
+<span class="c1"># connect to it by calling connect()</span>
+<span class="c1">#   this is actually a ConnectionManager method. the compound object</span>
+<span class="c1">#   redirects the call to Device.connectionmgr.connect(), and:</span>
+<span class="c1">#       - defaults to using connection alias &quot;default&quot;</span>
+<span class="c1">#       - and creates the connection</span>
+<span class="c1">#</span>
+<span class="c1">#   in effect, this is the same as calling</span>
+<span class="c1">#       n7k5.connectionmgr.connect()</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">connect</span> <span class="o">==</span> <span class="n">n7k5</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">connect</span>
+<span class="c1"># True</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">is_connected</span><span class="p">()</span>
+<span class="c1"># True</span>
+
+<span class="c1"># since the connection above is aliased with default</span>
+<span class="c1"># we can make calls to it directly.</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">default</span>
+<span class="c1"># ott-tb1-n7k5(default)</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show clock&#39;</span><span class="p">)</span>
+<span class="c1"># 00:56:54.569 EST Sat Mar 07 2015</span>
+
+<span class="c1"># default connections are also shortcut to the device level, so users</span>
+<span class="c1"># don&#39;t always have to type the default alias</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">execute</span> <span class="o">==</span> <span class="n">n7k5</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">execute</span> <span class="o">==</span> <span class="n">n7k5</span><span class="o">.</span><span class="n">connectionmgr</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">execute</span>
+<span class="c1"># True</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show clock&#39;</span><span class="p">)</span>
+<span class="c1"># 00:58:27.069 EST Sat Mar 07 2015</span>
+
+<span class="c1"># the connection manager is capable of handling multiple connections</span>
+<span class="c1"># each connection is referred to via its alias, and the connection object</span>
+<span class="c1"># is again compounded to be callable directly under the device object.</span>
+<span class="c1"># if supported, you can always create extra connections to</span>
+<span class="c1"># the same connection type, as long as this is supported by the device</span>
+
+<span class="c1"># creating a new connection to the alt (mgmt) connection definition</span>
+<span class="c1"># and calling it &#39;mgmt&#39;. After connecting, you can make calls to it.</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;mgmt&#39;</span><span class="p">,</span> <span class="n">via</span> <span class="o">=</span> <span class="s1">&#39;alt&#39;</span><span class="p">)</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">mgmt</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;show version&#39;</span><span class="p">)</span>
+<span class="c1"># ... etc</span>
+</pre></div>
+</div>
+<p>To summarize this behavior:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>device connections are handled by a <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> instance, under
+<code class="docutils literal notranslate"><span class="pre">device.connectionmgr</span></code> attribute</p></li>
+<li><p>device attributes are compounded with attributes of this connection manager.
+Eg. calling <code class="docutils literal notranslate"><span class="pre">device.connect()</span></code> is the same as calling
+<code class="docutils literal notranslate"><span class="pre">device.connectionmgr.connect()</span></code>, and calling each connection using
+<code class="docutils literal notranslate"><span class="pre">device.&lt;alias&gt;.execute()</span></code> is the same as
+<code class="docutils literal notranslate"><span class="pre">device.connectionmgr.&lt;alias&gt;.execute()</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>For more details of the functionality of <code class="docutils literal notranslate"><span class="pre">ConnectionManager</span></code> instances, refer
+to Connections Library documentation.</p>
+</section>
+<section id="connect-to-all-devices">
+<h2>Connect To All Devices<a class="headerlink" href="#connect-to-all-devices" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Testbed</span></code> object also provides a convenience function, <code class="docutils literal notranslate"><span class="pre">Testbed.connect()</span></code>,
+allowing you to establish asynchronous connection to multiple testbed devices
+at the same time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1"># connecting to devices in parallel</span>
+
+<span class="c1"># using the sample topology file from</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># connect to all devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># connect to some devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">])</span>
+
+<span class="c1"># connect to some devices in this testbed</span>
+<span class="c1"># and provide unique vias</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">})</span>
+
+<span class="c1"># connect to some devices in this testbed</span>
+<span class="c1"># using unique vias per device, and shared kwargs (eg, log_stdout = False)</span>
+<span class="c1"># shared keyword-arguments will be passed to every single connection</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">},</span>
+                <span class="n">log_stdout</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a convenience function, as under the hood it uses threads perform
+per device <code class="docutils literal notranslate"><span class="pre">.connect()</span></code> asynchronously. All other behavior follows that of
+the above connection manager concept.</p>
+</section>
+<section id="disconnect-from-all-devices">
+<h2>Disconnect From All Devices<a class="headerlink" href="#disconnect-from-all-devices" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Testbed</span></code> object provides a convenience function, <code class="docutils literal notranslate"><span class="pre">Testbed.disconnect()</span></code>,
+allowing you to make asynchronous disconnection from multiple testbed devices
+at the same time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1"># disconnecting from devices in parallel</span>
+<span class="c1"># using the sample topology file from</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;your-testbed-file.yaml&#39;</span><span class="p">)</span>
+<span class="c1"># connect to all devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="c1"># disconnect from all devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="c1"># disconnect from some devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">])</span>
+<span class="c1"># disconnect from some devices in this testbed</span>
+<span class="c1"># and provide unique vias</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">})</span>
+<span class="c1"># disconnect from some devices in this testbed</span>
+<span class="c1"># using unique vias per device, and shared kwargs</span>
+<span class="c1"># shared keyword-arguments will be passed to every single connection</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">},</span>
+                        <span class="n">log_stdout</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a convenience function using threads under the hood to perform per
+device <code class="docutils literal notranslate"><span class="pre">.disconnect()</span></code> asynchronously.</p>
+<ul class="simple">
+<li><p>After disconnecting from devices, the connection objects will remain,</p></li>
+</ul>
+<p>and can be checked by command <code class="docutils literal notranslate"><span class="pre">.conectionmgr.connections</span></code>, the same objects
+will be used to connect to device again.</p>
+</section>
+<section id="destroy-connections-to-all-device">
+<h2>Destroy connections to all device<a class="headerlink" href="#destroy-connections-to-all-device" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Testbed</span></code> object provides <code class="docutils literal notranslate"><span class="pre">Testbed.destroy()</span></code> function, allowing you
+to destroy connections asynchronously to multiple testbed devices. Unlike
+<code class="docutils literal notranslate"><span class="pre">.disconnect()</span></code>, if <code class="docutils literal notranslate"><span class="pre">.destroy()</span></code> is used, then all connection objects
+will be completely removed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1"># destroy devices in parallel</span>
+<span class="c1"># using the sample topology file from</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;your-testbed-file.yaml&#39;</span><span class="p">)</span>
+
+<span class="c1"># connect to all devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="c1"># destroy all devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+<span class="c1"># destroy some devices in this testbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">])</span>
+<span class="c1"># destroy some devices in this testbed</span>
+<span class="c1"># and provide unique vias</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">})</span>
+<span class="c1"># destroy some devices in this testbed</span>
+<span class="c1"># using unique vias per device, and shared kwargs</span>
+<span class="c1"># shared keyword-arguments will be passed to every single connection</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">],</span>
+                <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;helper&#39;</span><span class="p">],</span>
+                <span class="n">vias</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;uut&#39;</span><span class="p">:</span> <span class="s1">&#39;cli&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;helper&#39;</span><span class="p">:</span> <span class="s1">&#39;console&#39;</span><span class="p">},</span>
+                        <span class="n">log_stdout</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a convenience function using threads under the hood to perform
+per device <code class="docutils literal notranslate"><span class="pre">.destroy()</span></code> asynchronously.</p>
+</section>
+<section id="querying-topology">
+<h2>Querying Topology<a class="headerlink" href="#querying-topology" title="Permalink to this heading">¶</a></h2>
+<p>The basic concept is simple:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Testbed</span></code> contains one or more <code class="docutils literal notranslate"><span class="pre">Device</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Device</span></code> contains zero or more <code class="docutils literal notranslate"><span class="pre">Interface</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Interface</span></code> may be connected to a <code class="docutils literal notranslate"><span class="pre">Link</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Link</span></code> connects one or more <code class="docutils literal notranslate"><span class="pre">Interface</span></code> together.</p></li>
+</ul>
+</div></blockquote>
+<p>It may be useful to refer to <a class="reference internal" href="concept.html#topology-concept"><span class="std std-ref">Everything is an Object</span></a> page for detailed object
+attributes and how everything is tailored together.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   topology querying</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># import the topology module</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="c1"># load the sample testbed supplied as part of topology module</span>
+<span class="c1"># (example testbed file page for reference)</span>
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># confirming that this is indeed a testbed object</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">testbed</span><span class="p">)</span> <span class="ow">is</span> <span class="n">topology</span><span class="o">.</span><span class="n">Testbed</span>
+<span class="c1"># True</span>
+
+<span class="c1"># check that our expected devices are part of the testbed</span>
+<span class="s1">&#39;ott-tb1-n7k4&#39;</span> <span class="ow">in</span> <span class="n">testbed</span> <span class="ow">and</span> <span class="s1">&#39;ott-tb1-n7k5&#39;</span> <span class="ow">in</span> <span class="n">testbed</span>
+<span class="c1"># True</span>
+
+<span class="c1"># access the actual device object from Testbed.devices attribute</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># AttrDict({&#39;ott-tb1-n7k4&#39;: &lt;Device ott-tb1-n7k4 at 0xf77190cc&gt;,</span>
+<span class="c1">#           &#39;ott-tb1-n7k5&#39;: &lt;Device ott-tb1-n7k5 at 0xf744e16c&gt;})</span>
+
+<span class="c1"># see how many links this testbed contains:</span>
+<span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">link</span><span class="p">))</span>
+<span class="c1"># &lt;Link rtr1-rtr2-1 at 0xf744d16c&gt;</span>
+<span class="c1"># &lt;Link rtr1-rtr2-2 at 0xf744ef8c&gt;</span>
+<span class="c1"># &lt;Link ethernet-1 at 0xf744ee8c&gt;</span>
+<span class="c1"># &lt;Link ethernet-2 at 0xf744efac&gt;</span>
+
+<span class="c1"># grab both device</span>
+<span class="n">n7k4</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">]</span>
+<span class="n">n7k5</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k5&#39;</span><span class="p">]</span>
+
+<span class="c1"># confirm that this is a Device object</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">n7k4</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Device</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">n7k5</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Device</span>
+<span class="c1"># True</span>
+
+<span class="c1"># note that you can check whether devices exists in a testbed</span>
+<span class="c1"># by using either the device object or its name</span>
+<span class="n">n7k4</span> <span class="ow">in</span> <span class="n">testbed</span> <span class="ow">and</span> <span class="n">n7k5</span> <span class="ow">in</span> <span class="n">testbed</span>
+<span class="c1"># True</span>
+
+<span class="c1"># find the links connecting n7k5 from n7k4</span>
+<span class="c1"># using Device.find_links()</span>
+<span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">n7k4</span><span class="o">.</span><span class="n">find_links</span><span class="p">(</span><span class="n">n7k5</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">link</span><span class="p">))</span>
+<span class="c1"># &lt;Link rtr1-rtr2-2 at 0xf744ef8c&gt;</span>
+<span class="c1"># &lt;Link rtr1-rtr2-1 at 0xf744d16c&gt;</span>
+
+<span class="c1"># loop through interfaces and find a interface that connects</span>
+<span class="c1"># to a particular link</span>
+<span class="k">for</span> <span class="n">intf</span> <span class="ow">in</span> <span class="n">n7k4</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">n7k5</span> <span class="ow">in</span> <span class="n">intf</span><span class="o">.</span><span class="n">remote_devices</span> <span class="ow">and</span> <span class="n">intf</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;rtr1-rtr2-2&#39;</span><span class="p">:</span>
+        <span class="k">break</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">intf</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># the entire topology is chained by attributes</span>
+<span class="n">intf</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span>
+<span class="c1"># WeakList([&lt;Interface Ethernet4/2 at 0xf744eeac&gt;,</span>
+<span class="c1">#           &lt;Interface Ethernet5/2 at 0xf744d74c&gt;])</span>
+<span class="n">intf</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">device</span>
+<span class="c1"># &lt;Device ott-tb1-n7k5 at 0xf744e16c&gt;</span>
+<span class="n">intf</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">testbed</span>
+<span class="c1"># &lt;pyats.topology.testbed.Testbed object at 0xf76b5f0c&gt;</span>
+<span class="n">intf</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">device</span> <span class="ow">is</span> <span class="n">n7k5</span>
+<span class="c1"># True</span>
+
+<span class="c1"># and all properties are computed on the fly</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">find_links</span><span class="p">(</span><span class="n">n7k4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">testbed</span><span class="o">.</span><span class="n">links</span><span class="p">)</span>
+<span class="c1"># &lt;Link ethernet-1 at 0xf744ee8c&gt;</span>
+<span class="c1"># &lt;Link ethernet-2 at 0xf744efac&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="device-interface-aliases">
+<h2>Device &amp; Interface Aliases<a class="headerlink" href="#device-interface-aliases" title="Permalink to this heading">¶</a></h2>
+<p>Every topology object is a subclass of <code class="docutils literal notranslate"><span class="pre">TopologyObject</span></code> base class: each one
+comes with its own <code class="docutils literal notranslate"><span class="pre">name</span></code> (mandatory) and <code class="docutils literal notranslate"><span class="pre">alias</span></code> (optional, defaults to
+<code class="docutils literal notranslate"><span class="pre">name</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   Topology objects have names and aliases</span>
+
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="c1"># testbed object example</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">Testbed</span><span class="p">(</span><span class="s1">&#39;myTestbed&#39;</span><span class="p">)</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">name</span>
+<span class="c1"># myTestbed</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># myTestbed</span>
+
+<span class="c1"># Link object example</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="s1">&#39;myLink&#39;</span><span class="p">,</span> <span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;newLink&#39;</span><span class="p">)</span>
+<span class="n">link</span><span class="o">.</span><span class="n">name</span>
+<span class="c1"># myLink</span>
+<span class="n">link</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># newLink</span>
+</pre></div>
+</div>
+<p>In an effort to abstract out hostnames/interfaces and allow users to reference
+to testbed objects using their aliases (indirect access), <code class="docutils literal notranslate"><span class="pre">Testbed.devices</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Device.interfaces</span></code> object attributes have been rigged to allow accesses
+using aliases as an added feature.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   topology alias access</span>
+
+<span class="c1"># continuing to use the same sample topology file from</span>
+<span class="c1"># the previous example</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># testbed has alias</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># topologySampleTestbed</span>
+
+<span class="c1"># testbed devices have aliases</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># device-1</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># device-2</span>
+
+<span class="c1"># you can refer to devices within a testbed using its alias name instead</span>
+<span class="c1"># of the actual device name. this yields the same device object</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-1&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">]</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-2&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k5&#39;</span><span class="p">]</span>
+<span class="n">device_1</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-1&#39;</span><span class="p">]</span>
+<span class="n">device_2</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-2&#39;</span><span class="p">]</span>
+
+<span class="c1"># device in testbed check also works using alias</span>
+<span class="s1">&#39;device-1&#39;</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># True</span>
+
+<span class="c1"># testbed device interfaces also have aliases</span>
+<span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># device1-intf1</span>
+<span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span>
+<span class="c1"># device1-intf2</span>
+
+<span class="c1"># same as devices in testbed, interface access in device can be</span>
+<span class="c1"># done using their aliases, including in operator</span>
+<span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;device1-intf1&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/1&#39;</span><span class="p">]</span>
+<span class="kc">True</span>
+<span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;device1-intf2&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/2&#39;</span><span class="p">]</span>
+<span class="kc">True</span>
+<span class="s1">&#39;device1-intf1&#39;</span> <span class="ow">in</span> <span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span>
+<span class="kc">True</span>
+
+<span class="c1"># in addition, to test if something is an alias or not, use is_alias()</span>
+<span class="n">device_1</span><span class="o">.</span><span class="n">interfaces</span><span class="o">.</span><span class="n">is_alias</span><span class="p">(</span><span class="s1">&#39;device1-intf1&#39;</span><span class="p">)</span>
+<span class="c1"># True</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">is_alias</span><span class="p">(</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">)</span>
+<span class="c1"># False</span>
+</pre></div>
+</div>
+<p>Thus, as long as the testscript does not hard-code device and interface names,
+and instead refers to them using aliases, the script would remain agnostic,
+and run on any similarly configured testbeds with the same topology.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Link</span></code> and <code class="docutils literal notranslate"><span class="pre">Testbed</span></code> also have aliases, but since they are not stored as
+<code class="docutils literal notranslate"><span class="pre">MutableMappings</span></code> like <code class="docutils literal notranslate"><span class="pre">Testbed.devices</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.interfaces</span></code>, they
+need to be accessed directly and tested for their alias instead. Example,
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">intf.link.alias</span> <span class="pre">==</span> <span class="pre">'linkAlias'</span></code>.</p>
+</div>
+</section>
+<section id="add-modify-delete">
+<h2>Add, Modify &amp; Delete<a class="headerlink" href="#add-modify-delete" title="Permalink to this heading">¶</a></h2>
+<p>Testbed objects are mutable and non-singletons. This means that at anytime, you
+can modify their attributes &amp; connection properties as needed. Keep in mind that
+the following rules still apply:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Testbed device names must be unique (within the testbed)</p></li>
+<li><p>Testbed link names must be unique (within the testbed)</p></li>
+<li><p>Device interface names must be unique (within the device)</p></li>
+</ul>
+</div></blockquote>
+<p>As well, because the topology is represented by physical relationships, their
+contained objects move with them. Eg, if you move an interface object from one
+device to another, the link that is connected to that interface moves with it.
+Ditto for devices and their interfaces, etc.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   topology adding/deleting and modifying</span>
+
+<span class="c1"># continuing to use the same sample topology file from</span>
+<span class="c1"># the first example</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># add a new device</span>
+<span class="c1"># note - could also do this with</span>
+<span class="c1">#   topology.Device(&#39;myNewDevice&#39;, testbed = testbed)</span>
+<span class="n">new_device</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">Device</span><span class="p">(</span><span class="s1">&#39;myNewDevice&#39;</span><span class="p">)</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="n">new_device</span><span class="p">)</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># AttrDict({&#39;ott-tb1-n7k5&#39;: &lt;Device ott-tb1-n7k5 at 0xf76990cc&gt;,</span>
+<span class="c1">#           &#39;ott-tb1-n7k4&#39;: &lt;Device ott-tb1-n7k4 at 0xf73ce2ac&gt;,</span>
+<span class="c1">#           &#39;myNewDevice&#39;: &lt;Device myNewDevice at 0xf74aa78c&gt;})</span>
+
+<span class="c1"># modify a testbed alias</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;newAlias&#39;</span>
+
+<span class="c1"># add new interfaces (to existing device)</span>
+<span class="n">n7k4</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">]</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span><span class="s1">&#39;Ethernet9/40&#39;</span><span class="p">,</span> <span class="s1">&#39;ethernet&#39;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span><span class="s1">&#39;newLink&#39;</span><span class="p">)</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">add_interface</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">interfaces</span>
+<span class="c1"># AttrDict({&#39;Ethernet9/40&#39;: &lt;Interface Ethernet9/40 at 0xf73ce98c&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/45&#39;: &lt;Interface Ethernet4/45 at 0xf73ce28c&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/46&#39;: &lt;Interface Ethernet4/46 at 0xf73ce36c&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/2&#39;: &lt;Interface Ethernet4/2 at 0xf73ce24c&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/6&#39;: &lt;Interface Ethernet4/6 at 0xf73ce18c&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/7&#39;: &lt;Interface Ethernet4/7 at 0xf73ce2ec&gt;,</span>
+<span class="c1">#           &#39;Ethernet4/1&#39;: &lt;Interface Ethernet4/1 at 0xf73ce34c&gt;})</span>
+
+<span class="c1"># modify device information</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s1">&#39;newCustomInfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;new information that did not exist before&#39;</span>
+
+<span class="c1"># removing interfaces</span>
+<span class="n">n7k5</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;ott-tb1-n7k5&#39;</span><span class="p">]</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">remove_interface</span><span class="p">(</span><span class="s1">&#39;Ethernet5/1&#39;</span><span class="p">)</span>
+
+<span class="c1"># now the number of connections changed:</span>
+<span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">n7k4</span><span class="o">.</span><span class="n">find_links</span><span class="p">(</span><span class="n">n7k5</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">link</span><span class="p">))</span>
+<span class="c1"># &lt;Link rtr1-rtr2-2 at 0xf73ce0ec&gt;</span>
+
+<span class="c1"># let&#39;s create a new testbed and move n7k5 over to it.</span>
+<span class="n">new_testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">Testbed</span><span class="p">(</span><span class="s1">&#39;newTestbed&#39;</span><span class="p">)</span>
+<span class="n">n7k5</span><span class="o">.</span><span class="n">testbed</span> <span class="o">=</span> <span class="n">new_testbed</span>
+
+<span class="c1"># notice how everything changed over</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span>
+<span class="c1"># &lt;Device ott-tb1-n7k5 at 0xf76990cc&gt;</span>
+<span class="n">n7k4</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">testbed</span><span class="o">.</span><span class="n">name</span>
+<span class="c1"># &#39;newTestbed&#39;</span>
+
+<span class="c1"># since now link rtr1-rtr2-2 connects 2 testbeds, it is contained in</span>
+<span class="c1"># both sides</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">n7k4</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="s1">&#39;Ethernet4/2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">link</span>
+<span class="n">link</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">links</span> <span class="ow">and</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">new_testbed</span><span class="o">.</span><span class="n">links</span>
+<span class="c1"># True</span>
+
+<span class="c1"># let&#39;s squeeze a topology</span>
+<span class="c1"># (reduce a topology to a wanted list of devices and/or links,</span>
+<span class="c1"># aliases are respected, interfaces not connected to wanted links</span>
+<span class="c1"># are removed):</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="s1">&#39;device-1&#39;</span><span class="p">,</span> <span class="s1">&#39;rtr1-rtr2-1&#39;</span><span class="p">,</span> <span class="n">extend_devices_from_links</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">testbed</span><span class="p">]</span>
+<span class="c1"># [&#39;ott-tb1-n7k4&#39;, &#39;ott-tb1-n7k5&#39;]</span>
+<span class="p">[</span><span class="n">link</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">links</span><span class="p">]</span>
+<span class="c1"># [&#39;rtr1-rtr2-1&#39;]</span>
+<span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-1&#39;</span><span class="p">]]</span>
+<span class="c1"># [&#39;Ethernet4/1&#39;]</span>
+<span class="p">[</span><span class="n">interface</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;device-2&#39;</span><span class="p">]]</span>
+<span class="c1"># [&#39;Ethernet5/1&#39;]</span>
+</pre></div>
+</div>
+<p>The above example may be elaborate (involving new testbeds), but is only used
+as an example to show how everything works together. Attribute collection (such
+as <code class="docutils literal notranslate"><span class="pre">links</span></code>) is a combined iterative computation of parent/child relationships,
+as shown above.</p>
+<p>The simplest way to think about this relationship is to visualize it: if you
+move a linecard from one device to another without disconnecting the cables
+first, then the cables would follow through and be connected to interfaces of
+that linecard on the new parent device. The same applies with topology objects.</p>
+</section>
+<section id="references-and-weak-references">
+<h2>References and Weak References<a class="headerlink" href="#references-and-weak-references" title="Permalink to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">topology</span></code> module is designed to avoid circular object references (eg, devices
+referring to parent testbed and testbed containing devices).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Testbed</span></code> contains <code class="docutils literal notranslate"><span class="pre">Device</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Device</span></code> refer to parent testbed as a weak reference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Device</span></code> contain <code class="docutils literal notranslate"><span class="pre">Interface</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Interface</span></code> refer to parent device as a weak reference</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Interface</span></code> contains <code class="docutils literal notranslate"><span class="pre">Link</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Link</span></code> refer to their connected <code class="docutils literal notranslate"><span class="pre">Interface</span></code> as weak references</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   demonstration of where weak references apply</span>
+
+<span class="c1"># import objects</span>
+<span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">Testbed</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Interface</span><span class="p">,</span> <span class="n">Link</span>
+
+<span class="c1"># create the objects</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">Testbed</span><span class="p">(</span><span class="s1">&#39;exampleTestbed&#39;</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">Device</span><span class="p">(</span><span class="s1">&#39;exampleDevice&#39;</span><span class="p">)</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="n">Interface</span><span class="p">(</span><span class="s1">&#39;exampleInterface&#39;</span><span class="p">,</span> <span class="s1">&#39;ethernet&#39;</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="s1">&#39;exampleLink&#39;</span><span class="p">)</span>
+
+<span class="c1"># hook up the relationship</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">add_interface</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="n">link</span><span class="o">.</span><span class="n">connect_interface</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+
+<span class="c1"># testbed contains devices as actual references</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># AttrDict({&#39;exampleDevice&#39;: &lt;Device exampleDevice at 0xf763c70c&gt;})</span>
+
+<span class="c1"># device.testbed is internally stored as a weak reference to testbed,</span>
+<span class="c1"># even though it returns the actual testbed object</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">device</span>
+<span class="c1"># &lt;pyats.topology.testbed.Testbed object at 0xf763c6ac&gt;</span>
+
+<span class="c1"># device.interfaces contains interfaces as actual references</span>
+<span class="n">device</span><span class="o">.</span><span class="n">interfaces</span>
+<span class="c1"># AttrDict({&#39;exampleInterface&#39;: &lt;Interface exampleInterface at 0xf763c74c&gt;})</span>
+
+<span class="c1"># interface.device is internally stored as a weak reference</span>
+<span class="c1"># even though it returns the actual device object</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">device</span>
+<span class="c1"># &lt;Device exampleDevice at 0xf763c70c&gt;</span>
+
+<span class="c1"># interface connects to links as an actual reference</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">link</span>
+<span class="c1"># &lt;Link exampleLink at 0xf763ca8c&gt;</span>
+
+<span class="c1"># links contain only weak references to interfaces</span>
+<span class="c1"># even though when you access it, it returns actual objects</span>
+<span class="n">link</span><span class="o">.</span><span class="n">interfaces</span>
+<span class="n">WeakList</span><span class="p">([</span><span class="o">&lt;</span><span class="n">Interface</span> <span class="n">exampleInterface</span> <span class="n">at</span> <span class="mh">0xf763c74c</span><span class="o">&gt;</span><span class="p">])</span>
+<span class="n">link</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># &lt;Interface exampleInterface at 0xf763c74c&gt;</span>
+</pre></div>
+</div>
+<p>Therefore, all rules of python garbage collection apply. For example, if you
+dereference a device object entirely, all of its interface objects will be gone.
+However, the only exception is <code class="docutils literal notranslate"><span class="pre">Link</span></code> objects: if more than one interface
+connects to the same link, then unless all of those interfaces are removed, the
+link will continue to exist.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1">#</span>
+<span class="c1">#   weak ref deletions</span>
+
+<span class="c1"># using the sample topology file from</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pyats</span> <span class="kn">import</span> <span class="n">topology</span>
+
+<span class="n">testbedfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s1">&#39;sampleTestbed.yaml&#39;</span><span class="p">)</span>
+<span class="n">testbed</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">testbedfile</span><span class="p">)</span>
+
+<span class="c1"># let&#39;s see how many devices and links we started with</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># AttrDict({&#39;ott-tb1-n7k4&#39;: &lt;Device ott-tb1-n7k4 at 0xf73f712c&gt;,</span>
+<span class="c1">#           &#39;ott-tb1-n7k5&#39;: &lt;Device ott-tb1-n7k5 at 0xf765ef0c&gt;})</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">links</span>
+<span class="c1"># {&lt;Link rtr1-rtr2-2 at 0xf73fa58c&gt;,</span>
+<span class="c1">#  &lt;Link ethernet-2 at 0xf73f8fac&gt;,</span>
+<span class="c1">#  &lt;Link ethernet-1 at 0xf73f8b6c&gt;,</span>
+<span class="c1">#  &lt;Link rtr1-rtr2-1 at 0xf73fa4ec&gt;}</span>
+
+<span class="c1"># now remove a device</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ott-tb1-n7k4&#39;</span><span class="p">)</span>
+
+<span class="c1"># look at devices and lists again in the testbed. it&#39;s all gone</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">devices</span>
+<span class="c1"># AttrDict({&#39;ott-tb1-n7k5&#39;: &lt;Device ott-tb1-n7k5 at 0xf765ef0c&gt;})</span>
+<span class="n">testbed</span><span class="o">.</span><span class="n">links</span>
+<span class="c1"># {&lt;Link rtr1-rtr2-2 at 0xf73fa58c&gt;,</span>
+<span class="c1">#  &lt;Link rtr1-rtr2-1 at 0xf73fa4ec&gt;}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>if it’s not cleaned up, something’s holding it up. Likely you’ve stored a
+reference to that object or to its parent object somewhere else.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>read up on python garbage collection.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="creation.html" class="btn btn-neutral float-left" title="Creating Topology" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="schema.html" class="btn btn-neutral float-right" title="Topology Schema" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Copyright (c) 2024, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
