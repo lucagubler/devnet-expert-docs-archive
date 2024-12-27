@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API &#8212; Flask Documentation (3.2.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/flask.css?v=b87c8d14" />
+    <script src="_static/documentation_options.js?v=56528222"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="flask" data-version="3.2.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/flask-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Design Decisions in Flask" href="design.html" />
+    <link rel="prev" title="Becoming Big" href="becomingbig.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="design.html" title="Design Decisions in Flask"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="becomingbig.html" title="Becoming Big"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Flask Documentation (3.2.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api">
+<span id="id1"></span><h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
+<p id="module-flask">This part of the documentation covers all the interfaces of Flask.  For
+parts where Flask depends on external libraries, we document the most
+important right here and provide links to the canonical documentation.</p>
+<section id="application-object">
+<h2>Application Object<a class="headerlink" href="#application-object" title="Link to this heading">¶</a></h2>
+</section>
+<section id="blueprint-objects">
+<h2>Blueprint Objects<a class="headerlink" href="#blueprint-objects" title="Link to this heading">¶</a></h2>
+</section>
+<section id="incoming-request-data">
+<h2>Incoming Request Data<a class="headerlink" href="#incoming-request-data" title="Link to this heading">¶</a></h2>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask.request">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">request</span></span><a class="headerlink" href="#flask.request" title="Link to this definition">¶</a></dt>
+<dd><p>To access incoming request data, you can use the global <cite>request</cite>
+object.  Flask parses incoming request data for you and gives you
+access to it through that global object.  Internally Flask makes
+sure that you always get the correct data for the active thread if you
+are in a multithreaded environment.</p>
+<p>This is a proxy.  See <a class="reference internal" href="reqcontext.html#notes-on-proxies"><span class="std std-ref">Notes On Proxies</span></a> for more information.</p>
+<p>The request object is an instance of a <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/wrappers/#werkzeug.wrappers.Request" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Request</span></code></a>
+subclass and provides all of the attributes Werkzeug defines.  This
+just shows a quick overview of the most important ones.</p>
+</dd></dl>
+
+</section>
+<section id="response-objects">
+<h2>Response Objects<a class="headerlink" href="#response-objects" title="Link to this heading">¶</a></h2>
+</section>
+<section id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Link to this heading">¶</a></h2>
+<p>If you have set <code class="xref py py-attr docutils literal notranslate"><span class="pre">Flask.secret_key</span></code> (or configured it from
+<a class="reference internal" href="config.html#SECRET_KEY" title="SECRET_KEY"><code class="xref py py-data docutils literal notranslate"><span class="pre">SECRET_KEY</span></code></a>) you can use sessions in Flask applications. A session makes
+it possible to remember information from one request to another. The way Flask
+does this is by using a signed cookie. The user can look at the session
+contents, but can’t modify it unless they know the secret key, so make sure to
+set that to something complex and unguessable.</p>
+<p>To access the current session you can use the <a class="reference internal" href="#flask.session" title="flask.session"><code class="xref py py-class docutils literal notranslate"><span class="pre">session</span></code></a> object:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="flask.session">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">session</span></span><a class="headerlink" href="#flask.session" title="Link to this definition">¶</a></dt>
+<dd><p>The session object works pretty much like an ordinary dict, with the
+difference that it keeps track of modifications.</p>
+<p>This is a proxy.  See <a class="reference internal" href="reqcontext.html#notes-on-proxies"><span class="std std-ref">Notes On Proxies</span></a> for more information.</p>
+<p>The following attributes are interesting:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask.session.new">
+<span class="sig-name descname"><span class="pre">new</span></span><a class="headerlink" href="#flask.session.new" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the session is new, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask.session.modified">
+<span class="sig-name descname"><span class="pre">modified</span></span><a class="headerlink" href="#flask.session.modified" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the session object detected a modification.  Be advised
+that modifications on mutable structures are not picked up
+automatically, in that situation you have to explicitly set the
+attribute to <code class="docutils literal notranslate"><span class="pre">True</span></code> yourself.  Here an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># this change is not picked up because a mutable object (here</span>
+<span class="c1"># a list) is changed.</span>
+<span class="n">session</span><span class="p">[</span><span class="s1">&#39;objects&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="c1"># so mark it as modified yourself</span>
+<span class="n">session</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flask.session.permanent">
+<span class="sig-name descname"><span class="pre">permanent</span></span><a class="headerlink" href="#flask.session.permanent" title="Link to this definition">¶</a></dt>
+<dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the session lives for
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">permanent_session_lifetime</span></code> seconds.  The
+default is 31 days.  If set to <code class="docutils literal notranslate"><span class="pre">False</span></code> (which is the default) the
+session will be deleted when the user closes the browser.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="session-interface">
+<h2>Session Interface<a class="headerlink" href="#session-interface" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.8.</span></p>
+</div>
+</details><p>The session interface provides a simple way to replace the session
+implementation that Flask is using.</p>
+<div class="admonition-notice admonition">
+<p class="admonition-title">Notice</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">PERMANENT_SESSION_LIFETIME</span></code> config key can also be an integer
+starting with Flask 0.8.  Either catch this down yourself or use
+the <code class="xref py py-attr docutils literal notranslate"><span class="pre">permanent_session_lifetime</span></code> attribute on the
+app which converts the result to an integer automatically.</p>
+</div>
+</section>
+<section id="test-client">
+<h2>Test Client<a class="headerlink" href="#test-client" title="Link to this heading">¶</a></h2>
+</section>
+<section id="test-cli-runner">
+<h2>Test CLI Runner<a class="headerlink" href="#test-cli-runner" title="Link to this heading">¶</a></h2>
+</section>
+<section id="application-globals">
+<h2>Application Globals<a class="headerlink" href="#application-globals" title="Link to this heading">¶</a></h2>
+<p>To share data that is valid for one request only from one function to
+another, a global variable is not good enough because it would break in
+threaded environments.  Flask provides you with a special object that
+ensures it is only valid for the active request and that will return
+different values for each request.  In a nutshell: it does the right
+thing, like it does for <a class="reference internal" href="#flask.request" title="flask.request"><code class="xref py py-class docutils literal notranslate"><span class="pre">request</span></code></a> and <a class="reference internal" href="#flask.session" title="flask.session"><code class="xref py py-class docutils literal notranslate"><span class="pre">session</span></code></a>.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.g">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">g</span></span><a class="headerlink" href="#flask.g" title="Link to this definition">¶</a></dt>
+<dd><p>A namespace object that can store data during an
+<a class="reference internal" href="appcontext.html"><span class="doc">application context</span></a>. This is an instance of
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">Flask.app_ctx_globals_class</span></code>, which defaults to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ctx._AppCtxGlobals</span></code>.</p>
+<p>This is a good place to store resources during a request. During
+testing, you can use the <a class="reference internal" href="testing.html#faking-resources"><span class="std std-ref">Faking Resources and Context</span></a> pattern to
+pre-configure such resources.</p>
+<p>This is a proxy. See <a class="reference internal" href="reqcontext.html#notes-on-proxies"><span class="std std-ref">Notes On Proxies</span></a> for more information.</p>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.10: </span>Bound to the application context instead of the request context.</p>
+</div>
+</details></dd></dl>
+
+</section>
+<section id="useful-functions-and-classes">
+<h2>Useful Functions and Classes<a class="headerlink" href="#useful-functions-and-classes" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.current_app">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">current_app</span></span><a class="headerlink" href="#flask.current_app" title="Link to this definition">¶</a></dt>
+<dd><p>A proxy to the application handling the current request. This is
+useful to access the application without needing to import it, or if
+it can’t be imported, such as when using the application factory
+pattern or in blueprints and extensions.</p>
+<p>This is only available when an
+<a class="reference internal" href="appcontext.html"><span class="doc">application context</span></a> is pushed. This happens
+automatically during requests and CLI commands. It can be controlled
+manually with <code class="xref py py-meth docutils literal notranslate"><span class="pre">app_context()</span></code>.</p>
+<p>This is a proxy. See <a class="reference internal" href="reqcontext.html#notes-on-proxies"><span class="std std-ref">Notes On Proxies</span></a> for more information.</p>
+</dd></dl>
+
+</section>
+<section id="message-flashing">
+<h2>Message Flashing<a class="headerlink" href="#message-flashing" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-flask.json">
+<span id="json-support"></span><h2>JSON Support<a class="headerlink" href="#module-flask.json" title="Link to this heading">¶</a></h2>
+<p>Flask uses <code class="docutils literal notranslate"><span class="pre">simplejson</span></code> for the JSON implementation.  Since simplejson
+is provided by both the standard library as well as extension, Flask will
+try simplejson first and then fall back to the stdlib json module.  On top
+of that it will delegate access to the current application’s JSON encoders
+and decoders for easier customization.</p>
+<p>So for starters instead of doing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">simplejson</span> <span class="k">as</span> <span class="nn">json</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">json</span>
+</pre></div>
+</div>
+<p>You can instead just do this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">json</span>
+</pre></div>
+</div>
+<p>For usage examples, read the <a class="reference external" href="https://docs.python.org/3/library/json.html#module-json" title="(in Python v3.13)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">json</span></code></a> documentation in the standard
+library.  The following extensions are by default applied to the stdlib’s
+JSON module:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">datetime</span></code> objects are serialized as <span class="target" id="index-0"></span><a class="rfc reference external" href="https://datatracker.ietf.org/doc/html/rfc822.html"><strong>RFC 822</strong></a> strings.</p></li>
+<li><p>Any object with an <code class="docutils literal notranslate"><span class="pre">__html__</span></code> method (like <code class="xref py py-class docutils literal notranslate"><span class="pre">Markup</span></code>)
+will have that method called and then the return value is serialized
+as string.</p></li>
+</ol>
+<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">htmlsafe_dumps()</span></code> function of this json module is also available
+as a filter called <code class="docutils literal notranslate"><span class="pre">|tojson</span></code> in Jinja2.  Note that in versions of Flask prior
+to Flask 0.10, you must disable escaping with <code class="docutils literal notranslate"><span class="pre">|safe</span></code> if you intend to use
+<code class="docutils literal notranslate"><span class="pre">|tojson</span></code> output inside <code class="docutils literal notranslate"><span class="pre">script</span></code> tags. In Flask 0.10 and above, this
+happens automatically (but it’s harmless to include <code class="docutils literal notranslate"><span class="pre">|safe</span></code> anyway).</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">text/javascript</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="nx">doSomethingWith</span><span class="p">(</span><span class="cp">{{</span> <span class="nv">user.username</span><span class="o">|</span><span class="nf">tojson</span><span class="o">|</span><span class="nf">safe</span> <span class="cp">}}</span><span class="p">);</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="admonition-auto-sort-json-keys admonition">
+<p class="admonition-title">Auto-Sort JSON Keys</p>
+<p>The configuration variable <code class="docutils literal notranslate"><span class="pre">JSON_SORT_KEYS</span></code> (<a class="reference internal" href="config.html#config"><span class="std std-ref">Configuration Handling</span></a>) can be
+set to false to stop Flask from auto-sorting keys.  By default sorting
+is enabled and outside of the app context sorting is turned on.</p>
+<p>Notice that disabling key sorting can cause issues when using content
+based HTTP caches and Python’s hash randomization feature.</p>
+</div>
+</section>
+<section id="template-rendering">
+<h2>Template Rendering<a class="headerlink" href="#template-rendering" title="Link to this heading">¶</a></h2>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+</section>
+<section id="stream-helpers">
+<h2>Stream Helpers<a class="headerlink" href="#stream-helpers" title="Link to this heading">¶</a></h2>
+</section>
+<section id="useful-internals">
+<h2>Useful Internals<a class="headerlink" href="#useful-internals" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="flask._request_ctx_stack">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">_request_ctx_stack</span></span><a class="headerlink" href="#flask._request_ctx_stack" title="Link to this definition">¶</a></dt>
+<dd><p>The internal <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/local/#werkzeug.local.LocalStack" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalStack</span></code></a> that holds
+<code class="xref py py-class docutils literal notranslate"><span class="pre">RequestContext</span></code> instances. Typically, the
+<a class="reference internal" href="#flask.request" title="flask.request"><code class="xref py py-data docutils literal notranslate"><span class="pre">request</span></code></a> and <a class="reference internal" href="#flask.session" title="flask.session"><code class="xref py py-data docutils literal notranslate"><span class="pre">session</span></code></a> proxies should be accessed
+instead of the stack. It may be useful to access the stack in
+extension code.</p>
+<p>The following attributes are always present on each layer of the
+stack:</p>
+<dl class="simple">
+<dt><cite>app</cite></dt><dd><p>the active Flask application.</p>
+</dd>
+<dt><cite>url_adapter</cite></dt><dd><p>the URL adapter that was used to match the request.</p>
+</dd>
+<dt><cite>request</cite></dt><dd><p>the current request object.</p>
+</dd>
+<dt><cite>session</cite></dt><dd><p>the active session object.</p>
+</dd>
+<dt><cite>g</cite></dt><dd><p>an object with all the attributes of the <a class="reference internal" href="#flask.g" title="flask.g"><code class="xref py py-data docutils literal notranslate"><span class="pre">flask.g</span></code></a> object.</p>
+</dd>
+<dt><cite>flashes</cite></dt><dd><p>an internal cache for the flashed messages.</p>
+</dd>
+</dl>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">_request_ctx_stack</span>
+
+<span class="k">def</span> <span class="nf">get_session</span><span class="p">():</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">_request_ctx_stack</span><span class="o">.</span><span class="n">top</span>
+    <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">session</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask._app_ctx_stack">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">_app_ctx_stack</span></span><a class="headerlink" href="#flask._app_ctx_stack" title="Link to this definition">¶</a></dt>
+<dd><p>The internal <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/local/#werkzeug.local.LocalStack" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalStack</span></code></a> that holds
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AppContext</span></code> instances. Typically, the
+<a class="reference internal" href="#flask.current_app" title="flask.current_app"><code class="xref py py-data docutils literal notranslate"><span class="pre">current_app</span></code></a> and <a class="reference internal" href="#flask.g" title="flask.g"><code class="xref py py-data docutils literal notranslate"><span class="pre">g</span></code></a> proxies should be accessed instead
+of the stack. Extensions can access the contexts on the stack as a
+namespace to store data.</p>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.9.</span></p>
+</div>
+</details></dd></dl>
+
+</section>
+<section id="signals">
+<span id="core-signals-list"></span><h2>Signals<a class="headerlink" href="#signals" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.6.</span></p>
+</div>
+</details><dl class="py data">
+<dt class="sig sig-object py" id="flask.signals.signals_available">
+<span class="sig-prename descclassname"><span class="pre">signals.</span></span><span class="sig-name descname"><span class="pre">signals_available</span></span><a class="headerlink" href="#flask.signals.signals_available" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the signaling system is available.  This is the case
+when <a class="reference external" href="https://pypi.org/project/blinker/">blinker</a> is installed.</p>
+</dd></dl>
+
+<p>The following signals exist in Flask:</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.template_rendered">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">template_rendered</span></span><a class="headerlink" href="#flask.template_rendered" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when a template was successfully rendered.  The
+signal is invoked with the instance of the template as <cite>template</cite>
+and the context as dictionary (named <cite>context</cite>).</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_template_renders</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Rendering template &quot;</span><span class="si">%s</span><span class="s1">&quot; with context </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                        <span class="n">template</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;string template&#39;</span><span class="p">,</span>
+                        <span class="n">context</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">template_rendered</span>
+<span class="n">template_rendered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_template_renders</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">before_render_template</span></span></dt>
+<dd><p>This signal is sent before template rendering process. The
+signal is invoked with the instance of the template as <cite>template</cite>
+and the context as dictionary (named <cite>context</cite>).</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_template_renders</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Rendering template &quot;</span><span class="si">%s</span><span class="s1">&quot; with context </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                        <span class="n">template</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;string template&#39;</span><span class="p">,</span>
+                        <span class="n">context</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">before_render_template</span>
+<span class="n">before_render_template</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_template_renders</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.request_started">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">request_started</span></span><a class="headerlink" href="#flask.request_started" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when the request context is set up, before
+any request processing happens.  Because the request context is already
+bound, the subscriber can access the request with the standard global
+proxies such as <a class="reference internal" href="#flask.request" title="flask.request"><code class="xref py py-class docutils literal notranslate"><span class="pre">request</span></code></a>.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_request</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Request context is set up&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_started</span>
+<span class="n">request_started</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_request</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.request_finished">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">request_finished</span></span><a class="headerlink" href="#flask.request_finished" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent right before the response is sent to the client.
+It is passed the response to be sent named <cite>response</cite>.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_response</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Request context is about to close down.  &#39;</span>
+                        <span class="s1">&#39;Response: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_finished</span>
+<span class="n">request_finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_response</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.got_request_exception">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">got_request_exception</span></span><a class="headerlink" href="#flask.got_request_exception" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when an exception happens during request processing.
+It is sent <em>before</em> the standard exception handling kicks in and even
+in debug mode, where no exception handling happens.  The exception
+itself is passed to the subscriber as <cite>exception</cite>.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_exception</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Got exception during processing: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">got_request_exception</span>
+<span class="n">got_request_exception</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">log_exception</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.request_tearing_down">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">request_tearing_down</span></span><a class="headerlink" href="#flask.request_tearing_down" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when the request is tearing down.  This is always
+called, even if an exception is caused.  Currently functions listening
+to this signal are called after the regular teardown handlers, but this
+is not something you can rely on.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">close_db_connection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request_tearing_down</span>
+<span class="n">request_tearing_down</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">close_db_connection</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As of Flask 0.9, this will also be passed an <cite>exc</cite> keyword argument
+that has a reference to the exception that caused the teardown if
+there was one.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.appcontext_tearing_down">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">appcontext_tearing_down</span></span><a class="headerlink" href="#flask.appcontext_tearing_down" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when the app context is tearing down.  This is always
+called, even if an exception is caused.  Currently functions listening
+to this signal are called after the regular teardown handlers, but this
+is not something you can rely on.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">close_db_connection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">appcontext_tearing_down</span>
+<span class="n">appcontext_tearing_down</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">close_db_connection</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will also be passed an <cite>exc</cite> keyword argument that has a reference
+to the exception that caused the teardown if there was one.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.appcontext_pushed">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">appcontext_pushed</span></span><a class="headerlink" href="#flask.appcontext_pushed" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when an application context is pushed.  The sender
+is the application.  This is usually useful for unittests in order to
+temporarily hook in information.  For instance it can be used to
+set a resource early onto the <cite>g</cite> object.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">appcontext_pushed</span>
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">user_set</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+    <span class="k">with</span> <span class="n">appcontext_pushed</span><span class="o">.</span><span class="n">connected_to</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="k">yield</span>
+</pre></div>
+</div>
+<p>And in the testcode:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_user_me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">user_set</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s1">&#39;john&#39;</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">test_client</span><span class="p">()</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/users/me&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="s1">&#39;username=john&#39;</span>
+</pre></div>
+</div>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.10.</span></p>
+</div>
+</details></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.appcontext_popped">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">appcontext_popped</span></span><a class="headerlink" href="#flask.appcontext_popped" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when an application context is popped.  The sender
+is the application.  This usually falls in line with the
+<a class="reference internal" href="#flask.appcontext_tearing_down" title="flask.appcontext_tearing_down"><code class="xref py py-data docutils literal notranslate"><span class="pre">appcontext_tearing_down</span></code></a> signal.</p>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.10.</span></p>
+</div>
+</details></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flask.message_flashed">
+<span class="sig-prename descclassname"><span class="pre">flask.</span></span><span class="sig-name descname"><span class="pre">message_flashed</span></span><a class="headerlink" href="#flask.message_flashed" title="Link to this definition">¶</a></dt>
+<dd><p>This signal is sent when the application is flashing a message.  The
+messages is sent as <cite>message</cite> keyword argument and the category as
+<cite>category</cite>.</p>
+<p>Example subscriber:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">recorded</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">):</span>
+    <span class="n">recorded</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">message_flashed</span>
+<span class="n">message_flashed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.10.</span></p>
+</div>
+</details></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="flask.signals.Namespace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">signals.</span></span><span class="sig-name descname"><span class="pre">Namespace</span></span><a class="headerlink" href="#flask.signals.Namespace" title="Link to this definition">¶</a></dt>
+<dd><p>An alias for <code class="xref py py-class docutils literal notranslate"><span class="pre">blinker.base.Namespace</span></code> if blinker is available,
+otherwise a dummy class that creates fake signals.  This class is
+available for Flask extensions that want to provide the same fallback
+system as Flask itself.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="flask.signals.Namespace.signal">
+<span class="sig-name descname"><span class="pre">signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flask.signals.Namespace.signal" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a new signal for this namespace if blinker is available,
+otherwise returns a fake signal that has a send method that will
+do nothing but will fail with a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.13)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> for all other
+operations, including connecting.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="class-based-views">
+<span id="id2"></span><h2>Class-Based Views<a class="headerlink" href="#class-based-views" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.7.</span></p>
+</div>
+</details></section>
+<section id="url-route-registrations">
+<span id="id3"></span><h2>URL Route Registrations<a class="headerlink" href="#url-route-registrations" title="Link to this heading">¶</a></h2>
+<p>Generally there are three ways to define rules for the routing system:</p>
+<ol class="arabic simple">
+<li><p>You can use the <code class="xref py py-meth docutils literal notranslate"><span class="pre">flask.Flask.route()</span></code> decorator.</p></li>
+<li><p>You can use the <code class="xref py py-meth docutils literal notranslate"><span class="pre">flask.Flask.add_url_rule()</span></code> function.</p></li>
+<li><p>You can directly access the underlying Werkzeug routing system
+which is exposed as <code class="xref py py-attr docutils literal notranslate"><span class="pre">flask.Flask.url_map</span></code>.</p></li>
+</ol>
+<p>Variable parts in the route can be specified with angular brackets
+(<code class="docutils literal notranslate"><span class="pre">/user/&lt;username&gt;</span></code>).  By default a variable part in the URL accepts any
+string without a slash however a different converter can be specified as
+well by using <code class="docutils literal notranslate"><span class="pre">&lt;converter:name&gt;</span></code>.</p>
+<p>Variable parts are passed to the view function as keyword arguments.</p>
+<p>The following converters are available:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><cite>string</cite></p></td>
+<td><p>accepts any text without a slash (the default)</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>int</cite></p></td>
+<td><p>accepts integers</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>float</cite></p></td>
+<td><p>like <cite>int</cite> but for floating point values</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>path</cite></p></td>
+<td><p>like the default but also accepts slashes</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>any</cite></p></td>
+<td><p>matches one of the items provided</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>uuid</cite></p></td>
+<td><p>accepts UUID strings</p></td>
+</tr>
+</tbody>
+</table>
+<p>Custom converters can be defined using <code class="xref py py-attr docutils literal notranslate"><span class="pre">flask.Flask.url_map</span></code>.</p>
+<p>Here are some examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;username&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_user</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/post/&lt;int:post_id&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_post</span><span class="p">(</span><span class="n">post_id</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>An important detail to keep in mind is how Flask deals with trailing
+slashes.  The idea is to keep each URL unique so the following rules
+apply:</p>
+<ol class="arabic simple">
+<li><p>If a rule ends with a slash and is requested without a slash by the
+user, the user is automatically redirected to the same page with a
+trailing slash attached.</p></li>
+<li><p>If a rule does not end with a trailing slash and the user requests the
+page with a trailing slash, a 404 not found is raised.</p></li>
+</ol>
+<p>This is consistent with how web servers deal with static files.  This
+also makes it possible to use relative link targets safely.</p>
+<p>You can also define multiple rules for the same function.  They have to be
+unique however.  Defaults can also be specified.  Here for example is a
+definition for a URL that accepts an optional page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/users/&#39;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;page&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/users/page/&lt;int:page&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">show_users</span><span class="p">(</span><span class="n">page</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>This specifies that <code class="docutils literal notranslate"><span class="pre">/users/</span></code> will be the URL for page one and
+<code class="docutils literal notranslate"><span class="pre">/users/page/N</span></code> will be the URL for page <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
+<p>If a URL contains a default value, it will be redirected to its simpler
+form with a 301 redirect. In the above example, <code class="docutils literal notranslate"><span class="pre">/users/page/1</span></code> will
+be redirected to <code class="docutils literal notranslate"><span class="pre">/users/</span></code>. If your route handles <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">POST</span></code>
+requests, make sure the default route only handles <code class="docutils literal notranslate"><span class="pre">GET</span></code>, as redirects
+can’t preserve form data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/region/&#39;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/region/&lt;int:id&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">region</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+   <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Here are the parameters that <code class="xref py py-meth docutils literal notranslate"><span class="pre">route()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">add_url_rule()</span></code> accept.  The only difference is that
+with the route parameter the view function is defined with the decorator
+instead of the <cite>view_func</cite> parameter.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><cite>rule</cite></p></td>
+<td><p>the URL rule as string</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>endpoint</cite></p></td>
+<td><p>the endpoint for the registered URL rule.  Flask itself
+assumes that the name of the view function is the name
+of the endpoint if not explicitly stated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>view_func</cite></p></td>
+<td><p>the function to call when serving a request to the
+provided endpoint.  If this is not provided one can
+specify the function later by storing it in the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">view_functions</span></code> dictionary with the
+endpoint as key.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>defaults</cite></p></td>
+<td><p>A dictionary with defaults for this rule.  See the
+example above for how defaults work.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>subdomain</cite></p></td>
+<td><p>specifies the rule for the subdomain in case subdomain
+matching is in use.  If not specified the default
+subdomain is assumed.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>**options</cite></p></td>
+<td><p>the options to be forwarded to the underlying
+<a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/routing/#werkzeug.routing.Rule" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rule</span></code></a> object.  A change to
+Werkzeug is handling of method options.  methods is a list
+of methods this rule should be limited to (<code class="docutils literal notranslate"><span class="pre">GET</span></code>, <code class="docutils literal notranslate"><span class="pre">POST</span></code>
+etc.).  By default a rule just listens for <code class="docutils literal notranslate"><span class="pre">GET</span></code> (and
+implicitly <code class="docutils literal notranslate"><span class="pre">HEAD</span></code>).  Starting with Flask 0.6, <code class="docutils literal notranslate"><span class="pre">OPTIONS</span></code> is
+implicitly added and handled by the standard request
+handling.  They have to be specified as keyword arguments.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="view-function-options">
+<span id="view-func-options"></span><h2>View Function Options<a class="headerlink" href="#view-function-options" title="Link to this heading">¶</a></h2>
+<p>For internal usage the view functions can have some attributes attached to
+customize behavior the view function would normally not have control over.
+The following attributes can be provided optionally to either override
+some defaults to <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_url_rule()</span></code> or general behavior:</p>
+<ul class="simple">
+<li><p><cite>__name__</cite>: The name of a function is by default used as endpoint.  If
+endpoint is provided explicitly this value is used.  Additionally this
+will be prefixed with the name of the blueprint by default which
+cannot be customized from the function itself.</p></li>
+<li><p><cite>methods</cite>: If methods are not provided when the URL rule is added,
+Flask will look on the view function object itself if a <cite>methods</cite>
+attribute exists.  If it does, it will pull the information for the
+methods from there.</p></li>
+<li><p><cite>provide_automatic_options</cite>: if this attribute is set Flask will
+either force enable or disable the automatic implementation of the
+HTTP <code class="docutils literal notranslate"><span class="pre">OPTIONS</span></code> response.  This can be useful when working with
+decorators that want to customize the <code class="docutils literal notranslate"><span class="pre">OPTIONS</span></code> response on a per-view
+basis.</p></li>
+<li><p><cite>required_methods</cite>: if this attribute is set, Flask will always add
+these methods when registering a URL rule even if the methods were
+explicitly overridden in the <code class="docutils literal notranslate"><span class="pre">route()</span></code> call.</p></li>
+</ul>
+<p>Full example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;OPTIONS&#39;</span><span class="p">:</span>
+        <span class="c1"># custom options handling here</span>
+        <span class="o">...</span>
+    <span class="k">return</span> <span class="s1">&#39;Hello World!&#39;</span>
+<span class="n">index</span><span class="o">.</span><span class="n">provide_automatic_options</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">index</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;OPTIONS&#39;</span><span class="p">]</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.8: </span>The <cite>provide_automatic_options</cite> functionality was added.</p>
+</div>
+</details></section>
+<section id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/flask-icon.png" alt="Logo of Flask"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#application-object">Application Object</a></li>
+<li><a class="reference internal" href="#blueprint-objects">Blueprint Objects</a></li>
+<li><a class="reference internal" href="#incoming-request-data">Incoming Request Data</a><ul>
+<li><a class="reference internal" href="#flask.request"><code class="docutils literal notranslate"><span class="pre">request</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#response-objects">Response Objects</a></li>
+<li><a class="reference internal" href="#sessions">Sessions</a><ul>
+<li><a class="reference internal" href="#flask.session"><code class="docutils literal notranslate"><span class="pre">session</span></code></a><ul>
+<li><a class="reference internal" href="#flask.session.new"><code class="docutils literal notranslate"><span class="pre">session.new</span></code></a></li>
+<li><a class="reference internal" href="#flask.session.modified"><code class="docutils literal notranslate"><span class="pre">session.modified</span></code></a></li>
+<li><a class="reference internal" href="#flask.session.permanent"><code class="docutils literal notranslate"><span class="pre">session.permanent</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#session-interface">Session Interface</a></li>
+<li><a class="reference internal" href="#test-client">Test Client</a></li>
+<li><a class="reference internal" href="#test-cli-runner">Test CLI Runner</a></li>
+<li><a class="reference internal" href="#application-globals">Application Globals</a><ul>
+<li><a class="reference internal" href="#flask.g"><code class="docutils literal notranslate"><span class="pre">g</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#useful-functions-and-classes">Useful Functions and Classes</a><ul>
+<li><a class="reference internal" href="#flask.current_app"><code class="docutils literal notranslate"><span class="pre">current_app</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#message-flashing">Message Flashing</a></li>
+<li><a class="reference internal" href="#module-flask.json">JSON Support</a></li>
+<li><a class="reference internal" href="#template-rendering">Template Rendering</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#stream-helpers">Stream Helpers</a></li>
+<li><a class="reference internal" href="#useful-internals">Useful Internals</a><ul>
+<li><a class="reference internal" href="#flask._request_ctx_stack"><code class="docutils literal notranslate"><span class="pre">_request_ctx_stack</span></code></a></li>
+<li><a class="reference internal" href="#flask._app_ctx_stack"><code class="docutils literal notranslate"><span class="pre">_app_ctx_stack</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#signals">Signals</a><ul>
+<li><a class="reference internal" href="#flask.signals.signals_available"><code class="docutils literal notranslate"><span class="pre">signals.signals_available</span></code></a></li>
+<li><a class="reference internal" href="#flask.template_rendered"><code class="docutils literal notranslate"><span class="pre">template_rendered</span></code></a></li>
+<li><a class="reference internal" href="#flask.request_started"><code class="docutils literal notranslate"><span class="pre">request_started</span></code></a></li>
+<li><a class="reference internal" href="#flask.request_finished"><code class="docutils literal notranslate"><span class="pre">request_finished</span></code></a></li>
+<li><a class="reference internal" href="#flask.got_request_exception"><code class="docutils literal notranslate"><span class="pre">got_request_exception</span></code></a></li>
+<li><a class="reference internal" href="#flask.request_tearing_down"><code class="docutils literal notranslate"><span class="pre">request_tearing_down</span></code></a></li>
+<li><a class="reference internal" href="#flask.appcontext_tearing_down"><code class="docutils literal notranslate"><span class="pre">appcontext_tearing_down</span></code></a></li>
+<li><a class="reference internal" href="#flask.appcontext_pushed"><code class="docutils literal notranslate"><span class="pre">appcontext_pushed</span></code></a></li>
+<li><a class="reference internal" href="#flask.appcontext_popped"><code class="docutils literal notranslate"><span class="pre">appcontext_popped</span></code></a></li>
+<li><a class="reference internal" href="#flask.message_flashed"><code class="docutils literal notranslate"><span class="pre">message_flashed</span></code></a></li>
+<li><a class="reference internal" href="#flask.signals.Namespace"><code class="docutils literal notranslate"><span class="pre">signals.Namespace</span></code></a><ul>
+<li><a class="reference internal" href="#flask.signals.Namespace.signal"><code class="docutils literal notranslate"><span class="pre">signals.Namespace.signal()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#class-based-views">Class-Based Views</a></li>
+<li><a class="reference internal" href="#url-route-registrations">URL Route Registrations</a></li>
+<li><a class="reference internal" href="#view-function-options">View Function Options</a></li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="becomingbig.html" title="previous chapter">Becoming Big</a>
+          <li>Next: <a href="design.html" title="next chapter">Design Decisions in Flask</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

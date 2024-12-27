@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FastCGI &#8212; Flask Documentation (3.2.x)</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/flask.css?v=b87c8d14" />
+    <script src="../_static/documentation_options.js?v=56528222"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="flask" data-version="3.2.x" src="../_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="../_static/flask-icon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CGI" href="cgi.html" />
+    <link rel="prev" title="mod_wsgi (Apache)" href="mod_wsgi.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cgi.html" title="CGI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mod_wsgi.html" title="mod_wsgi (Apache)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask Documentation (3.2.x)</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Deployment Options</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">FastCGI</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="fastcgi">
+<span id="deploying-fastcgi"></span><h1>FastCGI<a class="headerlink" href="#fastcgi" title="Link to this heading">¶</a></h1>
+<p>FastCGI is a deployment option on servers like <a class="reference external" href="https://nginx.org/">nginx</a>, <a class="reference external" href="https://www.lighttpd.net/">lighttpd</a>, and
+<a class="reference external" href="http://cherokee-project.com/">cherokee</a>; see <a class="reference internal" href="uwsgi.html"><span class="doc">uWSGI</span></a> and <a class="reference internal" href="wsgi-standalone.html"><span class="doc">Standalone WSGI Containers</span></a> for other options.
+To use your WSGI application with any of them you will need a FastCGI
+server first. The most popular one is <a class="reference external" href="https://pypi.org/project/flup/">flup</a> which we will use for
+this guide. Make sure to have it installed to follow along.</p>
+<div class="admonition-watch-out admonition">
+<p class="admonition-title">Watch Out</p>
+<p>Please make sure in advance that any <code class="docutils literal notranslate"><span class="pre">app.run()</span></code> calls you might
+have in your application file are inside an <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span>
+<span class="pre">'__main__':</span></code> block or moved to a separate file.  Just make sure it’s
+not called because this will always start a local WSGI server which
+we do not want if we deploy that application to FastCGI.</p>
+</div>
+<section id="creating-a-fcgi-file">
+<h2>Creating a <cite>.fcgi</cite> file<a class="headerlink" href="#creating-a-fcgi-file" title="Link to this heading">¶</a></h2>
+<p>First you need to create the FastCGI server file.  Let’s call it
+<cite>yourapplication.fcgi</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">flup.server.fcgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">WSGIServer</span><span class="p">(</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is enough for Apache to work, however nginx and older versions of
+lighttpd need a socket to be explicitly passed to communicate with the
+FastCGI server.  For that to work you need to pass the path to the
+socket to the <code class="xref py py-class docutils literal notranslate"><span class="pre">WSGIServer</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">WSGIServer</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">bindAddress</span><span class="o">=</span><span class="s1">&#39;/path/to/fcgi.sock&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The path has to be the exact same path you define in the server
+config.</p>
+<p>Save the <code class="file docutils literal notranslate"><span class="pre">yourapplication.fcgi</span></code> file somewhere you will find it again.
+It makes sense to have that in <code class="file docutils literal notranslate"><span class="pre">/var/www/yourapplication</span></code> or something
+similar.</p>
+<p>Make sure to set the executable bit on that file so that the servers
+can execute it:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ chmod +x /var/www/yourapplication/yourapplication.fcgi
+</pre></div>
+</div>
+</section>
+<section id="configuring-apache">
+<h2>Configuring Apache<a class="headerlink" href="#configuring-apache" title="Link to this heading">¶</a></h2>
+<p>The example above is good enough for a basic Apache deployment but your
+<cite>.fcgi</cite> file will appear in your application URL e.g.
+<code class="docutils literal notranslate"><span class="pre">example.com/yourapplication.fcgi/news/</span></code>. There are few ways to configure
+your application so that yourapplication.fcgi does not appear in the URL.
+A preferable way is to use the ScriptAlias and SetHandler configuration
+directives to route requests to the FastCGI server. The following example
+uses FastCgiServer to start 5 instances of the application which will
+handle all incoming requests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LoadModule</span> <span class="n">fastcgi_module</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib64</span><span class="o">/</span><span class="n">httpd</span><span class="o">/</span><span class="n">modules</span><span class="o">/</span><span class="n">mod_fastcgi</span><span class="o">.</span><span class="n">so</span>
+
+<span class="n">FastCgiServer</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">yourapplication</span><span class="o">/</span><span class="n">app</span><span class="o">.</span><span class="n">fcgi</span> <span class="o">-</span><span class="n">idle</span><span class="o">-</span><span class="n">timeout</span> <span class="mi">300</span> <span class="o">-</span><span class="n">processes</span> <span class="mi">5</span>
+
+<span class="o">&lt;</span><span class="n">VirtualHost</span> <span class="o">*&gt;</span>
+    <span class="n">ServerName</span> <span class="n">webapp1</span><span class="o">.</span><span class="n">mydomain</span><span class="o">.</span><span class="n">com</span>
+    <span class="n">DocumentRoot</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">yourapplication</span>
+
+    <span class="n">AddHandler</span> <span class="n">fastcgi</span><span class="o">-</span><span class="n">script</span> <span class="n">fcgi</span>
+    <span class="n">ScriptAlias</span> <span class="o">/</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">yourapplication</span><span class="o">/</span><span class="n">app</span><span class="o">.</span><span class="n">fcgi</span><span class="o">/</span>
+
+    <span class="o">&lt;</span><span class="n">Location</span> <span class="o">/&gt;</span>
+        <span class="n">SetHandler</span> <span class="n">fastcgi</span><span class="o">-</span><span class="n">script</span>
+    <span class="o">&lt;/</span><span class="n">Location</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">VirtualHost</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>These processes will be managed by Apache. If you’re using a standalone
+FastCGI server, you can use the FastCgiExternalServer directive instead.
+Note that in the following the path is not real, it’s simply used as an
+identifier to other
+directives such as AliasMatch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FastCgiServer</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">yourapplication</span> <span class="o">-</span><span class="n">host</span> <span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">3000</span>
+</pre></div>
+</div>
+<p>If you cannot set ScriptAlias, for example on a shared web host, you can use
+WSGI middleware to remove yourapplication.fcgi from the URLs. Set .htaccess:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;IfModule mod_fcgid.c&gt;
+   AddHandler fcgid-script .fcgi
+   &lt;Files ~ (\.fcgi)&gt;
+       SetHandler fcgid-script
+       Options +FollowSymLinks +ExecCGI
+   &lt;/Files&gt;
+&lt;/IfModule&gt;
+
+&lt;IfModule mod_rewrite.c&gt;
+   Options +FollowSymlinks
+   RewriteEngine On
+   RewriteBase /
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteRule ^(.*)$ yourapplication.fcgi/$1 [QSA,L]
+&lt;/IfModule&gt;
+</pre></div>
+</div>
+<p>Set yourapplication.fcgi:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1">#: optional path to your local python site-packages folder</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;&lt;your_local_path&gt;/lib/python&lt;your_python_version&gt;/site-packages&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">flup.server.fcgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span>
+
+<span class="k">class</span> <span class="nc">ScriptNameStripper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+
+   <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+       <span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SCRIPT_NAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">ScriptNameStripper</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">WSGIServer</span><span class="p">(</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="configuring-lighttpd">
+<h2>Configuring lighttpd<a class="headerlink" href="#configuring-lighttpd" title="Link to this heading">¶</a></h2>
+<p>A basic FastCGI configuration for lighttpd looks like that:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fastcgi</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;/yourapplication.fcgi&quot;</span> <span class="o">=&gt;</span>
+    <span class="p">((</span>
+        <span class="s2">&quot;socket&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;/tmp/yourapplication-fcgi.sock&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bin-path&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;/var/www/yourapplication/yourapplication.fcgi&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;check-local&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;disable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max-procs&quot;</span> <span class="o">=&gt;</span> <span class="mi">1</span>
+    <span class="p">))</span>
+<span class="p">)</span>
+
+<span class="n">alias</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;/static/&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;/path/to/your/static/&quot;</span>
+<span class="p">)</span>
+
+<span class="n">url</span><span class="o">.</span><span class="n">rewrite</span><span class="o">-</span><span class="n">once</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;^(/static($|/.*))$&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;$1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;^(/.*)$&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;/yourapplication.fcgi$1&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Remember to enable the FastCGI, alias and rewrite modules. This configuration
+binds the application to <code class="docutils literal notranslate"><span class="pre">/yourapplication</span></code>.  If you want the application to
+work in the URL root you have to work around a lighttpd bug with the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">LighttpdCGIRootFix</span></code> middleware.</p>
+<p>Make sure to apply it only if you are mounting the application the URL
+root. Also, see the Lighty docs for more information on <a class="reference external" href="https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModFastCGI">FastCGI and Python</a> (note that
+explicitly passing a socket to run() is no longer necessary).</p>
+</section>
+<section id="configuring-nginx">
+<h2>Configuring nginx<a class="headerlink" href="#configuring-nginx" title="Link to this heading">¶</a></h2>
+<p>Installing FastCGI applications on nginx is a bit different because by
+default no FastCGI parameters are forwarded.</p>
+<p>A basic Flask FastCGI configuration for nginx looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>location = /yourapplication { rewrite ^ /yourapplication/ last; }
+location /yourapplication { try_files $uri @yourapplication; }
+location @yourapplication {
+    include fastcgi_params;
+    fastcgi_split_path_info ^(/yourapplication)(.*)$;
+    fastcgi_param PATH_INFO $fastcgi_path_info;
+    fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+    fastcgi_pass unix:/tmp/yourapplication-fcgi.sock;
+}
+</pre></div>
+</div>
+<p>This configuration binds the application to <code class="docutils literal notranslate"><span class="pre">/yourapplication</span></code>.  If you
+want to have it in the URL root it’s a bit simpler because you don’t
+have to figure out how to calculate <code class="docutils literal notranslate"><span class="pre">PATH_INFO</span></code> and <code class="docutils literal notranslate"><span class="pre">SCRIPT_NAME</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>location / { try_files $uri @yourapplication; }
+location @yourapplication {
+    include fastcgi_params;
+    fastcgi_param PATH_INFO $fastcgi_script_name;
+    fastcgi_param SCRIPT_NAME &quot;&quot;;
+    fastcgi_pass unix:/tmp/yourapplication-fcgi.sock;
+}
+</pre></div>
+</div>
+</section>
+<section id="running-fastcgi-processes">
+<h2>Running FastCGI Processes<a class="headerlink" href="#running-fastcgi-processes" title="Link to this heading">¶</a></h2>
+<p>Since nginx and others do not load FastCGI apps, you have to do it by
+yourself.  <a class="reference external" href="http://supervisord.org/configuration.html#fcgi-program-x-section-settings">Supervisor can manage FastCGI processes.</a>
+You can look around for other FastCGI process managers or write a script
+to run your <cite>.fcgi</cite> file at boot, e.g. using a SysV <code class="docutils literal notranslate"><span class="pre">init.d</span></code> script.
+For a temporary solution, you can always run the <code class="docutils literal notranslate"><span class="pre">.fcgi</span></code> script inside
+GNU screen.  See <code class="docutils literal notranslate"><span class="pre">man</span> <span class="pre">screen</span></code> for details, and note that this is a
+manual solution which does not persist across system restart:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ screen
+$ /var/www/yourapplication/yourapplication.fcgi
+</pre></div>
+</div>
+</section>
+<section id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Link to this heading">¶</a></h2>
+<p>FastCGI deployments tend to be hard to debug on most web servers.  Very
+often the only thing the server log tells you is something along the
+lines of “premature end of headers”.  In order to debug the application
+the only thing that can really give you ideas why it breaks is switching
+to the correct user and executing the application by hand.</p>
+<p>This example assumes your application is called <cite>application.fcgi</cite> and
+that your web server user is <cite>www-data</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ su www-data
+$ cd /var/www/yourapplication
+$ python application.fcgi
+Traceback (most recent call last):
+  File &quot;yourapplication.fcgi&quot;, line 4, in &lt;module&gt;
+ImportError: No module named yourapplication
+</pre></div>
+</div>
+<p>In this case the error seems to be “yourapplication” not being on the
+python path.  Common problems are:</p>
+<ul class="simple">
+<li><p>Relative paths being used.  Don’t rely on the current working directory.</p></li>
+<li><p>The code depending on environment variables that are not set by the
+web server.</p></li>
+<li><p>Different python interpreters being used.</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flask-icon.png" alt="Logo of Flask"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">FastCGI</a><ul>
+<li><a class="reference internal" href="#creating-a-fcgi-file">Creating a <cite>.fcgi</cite> file</a></li>
+<li><a class="reference internal" href="#configuring-apache">Configuring Apache</a></li>
+<li><a class="reference internal" href="#configuring-lighttpd">Configuring lighttpd</a></li>
+<li><a class="reference internal" href="#configuring-nginx">Configuring nginx</a></li>
+<li><a class="reference internal" href="#running-fastcgi-processes">Running FastCGI Processes</a></li>
+<li><a class="reference internal" href="#debugging">Debugging</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../index.html">Overview</a>
+    <ul>
+      <li><a href="index.html">Deployment Options</a>
+        <ul>
+          <li>Previous: <a href="mod_wsgi.html" title="previous chapter">mod_wsgi (Apache)</a>
+          <li>Next: <a href="cgi.html" title="next chapter">CGI</a></ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

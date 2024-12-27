@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>uWSGI &#8212; Flask Documentation (3.2.x)</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/flask.css?v=b87c8d14" />
+    <script src="../_static/documentation_options.js?v=56528222"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="flask" data-version="3.2.x" src="../_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="../_static/flask-icon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="mod_wsgi (Apache)" href="mod_wsgi.html" />
+    <link rel="prev" title="Standalone WSGI Containers" href="wsgi-standalone.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mod_wsgi.html" title="mod_wsgi (Apache)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wsgi-standalone.html" title="Standalone WSGI Containers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask Documentation (3.2.x)</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Deployment Options</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">uWSGI</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="uwsgi">
+<span id="deploying-uwsgi"></span><h1>uWSGI<a class="headerlink" href="#uwsgi" title="Link to this heading">¶</a></h1>
+<p>uWSGI is a deployment option on servers like <a class="reference external" href="https://nginx.org/">nginx</a>, <a class="reference external" href="https://www.lighttpd.net/">lighttpd</a>, and
+<a class="reference external" href="http://cherokee-project.com/">cherokee</a>; see <a class="reference internal" href="fastcgi.html"><span class="doc">FastCGI</span></a> and <a class="reference internal" href="wsgi-standalone.html"><span class="doc">Standalone WSGI Containers</span></a> for other options.
+To use your WSGI application with uWSGI protocol you will need a uWSGI server
+first. uWSGI is both a protocol and an application server; the application
+server can serve uWSGI, FastCGI, and HTTP protocols.</p>
+<p>The most popular uWSGI server is <a class="reference external" href="https://uwsgi-docs.readthedocs.io/en/latest/">uwsgi</a>, which we will use for this
+guide. Make sure to have it installed to follow along.</p>
+<div class="admonition-watch-out admonition">
+<p class="admonition-title">Watch Out</p>
+<p>Please make sure in advance that any <code class="docutils literal notranslate"><span class="pre">app.run()</span></code> calls you might
+have in your application file are inside an <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span>
+<span class="pre">'__main__':</span></code> block or moved to a separate file.  Just make sure it’s
+not called because this will always start a local WSGI server which
+we do not want if we deploy that application to uWSGI.</p>
+</div>
+<section id="starting-your-app-with-uwsgi">
+<h2>Starting your app with uwsgi<a class="headerlink" href="#starting-your-app-with-uwsgi" title="Link to this heading">¶</a></h2>
+<p><cite>uwsgi</cite> is designed to operate on WSGI callables found in python modules.</p>
+<p>Given a flask application in myapp.py, use the following command:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ uwsgi -s /tmp/yourapplication.sock --manage-script-name --mount /yourapplication=myapp:app
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--manage-script-name</span></code> will move the handling of <code class="docutils literal notranslate"><span class="pre">SCRIPT_NAME</span></code>
+to uwsgi, since it is smarter about that.
+It is used together with the <code class="docutils literal notranslate"><span class="pre">--mount</span></code> directive which will make
+requests to <code class="docutils literal notranslate"><span class="pre">/yourapplication</span></code> be directed to <code class="docutils literal notranslate"><span class="pre">myapp:app</span></code>.
+If your application is accessible at root level, you can use a
+single <code class="docutils literal notranslate"><span class="pre">/</span></code> instead of <code class="docutils literal notranslate"><span class="pre">/yourapplication</span></code>. <code class="docutils literal notranslate"><span class="pre">myapp</span></code> refers to the name of
+the file of your flask application (without extension) or the module which
+provides <code class="docutils literal notranslate"><span class="pre">app</span></code>. <code class="docutils literal notranslate"><span class="pre">app</span></code> is the callable inside of your application (usually
+the line reads <code class="docutils literal notranslate"><span class="pre">app</span> <span class="pre">=</span> <span class="pre">Flask(__name__)</span></code>.</p>
+<p>If you want to deploy your flask application inside of a virtual environment,
+you need to also add <code class="docutils literal notranslate"><span class="pre">--virtualenv</span> <span class="pre">/path/to/virtual/environment</span></code>. You might
+also need to add <code class="docutils literal notranslate"><span class="pre">--plugin</span> <span class="pre">python</span></code> or <code class="docutils literal notranslate"><span class="pre">--plugin</span> <span class="pre">python3</span></code> depending on which
+python version you use for your project.</p>
+</section>
+<section id="configuring-nginx">
+<h2>Configuring nginx<a class="headerlink" href="#configuring-nginx" title="Link to this heading">¶</a></h2>
+<p>A basic flask nginx configuration looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>location = /yourapplication { rewrite ^ /yourapplication/; }
+location /yourapplication { try_files $uri @yourapplication; }
+location @yourapplication {
+  include uwsgi_params;
+  uwsgi_pass unix:/tmp/yourapplication.sock;
+}
+</pre></div>
+</div>
+<p>This configuration binds the application to <code class="docutils literal notranslate"><span class="pre">/yourapplication</span></code>.  If you want
+to have it in the URL root its a bit simpler:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>location / { try_files $uri @yourapplication; }
+location @yourapplication {
+    include uwsgi_params;
+    uwsgi_pass unix:/tmp/yourapplication.sock;
+}
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flask-icon.png" alt="Logo of Flask"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">uWSGI</a><ul>
+<li><a class="reference internal" href="#starting-your-app-with-uwsgi">Starting your app with uwsgi</a></li>
+<li><a class="reference internal" href="#configuring-nginx">Configuring nginx</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../index.html">Overview</a>
+    <ul>
+      <li><a href="index.html">Deployment Options</a>
+        <ul>
+          <li>Previous: <a href="wsgi-standalone.html" title="previous chapter">Standalone WSGI Containers</a>
+          <li>Next: <a href="mod_wsgi.html" title="next chapter">mod_wsgi (Apache)</a></ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

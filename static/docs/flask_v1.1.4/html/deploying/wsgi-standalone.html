@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Standalone WSGI Containers &#8212; Flask Documentation (3.2.x)</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/flask.css?v=b87c8d14" />
+    <script src="../_static/documentation_options.js?v=56528222"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="flask" data-version="3.2.x" src="../_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="../_static/flask-icon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="uWSGI" href="uwsgi.html" />
+    <link rel="prev" title="Deployment Options" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="uwsgi.html" title="uWSGI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Deployment Options"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask Documentation (3.2.x)</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Deployment Options</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Standalone WSGI Containers</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="standalone-wsgi-containers">
+<span id="deploying-wsgi-standalone"></span><h1>Standalone WSGI Containers<a class="headerlink" href="#standalone-wsgi-containers" title="Link to this heading">¶</a></h1>
+<p>There are popular servers written in Python that contain WSGI applications and
+serve HTTP.  These servers stand alone when they run; you can proxy to them
+from your web server.  Note the section on <a class="reference internal" href="#deploying-proxy-setups"><span class="std std-ref">Proxy Setups</span></a> if you
+run into issues.</p>
+<section id="gunicorn">
+<h2>Gunicorn<a class="headerlink" href="#gunicorn" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://gunicorn.org/">Gunicorn</a> ‘Green Unicorn’ is a WSGI HTTP Server for UNIX. It’s a pre-fork
+worker model ported from Ruby’s Unicorn project. It supports both <a class="reference external" href="https://eventlet.net/">eventlet</a>
+and <a class="reference external" href="https://greenlet.readthedocs.io/en/latest/">greenlet</a>. Running a Flask application on this server is quite simple:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gunicorn myproject:app
+</pre></div>
+</div>
+<p><a class="reference external" href="https://gunicorn.org/">Gunicorn</a> provides many command-line options – see <code class="docutils literal notranslate"><span class="pre">gunicorn</span> <span class="pre">-h</span></code>.
+For example, to run a Flask application with 4 worker processes (<code class="docutils literal notranslate"><span class="pre">-w</span>
+<span class="pre">4</span></code>) binding to localhost port 4000 (<code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">127.0.0.1:4000</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gunicorn -w 4 -b 127.0.0.1:4000 myproject:app
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code> command expects the names of your application module or
+package and the application instance within the module. If you use the
+application factory pattern, you can pass a call to that:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gunicorn &quot;myproject:create_app()&quot;
+</pre></div>
+</div>
+</section>
+<section id="uwsgi">
+<h2>uWSGI<a class="headerlink" href="#uwsgi" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://uwsgi-docs.readthedocs.io/en/latest/">uWSGI</a> is a fast application server written in C. It is very configurable
+which makes it more complicated to setup than gunicorn.</p>
+<p>Running <a class="reference external" href="https://uwsgi-docs.readthedocs.io/en/latest/HTTP.html#the-uwsgi-http-https-router">uWSGI HTTP Router</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ uwsgi --http 127.0.0.1:5000 --module myproject:app
+</pre></div>
+</div>
+<p>For a more optimized setup, see <a class="reference internal" href="uwsgi.html"><span class="doc">configuring uWSGI and NGINX</span></a>.</p>
+</section>
+<section id="gevent">
+<h2>Gevent<a class="headerlink" href="#gevent" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="http://www.gevent.org/">Gevent</a> is a coroutine-based Python networking library that uses
+<a class="reference external" href="https://greenlet.readthedocs.io/en/latest/">greenlet</a> to provide a high-level synchronous API on top of <a class="reference external" href="http://software.schmorp.de/pkg/libev.html">libev</a>
+event loop:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+<span class="kn">from</span> <span class="nn">yourapplication</span> <span class="kn">import</span> <span class="n">app</span>
+
+<span class="n">http_server</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span> <span class="n">app</span><span class="p">)</span>
+<span class="n">http_server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="twisted-web">
+<h2>Twisted Web<a class="headerlink" href="#twisted-web" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://twistedmatrix.com/trac/wiki/TwistedWeb">Twisted Web</a> is the web server shipped with <a class="reference external" href="https://twistedmatrix.com/trac/">Twisted</a>, a mature,
+non-blocking event-driven networking library. Twisted Web comes with a
+standard WSGI container which can be controlled from the command line using
+the <code class="docutils literal notranslate"><span class="pre">twistd</span></code> utility:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ twistd web --wsgi myproject.app
+</pre></div>
+</div>
+<p>This example will run a Flask application called <code class="docutils literal notranslate"><span class="pre">app</span></code> from a module named
+<code class="docutils literal notranslate"><span class="pre">myproject</span></code>.</p>
+<p>Twisted Web supports many flags and options, and the <code class="docutils literal notranslate"><span class="pre">twistd</span></code> utility does
+as well; see <code class="docutils literal notranslate"><span class="pre">twistd</span> <span class="pre">-h</span></code> and <code class="docutils literal notranslate"><span class="pre">twistd</span> <span class="pre">web</span> <span class="pre">-h</span></code> for more information. For
+example, to run a Twisted Web server in the foreground, on port 8080, with an
+application from <code class="docutils literal notranslate"><span class="pre">myproject</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ twistd -n web --port tcp:8080 --wsgi myproject.app
+</pre></div>
+</div>
+</section>
+<section id="proxy-setups">
+<span id="deploying-proxy-setups"></span><h2>Proxy Setups<a class="headerlink" href="#proxy-setups" title="Link to this heading">¶</a></h2>
+<p>If you deploy your application using one of these servers behind an HTTP proxy
+you will need to rewrite a few headers in order for the application to work.
+The two problematic values in the WSGI environment usually are <code class="docutils literal notranslate"><span class="pre">REMOTE_ADDR</span></code>
+and <code class="docutils literal notranslate"><span class="pre">HTTP_HOST</span></code>.  You can configure your httpd to pass these headers, or you
+can fix them in middleware.  Werkzeug ships a fixer that will solve some common
+setups, but you might want to write your own WSGI middleware for specific
+setups.</p>
+<p>Here’s a simple nginx configuration which proxies to an application served on
+localhost at port 8000, setting appropriate headers:</p>
+<div class="highlight-nginx notranslate"><div class="highlight"><pre><span></span><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">_</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">access_log</span><span class="w">  </span><span class="s">/var/log/nginx/access.log</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">error_log</span><span class="w">  </span><span class="s">/var/log/nginx/error.log</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">proxy_pass</span><span class="w">         </span><span class="s">http://127.0.0.1:8000/</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">proxy_redirect</span><span class="w">     </span><span class="no">off</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">proxy_set_header</span><span class="w">   </span><span class="s">Host</span><span class="w">                 </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">proxy_set_header</span><span class="w">   </span><span class="s">X-Real-IP</span><span class="w">            </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">proxy_set_header</span><span class="w">   </span><span class="s">X-Forwarded-For</span><span class="w">      </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">proxy_set_header</span><span class="w">   </span><span class="s">X-Forwarded-Proto</span><span class="w">    </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If your httpd is not providing these headers, the most common setup invokes the
+host being set from <code class="docutils literal notranslate"><span class="pre">X-Forwarded-Host</span></code> and the remote address from
+<code class="docutils literal notranslate"><span class="pre">X-Forwarded-For</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">werkzeug.middleware.proxy_fix</span> <span class="kn">import</span> <span class="n">ProxyFix</span>
+<span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span> <span class="o">=</span> <span class="n">ProxyFix</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">,</span> <span class="n">x_proto</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x_host</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition-trusting-headers admonition">
+<p class="admonition-title">Trusting Headers</p>
+<p>Please keep in mind that it is a security issue to use such a middleware in
+a non-proxy setup because it will blindly trust the incoming headers which
+might be forged by malicious clients.</p>
+</div>
+<p>If you want to rewrite the headers from another header, you might want to
+use a fixer like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomProxyFix</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;HTTP_X_FHOST&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
+            <span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HTTP_HOST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span> <span class="o">=</span> <span class="n">CustomProxyFix</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/flask-icon.png" alt="Logo of Flask"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Standalone WSGI Containers</a><ul>
+<li><a class="reference internal" href="#gunicorn">Gunicorn</a></li>
+<li><a class="reference internal" href="#uwsgi">uWSGI</a></li>
+<li><a class="reference internal" href="#gevent">Gevent</a></li>
+<li><a class="reference internal" href="#twisted-web">Twisted Web</a></li>
+<li><a class="reference internal" href="#proxy-setups">Proxy Setups</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../index.html">Overview</a>
+    <ul>
+      <li><a href="index.html">Deployment Options</a>
+        <ul>
+          <li>Previous: <a href="index.html" title="previous chapter">Deployment Options</a>
+          <li>Next: <a href="uwsgi.html" title="next chapter">uWSGI</a></ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>
