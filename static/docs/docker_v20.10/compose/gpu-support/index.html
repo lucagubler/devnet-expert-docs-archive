@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Enabling GPU access with Compose | Docker Documentation</title>
+  <meta name="description" content="GPU support in Compose" />
+  <meta name="keywords" content="documentation, docs, docker, compose, GPU access, NVIDIA, samples">
+  <link rel="canonical" href="https://localhost:4000/compose/gpu-support/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../js/theme-switcher.js"></script>
+  <script defer src="../../js/anchorlinks.js"></script>
+  <script defer src="../../js/jquery.js"></script>
+  <script defer src="../../js/bootstrap.min.js"></script>
+  <script defer src="../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Enabling GPU access with Compose"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Enabling GPU access with Compose" />
+  <meta property="og:description" content="GPU support in Compose" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/compose/gpu-support/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Enabling GPU access with Compose","description":"GPU support in Compose","url":"https://docs.docker.com/compose/gpu-support/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../index.html">
+        <img src="../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../index.html" id="home">Home</a></li><li><a href="../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../reference/index.html" id="reference">Reference</a></li><li><a href="../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../desktop/index.html">Manuals</a></li><li><a href="../../compose.html">Docker Compose</a></li><li><a href="index.html">GPU support in Compose</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Enabling GPU access with Compose</h1><p><em class="reading-time">Estimated reading time: 6 minutes</em></p><p>Compose services can define GPU device reservations if the Docker host contains such devices and the Docker Daemon is set accordingly. For this, make sure to install the <a href="../../config/containers/resource_constraints/index.html#gpu">prerequisites</a> if you have not already done so.</p>
+
+<p>The examples in the following sections focus specifically on providing service containers access to GPU devices with Docker Compose. You can use either <code class="highlighter-rouge">docker-compose</code> or <code class="highlighter-rouge">docker compose</code> commands.</p>
+
+<h3 id="use-of-service-runtime-property-from-compose-v23-format-legacy">Use of service <code class="highlighter-rouge">runtime</code> property from Compose v2.3 format (legacy)</h3>
+
+<p>Docker Compose v1.27.0+ switched to using the Compose Specification schema which is a combination of all properties from 2.x and 3.x versions. This re-enabled the use of service properties as <a href="../compose-file/compose-file-v2/index.html#runtime">runtime</a> to provide GPU access to service containers. However, this does not allow to have control over specific properties of the GPU devices.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">test</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">nvidia/cuda:10.2-base</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">nvidia-smi</span>
+    <span class="na">runtime</span><span class="pi">:</span> <span class="s">nvidia</span>
+
+</code></pre></div></div>
+
+<h3 id="enabling-gpu-access-to-service-containers">Enabling GPU access to service containers</h3>
+
+<p>Docker Compose v1.28.0+ allows to define GPU reservations using the <a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#devices">device</a> structure defined in the Compose Specification. This provides more granular control over a GPU reservation as custom values can be set for the following device properties:</p>
+
+<ul>
+  <li><a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#capabilities" target="_blank" rel="noopener" class="_">capabilities</a> - value specifies as a list of strings (eg. <code class="highlighter-rouge">capabilities: [gpu]</code>). You must set this field in the Compose file. Otherwise, it returns an error on service deployment.</li>
+  <li><a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#count" target="_blank" rel="noopener" class="_">count</a> - value specified as an int or the value <code class="highlighter-rouge">all</code> representing the number of GPU devices that should be reserved ( providing the host holds that number of GPUs).</li>
+  <li><a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#device_ids" target="_blank" rel="noopener" class="_">device_ids</a> - value specified as a list of strings representing GPU device IDs from the host. You can find the device ID in the output of <code class="highlighter-rouge">nvidia-smi</code> on the host.</li>
+  <li><a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#driver" target="_blank" rel="noopener" class="_">driver</a> - value specified as a string (eg. <code class="highlighter-rouge">driver: 'nvidia'</code>)</li>
+  <li><a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#options" target="_blank" rel="noopener" class="_">options</a> - key-value pairs representing driver specific options.</li>
+</ul>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>You must set the <code class="highlighter-rouge">capabilities</code> field. Otherwise, it returns an error on service deployment.</p>
+
+  <p><code class="highlighter-rouge">count</code> and <code class="highlighter-rouge">device_ids</code> are mutually exclusive. You must only define one field at a time.</p>
+</blockquote>
+
+<p>For more information on these properties, see the <code class="highlighter-rouge">deploy</code> section in the <a href="https://github.com/compose-spec/compose-spec/blob/master/deploy.md#devices" target="_blank" rel="noopener" class="_">Compose Specification</a>.</p>
+
+<p>Example of a Compose file for running a service with access to 1 GPU device:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">test</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">nvidia/cuda:10.2-base</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">nvidia-smi</span>
+    <span class="na">deploy</span><span class="pi">:</span>
+      <span class="na">resources</span><span class="pi">:</span>
+        <span class="na">reservations</span><span class="pi">:</span>
+          <span class="na">devices</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">driver</span><span class="pi">:</span> <span class="s">nvidia</span>
+              <span class="na">count</span><span class="pi">:</span> <span class="s">1</span>
+              <span class="na">capabilities</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">gpu</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<p>Run with Docker Compose:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker-compose up
+<span class="go">Creating network "gpu_default" with the default driver
+Creating gpu_test_1 ... done
+Attaching to gpu_test_1    
+test_1  | +-----------------------------------------------------------------------------+
+test_1  | | NVIDIA-SMI 450.80.02    Driver Version: 450.80.02    CUDA Version: 11.1     |
+test_1  | |-------------------------------+----------------------+----------------------+
+test_1  | | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+test_1  | | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+test_1  | |                               |                      |               MIG M. |
+test_1  | |===============================+======================+======================|
+test_1  | |   0  Tesla T4            On   | 00000000:00:1E.0 Off |                    0 |
+test_1  | | N/A   23C    P8     9W /  70W |      0MiB / 15109MiB |      0%      Default |
+test_1  | |                               |                      |                  N/A |
+test_1  | +-------------------------------+----------------------+----------------------+
+test_1  |                                                                                
+test_1  | +-----------------------------------------------------------------------------+
+test_1  | | Processes:                                                                  |
+test_1  | |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+test_1  | |        ID   ID                                                   Usage      |
+test_1  | |=============================================================================|
+test_1  | |  No running processes found                                                 |
+test_1  | +-----------------------------------------------------------------------------+
+gpu_test_1 exited with code 0
+
+</span></code></pre></div></div>
+
+<p>If no <code class="highlighter-rouge">count</code> or <code class="highlighter-rouge">device_ids</code> are set, all GPUs available on the host are going to be used by default.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">test</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">tensorflow/tensorflow:latest-gpu</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">python -c "import tensorflow as tf;tf.test.gpu_device_name()"</span>
+    <span class="na">deploy</span><span class="pi">:</span>
+      <span class="na">resources</span><span class="pi">:</span>
+        <span class="na">reservations</span><span class="pi">:</span>
+          <span class="na">devices</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">capabilities</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">gpu</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker-compose up
+<span class="go">Creating network "gpu_default" with the default driver
+Creating gpu_test_1 ... done
+Attaching to gpu_test_1
+test_1  | I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+</span><span class="c">.....
+</span><span class="go">test_1  | I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402]
+</span><span class="gp">Created TensorFlow device (/device:GPU:0 with 13970 MB memory) -&gt;</span> physical GPU <span class="o">(</span>device: 0, name: Tesla T4, pci bus id: 0000:00:1e.0, compute capability: 7.5<span class="o">)</span>
+<span class="go">test_1  | /device:GPU:0
+gpu_test_1 exited with code 0
+</span></code></pre></div></div>
+
+<p>On machines hosting multiple GPUs, <code class="highlighter-rouge">device_ids</code> field can be set to target specific GPU devices and <code class="highlighter-rouge">count</code> can be used to limit the number of GPU devices assigned to a service container. If <code class="highlighter-rouge">count</code> exceeds the number of available GPUs on the host, the deployment will error out.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> nvidia-smi   
+<span class="go">+-----------------------------------------------------------------------------+
+| NVIDIA-SMI 450.80.02    Driver Version: 450.80.02    CUDA Version: 11.0     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Tesla T4            On   | 00000000:00:1B.0 Off |                    0 |
+| N/A   72C    P8    12W /  70W |      0MiB / 15109MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla T4            On   | 00000000:00:1C.0 Off |                    0 |
+| N/A   67C    P8    11W /  70W |      0MiB / 15109MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   2  Tesla T4            On   | 00000000:00:1D.0 Off |                    0 |
+| N/A   74C    P8    12W /  70W |      0MiB / 15109MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   3  Tesla T4            On   | 00000000:00:1E.0 Off |                    0 |
+| N/A   62C    P8    11W /  70W |      0MiB / 15109MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+</span></code></pre></div></div>
+
+<p>To enable access only to GPU-0 and GPU-3 devices:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">test</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">tensorflow/tensorflow:latest-gpu</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">python -c "import tensorflow as tf;tf.test.gpu_device_name()"</span>
+    <span class="na">deploy</span><span class="pi">:</span>
+      <span class="na">resources</span><span class="pi">:</span>
+        <span class="na">reservations</span><span class="pi">:</span>
+          <span class="na">devices</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">driver</span><span class="pi">:</span> <span class="s">nvidia</span>
+            <span class="na">device_ids</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">0'</span><span class="pi">,</span> <span class="s1">'</span><span class="s">3'</span><span class="pi">]</span>
+            <span class="na">capabilities</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">gpu</span><span class="pi">]</span>
+
+</code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose up
+...
+Created TensorFlow device <span class="o">(</span>/device:GPU:0 with 13970 MB memory -&gt; physical GPU <span class="o">(</span>device: 0, name: Tesla T4, pci bus id: 0000:00:1b.0, compute capability: 7.5<span class="o">)</span>
+...
+Created TensorFlow device <span class="o">(</span>/device:GPU:1 with 13970 MB memory<span class="o">)</span> -&gt; physical GPU <span class="o">(</span>device: 1, name: Tesla T4, pci bus id: 0000:00:1e.0, compute capability: 7.5<span class="o">)</span>
+...
+gpu_test_1 exited with code 0
+</code></pre></div></div>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../search/index.html%3Fq=documentation.html">documentation</a>, <a href="../../search/index.html%3Fq=docs.html">docs</a>, <a href="../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../search/index.html%3Fq=compose.html">compose</a>, <a href="../../search/index.html%3Fq=GPU%20access.html">GPU access</a>, <a href="../../search/index.html%3Fq=NVIDIA.html">NVIDIA</a>, <a href="../../search/index.html%3Fq=samples.html">samples</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/compose/gpu-support.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [compose/gpu-support.md](https://docs.docker.com/compose/gpu-support/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#use-of-service-runtime-property-from-compose-v23-format-legacy" class="nomunge">Use of service runtime property from Compose v2.3 format (legacy)</a>
+    <ul>
+      <li><a href="index.html#enabling-gpu-access-to-service-containers" class="nomunge">Enabling GPU access to service containers</a></li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/compose/gpu-support/";</script></body>
+</html>

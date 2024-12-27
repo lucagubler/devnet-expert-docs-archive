@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Best practices for writing Dockerfiles | Docker Documentation</title>
+  <meta name="description" content="Hints, tips and guidelines for writing clean, reliable Dockerfiles" />
+  <meta name="keywords" content="parent image, images, dockerfile, best practices, hub, official image">
+  <link rel="canonical" href="https://localhost:4000/develop/develop-images/dockerfile_best-practices/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Best practices for writing Dockerfiles"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Best practices for writing Dockerfiles" />
+  <meta property="og:description" content="Hints, tips and guidelines for writing clean, reliable Dockerfiles" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Best practices for writing Dockerfiles","description":"Hints, tips and guidelines for writing clean, reliable Dockerfiles","url":"https://docs.docker.com/develop/develop-images/dockerfile_best-practices/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a href="../../index.html">Develop with Docker</a></li><li><a href="index.html">Build images</a></li><li><a href="index.html">Dockerfile best practices</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Best practices for writing Dockerfiles</h1><p><em class="reading-time">Estimated reading time: 31 minutes</em></p><p>This document covers recommended best practices and methods for building
+efficient images.</p>
+
+<p>Docker builds images automatically by reading the instructions from a
+<code class="highlighter-rouge">Dockerfile</code> -- a text file that contains all commands, in order, needed to
+build a given image. A <code class="highlighter-rouge">Dockerfile</code> adheres to a specific format and set of
+instructions which you can find at <a href="../../../engine/reference/builder/index.html">Dockerfile reference</a>.</p>
+
+<p>A Docker image consists of read-only layers each of which represents a
+Dockerfile  instruction. The layers are stacked and each one is a delta of the
+changes from the previous layer. Consider this <code class="highlighter-rouge">Dockerfile</code>:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> ubuntu:18.04</span>
+<span class="k">COPY</span><span class="s"> . /app</span>
+<span class="k">RUN </span>make /app
+<span class="k">CMD</span><span class="s"> python /app/app.py</span>
+</code></pre></div></div>
+
+<p>Each instruction creates one layer:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">FROM</code> creates a layer from the <code class="highlighter-rouge">ubuntu:18.04</code> Docker image.</li>
+  <li><code class="highlighter-rouge">COPY</code> adds files from your Docker client’s current directory.</li>
+  <li><code class="highlighter-rouge">RUN</code> builds your application with <code class="highlighter-rouge">make</code>.</li>
+  <li><code class="highlighter-rouge">CMD</code> specifies what command to run within the container.</li>
+</ul>
+
+<p>When you run an image and generate a container, you add a new <em>writable layer</em>
+(the “container layer”) on top of the underlying layers. All changes made to
+the running container, such as writing new files, modifying existing files, and
+deleting files, are written to this writable container layer.</p>
+
+<p>For more on image layers (and how Docker builds and stores images), see
+<a href="../../../storage/storagedriver/index.html">About storage drivers</a>.</p>
+
+<h2 id="general-guidelines-and-recommendations">General guidelines and recommendations</h2>
+
+<h3 id="create-ephemeral-containers">Create ephemeral containers</h3>
+
+<p>The image defined by your <code class="highlighter-rouge">Dockerfile</code> should generate containers that are as
+ephemeral as possible. By “ephemeral”, we mean that the container can be stopped
+and destroyed, then rebuilt and replaced with an absolute minimum set up and
+configuration.</p>
+
+<p>Refer to <a href="https://12factor.net/processes">Processes</a> under <em>The Twelve-factor App</em>
+methodology to get a feel for the motivations of running containers in such a
+stateless fashion.</p>
+
+<h3 id="understand-build-context">Understand build context</h3>
+
+<p>When you issue a <code class="highlighter-rouge">docker build</code> command, the current working directory is called
+the <em>build context</em>. By default, the Dockerfile is assumed to be located here,
+but you can specify a different location with the file flag (<code class="highlighter-rouge">-f</code>). Regardless
+of where the <code class="highlighter-rouge">Dockerfile</code> actually lives, all recursive contents of files and
+directories in the current directory are sent to the Docker daemon as the build
+context.</p>
+
+<blockquote>
+  <p>Build context example</p>
+
+  <p>Create a directory for the build context and <code class="highlighter-rouge">cd</code> into it. Write “hello” into
+a text file named <code class="highlighter-rouge">hello</code> and create a Dockerfile that runs <code class="highlighter-rouge">cat</code> on it. Build
+the image from within the build context (<code class="highlighter-rouge">.</code>):</p>
+
+  <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> mkdir myproject <span class="o">&amp;&amp;</span> <span class="nb">cd </span>myproject
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">"hello"</span> <span class="o">&gt;</span> hello
+<span class="gp">$</span> <span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"FROM busybox</span><span class="se">\n</span><span class="s2">COPY /hello /</span><span class="se">\n</span><span class="s2">RUN cat /hello"</span> <span class="o">&gt;</span> Dockerfile
+<span class="gp">$</span> docker build <span class="nt">-t</span> helloapp:v1 <span class="nb">.</span>
+</code></pre></div>  </div>
+
+  <p>Move <code class="highlighter-rouge">Dockerfile</code> and <code class="highlighter-rouge">hello</code> into separate directories and build a second
+version of the image (without relying on cache from the last build). Use <code class="highlighter-rouge">-f</code>
+to point to the Dockerfile and specify the directory of the build context:</p>
+
+  <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> mkdir <span class="nt">-p</span> dockerfiles context
+<span class="gp">$</span> mv Dockerfile dockerfiles <span class="o">&amp;&amp;</span> mv hello context
+<span class="gp">$</span> docker build <span class="nt">--no-cache</span> <span class="nt">-t</span> helloapp:v2 <span class="nt">-f</span> dockerfiles/Dockerfile context
+</code></pre></div>  </div>
+</blockquote>
+
+<p>Inadvertently including files that are not necessary for building an image
+results in a larger build context and larger image size. This can increase the
+time to build the image, time to pull and push it, and the container runtime
+size. To see how big your build context is, look for a message like this when
+building your <code class="highlighter-rouge">Dockerfile</code>:</p>
+
+<pre><code class="language-none">Sending build context to Docker daemon  187.8MB
+</code></pre>
+
+<h3 id="pipe-dockerfile-through-stdin">Pipe Dockerfile through <code class="highlighter-rouge">stdin</code></h3>
+
+<p>Docker has the ability to build images by piping <code class="highlighter-rouge">Dockerfile</code> through <code class="highlighter-rouge">stdin</code>
+with a <em>local or remote build context</em>. Piping a <code class="highlighter-rouge">Dockerfile</code> through <code class="highlighter-rouge">stdin</code>
+can be useful to perform one-off builds without writing a Dockerfile to disk,
+or in situations where the <code class="highlighter-rouge">Dockerfile</code> is generated, and should not persist
+afterwards.</p>
+
+<blockquote>
+  <p>The examples in this section use <a href="https://tldp.org/LDP/abs/html/here-docs.html">here documents</a>
+for convenience, but any method to provide the <code class="highlighter-rouge">Dockerfile</code> on <code class="highlighter-rouge">stdin</code> can be
+used.</p>
+
+  <p>For example, the following commands are equivalent:</p>
+
+  <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="nt">-e</span> <span class="s1">'FROM busybox\nRUN echo "hello world"'</span> | docker build -
+</code></pre></div>  </div>
+
+  <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build -<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+FROM busybox
+RUN echo "hello world"
+</span><span class="no">EOF
+</span></code></pre></div>  </div>
+
+  <p>You can substitute the examples with your preferred approach, or the approach
+that best fits your use-case.</p>
+</blockquote>
+
+<h4 id="build-an-image-using-a-dockerfile-from-stdin-without-sending-build-context">Build an image using a Dockerfile from stdin, without sending build context</h4>
+
+<p>Use this syntax to build an image using a <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>, without
+sending additional files as build context. The hyphen (<code class="highlighter-rouge">-</code>) takes the position
+of the <code class="highlighter-rouge">PATH</code>, and instructs Docker to read the build context (which only
+contains a <code class="highlighter-rouge">Dockerfile</code>) from <code class="highlighter-rouge">stdin</code> instead of a directory:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="o">[</span>OPTIONS] -
+</code></pre></div></div>
+
+<p>The following example builds an image using a <code class="highlighter-rouge">Dockerfile</code> that is passed through
+<code class="highlighter-rouge">stdin</code>. No files are sent as build context to the daemon.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> myimage:latest -<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+FROM busybox
+RUN echo "hello world"
+</span><span class="no">EOF
+</span></code></pre></div></div>
+
+<p>Omitting the build context can be useful in situations where your <code class="highlighter-rouge">Dockerfile</code>
+does not require files to be copied into the image, and improves the build-speed,
+as no files are sent to the daemon.</p>
+
+<p>If you want to improve the build-speed by excluding <em>some</em> files from the build-
+context, refer to <a href="index.html#exclude-with-dockerignore">exclude with .dockerignore</a>.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Attempting to build a Dockerfile that uses <code class="highlighter-rouge">COPY</code> or <code class="highlighter-rouge">ADD</code> will fail
+if this syntax is used. The following example illustrates this:</p>
+
+  <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># create a directory to work in</span>
+mkdir example
+<span class="nb">cd </span>example
+
+<span class="c"># create an example file</span>
+touch somefile.txt
+
+docker build <span class="nt">-t</span> myimage:latest -<span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+FROM busybox
+COPY somefile.txt ./
+RUN cat /somefile.txt
+</span><span class="no">EOF
+
+</span><span class="c"># observe that the build fails</span>
+...
+Step 2/3 : COPY somefile.txt ./
+COPY failed: stat /var/lib/docker/tmp/docker-builder249218248/somefile.txt: no such file or directory
+</code></pre></div>  </div>
+</blockquote>
+
+<h4 id="build-from-a-local-build-context-using-a-dockerfile-from-stdin">Build from a local build context, using a Dockerfile from stdin</h4>
+
+<p>Use this syntax to build an image using files on your local filesystem, but using
+a <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>. The syntax uses the <code class="highlighter-rouge">-f</code> (or <code class="highlighter-rouge">--file</code>) option to
+specify the <code class="highlighter-rouge">Dockerfile</code> to use, using a hyphen (<code class="highlighter-rouge">-</code>) as filename to instruct
+Docker to read the <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="o">[</span>OPTIONS] <span class="nt">-f-</span> PATH
+</code></pre></div></div>
+
+<p>The example below uses the current directory (<code class="highlighter-rouge">.</code>) as the build context, and builds
+an image using a <code class="highlighter-rouge">Dockerfile</code> that is passed through <code class="highlighter-rouge">stdin</code> using a <a href="https://tldp.org/LDP/abs/html/here-docs.html">here
+document</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># create a directory to work in</span>
+mkdir example
+<span class="nb">cd </span>example
+
+<span class="c"># create an example file</span>
+touch somefile.txt
+
+<span class="c"># build an image using the current directory as context, and a Dockerfile passed through stdin</span>
+docker build <span class="nt">-t</span> myimage:latest <span class="nt">-f-</span> <span class="nb">.</span> <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+FROM busybox
+COPY somefile.txt ./
+RUN cat /somefile.txt
+</span><span class="no">EOF
+</span></code></pre></div></div>
+
+<h4 id="build-from-a-remote-build-context-using-a-dockerfile-from-stdin">Build from a remote build context, using a Dockerfile from stdin</h4>
+
+<p>Use this syntax to build an image using files from a remote <code class="highlighter-rouge">git</code> repository, 
+using a <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>. The syntax uses the <code class="highlighter-rouge">-f</code> (or <code class="highlighter-rouge">--file</code>) option to
+specify the <code class="highlighter-rouge">Dockerfile</code> to use, using a hyphen (<code class="highlighter-rouge">-</code>) as filename to instruct
+Docker to read the <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="o">[</span>OPTIONS] <span class="nt">-f-</span> PATH
+</code></pre></div></div>
+
+<p>This syntax can be useful in situations where you want to build an image from a
+repository that does not contain a <code class="highlighter-rouge">Dockerfile</code>, or if you want to build with a custom
+<code class="highlighter-rouge">Dockerfile</code>, without maintaining your own fork of the repository.</p>
+
+<p>The example below builds an image using a <code class="highlighter-rouge">Dockerfile</code> from <code class="highlighter-rouge">stdin</code>, and adds
+the <code class="highlighter-rouge">hello.c</code> file from the <a href="https://github.com/docker-library/hello-world">“hello-world” Git repository on GitHub</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> myimage:latest <span class="nt">-f-</span> https://github.com/docker-library/hello-world.git <span class="o">&lt;&lt;</span><span class="no">EOF</span><span class="sh">
+FROM busybox
+COPY hello.c ./
+</span><span class="no">EOF
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><strong>Under the hood</strong></p>
+
+  <p>When building an image using a remote Git repository as build context, Docker 
+performs a <code class="highlighter-rouge">git clone</code> of the repository on the local machine, and sends
+those files as build context to the daemon. This feature requires <code class="highlighter-rouge">git</code> to be
+installed on the host where you run the <code class="highlighter-rouge">docker build</code> command.</p>
+</blockquote>
+
+<h3 id="exclude-with-dockerignore">Exclude with .dockerignore</h3>
+
+<p>To exclude files not relevant to the build (without restructuring your source
+repository) use a <code class="highlighter-rouge">.dockerignore</code> file. This file supports exclusion patterns
+similar to <code class="highlighter-rouge">.gitignore</code> files. For information on creating one, see the
+<a href="../../../engine/reference/builder/index.html#dockerignore-file">.dockerignore file</a>.</p>
+
+<h3 id="use-multi-stage-builds">Use multi-stage builds</h3>
+
+<p><a href="../multistage-build/index.html">Multi-stage builds</a> allow you to drastically reduce the
+size of your final image, without struggling to reduce the number of intermediate
+layers and files.</p>
+
+<p>Because an image is built during the final stage of the build process, you can
+minimize image layers by <a href="index.html#leverage-build-cache">leveraging build cache</a>.</p>
+
+<p>For example, if your build contains several layers, you can order them from the
+less frequently changed (to ensure the build cache is reusable) to the more
+frequently changed:</p>
+
+<ul>
+  <li>
+    <p>Install tools you need to build your application</p>
+  </li>
+  <li>
+    <p>Install or update library dependencies</p>
+  </li>
+  <li>
+    <p>Generate your application</p>
+  </li>
+</ul>
+
+<p>A Dockerfile for a Go application could look like:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> golang:1.16-alpine AS build</span>
+
+<span class="c"># Install tools required for project</span>
+<span class="c"># Run `docker build --no-cache .` to update dependencies</span>
+<span class="k">RUN </span>apk add <span class="nt">--no-cache</span> git
+<span class="k">RUN </span>go get github.com/golang/dep/cmd/dep
+
+<span class="c"># List project dependencies with Gopkg.toml and Gopkg.lock</span>
+<span class="c"># These layers are only re-built when Gopkg files are updated</span>
+<span class="k">COPY</span><span class="s"> Gopkg.lock Gopkg.toml /go/src/project/</span>
+<span class="k">WORKDIR</span><span class="s"> /go/src/project/</span>
+<span class="c"># Install library dependencies</span>
+<span class="k">RUN </span>dep ensure <span class="nt">-vendor-only</span>
+
+<span class="c"># Copy the entire project and build it</span>
+<span class="c"># This layer is rebuilt when a file changes in the project directory</span>
+<span class="k">COPY</span><span class="s"> . /go/src/project/</span>
+<span class="k">RUN </span>go build <span class="nt">-o</span> /bin/project
+
+<span class="c"># This results in a single layer image</span>
+<span class="k">FROM</span><span class="s"> scratch</span>
+<span class="k">COPY</span><span class="s"> --from=build /bin/project /bin/project</span>
+<span class="k">ENTRYPOINT</span><span class="s"> ["/bin/project"]</span>
+<span class="k">CMD</span><span class="s"> ["--help"]</span>
+</code></pre></div></div>
+
+<h3 id="dont-install-unnecessary-packages">Don’t install unnecessary packages</h3>
+
+<p>To reduce complexity, dependencies, file sizes, and build times, avoid
+installing extra or unnecessary packages just because they might be “nice to
+have.” For example, you don’t need to include a text editor in a database image.</p>
+
+<h3 id="decouple-applications">Decouple applications</h3>
+
+<p>Each container should have only one concern. Decoupling applications into
+multiple containers makes it easier to scale horizontally and reuse containers.
+For instance, a web application stack might consist of three separate
+containers, each with its own unique image, to manage the web application,
+database, and an in-memory cache in a decoupled manner.</p>
+
+<p>Limiting each container to one process is a good rule of thumb, but it is not a
+hard and fast rule. For example, not only can containers be
+<a href="../../../engine/reference/run/index.html#specify-an-init-process">spawned with an init process</a>,
+some programs might spawn additional processes of their own accord. For
+instance, <a href="https://docs.celeryproject.org/">Celery</a> can spawn multiple worker
+processes, and <a href="https://httpd.apache.org/">Apache</a> can create one process per
+request.</p>
+
+<p>Use your best judgment to keep containers as clean and modular as possible. If
+containers depend on each other, you can use <a href="../../../network/index.html">Docker container networks</a>
+to ensure that these containers can communicate.</p>
+
+<h3 id="minimize-the-number-of-layers">Minimize the number of layers</h3>
+
+<p>In older versions of Docker, it was important that you minimized the number of
+layers in your images to ensure they were performant. The following features
+were added to reduce this limitation:</p>
+
+<ul>
+  <li>
+    <p>Only the instructions <code class="highlighter-rouge">RUN</code>, <code class="highlighter-rouge">COPY</code>, <code class="highlighter-rouge">ADD</code> create layers. Other instructions
+create temporary intermediate images, and do not increase the size of the build.</p>
+  </li>
+  <li>
+    <p>Where possible, use <a href="../multistage-build/index.html">multi-stage builds</a>, and only copy
+the artifacts you need into the final image. This allows you to include tools
+and debug information in your intermediate build stages without increasing the
+size of the final image.</p>
+  </li>
+</ul>
+
+<h3 id="sort-multi-line-arguments">Sort multi-line arguments</h3>
+
+<p>Whenever possible, ease later changes by sorting multi-line arguments
+alphanumerically. This helps to avoid duplication of packages and make the
+list much easier to update. This also makes PRs a lot easier to read and
+review. Adding a space before a backslash (<code class="highlighter-rouge">\</code>) helps as well.</p>
+
+<p>Here’s an example from the <a href="https://github.com/docker-library/buildpack-deps"><code class="highlighter-rouge">buildpack-deps</code> image</a>:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> <span class="se">\
+</span>  bzr <span class="se">\
+</span>  cvs <span class="se">\
+</span>  git <span class="se">\
+</span>  mercurial <span class="se">\
+</span>  subversion <span class="se">\
+</span>  <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+</code></pre></div></div>
+
+<h3 id="leverage-build-cache">Leverage build cache</h3>
+
+<p>When building an image, Docker steps through the instructions in your
+<code class="highlighter-rouge">Dockerfile</code>, executing each in the order specified. As each instruction is
+examined, Docker looks for an existing image in its cache that it can reuse,
+rather than creating a new (duplicate) image.</p>
+
+<p>If you do not want to use the cache at all, you can use the <code class="highlighter-rouge">--no-cache=true</code>
+option on the <code class="highlighter-rouge">docker build</code> command. However, if you do let Docker use its
+cache, it is important to understand when it can, and cannot, find a matching
+image. The basic rules that Docker follows are outlined below:</p>
+
+<ul>
+  <li>
+    <p>Starting with a parent image that is already in the cache, the next
+instruction is compared against all child images derived from that base
+image to see if one of them was built using the exact same instruction. If
+not, the cache is invalidated.</p>
+  </li>
+  <li>
+    <p>In most cases, simply comparing the instruction in the <code class="highlighter-rouge">Dockerfile</code> with one
+of the child images is sufficient. However, certain instructions require more
+examination and explanation.</p>
+  </li>
+  <li>
+    <p>For the <code class="highlighter-rouge">ADD</code> and <code class="highlighter-rouge">COPY</code> instructions, the contents of the file(s)
+in the image are examined and a checksum is calculated for each file.
+The last-modified and last-accessed times of the file(s) are not considered in
+these checksums. During the cache lookup, the checksum is compared against the
+checksum in the existing images. If anything has changed in the file(s), such
+as the contents and metadata, then the cache is invalidated.</p>
+  </li>
+  <li>
+    <p>Aside from the <code class="highlighter-rouge">ADD</code> and <code class="highlighter-rouge">COPY</code> commands, cache checking does not look at the
+files in the container to determine a cache match. For example, when processing
+a <code class="highlighter-rouge">RUN apt-get -y update</code> command the files updated in the container
+are not examined to determine if a cache hit exists.  In that case just
+the command string itself is used to find a match.</p>
+  </li>
+</ul>
+
+<p>Once the cache is invalidated, all subsequent <code class="highlighter-rouge">Dockerfile</code> commands generate new
+images and the cache is not used.</p>
+
+<h2 id="dockerfile-instructions">Dockerfile instructions</h2>
+
+<p>These recommendations are designed to help you create an efficient and
+maintainable <code class="highlighter-rouge">Dockerfile</code>.</p>
+
+<h3 id="from">FROM</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#from">Dockerfile reference for the FROM instruction</a></p>
+
+<p>Whenever possible, use current official images as the basis for your
+images. We recommend the <a href="https://hub.docker.com/_/alpine/">Alpine image</a> as it
+is tightly controlled and small in size (currently under 6 MB), while still
+being a full Linux distribution.</p>
+
+<h3 id="label">LABEL</h3>
+
+<p><a href="../../../config/labels-custom-metadata/index.html">Understanding object labels</a></p>
+
+<p>You can add labels to your image to help organize images by project, record
+licensing information, to aid in automation, or for other reasons. For each
+label, add a line beginning with <code class="highlighter-rouge">LABEL</code> and with one or more key-value pairs.
+The following examples show the different acceptable formats. Explanatory comments are included inline.</p>
+
+<blockquote>
+  <p>Strings with spaces must be quoted <strong>or</strong> the spaces must be escaped. Inner
+quote characters (<code class="highlighter-rouge">"</code>), must also be escaped.</p>
+</blockquote>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set one or more individual labels</span>
+<span class="k">LABEL</span><span class="s"> com.example.version="0.0.1-beta"</span>
+<span class="k">LABEL</span><span class="s"> vendor1="ACME Incorporated"</span>
+<span class="k">LABEL</span><span class="s"> vendor2=ZENITH\ Incorporated</span>
+<span class="k">LABEL</span><span class="s"> com.example.release-date="2015-02-12"</span>
+<span class="k">LABEL</span><span class="s"> com.example.version.is-production=""</span>
+</code></pre></div></div>
+
+<p>An image can have more than one label. Prior to Docker 1.10, it was recommended
+to combine all labels into a single <code class="highlighter-rouge">LABEL</code> instruction, to prevent extra layers
+from being created. This is no longer necessary, but combining labels is still
+supported.</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set multiple labels on one line</span>
+<span class="k">LABEL</span><span class="s"> com.example.version="0.0.1-beta" com.example.release-date="2015-02-12"</span>
+</code></pre></div></div>
+
+<p>The above can also be written as:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set multiple labels at once, using line-continuation characters to break long lines</span>
+<span class="k">LABEL</span><span class="s"> vendor=ACME\ Incorporated \</span>
+      com.example.is-beta= \
+      com.example.is-production="" \
+      com.example.version="0.0.1-beta" \
+      com.example.release-date="2015-02-12"
+</code></pre></div></div>
+
+<p>See <a href="../../../config/labels-custom-metadata/index.html">Understanding object labels</a>
+for guidelines about acceptable label keys and values. For information about
+querying labels, refer to the items related to filtering in
+<a href="../../../config/labels-custom-metadata/index.html#manage-labels-on-objects">Managing labels on objects</a>.
+See also <a href="../../../engine/reference/builder/index.html#label">LABEL</a> in the Dockerfile reference.</p>
+
+<h3 id="run">RUN</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#run">Dockerfile reference for the RUN instruction</a></p>
+
+<p>Split long or complex <code class="highlighter-rouge">RUN</code> statements on multiple lines separated with
+backslashes to make your <code class="highlighter-rouge">Dockerfile</code> more readable, understandable, and
+maintainable.</p>
+
+<h4 id="apt-get">apt-get</h4>
+
+<p>Probably the most common use-case for <code class="highlighter-rouge">RUN</code> is an application of <code class="highlighter-rouge">apt-get</code>.
+Because it installs packages, the <code class="highlighter-rouge">RUN apt-get</code> command has several gotchas to
+look out for.</p>
+
+<p>Always combine <code class="highlighter-rouge">RUN apt-get update</code> with <code class="highlighter-rouge">apt-get install</code> in the same <code class="highlighter-rouge">RUN</code>
+statement. For example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> <span class="se">\
+</span>    package-bar <span class="se">\
+</span>    package-baz <span class="se">\
+</span>    package-foo  <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+</code></pre></div></div>
+
+<p>Using <code class="highlighter-rouge">apt-get update</code> alone in a <code class="highlighter-rouge">RUN</code> statement causes caching issues and
+subsequent <code class="highlighter-rouge">apt-get install</code> instructions fail. For example, say you have a
+Dockerfile:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> ubuntu:18.04</span>
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get install <span class="nt">-y</span> curl
+</code></pre></div></div>
+
+<p>After building the image, all layers are in the Docker cache. Suppose you later
+modify <code class="highlighter-rouge">apt-get install</code> by adding extra package:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> ubuntu:18.04</span>
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get install <span class="nt">-y</span> curl nginx
+</code></pre></div></div>
+
+<p>Docker sees the initial and modified instructions as identical and reuses the
+cache from previous steps. As a result the <code class="highlighter-rouge">apt-get update</code> is <em>not</em> executed
+because the build uses the cached version. Because the <code class="highlighter-rouge">apt-get update</code> is not
+run, your build can potentially get an outdated version of the <code class="highlighter-rouge">curl</code> and
+<code class="highlighter-rouge">nginx</code> packages.</p>
+
+<p>Using <code class="highlighter-rouge">RUN apt-get update &amp;&amp; apt-get install -y</code> ensures your Dockerfile
+installs the latest package versions with no further coding or manual
+intervention. This technique is known as “cache busting”. You can also achieve
+cache-busting by specifying a package version. This is known as version pinning,
+for example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> <span class="se">\
+</span>    package-bar <span class="se">\
+</span>    package-baz <span class="se">\
+</span>    package-foo<span class="o">=</span>1.3.<span class="k">*</span>
+</code></pre></div></div>
+
+<p>Version pinning forces the build to retrieve a particular version regardless of
+what’s in the cache. This technique can also reduce failures due to unanticipated changes
+in required packages.</p>
+
+<p>Below is a well-formed <code class="highlighter-rouge">RUN</code> instruction that demonstrates all the <code class="highlighter-rouge">apt-get</code>
+recommendations.</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> <span class="se">\
+</span>    aufs-tools <span class="se">\
+</span>    automake <span class="se">\
+</span>    build-essential <span class="se">\
+</span>    curl <span class="se">\
+</span>    dpkg-sig <span class="se">\
+</span>    libcap-dev <span class="se">\
+</span>    libsqlite3-dev <span class="se">\
+</span>    mercurial <span class="se">\
+</span>    reprepro <span class="se">\
+</span>    ruby1.9.1 <span class="se">\
+</span>    ruby1.9.1-dev <span class="se">\
+</span>    <span class="nv">s3cmd</span><span class="o">=</span>1.1.<span class="k">*</span> <span class="se">\
+</span> <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span>
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">s3cmd</code> argument specifies a version <code class="highlighter-rouge">1.1.*</code>. If the image previously
+used an older version, specifying the new one causes a cache bust of <code class="highlighter-rouge">apt-get
+update</code> and ensures the installation of the new version. Listing packages on
+each line can also prevent mistakes in package duplication.</p>
+
+<p>In addition, when you clean up the apt cache by removing <code class="highlighter-rouge">/var/lib/apt/lists</code> it
+reduces the image size, since the apt cache is not stored in a layer. Since the
+<code class="highlighter-rouge">RUN</code> statement starts with <code class="highlighter-rouge">apt-get update</code>, the package cache is always
+refreshed prior to <code class="highlighter-rouge">apt-get install</code>.</p>
+
+<blockquote>
+  <p>Official Debian and Ubuntu images <a href="https://github.com/moby/moby/blob/03e2923e42446dbb830c654d0eec323a0b4ef02a/contrib/mkimage/debootstrap#L82-L105">automatically run <code class="highlighter-rouge">apt-get clean</code></a>,
+so explicit invocation is not required.</p>
+</blockquote>
+
+<h4 id="using-pipes">Using pipes</h4>
+
+<p>Some <code class="highlighter-rouge">RUN</code> commands depend on the ability to pipe the output of one command into another, using the pipe character (<code class="highlighter-rouge">|</code>), as in the following example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>wget <span class="nt">-O</span> - https://some.site | wc <span class="nt">-l</span> <span class="o">&gt;</span> /number
+</code></pre></div></div>
+
+<p>Docker executes these commands using the <code class="highlighter-rouge">/bin/sh -c</code> interpreter, which only
+evaluates the exit code of the last operation in the pipe to determine success.
+In the example above this build step succeeds and produces a new image so long
+as the <code class="highlighter-rouge">wc -l</code> command succeeds, even if the <code class="highlighter-rouge">wget</code> command fails.</p>
+
+<p>If you want the command to fail due to an error at any stage in the pipe,
+prepend <code class="highlighter-rouge">set -o pipefail &amp;&amp;</code> to ensure that an unexpected error prevents the
+build from inadvertently succeeding. For example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span><span class="nb">set</span> <span class="nt">-o</span> pipefail <span class="o">&amp;&amp;</span> wget <span class="nt">-O</span> - https://some.site | wc <span class="nt">-l</span> <span class="o">&gt;</span> /number
+</code></pre></div></div>
+
+<blockquote>
+  <p>Not all shells support the <code class="highlighter-rouge">-o pipefail</code> option.</p>
+
+  <p>In cases such as the <code class="highlighter-rouge">dash</code> shell on
+Debian-based images, consider using the <em>exec</em> form of <code class="highlighter-rouge">RUN</code> to explicitly
+choose a shell that does support the <code class="highlighter-rouge">pipefail</code> option. For example:</p>
+
+  <div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span><span class="o">[</span><span class="s2">"/bin/bash"</span>, <span class="s2">"-c"</span>, <span class="s2">"set -o pipefail &amp;&amp; wget -O - https://some.site | wc -l &gt; /number"</span><span class="o">]</span>
+</code></pre></div>  </div>
+</blockquote>
+
+<h3 id="cmd">CMD</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#cmd">Dockerfile reference for the CMD instruction</a></p>
+
+<p>The <code class="highlighter-rouge">CMD</code> instruction should be used to run the software contained in your
+image, along with any arguments. <code class="highlighter-rouge">CMD</code> should almost always be used in the form
+of <code class="highlighter-rouge">CMD ["executable", "param1", "param2"…]</code>. Thus, if the image is for a
+service, such as Apache and Rails, you would run something like <code class="highlighter-rouge">CMD
+["apache2","-DFOREGROUND"]</code>. Indeed, this form of the instruction is recommended
+for any service-based image.</p>
+
+<p>In most other cases, <code class="highlighter-rouge">CMD</code> should be given an interactive shell, such as bash,
+python and perl. For example, <code class="highlighter-rouge">CMD ["perl", "-de0"]</code>, <code class="highlighter-rouge">CMD ["python"]</code>, or <code class="highlighter-rouge">CMD
+["php", "-a"]</code>. Using this form means that when you execute something like
+<code class="highlighter-rouge">docker run -it python</code>, you’ll get dropped into a usable shell, ready to go.
+<code class="highlighter-rouge">CMD</code> should rarely be used in the manner of <code class="highlighter-rouge">CMD ["param", "param"]</code> in
+conjunction with <a href="../../../engine/reference/builder/index.html#entrypoint"><code class="highlighter-rouge">ENTRYPOINT</code></a>, unless
+you and your expected users are already quite familiar with how <code class="highlighter-rouge">ENTRYPOINT</code>
+works.</p>
+
+<h3 id="expose">EXPOSE</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#expose">Dockerfile reference for the EXPOSE instruction</a></p>
+
+<p>The <code class="highlighter-rouge">EXPOSE</code> instruction indicates the ports on which a container listens
+for connections. Consequently, you should use the common, traditional port for
+your application. For example, an image containing the Apache web server would
+use <code class="highlighter-rouge">EXPOSE 80</code>, while an image containing MongoDB would use <code class="highlighter-rouge">EXPOSE 27017</code> and
+so on.</p>
+
+<p>For external access, your users can execute <code class="highlighter-rouge">docker run</code> with a flag indicating
+how to map the specified port to the port of their choice.
+For container linking, Docker provides environment variables for the path from
+the recipient container back to the source (ie, <code class="highlighter-rouge">MYSQL_PORT_3306_TCP</code>).</p>
+
+<h3 id="env">ENV</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#env">Dockerfile reference for the ENV instruction</a></p>
+
+<p>To make new software easier to run, you can use <code class="highlighter-rouge">ENV</code> to update the
+<code class="highlighter-rouge">PATH</code> environment variable for the software your container installs. For
+example, <code class="highlighter-rouge">ENV PATH=/usr/local/nginx/bin:$PATH</code> ensures that <code class="highlighter-rouge">CMD ["nginx"]</code>
+just works.</p>
+
+<p>The <code class="highlighter-rouge">ENV</code> instruction is also useful for providing required environment
+variables specific to services you wish to containerize, such as Postgres’s
+<code class="highlighter-rouge">PGDATA</code>.</p>
+
+<p>Lastly, <code class="highlighter-rouge">ENV</code> can also be used to set commonly used version numbers so that
+version bumps are easier to maintain, as seen in the following example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ENV</span><span class="s"> PG_MAJOR=9.3</span>
+<span class="k">ENV</span><span class="s"> PG_VERSION=9.3.4</span>
+<span class="k">RUN </span>curl <span class="nt">-SL</span> https://example.com/postgres-<span class="nv">$PG_VERSION</span>.tar.xz | <span class="nb">tar</span> <span class="nt">-xJC</span> /usr/src/postgres <span class="o">&amp;&amp;</span> …
+<span class="k">ENV</span><span class="s"> PATH=/usr/local/postgres-$PG_MAJOR/bin:$PATH</span>
+</code></pre></div></div>
+
+<p>Similar to having constant variables in a program (as opposed to hard-coding
+values), this approach lets you change a single <code class="highlighter-rouge">ENV</code> instruction to
+auto-magically bump the version of the software in your container.</p>
+
+<p>Each <code class="highlighter-rouge">ENV</code> line creates a new intermediate layer, just like <code class="highlighter-rouge">RUN</code> commands. This
+means that even if you unset the environment variable in a future layer, it
+still persists in this layer and its value can be dumped. You can test this by
+creating a Dockerfile like the following, and then building it.</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> alpine</span>
+<span class="k">ENV</span><span class="s"> ADMIN_USER="mark"</span>
+<span class="k">RUN </span><span class="nb">echo</span> <span class="nv">$ADMIN_USER</span> <span class="o">&gt;</span> ./mark
+<span class="k">RUN </span><span class="nb">unset </span>ADMIN_USER
+</code></pre></div></div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nb">test </span>sh <span class="nt">-c</span> <span class="s1">'echo $ADMIN_USER'</span>
+<span class="go">
+mark
+</span></code></pre></div></div>
+
+<p>To prevent this, and really unset the environment variable, use a <code class="highlighter-rouge">RUN</code> command
+with shell commands, to set, use, and unset the variable all in a single layer.
+You can separate your commands with <code class="highlighter-rouge">;</code> or <code class="highlighter-rouge">&amp;&amp;</code>. If you use the second method,
+and one of the commands fails, the <code class="highlighter-rouge">docker build</code> also fails. This is usually a
+good idea. Using <code class="highlighter-rouge">\</code> as a line continuation character for Linux Dockerfiles
+improves readability. You could also put all of the commands into a shell script
+and have the <code class="highlighter-rouge">RUN</code> command just run that shell script.</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># syntax=docker/dockerfile:1</span>
+<span class="k">FROM</span><span class="s"> alpine</span>
+<span class="k">RUN </span><span class="nb">export </span><span class="nv">ADMIN_USER</span><span class="o">=</span><span class="s2">"mark"</span> <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="nv">$ADMIN_USER</span> <span class="o">&gt;</span> ./mark <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">unset </span>ADMIN_USER
+<span class="k">CMD</span><span class="s"> sh</span>
+</code></pre></div></div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nb">test </span>sh <span class="nt">-c</span> <span class="s1">'echo $ADMIN_USER'</span>
+<span class="go">
+</span></code></pre></div></div>
+
+<h3 id="add-or-copy">ADD or COPY</h3>
+
+<ul>
+  <li><a href="../../../engine/reference/builder/index.html#add">Dockerfile reference for the ADD instruction</a></li>
+  <li><a href="../../../engine/reference/builder/index.html#copy">Dockerfile reference for the COPY instruction</a></li>
+</ul>
+
+<p>Although <code class="highlighter-rouge">ADD</code> and <code class="highlighter-rouge">COPY</code> are functionally similar, generally speaking, <code class="highlighter-rouge">COPY</code>
+is preferred. That’s because it’s more transparent than <code class="highlighter-rouge">ADD</code>. <code class="highlighter-rouge">COPY</code> only
+supports the basic copying of local files into the container, while <code class="highlighter-rouge">ADD</code> has
+some features (like local-only tar extraction and remote URL support) that are
+not immediately obvious. Consequently, the best use for <code class="highlighter-rouge">ADD</code> is local tar file
+auto-extraction into the image, as in <code class="highlighter-rouge">ADD rootfs.tar.xz /</code>.</p>
+
+<p>If you have multiple <code class="highlighter-rouge">Dockerfile</code> steps that use different files from your
+context, <code class="highlighter-rouge">COPY</code> them individually, rather than all at once. This ensures that
+each step’s build cache is only invalidated (forcing the step to be re-run) if
+the specifically required files change.</p>
+
+<p>For example:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">COPY</span><span class="s"> requirements.txt /tmp/</span>
+<span class="k">RUN </span>pip install <span class="nt">--requirement</span> /tmp/requirements.txt
+<span class="k">COPY</span><span class="s"> . /tmp/</span>
+</code></pre></div></div>
+
+<p>Results in fewer cache invalidations for the <code class="highlighter-rouge">RUN</code> step, than if you put the
+<code class="highlighter-rouge">COPY . /tmp/</code> before it.</p>
+
+<p>Because image size matters, using <code class="highlighter-rouge">ADD</code> to fetch packages from remote URLs is
+strongly discouraged; you should use <code class="highlighter-rouge">curl</code> or <code class="highlighter-rouge">wget</code> instead. That way you can
+delete the files you no longer need after they’ve been extracted and you don’t
+have to add another layer in your image. For example, you should avoid doing
+things like:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ADD</span><span class="s"> https://example.com/big.tar.xz /usr/src/things/</span>
+<span class="k">RUN </span><span class="nb">tar</span> <span class="nt">-xJf</span> /usr/src/things/big.tar.xz <span class="nt">-C</span> /usr/src/things
+<span class="k">RUN </span>make <span class="nt">-C</span> /usr/src/things all
+</code></pre></div></div>
+
+<p>And instead, do something like:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RUN </span>mkdir <span class="nt">-p</span> /usr/src/things <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> curl <span class="nt">-SL</span> https://example.com/big.tar.xz <span class="se">\
+</span>    | <span class="nb">tar</span> <span class="nt">-xJC</span> /usr/src/things <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> make <span class="nt">-C</span> /usr/src/things all
+</code></pre></div></div>
+
+<p>For other items (files, directories) that do not require <code class="highlighter-rouge">ADD</code>’s tar
+auto-extraction capability, you should always use <code class="highlighter-rouge">COPY</code>.</p>
+
+<h3 id="entrypoint">ENTRYPOINT</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#entrypoint">Dockerfile reference for the ENTRYPOINT instruction</a></p>
+
+<p>The best use for <code class="highlighter-rouge">ENTRYPOINT</code> is to set the image’s main command, allowing that
+image to be run as though it was that command (and then use <code class="highlighter-rouge">CMD</code> as the
+default flags).</p>
+
+<p>Let’s start with an example of an image for the command line tool <code class="highlighter-rouge">s3cmd</code>:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ENTRYPOINT</span><span class="s"> ["s3cmd"]</span>
+<span class="k">CMD</span><span class="s"> ["--help"]</span>
+</code></pre></div></div>
+
+<p>Now the image can be run like this to show the command’s help:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run s3cmd
+</code></pre></div></div>
+
+<p>Or using the right parameters to execute a command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run s3cmd <span class="nb">ls </span>s3://mybucket
+</code></pre></div></div>
+
+<p>This is useful because the image name can double as a reference to the binary as
+shown in the command above.</p>
+
+<p>The <code class="highlighter-rouge">ENTRYPOINT</code> instruction can also be used in combination with a helper
+script, allowing it to function in a similar way to the command above, even
+when starting the tool may require more than one step.</p>
+
+<p>For example, the <a href="https://hub.docker.com/_/postgres/">Postgres Official Image</a>
+uses the following script as its <code class="highlighter-rouge">ENTRYPOINT</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">set</span> <span class="nt">-e</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="o">=</span> <span class="s1">'postgres'</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span>chown <span class="nt">-R</span> postgres <span class="s2">"</span><span class="nv">$PGDATA</span><span class="s2">"</span>
+
+    <span class="k">if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="s2">"</span><span class="k">$(</span><span class="nb">ls</span> <span class="nt">-A</span> <span class="s2">"</span><span class="nv">$PGDATA</span><span class="s2">"</span><span class="k">)</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span>gosu postgres initdb
+    <span class="k">fi
+
+    </span><span class="nb">exec </span>gosu postgres <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="k">fi
+
+</span><span class="nb">exec</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Configure app as PID 1</p>
+
+  <p>This script uses <a href="https://wiki.bash-hackers.org/commands/builtin/exec">the <code class="highlighter-rouge">exec</code> Bash command</a>
+so that the final running application becomes the container’s PID 1. This
+allows the application to receive any Unix signals sent to the container.
+For more, see the <a href="../../../engine/reference/builder/index.html#entrypoint"><code class="highlighter-rouge">ENTRYPOINT</code> reference</a>.</p>
+</blockquote>
+
+<p>The helper script is copied into the container and run via <code class="highlighter-rouge">ENTRYPOINT</code> on
+container start:</p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">COPY</span><span class="s"> ./docker-entrypoint.sh /</span>
+<span class="k">ENTRYPOINT</span><span class="s"> ["/docker-entrypoint.sh"]</span>
+<span class="k">CMD</span><span class="s"> ["postgres"]</span>
+</code></pre></div></div>
+
+<p>This script allows the user to interact with Postgres in several ways.</p>
+
+<p>It can simply start Postgres:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run postgres
+</code></pre></div></div>
+
+<p>Or, it can be used to run Postgres and pass parameters to the server:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run postgres postgres <span class="nt">--help</span>
+</code></pre></div></div>
+
+<p>Lastly, it could also be used to start a totally different tool, such as Bash:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nt">-it</span> postgres bash
+</code></pre></div></div>
+
+<h3 id="volume">VOLUME</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#volume">Dockerfile reference for the VOLUME instruction</a></p>
+
+<p>The <code class="highlighter-rouge">VOLUME</code> instruction should be used to expose any database storage area,
+configuration storage, or files/folders created by your docker container. You
+are strongly encouraged to use <code class="highlighter-rouge">VOLUME</code> for any mutable and/or user-serviceable
+parts of your image.</p>
+
+<h3 id="user">USER</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#user">Dockerfile reference for the USER instruction</a></p>
+
+<p>If a service can run without privileges, use <code class="highlighter-rouge">USER</code> to change to a non-root
+user. Start by creating the user and group in the <code class="highlighter-rouge">Dockerfile</code> with something
+like <code class="highlighter-rouge">RUN groupadd -r postgres &amp;&amp; useradd --no-log-init -r -g postgres postgres</code>.</p>
+
+<blockquote>
+  <p>Consider an explicit UID/GID</p>
+
+  <p>Users and groups in an image are assigned a non-deterministic UID/GID in that
+the “next” UID/GID is assigned regardless of image rebuilds. So, if it’s
+critical, you should assign an explicit UID/GID.</p>
+</blockquote>
+
+<blockquote>
+  <p>Due to an <a href="https://github.com/golang/go/issues/13548">unresolved bug</a> in the
+Go archive/tar package’s handling of sparse files, attempting to create a user
+with a significantly large UID inside a Docker container can lead to disk
+exhaustion because <code class="highlighter-rouge">/var/log/faillog</code> in the container layer is filled with
+NULL (\0) characters. A workaround is to pass the <code class="highlighter-rouge">--no-log-init</code> flag to
+useradd. The Debian/Ubuntu <code class="highlighter-rouge">adduser</code> wrapper does not support this flag.</p>
+</blockquote>
+
+<p>Avoid installing or using <code class="highlighter-rouge">sudo</code> as it has unpredictable TTY and
+signal-forwarding behavior that can cause problems. If you absolutely need
+functionality similar to <code class="highlighter-rouge">sudo</code>, such as initializing the daemon as <code class="highlighter-rouge">root</code> but
+running it as non-<code class="highlighter-rouge">root</code>, consider using <a href="https://github.com/tianon/gosu">“gosu”</a>.</p>
+
+<p>Lastly, to reduce layers and complexity, avoid switching <code class="highlighter-rouge">USER</code> back and forth
+frequently.</p>
+
+<h3 id="workdir">WORKDIR</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#workdir">Dockerfile reference for the WORKDIR instruction</a></p>
+
+<p>For clarity and reliability, you should always use absolute paths for your
+<code class="highlighter-rouge">WORKDIR</code>. Also, you should use <code class="highlighter-rouge">WORKDIR</code> instead of  proliferating instructions
+like <code class="highlighter-rouge">RUN cd … &amp;&amp; do-something</code>, which are hard to read, troubleshoot, and
+maintain.</p>
+
+<h3 id="onbuild">ONBUILD</h3>
+
+<p><a href="../../../engine/reference/builder/index.html#onbuild">Dockerfile reference for the ONBUILD instruction</a></p>
+
+<p>An <code class="highlighter-rouge">ONBUILD</code> command executes after the current <code class="highlighter-rouge">Dockerfile</code> build completes.
+<code class="highlighter-rouge">ONBUILD</code> executes in any child image derived <code class="highlighter-rouge">FROM</code> the current image.  Think
+of the <code class="highlighter-rouge">ONBUILD</code> command as an instruction the parent <code class="highlighter-rouge">Dockerfile</code> gives
+to the child <code class="highlighter-rouge">Dockerfile</code>.</p>
+
+<p>A Docker build executes <code class="highlighter-rouge">ONBUILD</code> commands before any command in a child
+<code class="highlighter-rouge">Dockerfile</code>.</p>
+
+<p><code class="highlighter-rouge">ONBUILD</code> is useful for images that are going to be built <code class="highlighter-rouge">FROM</code> a given
+image. For example, you would use <code class="highlighter-rouge">ONBUILD</code> for a language stack image that
+builds arbitrary user software written in that language within the
+<code class="highlighter-rouge">Dockerfile</code>, as you can see in <a href="https://github.com/docker-library/ruby/blob/c43fef8a60cea31eb9e7d960a076d633cb62ba8d/2.4/jessie/onbuild/Dockerfile">Ruby’s <code class="highlighter-rouge">ONBUILD</code> variants</a>.</p>
+
+<p>Images built with <code class="highlighter-rouge">ONBUILD</code> should get a separate tag, for example:
+<code class="highlighter-rouge">ruby:1.9-onbuild</code> or <code class="highlighter-rouge">ruby:2.0-onbuild</code>.</p>
+
+<p>Be careful when putting <code class="highlighter-rouge">ADD</code> or <code class="highlighter-rouge">COPY</code> in <code class="highlighter-rouge">ONBUILD</code>. The “onbuild” image
+fails catastrophically if the new build’s context is missing the resource being
+added. Adding a separate tag, as recommended above, helps mitigate this by
+allowing the <code class="highlighter-rouge">Dockerfile</code> author to make a choice.</p>
+
+<h2 id="examples-of-docker-official-images">Examples of Docker Official Images</h2>
+
+<p>These Official Images have exemplary <code class="highlighter-rouge">Dockerfile</code>s:</p>
+
+<ul>
+  <li><a href="https://hub.docker.com/_/golang/">Go</a></li>
+  <li><a href="https://hub.docker.com/_/perl/">Perl</a></li>
+  <li><a href="https://hub.docker.com/_/hylang/">Hy</a></li>
+  <li><a href="https://hub.docker.com/_/ruby/">Ruby</a></li>
+</ul>
+
+<h2 id="additional-resources">Additional resources:</h2>
+
+<ul>
+  <li><a href="../../../engine/reference/builder/index.html">Dockerfile Reference</a></li>
+  <li><a href="../baseimages/index.html">More about Base Images</a></li>
+  <li><a href="../../../docker-hub/builds/index.html">More about Automated Builds</a></li>
+  <li><a href="../../../docker-hub/official_images/index.html">Guidelines for Creating Docker Official Images</a></li>
+  <li><a href="https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker" target="_blank" rel="noopener" class="_">Best practices to containerize Node.js web applications with Docker</a></li>
+</ul>
+
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=parent%20image.html">parent image</a>, <a href="../../../search/index.html%3Fq=images.html">images</a>, <a href="../../../search/index.html%3Fq=dockerfile.html">dockerfile</a>, <a href="../../../search/index.html%3Fq=best%20practices.html">best practices</a>, <a href="../../../search/index.html%3Fq=hub.html">hub</a>, <a href="../../../search/index.html%3Fq=official%20image.html">official image</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/develop/develop-images/dockerfile_best-practices.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [develop/develop-images/dockerfile_best-practices.md](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#general-guidelines-and-recommendations" class="nomunge">General guidelines and recommendations</a>
+    <ul>
+      <li><a href="index.html#create-ephemeral-containers" class="nomunge">Create ephemeral containers</a></li>
+      <li><a href="index.html#understand-build-context" class="nomunge">Understand build context</a></li>
+      <li><a href="index.html#pipe-dockerfile-through-stdin" class="nomunge">Pipe Dockerfile through stdin</a>
+        <ul>
+          <li><a href="index.html#build-an-image-using-a-dockerfile-from-stdin-without-sending-build-context" class="nomunge">Build an image using a Dockerfile from stdin, without sending build context</a></li>
+          <li><a href="index.html#build-from-a-local-build-context-using-a-dockerfile-from-stdin" class="nomunge">Build from a local build context, using a Dockerfile from stdin</a></li>
+          <li><a href="index.html#build-from-a-remote-build-context-using-a-dockerfile-from-stdin" class="nomunge">Build from a remote build context, using a Dockerfile from stdin</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#exclude-with-dockerignore" class="nomunge">Exclude with .dockerignore</a></li>
+      <li><a href="index.html#use-multi-stage-builds" class="nomunge">Use multi-stage builds</a></li>
+      <li><a href="index.html#dont-install-unnecessary-packages" class="nomunge">Don’t install unnecessary packages</a></li>
+      <li><a href="index.html#decouple-applications" class="nomunge">Decouple applications</a></li>
+      <li><a href="index.html#minimize-the-number-of-layers" class="nomunge">Minimize the number of layers</a></li>
+      <li><a href="index.html#sort-multi-line-arguments" class="nomunge">Sort multi-line arguments</a></li>
+      <li><a href="index.html#leverage-build-cache" class="nomunge">Leverage build cache</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#dockerfile-instructions" class="nomunge">Dockerfile instructions</a>
+    <ul>
+      <li><a href="index.html#from" class="nomunge">FROM</a></li>
+      <li><a href="index.html#label" class="nomunge">LABEL</a></li>
+      <li><a href="index.html#run" class="nomunge">RUN</a>
+        <ul>
+          <li><a href="index.html#apt-get" class="nomunge">apt-get</a></li>
+          <li><a href="index.html#using-pipes" class="nomunge">Using pipes</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#cmd" class="nomunge">CMD</a></li>
+      <li><a href="index.html#expose" class="nomunge">EXPOSE</a></li>
+      <li><a href="index.html#env" class="nomunge">ENV</a></li>
+      <li><a href="index.html#add-or-copy" class="nomunge">ADD or COPY</a></li>
+      <li><a href="index.html#entrypoint" class="nomunge">ENTRYPOINT</a></li>
+      <li><a href="index.html#volume" class="nomunge">VOLUME</a></li>
+      <li><a href="index.html#user" class="nomunge">USER</a></li>
+      <li><a href="index.html#workdir" class="nomunge">WORKDIR</a></li>
+      <li><a href="index.html#onbuild" class="nomunge">ONBUILD</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#examples-of-docker-official-images" class="nomunge">Examples of Docker Official Images</a></li>
+  <li><a href="index.html#additional-resources" class="nomunge">Additional resources:</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/develop/develop-images/dockerfile_best-practices/";</script></body>
+</html>

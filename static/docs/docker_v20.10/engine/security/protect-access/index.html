@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Protect the Docker daemon socket | Docker Documentation</title>
+  <meta name="description" content="How to setup and run Docker with SSH or HTTPS" />
+  <meta name="keywords" content="docker, docs, article, example, ssh, https, daemon, tls, ca,  certificate">
+  <link rel="canonical" href="https://localhost:4000/engine/security/protect-access/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Protect the Docker daemon socket"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Protect the Docker daemon socket" />
+  <meta property="og:description" content="How to setup and run Docker with SSH or HTTPS" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/security/protect-access/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Protect the Docker daemon socket","description":"How to setup and run Docker with SSH or HTTPS","url":"https://docs.docker.com/engine/security/protect-access/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../desktop/index.html">Manuals</a></li><li><a href="../../../security/index.html">Security</a></li><li><a href="../index.html">Docker Engine security</a></li><li><a href="index.html">Protect the Docker daemon socket</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Protect the Docker daemon socket</h1><p><em class="reading-time">Estimated reading time: 9 minutes</em></p><p>By default, Docker runs through a non-networked UNIX socket. It can also
+optionally communicate using SSH or a TLS (HTTPS) socket.</p>
+
+<h2 id="use-ssh-to-protect-the-docker-daemon-socket">Use SSH to protect the Docker daemon socket</h2>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>The given <code class="highlighter-rouge">USERNAME</code> must have permissions to access the docker socket on the
+remote machine. Refer to <a href="../../install/linux-postinstall/index.html#manage-docker-as-a-non-root-user">manage Docker as a non-root user</a>
+to learn how to give a non-root user access to the docker socket.</p>
+</blockquote>
+
+<p>The following example creates a <a href="../../context/working-with-contexts/index.html"><code class="highlighter-rouge">docker context</code></a>
+to connect with a remote <code class="highlighter-rouge">dockerd</code> daemon on <code class="highlighter-rouge">host1.example.com</code> using SSH, and
+as the <code class="highlighter-rouge">docker-user</code> user on the remote machine:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker context create <span class="se">\</span>
+    <span class="nt">--docker</span> <span class="nv">host</span><span class="o">=</span>ssh://docker-user@host1.example.com <span class="se">\</span>
+    <span class="nt">--description</span><span class="o">=</span><span class="s2">"Remote engine"</span> <span class="se">\</span>
+    my-remote-engine
+<span class="go">
+my-remote-engine
+Successfully created context "my-remote-engine"
+</span></code></pre></div></div>
+
+<p>After creating the context, use <code class="highlighter-rouge">docker context use</code> to switch the <code class="highlighter-rouge">docker</code> CLI
+to use it, and to connect to the remote engine:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker context use my-remote-engine
+<span class="go">my-remote-engine
+Current context is now "my-remote-engine"
+
+</span><span class="gp">$</span> docker info
+<span class="gp">&lt;prints output of the remote engine&gt;</span>
+</code></pre></div></div>
+
+<p>Use the <code class="highlighter-rouge">default</code> context to switch back to the default (local) daemon:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker context use default
+<span class="go">default
+Current context is now "default"
+</span></code></pre></div></div>
+
+<p>Alternatively, use the <code class="highlighter-rouge">DOCKER_HOST</code> environment variable to temporarily switch
+the <code class="highlighter-rouge">docker</code> CLI to connect to the remote host using SSH. This does not require
+creating a context, and can be useful to create an ad-hoc connection with a different
+engine:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">export </span><span class="nv">DOCKER_HOST</span><span class="o">=</span>ssh://docker-user@host1.example.com
+<span class="gp">$</span> docker info
+<span class="gp">&lt;prints output of the remote engine&gt;</span>
+</code></pre></div></div>
+
+<h3 id="ssh-tips">SSH Tips</h3>
+
+<p>For the best user experience with SSH, configure <code class="highlighter-rouge">~/.ssh/config</code> as follows to allow
+reusing a SSH connection for multiple invocations of the <code class="highlighter-rouge">docker</code> CLI:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ControlMaster     auto
+ControlPath       ~/.ssh/control-%C
+ControlPersist    yes
+</code></pre></div></div>
+
+<h2 id="use-tls-https-to-protect-the-docker-daemon-socket">Use TLS (HTTPS) to protect the Docker daemon socket</h2>
+
+<p>If you need Docker to be reachable through HTTP rather than SSH in a safe manner,
+you can enable TLS (HTTPS) by specifying the <code class="highlighter-rouge">tlsverify</code> flag and pointing Docker’s
+<code class="highlighter-rouge">tlscacert</code> flag to a trusted CA certificate.</p>
+
+<p>In the daemon mode, it only allows connections from clients
+authenticated by a certificate signed by that CA. In the client mode,
+it only connects to servers with a certificate signed by that CA.</p>
+
+<blockquote class="important">
+  <p>Advanced topic</p>
+
+  <p>Using TLS and managing a CA is an advanced topic. Please familiarize yourself
+with OpenSSL, x509, and TLS before using it in production.</p>
+</blockquote>
+
+<h3 id="create-a-ca-server-and-client-keys-with-openssl">Create a CA, server and client keys with OpenSSL</h3>
+
+<blockquote>
+  <p><strong>Note</strong>: Replace all instances of <code class="highlighter-rouge">$HOST</code> in the following example with the
+DNS name of your Docker daemon’s host.</p>
+</blockquote>
+
+<p>First, on the <strong>Docker daemon’s host machine</strong>, generate CA private and public keys:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl genrsa <span class="nt">-aes256</span> <span class="nt">-out</span> ca-key.pem 4096
+<span class="go">Generating RSA private key, 4096 bit long modulus
+..............................................................................++
+........++
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
+
+</span><span class="gp">$</span> openssl req <span class="nt">-new</span> <span class="nt">-x509</span> <span class="nt">-days</span> 365 <span class="nt">-key</span> ca-key.pem <span class="nt">-sha256</span> <span class="nt">-out</span> ca.pem
+<span class="go">Enter pass phrase for ca-key.pem:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:
+State or Province Name (full name) [Some-State]:Queensland
+Locality Name (eg, city) []:Brisbane
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Docker Inc
+Organizational Unit Name (eg, section) []:Sales
+</span><span class="gp">Common Name (e.g. server FQDN or YOUR name) []:$</span>HOST
+<span class="go">Email Address []:Sven@home.org.au
+</span></code></pre></div></div>
+
+<p>Now that you have a CA, you can create a server key and certificate
+signing request (CSR). Make sure that “Common Name” matches the hostname you use
+to connect to Docker:</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Replace all instances of <code class="highlighter-rouge">$HOST</code> in the following example with the
+DNS name of your Docker daemon’s host.</p>
+</blockquote>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl genrsa <span class="nt">-out</span> server-key.pem 4096
+<span class="go">Generating RSA private key, 4096 bit long modulus
+.....................................................................++
+.................................................................................................++
+e is 65537 (0x10001)
+
+</span><span class="gp">$</span> openssl req <span class="nt">-subj</span> <span class="s2">"/CN=</span><span class="nv">$HOST</span><span class="s2">"</span> <span class="nt">-sha256</span> <span class="nt">-new</span> <span class="nt">-key</span> server-key.pem <span class="nt">-out</span> server.csr
+</code></pre></div></div>
+
+<p>Next, we’re going to sign the public key with our CA:</p>
+
+<p>Since TLS connections can be made through IP address as well as DNS name, the IP addresses
+need to be specified when creating the certificate. For example, to allow connections
+using <code class="highlighter-rouge">10.10.10.20</code> and <code class="highlighter-rouge">127.0.0.1</code>:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">echo </span>subjectAltName <span class="o">=</span> DNS:<span class="nv">$HOST</span>,IP:10.10.10.20,IP:127.0.0.1 <span class="o">&gt;&gt;</span> extfile.cnf
+</code></pre></div></div>
+
+<p>Set the Docker daemon key’s extended usage attributes to be used only for
+server authentication:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf
+</code></pre></div></div>
+
+<p>Now, generate the signed certificate:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl x509 <span class="nt">-req</span> <span class="nt">-days</span> 365 <span class="nt">-sha256</span> <span class="nt">-in</span> server.csr <span class="nt">-CA</span> ca.pem <span class="nt">-CAkey</span> ca-key.pem <span class="se">\</span>
+  <span class="nt">-CAcreateserial</span> <span class="nt">-out</span> server-cert.pem <span class="nt">-extfile</span> extfile.cnf
+<span class="go">Signature ok
+subject=/CN=your.host.com
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+</span></code></pre></div></div>
+
+<p><a href="../../extend/plugins_authorization/index.html">Authorization plugins</a> offer more
+fine-grained control to supplement authentication from mutual TLS. In addition
+to other information described in the above document, authorization plugins
+running on a Docker daemon receive the certificate information for connecting
+Docker clients.</p>
+
+<p>For client authentication, create a client key and certificate signing
+request:</p>
+
+<blockquote>
+  <p><strong>Note</strong>: For simplicity of the next couple of steps, you may perform this
+step on the Docker daemon’s host machine as well.</p>
+</blockquote>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl genrsa <span class="nt">-out</span> key.pem 4096
+<span class="go">Generating RSA private key, 4096 bit long modulus
+.........................................................++
+................++
+e is 65537 (0x10001)
+
+</span><span class="gp">$</span> openssl req <span class="nt">-subj</span> <span class="s1">'/CN=client'</span> <span class="nt">-new</span> <span class="nt">-key</span> key.pem <span class="nt">-out</span> client.csr
+</code></pre></div></div>
+
+<p>To make the key suitable for client authentication, create a new extensions
+config file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf
+</code></pre></div></div>
+
+<p>Now, generate the signed certificate:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl x509 <span class="nt">-req</span> <span class="nt">-days</span> 365 <span class="nt">-sha256</span> <span class="nt">-in</span> client.csr <span class="nt">-CA</span> ca.pem <span class="nt">-CAkey</span> ca-key.pem <span class="se">\</span>
+  <span class="nt">-CAcreateserial</span> <span class="nt">-out</span> cert.pem <span class="nt">-extfile</span> extfile-client.cnf
+<span class="go">Signature ok
+subject=/CN=client
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+</span></code></pre></div></div>
+
+<p>After generating <code class="highlighter-rouge">cert.pem</code> and <code class="highlighter-rouge">server-cert.pem</code> you can safely remove the
+two certificate signing requests and extensions config files:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> rm <span class="nt">-v</span> client.csr server.csr extfile.cnf extfile-client.cnf
+</code></pre></div></div>
+
+<p>With a default <code class="highlighter-rouge">umask</code> of 022, your secret keys are <em>world-readable</em> and
+writable for you and your group.</p>
+
+<p>To protect your keys from accidental damage, remove their
+write permissions. To make them only readable by you, change file modes as follows:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> chmod <span class="nt">-v</span> 0400 ca-key.pem key.pem server-key.pem
+</code></pre></div></div>
+
+<p>Certificates can be world-readable, but you might want to remove write access to
+prevent accidental damage:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> chmod <span class="nt">-v</span> 0444 ca.pem server-cert.pem cert.pem
+</code></pre></div></div>
+
+<p>Now you can make the Docker daemon only accept connections from clients
+providing a certificate trusted by your CA:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> dockerd <span class="se">\</span>
+    <span class="nt">--tlsverify</span> <span class="se">\</span>
+    <span class="nt">--tlscacert</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--tlscert</span><span class="o">=</span>server-cert.pem <span class="se">\</span>
+    <span class="nt">--tlskey</span><span class="o">=</span>server-key.pem <span class="se">\</span>
+    <span class="nt">-H</span><span class="o">=</span>0.0.0.0:2376
+</code></pre></div></div>
+
+<p>To connect to Docker and validate its certificate, provide your client keys,
+certificates and trusted CA:</p>
+
+<blockquote>
+  <p>Run it on the client machine</p>
+
+  <p>This step should be run on your Docker client machine. As such, you
+need to copy your CA certificate, your server certificate, and your client
+certificate to that machine.</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>Note</strong>: Replace all instances of <code class="highlighter-rouge">$HOST</code> in the following example with the
+DNS name of your Docker daemon’s host.</p>
+</blockquote>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker <span class="nt">--tlsverify</span> <span class="se">\</span>
+    <span class="nt">--tlscacert</span><span class="o">=</span>ca.pem <span class="se">\</span>
+    <span class="nt">--tlscert</span><span class="o">=</span>cert.pem <span class="se">\</span>
+    <span class="nt">--tlskey</span><span class="o">=</span>key.pem <span class="se">\</span>
+    <span class="nt">-H</span><span class="o">=</span><span class="nv">$HOST</span>:2376 version
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong>:
+Docker over TLS should run on TCP port 2376.</p>
+</blockquote>
+
+<blockquote class="warning">
+  <p><strong>Warning</strong>:
+As shown in the example above, you don’t need to run the <code class="highlighter-rouge">docker</code> client
+with <code class="highlighter-rouge">sudo</code> or the <code class="highlighter-rouge">docker</code> group when you use certificate authentication.
+That means anyone with the keys can give any instructions to your Docker
+daemon, giving them root access to the machine hosting the daemon. Guard
+these keys as you would a root password!</p>
+</blockquote>
+
+<h3 id="secure-by-default">Secure by default</h3>
+
+<p>If you want to secure your Docker client connections by default, you can move
+the files to the <code class="highlighter-rouge">.docker</code> directory in your home directory --- and set the
+<code class="highlighter-rouge">DOCKER_HOST</code> and <code class="highlighter-rouge">DOCKER_TLS_VERIFY</code> variables as well (instead of passing
+<code class="highlighter-rouge">-H=tcp://$HOST:2376</code> and <code class="highlighter-rouge">--tlsverify</code> on every call).</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> mkdir <span class="nt">-pv</span> ~/.docker
+<span class="gp">$</span> cp <span class="nt">-v</span> <span class="o">{</span>ca,cert,key<span class="o">}</span>.pem ~/.docker
+<span class="go">
+</span><span class="gp">$</span> <span class="nb">export </span><span class="nv">DOCKER_HOST</span><span class="o">=</span>tcp://<span class="nv">$HOST</span>:2376 <span class="nv">DOCKER_TLS_VERIFY</span><span class="o">=</span>1
+</code></pre></div></div>
+
+<p>Docker now connects securely by default:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker ps
+</code></pre></div></div>
+
+<h3 id="other-modes">Other modes</h3>
+
+<p>If you don’t want to have complete two-way authentication, you can run
+Docker in various other modes by mixing the flags.</p>
+
+<h4 id="daemon-modes">Daemon modes</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">tlsverify</code>, <code class="highlighter-rouge">tlscacert</code>, <code class="highlighter-rouge">tlscert</code>, <code class="highlighter-rouge">tlskey</code> set: Authenticate clients</li>
+  <li><code class="highlighter-rouge">tls</code>, <code class="highlighter-rouge">tlscert</code>, <code class="highlighter-rouge">tlskey</code>: Do not authenticate clients</li>
+</ul>
+
+<h4 id="client-modes">Client modes</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">tls</code>: Authenticate server based on public/default CA pool</li>
+  <li><code class="highlighter-rouge">tlsverify</code>, <code class="highlighter-rouge">tlscacert</code>: Authenticate server based on given CA</li>
+  <li><code class="highlighter-rouge">tls</code>, <code class="highlighter-rouge">tlscert</code>, <code class="highlighter-rouge">tlskey</code>: Authenticate with client certificate, do not
+authenticate server based on given CA</li>
+  <li><code class="highlighter-rouge">tlsverify</code>, <code class="highlighter-rouge">tlscacert</code>, <code class="highlighter-rouge">tlscert</code>, <code class="highlighter-rouge">tlskey</code>: Authenticate with client
+certificate and authenticate server based on given CA</li>
+</ul>
+
+<p>If found, the client sends its client certificate, so you just need
+to drop your keys into <code class="highlighter-rouge">~/.docker/{ca,cert,key}.pem</code>. Alternatively,
+if you want to store your keys in another location, you can specify that
+location using the environment variable <code class="highlighter-rouge">DOCKER_CERT_PATH</code>.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">export </span><span class="nv">DOCKER_CERT_PATH</span><span class="o">=</span>~/.docker/zone1/
+<span class="gp">$</span> docker <span class="nt">--tlsverify</span> ps
+</code></pre></div></div>
+
+<h4 id="connecting-to-the-secure-docker-port-using-curl">Connecting to the secure Docker port using <code class="highlighter-rouge">curl</code></h4>
+
+<p>To use <code class="highlighter-rouge">curl</code> to make test API requests, you need to use three extra command line
+flags:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl https://<span class="nv">$HOST</span>:2376/images/json <span class="se">\</span>
+  <span class="nt">--cert</span> ~/.docker/cert.pem <span class="se">\</span>
+  <span class="nt">--key</span> ~/.docker/key.pem <span class="se">\</span>
+  <span class="nt">--cacert</span> ~/.docker/ca.pem
+</code></pre></div></div>
+
+<h2 id="related-information">Related information</h2>
+
+<ul>
+  <li><a href="../certificates/index.html">Using certificates for repository client verification</a></li>
+  <li><a href="../trust/index.html">Use trusted images</a></li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=docs.html">docs</a>, <a href="../../../search/index.html%3Fq=article.html">article</a>, <a href="../../../search/index.html%3Fq=example.html">example</a>, <a href="../../../search/index.html%3Fq=ssh.html">ssh</a>, <a href="../../../search/index.html%3Fq=https.html">https</a>, <a href="../../../search/index.html%3Fq=daemon.html">daemon</a>, <a href="../../../search/index.html%3Fq=tls.html">tls</a>, <a href="../../../search/index.html%3Fq=ca.html">ca</a>, <a href="../../../search/index.html%3Fq=certificate.html">certificate</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/security/protect-access.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/security/protect-access.md](https://docs.docker.com/engine/security/protect-access/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#use-ssh-to-protect-the-docker-daemon-socket" class="nomunge">Use SSH to protect the Docker daemon socket</a>
+    <ul>
+      <li><a href="index.html#ssh-tips" class="nomunge">SSH Tips</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#use-tls-https-to-protect-the-docker-daemon-socket" class="nomunge">Use TLS (HTTPS) to protect the Docker daemon socket</a>
+    <ul>
+      <li><a href="index.html#create-a-ca-server-and-client-keys-with-openssl" class="nomunge">Create a CA, server and client keys with OpenSSL</a></li>
+      <li><a href="index.html#secure-by-default" class="nomunge">Secure by default</a></li>
+      <li><a href="index.html#other-modes" class="nomunge">Other modes</a>
+        <ul>
+          <li><a href="index.html#daemon-modes" class="nomunge">Daemon modes</a></li>
+          <li><a href="index.html#client-modes" class="nomunge">Client modes</a></li>
+          <li><a href="index.html#connecting-to-the-secure-docker-port-using-curl" class="nomunge">Connecting to the secure Docker port using curl</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="index.html#related-information" class="nomunge">Related information</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/security/protect-access/";</script></body>
+</html>

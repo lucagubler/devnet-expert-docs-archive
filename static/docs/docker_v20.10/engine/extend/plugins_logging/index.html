@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Docker log driver plugins | Docker Documentation</title>
+  <meta name="description" content="Log driver plugins." />
+  <meta name="keywords" content="Examples, Usage, plugins, docker, documentation, user guide, logging">
+  <link rel="canonical" href="https://localhost:4000/engine/extend/plugins_logging/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Docker log driver plugins"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Docker log driver plugins" />
+  <meta property="og:description" content="Log driver plugins." />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/extend/plugins_logging/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Docker log driver plugins","description":"Log driver plugins.","url":"https://docs.docker.com/engine/extend/plugins_logging/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+</div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><p><em class="reading-time">Estimated reading time: 6 minutes</em></p><!-- This file is maintained within the docker/cli GitHub
+     repository at https://github.com/docker/cli/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
+
+<h1 id="docker-log-driver-plugins">Docker log driver plugins</h1>
+
+<p>This document describes logging driver plugins for Docker.</p>
+
+<p>Logging drivers enables users to forward container logs to another service for
+processing. Docker includes several logging drivers as built-ins, however can
+never hope to support all use-cases with built-in drivers. Plugins allow Docker
+to support a wide range of logging services without requiring to embed client
+libraries for these services in the main Docker codebase. See the
+<a href="../legacy_plugins/index.html">plugin documentation</a> for more information.</p>
+
+<h2 id="create-a-logging-plugin">Create a logging plugin</h2>
+
+<p>The main interface for logging plugins uses the same JSON+HTTP RPC protocol used
+by other plugin types. See the
+<a href="https://github.com/cpuguy83/docker-log-driver-test">example</a> plugin for a
+reference implementation of a logging plugin. The example wraps the built-in
+<code class="highlighter-rouge">jsonfilelog</code> log driver.</p>
+
+<h2 id="logdriver-protocol">LogDriver protocol</h2>
+
+<p>Logging plugins must register as a <code class="highlighter-rouge">LogDriver</code> during plugin activation. Once
+activated users can specify the plugin as a log driver.</p>
+
+<p>There are two HTTP endpoints that logging plugins must implement:</p>
+
+<h3 id="logdriverstartlogging"><code class="highlighter-rouge">/LogDriver.StartLogging</code></h3>
+
+<p>Signals to the plugin that a container is starting that the plugin should start
+receiving logs for.</p>
+
+<p>Logs will be streamed over the defined file in the request. On Linux this file
+is a FIFO. Logging plugins are not currently supported on Windows.</p>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+		</span><span class="s2">"File"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/file/stream"</span><span class="p">,</span><span class="w">
+		</span><span class="s2">"Info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+			</span><span class="s2">"ContainerID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span class="w">
+		</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">File</code> is the path to the log stream that needs to be consumed. Each call to
+<code class="highlighter-rouge">StartLogging</code> should provide a different file path, even if it’s a container
+that the plugin has already received logs for prior. The file is created by
+docker with a randomly generated name.</p>
+
+<p><code class="highlighter-rouge">Info</code> is details about the container that’s being logged. This is fairly
+free-form, but is defined by the following struct definition:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">Info</span><span class="x"> </span><span class="k">struct</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">Config</span><span class="x">              </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerID</span><span class="x">         </span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerName</span><span class="x">       </span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerEntrypoint</span><span class="x"> </span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerArgs</span><span class="x">       </span><span class="p">[]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerImageID</span><span class="x">    </span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerImageName</span><span class="x">  </span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerCreated</span><span class="x">    </span><span class="n">time</span><span class="o">.</span><span class="n">Time</span><span class="x">
+	</span><span class="n">ContainerEnv</span><span class="x">        </span><span class="p">[]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">ContainerLabels</span><span class="x">     </span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="x">
+	</span><span class="n">LogPath</span><span class="x">             </span><span class="kt">string</span><span class="x">
+	</span><span class="n">DaemonName</span><span class="x">          </span><span class="kt">string</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">ContainerID</code> will always be supplied with this struct, but other fields may be
+empty or missing.</p>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+	</span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If an error occurred during this request, add an error message to the <code class="highlighter-rouge">Err</code> field
+in the response. If no error then you can either send an empty response (<code class="highlighter-rouge">{}</code>)
+or an empty value for the <code class="highlighter-rouge">Err</code> field.</p>
+
+<p>The driver should at this point be consuming log messages from the passed in file.
+If messages are unconsumed, it may cause the container to block while trying to
+write to its stdio streams.</p>
+
+<p>Log stream messages are encoded as protocol buffers. The protobuf definitions are
+in the
+<a href="https://github.com/docker/docker/blob/master/api/types/plugins/logdriver/entry.proto">docker repository</a>.</p>
+
+<p>Since protocol buffers are not self-delimited you must decode them from the stream
+using the following stream format:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[size][message]
+</code></pre></div></div>
+
+<p>Where <code class="highlighter-rouge">size</code> is a 4-byte big endian binary encoded uint32. <code class="highlighter-rouge">size</code> in this case
+defines the size of the next message. <code class="highlighter-rouge">message</code> is the actual log entry.</p>
+
+<p>A reference golang implementation of a stream encoder/decoder can be found
+<a href="https://github.com/docker/docker/blob/master/api/types/plugins/logdriver/io.go">here</a></p>
+
+<h3 id="logdriverstoplogging"><code class="highlighter-rouge">/LogDriver.StopLogging</code></h3>
+
+<p>Signals to the plugin to stop collecting logs from the defined file.
+Once a response is received, the file will be removed by Docker. You must make
+sure to collect all logs on the stream before responding to this request or risk
+losing log data.</p>
+
+<p>Requests on this endpoint does not mean that the container has been removed
+only that it has stopped.</p>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+		</span><span class="s2">"File"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/file/stream"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+	</span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If an error occurred during this request, add an error message to the <code class="highlighter-rouge">Err</code> field
+in the response. If no error then you can either send an empty response (<code class="highlighter-rouge">{}</code>)
+or an empty value for the <code class="highlighter-rouge">Err</code> field.</p>
+
+<h2 id="optional-endpoints">Optional endpoints</h2>
+
+<p>Logging plugins can implement two extra logging endpoints:</p>
+
+<h3 id="logdrivercapabilities"><code class="highlighter-rouge">/LogDriver.Capabilities</code></h3>
+
+<p>Defines the capabilities of the log driver. You must implement this endpoint for
+Docker to be able to take advantage of any of the defined capabilities.</p>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+	</span><span class="s2">"ReadLogs"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Supported capabilities:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">ReadLogs</code> - this tells Docker that the plugin is capable of reading back logs
+to clients. Plugins that report that they support <code class="highlighter-rouge">ReadLogs</code> must implement the
+<code class="highlighter-rouge">/LogDriver.ReadLogs</code> endpoint</li>
+</ul>
+
+<h3 id="logdriverreadlogs"><code class="highlighter-rouge">/LogDriver.ReadLogs</code></h3>
+
+<p>Reads back logs to the client. This is used when <code class="highlighter-rouge">docker logs &lt;container&gt;</code> is
+called.</p>
+
+<p>In order for Docker to use this endpoint, the plugin must specify as much when
+<code class="highlighter-rouge">/LogDriver.Capabilities</code> is called.</p>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+	</span><span class="s2">"ReadConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+	</span><span class="s2">"Info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="s2">"ContainerID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123456"</span><span class="w">
+	</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">ReadConfig</code> is the list of options for reading, it is defined with the following
+golang struct:</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span><span class="x"> </span><span class="n">ReadConfig</span><span class="x"> </span><span class="k">struct</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">Since</span><span class="x">  </span><span class="n">time</span><span class="o">.</span><span class="n">Time</span><span class="x">
+	</span><span class="n">Tail</span><span class="x">   </span><span class="kt">int</span><span class="x">
+	</span><span class="n">Follow</span><span class="x"> </span><span class="kt">bool</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div></div>
+
+<ul>
+  <li><code class="highlighter-rouge">Since</code> defines the oldest log that should be sent.</li>
+  <li><code class="highlighter-rouge">Tail</code> defines the number of lines to read (e.g. like the command <code class="highlighter-rouge">tail -n 10</code>)</li>
+  <li><code class="highlighter-rouge">Follow</code> signals that the client wants to stay attached to receive new log messages
+as they come in once the existing logs have been read.</li>
+</ul>
+
+<p><code class="highlighter-rouge">Info</code> is the same type defined in <code class="highlighter-rouge">/LogDriver.StartLogging</code>. It should be used
+to determine what set of logs to read.</p>
+
+<p><strong>Response</strong>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{ log stream }}
+</code></pre></div></div>
+
+<p>The response should be the encoded log message using the same format as the
+messages that the plugin consumed from Docker.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=Examples.html">Examples</a>, <a href="../../../search/index.html%3Fq=Usage.html">Usage</a>, <a href="../../../search/index.html%3Fq=plugins.html">plugins</a>, <a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=documentation.html">documentation</a>, <a href="../../../search/index.html%3Fq=user%20guide.html">user guide</a>, <a href="../../../search/index.html%3Fq=logging.html">logging</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/extend/plugins_logging.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/extend/plugins_logging.md](https://docs.docker.com/engine/extend/plugins_logging/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#create-a-logging-plugin" class="nomunge">Create a logging plugin</a></li>
+  <li><a href="index.html#logdriver-protocol" class="nomunge">LogDriver protocol</a>
+    <ul>
+      <li><a href="index.html#logdriverstartlogging" class="nomunge">/LogDriver.StartLogging</a></li>
+      <li><a href="index.html#logdriverstoplogging" class="nomunge">/LogDriver.StopLogging</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#optional-endpoints" class="nomunge">Optional endpoints</a>
+    <ul>
+      <li><a href="index.html#logdrivercapabilities" class="nomunge">/LogDriver.Capabilities</a></li>
+      <li><a href="index.html#logdriverreadlogs" class="nomunge">/LogDriver.ReadLogs</a></li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/extend/plugins_logging/";</script></body>
+</html>

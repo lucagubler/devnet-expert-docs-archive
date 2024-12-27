@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>AppArmor security profiles for Docker | Docker Documentation</title>
+  <meta name="description" content="Enabling AppArmor in Docker" />
+  <meta name="keywords" content="AppArmor, security, docker, documentation">
+  <link rel="canonical" href="https://localhost:4000/engine/security/apparmor/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="AppArmor security profiles for Docker"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="AppArmor security profiles for Docker" />
+  <meta property="og:description" content="Enabling AppArmor in Docker" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/security/apparmor/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"AppArmor security profiles for Docker","description":"Enabling AppArmor in Docker","url":"https://docs.docker.com/engine/security/apparmor/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../desktop/index.html">Manuals</a></li><li><a href="../../../security/index.html">Security</a></li><li><a href="../index.html">Docker Engine security</a></li><li><a href="index.html">AppArmor security profiles</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>AppArmor security profiles for Docker</h1><p><em class="reading-time">Estimated reading time: 6 minutes</em></p><p>AppArmor (Application Armor) is a Linux security module that protects an
+operating system and its applications from security threats. To use it, a system
+administrator associates an AppArmor security profile with each program. Docker
+expects to find an AppArmor policy loaded and enforced.</p>
+
+<p>Docker automatically generates and loads a default profile for containers named
+<code class="highlighter-rouge">docker-default</code>. The Docker binary generates this profile in <code class="highlighter-rouge">tmpfs</code> and then
+loads it into the kernel.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: This profile is used on containers, <em>not</em> on the Docker Daemon.</p>
+</blockquote>
+
+<p>A profile for the Docker Engine daemon exists but it is not currently installed
+with the <code class="highlighter-rouge">deb</code> packages. If you are interested in the source for the daemon
+profile, it is located in
+<a href="https://github.com/moby/moby/tree/master/contrib/apparmor">contrib/apparmor</a>
+in the Docker Engine source repository.</p>
+
+<h2 id="understand-the-policies">Understand the policies</h2>
+
+<p>The <code class="highlighter-rouge">docker-default</code> profile is the default for running containers. It is
+moderately protective while providing wide application compatibility. The
+profile is generated from the following
+<a href="https://github.com/moby/moby/blob/master/profiles/apparmor/template.go">template</a>.</p>
+
+<p>When you run a container, it uses the <code class="highlighter-rouge">docker-default</code> policy unless you
+override it with the <code class="highlighter-rouge">security-opt</code> option. For example, the following
+explicitly specifies the default policy:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nt">-it</span> <span class="nt">--security-opt</span> <span class="nv">apparmor</span><span class="o">=</span>docker-default hello-world
+</code></pre></div></div>
+
+<h2 id="load-and-unload-profiles">Load and unload profiles</h2>
+
+<p>To load a new profile into AppArmor for use with containers:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> apparmor_parser <span class="nt">-r</span> <span class="nt">-W</span> /path/to/your_profile
+</code></pre></div></div>
+
+<p>Then, run the custom profile with <code class="highlighter-rouge">--security-opt</code> like so:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nt">-it</span> <span class="nt">--security-opt</span> <span class="nv">apparmor</span><span class="o">=</span>your_profile hello-world
+</code></pre></div></div>
+
+<p>To unload a profile from AppArmor:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> unload the profile
+<span class="gp">$</span> apparmor_parser <span class="nt">-R</span> /path/to/profile
+</code></pre></div></div>
+
+<h3 id="resources-for-writing-profiles">Resources for writing profiles</h3>
+
+<p>The syntax for file globbing in AppArmor is a bit different than some other
+globbing implementations. It is highly suggested you take a look at some of the
+below resources with regard to AppArmor profile syntax.</p>
+
+<ul>
+  <li><a href="https://gitlab.com/apparmor/apparmor/wikis/QuickProfileLanguage">Quick Profile Language</a></li>
+  <li><a href="https://gitlab.com/apparmor/apparmor/wikis/AppArmor_Core_Policy_Reference#AppArmor_globbing_syntax">Globbing Syntax</a></li>
+</ul>
+
+<h2 id="nginx-example-profile">Nginx example profile</h2>
+
+<p>In this example, you create a custom AppArmor profile for Nginx. Below is the
+custom profile.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;tunables/global&gt;
+
+
+profile docker-nginx flags=(attach_disconnected,mediate_deleted) {
+  #include &lt;abstractions/base&gt;
+
+  network inet tcp,
+  network inet udp,
+  network inet icmp,
+
+  deny network raw,
+
+  deny network packet,
+
+  file,
+  umount,
+
+  deny /bin/** wl,
+  deny /boot/** wl,
+  deny /dev/** wl,
+  deny /etc/** wl,
+  deny /home/** wl,
+  deny /lib/** wl,
+  deny /lib64/** wl,
+  deny /media/** wl,
+  deny /mnt/** wl,
+  deny /opt/** wl,
+  deny /proc/** wl,
+  deny /root/** wl,
+  deny /sbin/** wl,
+  deny /srv/** wl,
+  deny /tmp/** wl,
+  deny /sys/** wl,
+  deny /usr/** wl,
+
+  audit /** w,
+
+  /var/run/nginx.pid w,
+
+  /usr/sbin/nginx ix,
+
+  deny /bin/dash mrwklx,
+  deny /bin/sh mrwklx,
+  deny /usr/bin/top mrwklx,
+
+
+  capability chown,
+  capability dac_override,
+  capability setuid,
+  capability setgid,
+  capability net_bind_service,
+
+  deny @{PROC}/* w,   # deny write for all files directly in /proc (not in a subdir)
+  # deny write to files not in /proc/&lt;number&gt;/** or /proc/sys/**
+  deny @{PROC}/{[^1-9],[^1-9][^0-9],[^1-9s][^0-9y][^0-9s],[^1-9][^0-9][^0-9][^0-9]*}/** w,
+  deny @{PROC}/sys/[^k]** w,  # deny /proc/sys except /proc/sys/k* (effectively /proc/sys/kernel)
+  deny @{PROC}/sys/kernel/{?,??,[^s][^h][^m]**} w,  # deny everything except shm* in /proc/sys/kernel/
+  deny @{PROC}/sysrq-trigger rwklx,
+  deny @{PROC}/mem rwklx,
+  deny @{PROC}/kmem rwklx,
+  deny @{PROC}/kcore rwklx,
+
+  deny mount,
+
+  deny /sys/[^f]*/** wklx,
+  deny /sys/f[^s]*/** wklx,
+  deny /sys/fs/[^c]*/** wklx,
+  deny /sys/fs/c[^g]*/** wklx,
+  deny /sys/fs/cg[^r]*/** wklx,
+  deny /sys/firmware/** rwklx,
+  deny /sys/kernel/security/** rwklx,
+}
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>Save the custom profile to disk in the
+<code class="highlighter-rouge">/etc/apparmor.d/containers/docker-nginx</code> file.</p>
+
+    <p>The file path in this example is not a requirement. In production, you could
+use another.</p>
+  </li>
+  <li>
+    <p>Load the profile.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>apparmor_parser <span class="nt">-r</span> <span class="nt">-W</span> /etc/apparmor.d/containers/docker-nginx
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run a container with the profile.</p>
+
+    <p>To run nginx in detached mode:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--security-opt</span> <span class="s2">"apparmor=docker-nginx"</span> <span class="se">\</span>
+     <span class="nt">-p</span> 80:80 <span class="nt">-d</span> <span class="nt">--name</span> apparmor-nginx nginx
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Exec into the running container.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container <span class="nb">exec</span> <span class="nt">-it</span> apparmor-nginx bash
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Try some operations to test the profile.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">root@6da5a2a930b9:~#</span> ping 8.8.8.8
+<span class="go">ping: Lacking privilege for raw socket.
+
+</span><span class="gp">root@6da5a2a930b9:/#</span> top
+<span class="go">bash: /usr/bin/top: Permission denied
+
+</span><span class="gp">root@6da5a2a930b9:~#</span> touch ~/thing
+<span class="go">touch: cannot touch 'thing': Permission denied
+
+</span><span class="gp">root@6da5a2a930b9:/#</span> sh
+<span class="go">bash: /bin/sh: Permission denied
+
+</span><span class="gp">root@6da5a2a930b9:/#</span> dash
+<span class="go">bash: /bin/dash: Permission denied
+</span></code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>Congrats! You just deployed a container secured with a custom apparmor profile!</p>
+
+<h2 id="debug-apparmor">Debug AppArmor</h2>
+
+<p>You can use <code class="highlighter-rouge">dmesg</code> to debug problems and <code class="highlighter-rouge">aa-status</code> check the loaded profiles.</p>
+
+<h3 id="use-dmesg">Use dmesg</h3>
+
+<p>Here are some helpful tips for debugging any problems you might be facing with
+regard to AppArmor.</p>
+
+<p>AppArmor sends quite verbose messaging to <code class="highlighter-rouge">dmesg</code>. Usually an AppArmor line
+looks like the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 5442.864673] audit: type=1400 audit(1453830992.845:37): apparmor="ALLOWED" operation="open" profile="/usr/bin/docker" name="/home/jessie/docker/man/man1/docker-attach.1" pid=10923 comm="docker" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+</code></pre></div></div>
+
+<p>In the above example, you can see <code class="highlighter-rouge">profile=/usr/bin/docker</code>. This means the
+user has the <code class="highlighter-rouge">docker-engine</code> (Docker Engine Daemon) profile loaded.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: On version of Ubuntu &gt; 14.04 this is all fine and well, but Trusty
+users might run into some issues when trying to <code class="highlighter-rouge">docker container exec</code>.</p>
+</blockquote>
+
+<p>Look at another log line:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 3256.689120] type=1400 audit(1405454041.341:73): apparmor="DENIED" operation="ptrace" profile="docker-default" pid=17651 comm="docker" requested_mask="receive" denied_mask="receive"
+</code></pre></div></div>
+
+<p>This time the profile is <code class="highlighter-rouge">docker-default</code>, which is run on containers by
+default unless in <code class="highlighter-rouge">privileged</code> mode. This line shows that apparmor has denied
+<code class="highlighter-rouge">ptrace</code> in the container. This is exactly as expected.</p>
+
+<h3 id="use-aa-status">Use aa-status</h3>
+
+<p>If you need to check which profiles are loaded,  you can use <code class="highlighter-rouge">aa-status</code>. The
+output looks like:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>aa-status
+<span class="go">apparmor module is loaded.
+14 profiles are loaded.
+1 profiles are in enforce mode.
+   docker-default
+13 profiles are in complain mode.
+   /usr/bin/docker
+   /usr/bin/docker///bin/cat
+   /usr/bin/docker///bin/ps
+   /usr/bin/docker///sbin/apparmor_parser
+   /usr/bin/docker///sbin/auplink
+   /usr/bin/docker///sbin/blkid
+   /usr/bin/docker///sbin/iptables
+   /usr/bin/docker///sbin/mke2fs
+   /usr/bin/docker///sbin/modprobe
+   /usr/bin/docker///sbin/tune2fs
+   /usr/bin/docker///sbin/xtables-multi
+   /usr/bin/docker///sbin/zfs
+   /usr/bin/docker///usr/bin/xz
+38 processes have profiles defined.
+37 processes are in enforce mode.
+   docker-default (6044)
+</span><span class="c">   ...
+</span><span class="go">   docker-default (31899)
+1 processes are in complain mode.
+   /usr/bin/docker (29756)
+0 processes are unconfined but have a profile defined.
+</span></code></pre></div></div>
+
+<p>The above output shows that the <code class="highlighter-rouge">docker-default</code> profile running on various
+container PIDs is in <code class="highlighter-rouge">enforce</code> mode. This means AppArmor is actively blocking
+and auditing in <code class="highlighter-rouge">dmesg</code> anything outside the bounds of the <code class="highlighter-rouge">docker-default</code>
+profile.</p>
+
+<p>The output above also shows the <code class="highlighter-rouge">/usr/bin/docker</code> (Docker Engine daemon) profile
+is running in <code class="highlighter-rouge">complain</code> mode. This means AppArmor <em>only</em> logs to <code class="highlighter-rouge">dmesg</code>
+activity outside the bounds of the profile. (Except in the case of Ubuntu
+Trusty, where some interesting behaviors are enforced.)</p>
+
+<h2 id="contribute-dockers-apparmor-code">Contribute Docker’s AppArmor code</h2>
+
+<p>Advanced users and package managers can find a profile for <code class="highlighter-rouge">/usr/bin/docker</code>
+(Docker Engine Daemon) underneath
+<a href="https://github.com/moby/moby/tree/master/contrib/apparmor">contrib/apparmor</a>
+in the Docker Engine source repository.</p>
+
+<p>The <code class="highlighter-rouge">docker-default</code> profile for containers lives in
+<a href="https://github.com/moby/moby/tree/master/profiles/apparmor">profiles/apparmor</a>.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=AppArmor.html">AppArmor</a>, <a href="../../../search/index.html%3Fq=security.html">security</a>, <a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=documentation.html">documentation</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/security/apparmor.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/security/apparmor.md](https://docs.docker.com/engine/security/apparmor/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#understand-the-policies" class="nomunge">Understand the policies</a></li>
+  <li><a href="index.html#load-and-unload-profiles" class="nomunge">Load and unload profiles</a>
+    <ul>
+      <li><a href="index.html#resources-for-writing-profiles" class="nomunge">Resources for writing profiles</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#nginx-example-profile" class="nomunge">Nginx example profile</a></li>
+  <li><a href="index.html#debug-apparmor" class="nomunge">Debug AppArmor</a>
+    <ul>
+      <li><a href="index.html#use-dmesg" class="nomunge">Use dmesg</a></li>
+      <li><a href="index.html#use-aa-status" class="nomunge">Use aa-status</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#contribute-dockers-apparmor-code" class="nomunge">Contribute Docker’s AppArmor code</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/security/apparmor/";</script></body>
+</html>

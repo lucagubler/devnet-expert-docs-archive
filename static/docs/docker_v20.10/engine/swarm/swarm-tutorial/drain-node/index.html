@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Drain a node on the swarm | Docker Documentation</title>
+  <meta name="description" content="Drain nodes on the swarm" />
+  <meta name="keywords" content="tutorial, cluster management, swarm, service, drain">
+  <link rel="canonical" href="https://localhost:4000/engine/swarm/swarm-tutorial/drain-node/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../../js/theme-switcher.js"></script>
+  <script defer src="../../../../js/anchorlinks.js"></script>
+  <script defer src="../../../../js/jquery.js"></script>
+  <script defer src="../../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Drain a node on the swarm"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Drain a node on the swarm" />
+  <meta property="og:description" content="Drain nodes on the swarm" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/swarm/swarm-tutorial/drain-node/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Drain a node on the swarm","description":"Drain nodes on the swarm","url":"https://docs.docker.com/engine/swarm/swarm-tutorial/drain-node/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../../index.html">
+                <img class="logo" src="../../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../../index.html">
+        <img src="../../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../../index.html" id="home">Home</a></li><li><a href="../../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+</div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Drain a node on the swarm</h1><p><em class="reading-time">Estimated reading time: 3 minutes</em></p><p>In earlier steps of the tutorial, all the nodes have been running with <code class="highlighter-rouge">ACTIVE</code>
+availability. The swarm manager can assign tasks to any <code class="highlighter-rouge">ACTIVE</code> node, so up to
+now all nodes have been available to receive tasks.</p>
+
+<p>Sometimes, such as planned maintenance times, you need to set a node to <code class="highlighter-rouge">DRAIN</code>
+availability. <code class="highlighter-rouge">DRAIN</code> availability  prevents a node from receiving new tasks
+from the swarm manager. It also means the manager stops tasks running on the
+node and launches replica tasks on a node with <code class="highlighter-rouge">ACTIVE</code> availability.</p>
+
+<blockquote class="important">
+  <p><strong>Important</strong>: Setting a node to <code class="highlighter-rouge">DRAIN</code> does not remove standalone containers from that node,
+such as those created with <code class="highlighter-rouge">docker run</code>, <code class="highlighter-rouge">docker-compose up</code>, or the Docker Engine
+API. A node’s status, including <code class="highlighter-rouge">DRAIN</code>, only affects the node’s ability to schedule
+swarm service workloads.</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p>If you haven’t already, open a terminal and ssh into the machine where you
+run your manager node. For example, the tutorial uses a machine named
+<code class="highlighter-rouge">manager1</code>.</p>
+  </li>
+  <li>
+    <p>Verify that all your nodes are actively available.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node <span class="nb">ls</span>
+<span class="go">
+ID                           HOSTNAME  STATUS  AVAILABILITY  MANAGER STATUS
+1bcef6utixb0l0ca7gxuivsj0    worker2   Ready   Active
+38ciaotwjuritcdtn9npbnkuz    worker1   Ready   Active
+e216jshn25ckzbvmwlnh5jr3g *  manager1  Ready   Active        Leader
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>If you aren’t still running the <code class="highlighter-rouge">redis</code> service from the
+<a href="../rolling-update/index.html">rolling update</a> tutorial, start it now:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service create <span class="nt">--replicas</span> 3 <span class="nt">--name</span> redis <span class="nt">--update-delay</span> 10s redis:3.0.6
+<span class="go">
+c5uo6kdmzpon37mgj9mwglcfw
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run <code class="highlighter-rouge">docker service ps redis</code> to see how the swarm manager assigned the
+tasks to different nodes:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service ps redis
+<span class="go">
+NAME                               IMAGE        NODE     DESIRED STATE  CURRENT STATE
+redis.1.7q92v0nr1hcgts2amcjyqg3pq  redis:3.0.6  manager1 Running        Running 26 seconds
+redis.2.7h2l8h3q3wqy5f66hlv9ddmi6  redis:3.0.6  worker1  Running        Running 26 seconds
+redis.3.9bg7cezvedmkgg6c8yzvbhwsd  redis:3.0.6  worker2  Running        Running 26 seconds
+</span></code></pre></div>    </div>
+
+    <p>In this case the swarm manager distributed one task to each node. You may
+see the tasks distributed differently among the nodes in your environment.</p>
+  </li>
+  <li>
+    <p>Run <code class="highlighter-rouge">docker node update --availability drain &lt;NODE-ID&gt;</code> to drain a node that
+had a task assigned to it:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node update <span class="nt">--availability</span> drain worker1
+<span class="go">
+worker1
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Inspect the node to check its availability:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node inspect <span class="nt">--pretty</span> worker1
+<span class="go">
+ID:			38ciaotwjuritcdtn9npbnkuz
+Hostname:		worker1
+Status:
+ State:			Ready
+ Availability:		Drain
+...snip...
+</span></code></pre></div>    </div>
+
+    <p>The drained node shows <code class="highlighter-rouge">Drain</code> for <code class="highlighter-rouge">AVAILABILITY</code>.</p>
+  </li>
+  <li>
+    <p>Run <code class="highlighter-rouge">docker service ps redis</code> to see how the swarm manager updated the
+task assignments for the <code class="highlighter-rouge">redis</code> service:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service ps redis
+<span class="go">
+NAME                                    IMAGE        NODE      DESIRED STATE  CURRENT STATE           ERROR
+redis.1.7q92v0nr1hcgts2amcjyqg3pq       redis:3.0.6  manager1  Running        Running 4 minutes
+redis.2.b4hovzed7id8irg1to42egue8       redis:3.0.6  worker2   Running        Running About a minute
+ \_ redis.2.7h2l8h3q3wqy5f66hlv9ddmi6   redis:3.0.6  worker1   Shutdown       Shutdown 2 minutes ago
+redis.3.9bg7cezvedmkgg6c8yzvbhwsd       redis:3.0.6  worker2   Running        Running 4 minutes
+</span></code></pre></div>    </div>
+
+    <p>The swarm manager maintains the desired state by ending the task on a node
+with <code class="highlighter-rouge">Drain</code> availability and creating a new task on a node with <code class="highlighter-rouge">Active</code>
+availability.</p>
+  </li>
+  <li>
+    <p>Run  <code class="highlighter-rouge">docker node update --availability active &lt;NODE-ID&gt;</code> to return the
+drained node to an active state:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node update <span class="nt">--availability</span> active worker1
+<span class="go">
+worker1
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Inspect the node to see the updated state:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node inspect <span class="nt">--pretty</span> worker1
+<span class="go">
+ID:			38ciaotwjuritcdtn9npbnkuz
+Hostname:		worker1
+Status:
+ State:			Ready
+ Availability:		Active
+...snip...
+</span></code></pre></div>    </div>
+
+    <p>When you set the node back to <code class="highlighter-rouge">Active</code> availability, it can receive new tasks:</p>
+
+    <ul>
+      <li>during a service update to scale up</li>
+      <li>during a rolling update</li>
+      <li>when you set another node to <code class="highlighter-rouge">Drain</code> availability</li>
+      <li>when a task fails on another active node</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="whats-next">What’s next?</h2>
+
+<p>Learn how to <a href="../../ingress/index.html">use a swarm mode routing mesh</a>.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../../search/index.html%3Fq=tutorial.html">tutorial</a>, <a href="../../../../search/index.html%3Fq=cluster%20management.html">cluster management</a>, <a href="../../../../search/index.html%3Fq=swarm.html">swarm</a>, <a href="../../../../search/index.html%3Fq=service.html">service</a>, <a href="../../../../search/index.html%3Fq=drain.html">drain</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/swarm/swarm-tutorial/drain-node.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/swarm/swarm-tutorial/drain-node.md](https://docs.docker.com/engine/swarm/swarm-tutorial/drain-node/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/swarm/swarm-tutorial/drain-node/";</script></body>
+</html>

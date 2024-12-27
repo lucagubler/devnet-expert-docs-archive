@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Networking with standalone containers | Docker Documentation</title>
+  <meta name="description" content="Tutorials for networking with standalone containers" />
+  <meta name="keywords" content="networking, bridge, routing, ports, overlay">
+  <link rel="canonical" href="https://localhost:4000/network/network-tutorial-standalone/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../js/theme-switcher.js"></script>
+  <script defer src="../../js/anchorlinks.js"></script>
+  <script defer src="../../js/jquery.js"></script>
+  <script defer src="../../js/bootstrap.min.js"></script>
+  <script defer src="../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Networking with standalone containers"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Networking with standalone containers" />
+  <meta property="og:description" content="Tutorials for networking with standalone containers" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/network/network-tutorial-standalone/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Networking with standalone containers","description":"Tutorials for networking with standalone containers","url":"https://docs.docker.com/network/network-tutorial-standalone/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../index.html">
+        <img src="../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../index.html" id="home">Home</a></li><li><a href="../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../reference/index.html" id="reference">Reference</a></li><li><a href="../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../index.html">Configure networking</a></li><li><a href="index.html">Networking tutorials</a></li><li><a href="index.html">Bridge network tutorial</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Networking with standalone containers</h1><p><em class="reading-time">Estimated reading time: 15 minutes</em></p><p>This series of tutorials deals with networking for standalone Docker containers.
+For networking with swarm services, see
+<a href="../network-tutorial-overlay/index.html">Networking with swarm services</a>. If you need to
+learn more about Docker networking in general, see the <a href="../index.html">overview</a>.</p>
+
+<p>This topic includes three different tutorials. You can run each of them on
+Linux, Windows, or a Mac, but for the last two, you need a second Docker
+host running elsewhere.</p>
+
+<ul>
+  <li>
+    <p><a href="index.html#use-the-default-bridge-network">Use the default bridge network</a> demonstrates
+how to use the default <code class="highlighter-rouge">bridge</code> network that Docker sets up for you
+automatically. This network is not the best choice for production systems.</p>
+  </li>
+  <li>
+    <p><a href="index.html#use-user-defined-bridge-networks">Use user-defined bridge networks</a> shows
+how to create and use your own custom bridge networks, to connect containers
+running on the same Docker host. This is recommended for standalone containers
+running in production.</p>
+  </li>
+</ul>
+
+<p>Although <a href="../overlay/index.html">overlay networks</a> are generally used for swarm services,
+you can also use an overlay network for standalone containers. That’s covered as
+part of the <a href="../network-tutorial-overlay/index.html#use-an-overlay-network-for-standalone-containers">tutorial on using overlay networks</a>.</p>
+
+<h2 id="use-the-default-bridge-network">Use the default bridge network</h2>
+
+<p>In this example, you start two different <code class="highlighter-rouge">alpine</code> containers on the same Docker
+host and do some tests to understand how they communicate with each other. You
+need to have Docker installed and running.</p>
+
+<ol>
+  <li>
+    <p>Open a terminal window. List current networks before you do anything else.
+Here’s what you should see if you’ve never added a network or initialized a
+swarm on this Docker daemon. You may see different networks, but you should
+at least see these (the network IDs will be different):</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network <span class="nb">ls</span>
+<span class="go">
+NETWORK ID          NAME                DRIVER              SCOPE
+17e324f45964        bridge              bridge              local
+6ed54d316334        host                host                local
+7092879f2cc8        none                null                local
+</span></code></pre></div>    </div>
+
+    <p>The default <code class="highlighter-rouge">bridge</code> network is listed, along with <code class="highlighter-rouge">host</code> and <code class="highlighter-rouge">none</code>. The
+latter two are not fully-fledged networks, but are used to start a container
+connected directly to the Docker daemon host’s networking stack, or to start
+a container with no network devices. <strong>This tutorial will connect two
+containers to the <code class="highlighter-rouge">bridge</code> network.</strong></p>
+  </li>
+  <li>
+    <p>Start two <code class="highlighter-rouge">alpine</code> containers running <code class="highlighter-rouge">ash</code>, which is Alpine’s default shell
+rather than <code class="highlighter-rouge">bash</code>. The <code class="highlighter-rouge">-dit</code> flags mean to start the container detached
+(in the background), interactive (with the ability to type into it), and
+with a TTY (so you can see the input and output). Since you are starting it
+detached, you won’t be connected to the container right away. Instead, the
+container’s ID will be printed. Because you have not specified any
+<code class="highlighter-rouge">--network</code> flags, the containers connect to the default <code class="highlighter-rouge">bridge</code> network.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine1 alpine ash
+<span class="go">
+</span><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine2 alpine ash
+</code></pre></div>    </div>
+
+    <p>Check that both containers are actually started:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container <span class="nb">ls</span>
+<span class="go">
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+602dbf1edc81        alpine              "ash"               4 seconds ago       Up 3 seconds                            alpine2
+da33b7aa74b0        alpine              "ash"               17 seconds ago      Up 16 seconds                           alpine1
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Inspect the <code class="highlighter-rouge">bridge</code> network to see what containers are connected to it.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network inspect bridge
+<span class="go">
+[
+    {
+        "Name": "bridge",
+        "Id": "17e324f459648a9baaea32b248d3884da102dde19396c25b30ec800068ce6b10",
+        "Created": "2017-06-22T20:27:43.826654485Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Containers": {
+            "602dbf1edc81813304b6cf0a647e65333dc6fe6ee6ed572dc0f686a3307c6a2c": {
+                "Name": "alpine2",
+                "EndpointID": "03b6aafb7ca4d7e531e292901b43719c0e34cc7eef565b38a6bf84acf50f38cd",
+                "MacAddress": "02:42:ac:11:00:03",
+                "IPv4Address": "172.17.0.3/16",
+                "IPv6Address": ""
+            },
+            "da33b7aa74b0bf3bda3ebd502d404320ca112a268aafe05b4851d1e3312ed168": {
+                "Name": "alpine1",
+                "EndpointID": "46c044a645d6afc42ddd7857d19e9dcfb89ad790afb5c239a35ac0af5e8a5bc5",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+</span></code></pre></div>    </div>
+
+    <p>Near the top, information about the <code class="highlighter-rouge">bridge</code> network is listed, including
+the IP address of the gateway between the Docker host and the <code class="highlighter-rouge">bridge</code>
+network (<code class="highlighter-rouge">172.17.0.1</code>). Under the <code class="highlighter-rouge">Containers</code> key, each connected container
+is listed, along with information about its IP address (<code class="highlighter-rouge">172.17.0.2</code> for
+<code class="highlighter-rouge">alpine1</code> and <code class="highlighter-rouge">172.17.0.3</code> for <code class="highlighter-rouge">alpine2</code>).</p>
+  </li>
+  <li>
+    <p>The containers are running in the background. Use the <code class="highlighter-rouge">docker attach</code>
+command to connect to <code class="highlighter-rouge">alpine1</code>.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker attach alpine1
+<span class="go">
+</span><span class="gp">/ #</span>
+</code></pre></div>    </div>
+
+    <p>The prompt changes to <code class="highlighter-rouge">#</code> to indicate that you are the <code class="highlighter-rouge">root</code> user within
+the container. Use the <code class="highlighter-rouge">ip addr show</code> command to show the network interfaces
+for <code class="highlighter-rouge">alpine1</code> as they look from within the container:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ip addr show
+<span class="go">
+</span><span class="gp">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt;</span> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
+<span class="go">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+</span><span class="gp">27: eth0@if28: &lt;BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN&gt;</span> mtu 1500 qdisc noqueue state UP
+<span class="go">    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.2/16 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:acff:fe11:2/64 scope link
+       valid_lft forever preferred_lft forever
+</span></code></pre></div>    </div>
+
+    <p>The first interface is the loopback device. Ignore it for now. Notice that
+the second interface has the IP address <code class="highlighter-rouge">172.17.0.2</code>, which is the same
+address shown for <code class="highlighter-rouge">alpine1</code> in the previous step.</p>
+  </li>
+  <li>
+    <p>From within <code class="highlighter-rouge">alpine1</code>, make sure you can connect to the internet by
+pinging <code class="highlighter-rouge">google.com</code>. The <code class="highlighter-rouge">-c 2</code> flag limits the command to two <code class="highlighter-rouge">ping</code>
+attempts.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 google.com
+<span class="go">
+PING google.com (172.217.3.174): 56 data bytes
+64 bytes from 172.217.3.174: seq=0 ttl=41 time=9.841 ms
+64 bytes from 172.217.3.174: seq=1 ttl=41 time=9.897 ms
+
+--- google.com ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 9.841/9.869/9.897 ms
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Now try to ping the second container. First, ping it by its IP address,
+<code class="highlighter-rouge">172.17.0.3</code>:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 172.17.0.3
+<span class="go">
+PING 172.17.0.3 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=64 time=0.086 ms
+64 bytes from 172.17.0.3: seq=1 ttl=64 time=0.094 ms
+
+--- 172.17.0.3 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.086/0.090/0.094 ms
+</span></code></pre></div>    </div>
+
+    <p>This succeeds. Next, try pinging the <code class="highlighter-rouge">alpine2</code> container by container
+name. This will fail.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine2
+<span class="go">
+ping: bad address 'alpine2'
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Detach from <code class="highlighter-rouge">alpine1</code> without stopping it by using the detach sequence,
+<code class="highlighter-rouge">CTRL</code> + <code class="highlighter-rouge">p</code> <code class="highlighter-rouge">CTRL</code> + <code class="highlighter-rouge">q</code> (hold down <code class="highlighter-rouge">CTRL</code> and type <code class="highlighter-rouge">p</code> followed by <code class="highlighter-rouge">q</code>).
+If you wish, attach to <code class="highlighter-rouge">alpine2</code> and repeat steps 4, 5, and 6 there,
+substituting <code class="highlighter-rouge">alpine1</code> for <code class="highlighter-rouge">alpine2</code>.</p>
+  </li>
+  <li>
+    <p>Stop and remove both containers.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container stop alpine1 alpine2
+<span class="gp">$</span> docker container rm alpine1 alpine2
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>Remember, the default <code class="highlighter-rouge">bridge</code> network is not recommended for production. To
+learn about user-defined bridge networks, continue to the
+<a href="index.html#use-user-defined-bridge-networks">next tutorial</a>.</p>
+
+<h2 id="use-user-defined-bridge-networks">Use user-defined bridge networks</h2>
+
+<p>In this example, we again start two <code class="highlighter-rouge">alpine</code> containers, but attach them to a
+user-defined network called <code class="highlighter-rouge">alpine-net</code> which we have already created. These
+containers are not connected to the default <code class="highlighter-rouge">bridge</code> network at all. We then
+start a third <code class="highlighter-rouge">alpine</code> container which is connected to the <code class="highlighter-rouge">bridge</code> network but
+not connected to <code class="highlighter-rouge">alpine-net</code>, and a fourth <code class="highlighter-rouge">alpine</code> container which is
+connected to both networks.</p>
+
+<ol>
+  <li>
+    <p>Create the <code class="highlighter-rouge">alpine-net</code> network. You do not need the <code class="highlighter-rouge">--driver bridge</code> flag
+since it’s the default, but this example shows how to specify it.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="nt">--driver</span> bridge alpine-net
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>List Docker’s networks:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network <span class="nb">ls</span>
+<span class="go">
+NETWORK ID          NAME                DRIVER              SCOPE
+e9261a8c9a19        alpine-net          bridge              local
+17e324f45964        bridge              bridge              local
+6ed54d316334        host                host                local
+7092879f2cc8        none                null                local
+</span></code></pre></div>    </div>
+
+    <p>Inspect the <code class="highlighter-rouge">alpine-net</code> network. This shows you its IP address and the fact
+that no containers are connected to it:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network inspect alpine-net
+<span class="go">
+[
+    {
+        "Name": "alpine-net",
+        "Id": "e9261a8c9a19eabf2bf1488bf5f208b99b1608f330cff585c273d39481c9b0ec",
+        "Created": "2017-09-25T21:38:12.620046142Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+</span></code></pre></div>    </div>
+
+    <p>Notice that this network’s gateway is <code class="highlighter-rouge">172.18.0.1</code>, as opposed to the
+default bridge network, whose gateway is <code class="highlighter-rouge">172.17.0.1</code>. The exact IP address
+may be different on your system.</p>
+  </li>
+  <li>
+    <p>Create your four containers. Notice the <code class="highlighter-rouge">--network</code> flags. You can only
+connect to one network during the <code class="highlighter-rouge">docker run</code> command, so you need to use
+<code class="highlighter-rouge">docker network connect</code> afterward to connect <code class="highlighter-rouge">alpine4</code> to the <code class="highlighter-rouge">bridge</code>
+network as well.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine1 <span class="nt">--network</span> alpine-net alpine ash
+<span class="go">
+</span><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine2 <span class="nt">--network</span> alpine-net alpine ash
+<span class="go">
+</span><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine3 alpine ash
+<span class="go">
+</span><span class="gp">$</span> docker run <span class="nt">-dit</span> <span class="nt">--name</span> alpine4 <span class="nt">--network</span> alpine-net alpine ash
+<span class="go">
+</span><span class="gp">$</span> docker network connect bridge alpine4
+</code></pre></div>    </div>
+
+    <p>Verify that all containers are running:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container <span class="nb">ls</span>
+<span class="go">
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+156849ccd902        alpine              "ash"               41 seconds ago       Up 41 seconds                           alpine4
+fa1340b8d83e        alpine              "ash"               51 seconds ago       Up 51 seconds                           alpine3
+a535d969081e        alpine              "ash"               About a minute ago   Up About a minute                       alpine2
+0a02c449a6e9        alpine              "ash"               About a minute ago   Up About a minute                       alpine1
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Inspect the <code class="highlighter-rouge">bridge</code> network and the <code class="highlighter-rouge">alpine-net</code> network again:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network inspect bridge
+<span class="go">
+[
+    {
+        "Name": "bridge",
+        "Id": "17e324f459648a9baaea32b248d3884da102dde19396c25b30ec800068ce6b10",
+        "Created": "2017-06-22T20:27:43.826654485Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Containers": {
+            "156849ccd902b812b7d17f05d2d81532ccebe5bf788c9a79de63e12bb92fc621": {
+                "Name": "alpine4",
+                "EndpointID": "7277c5183f0da5148b33d05f329371fce7befc5282d2619cfb23690b2adf467d",
+                "MacAddress": "02:42:ac:11:00:03",
+                "IPv4Address": "172.17.0.3/16",
+                "IPv6Address": ""
+            },
+            "fa1340b8d83eef5497166951184ad3691eb48678a3664608ec448a687b047c53": {
+                "Name": "alpine3",
+                "EndpointID": "5ae767367dcbebc712c02d49556285e888819d4da6b69d88cd1b0d52a83af95f",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+</span></code></pre></div>    </div>
+
+    <p>Containers <code class="highlighter-rouge">alpine3</code> and <code class="highlighter-rouge">alpine4</code> are connected to the <code class="highlighter-rouge">bridge</code> network.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network inspect alpine-net
+<span class="go">
+[
+    {
+        "Name": "alpine-net",
+        "Id": "e9261a8c9a19eabf2bf1488bf5f208b99b1608f330cff585c273d39481c9b0ec",
+        "Created": "2017-09-25T21:38:12.620046142Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Containers": {
+            "0a02c449a6e9a15113c51ab2681d72749548fb9f78fae4493e3b2e4e74199c4a": {
+                "Name": "alpine1",
+                "EndpointID": "c83621678eff9628f4e2d52baf82c49f974c36c05cba152db4c131e8e7a64673",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            },
+            "156849ccd902b812b7d17f05d2d81532ccebe5bf788c9a79de63e12bb92fc621": {
+                "Name": "alpine4",
+                "EndpointID": "058bc6a5e9272b532ef9a6ea6d7f3db4c37527ae2625d1cd1421580fd0731954",
+                "MacAddress": "02:42:ac:12:00:04",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "a535d969081e003a149be8917631215616d9401edcb4d35d53f00e75ea1db653": {
+                "Name": "alpine2",
+                "EndpointID": "198f3141ccf2e7dba67bce358d7b71a07c5488e3867d8b7ad55a4c695ebb8740",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+</span></code></pre></div>    </div>
+
+    <p>Containers <code class="highlighter-rouge">alpine1</code>, <code class="highlighter-rouge">alpine2</code>, and <code class="highlighter-rouge">alpine4</code> are connected to the
+<code class="highlighter-rouge">alpine-net</code> network.</p>
+  </li>
+  <li>
+    <p>On user-defined networks like <code class="highlighter-rouge">alpine-net</code>, containers can not only
+communicate by IP address, but can also resolve a container name to an IP
+address. This capability is called <strong>automatic service discovery</strong>. Let’s
+connect to <code class="highlighter-rouge">alpine1</code> and test this out. <code class="highlighter-rouge">alpine1</code> should be able to resolve
+<code class="highlighter-rouge">alpine2</code> and <code class="highlighter-rouge">alpine4</code> (and <code class="highlighter-rouge">alpine1</code>, itself) to IP addresses.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container attach alpine1
+<span class="go">
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine2
+<span class="go">
+PING alpine2 (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.085 ms
+64 bytes from 172.18.0.3: seq=1 ttl=64 time=0.090 ms
+
+--- alpine2 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.085/0.087/0.090 ms
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine4
+<span class="go">
+PING alpine4 (172.18.0.4): 56 data bytes
+64 bytes from 172.18.0.4: seq=0 ttl=64 time=0.076 ms
+64 bytes from 172.18.0.4: seq=1 ttl=64 time=0.091 ms
+
+--- alpine4 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.076/0.083/0.091 ms
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine1
+<span class="go">
+PING alpine1 (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.026 ms
+64 bytes from 172.18.0.2: seq=1 ttl=64 time=0.054 ms
+
+--- alpine1 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.026/0.040/0.054 ms
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>From <code class="highlighter-rouge">alpine1</code>, you should not be able to connect to <code class="highlighter-rouge">alpine3</code> at all, since
+it is not on the <code class="highlighter-rouge">alpine-net</code> network.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine3
+<span class="go">
+ping: bad address 'alpine3'
+</span></code></pre></div>    </div>
+
+    <p>Not only that, but you can’t connect to <code class="highlighter-rouge">alpine3</code> from <code class="highlighter-rouge">alpine1</code> by its IP
+address either. Look back at the <code class="highlighter-rouge">docker network inspect</code> output for the
+<code class="highlighter-rouge">bridge</code> network and find <code class="highlighter-rouge">alpine3</code>’s IP address: <code class="highlighter-rouge">172.17.0.2</code> Try to ping
+it.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 172.17.0.2
+<span class="go">
+PING 172.17.0.2 (172.17.0.2): 56 data bytes
+
+--- 172.17.0.2 ping statistics ---
+2 packets transmitted, 0 packets received, 100% packet loss
+</span></code></pre></div>    </div>
+
+    <p>Detach from <code class="highlighter-rouge">alpine1</code> using detach sequence,
+<code class="highlighter-rouge">CTRL</code> + <code class="highlighter-rouge">p</code> <code class="highlighter-rouge">CTRL</code> + <code class="highlighter-rouge">q</code> (hold down <code class="highlighter-rouge">CTRL</code> and type <code class="highlighter-rouge">p</code> followed by <code class="highlighter-rouge">q</code>).</p>
+  </li>
+  <li>
+    <p>Remember that <code class="highlighter-rouge">alpine4</code> is connected to both the default <code class="highlighter-rouge">bridge</code> network
+and <code class="highlighter-rouge">alpine-net</code>. It should be able to reach all of the other containers.
+However, you will need to address <code class="highlighter-rouge">alpine3</code> by its IP address. Attach to it
+and run the tests.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container attach alpine4
+<span class="go">
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine1
+<span class="go">
+PING alpine1 (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.074 ms
+64 bytes from 172.18.0.2: seq=1 ttl=64 time=0.082 ms
+
+--- alpine1 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.074/0.078/0.082 ms
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine2
+<span class="go">
+PING alpine2 (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.075 ms
+64 bytes from 172.18.0.3: seq=1 ttl=64 time=0.080 ms
+
+--- alpine2 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.075/0.077/0.080 ms
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine3
+<span class="go">ping: bad address 'alpine3'
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 172.17.0.2
+<span class="go">
+PING 172.17.0.2 (172.17.0.2): 56 data bytes
+64 bytes from 172.17.0.2: seq=0 ttl=64 time=0.089 ms
+64 bytes from 172.17.0.2: seq=1 ttl=64 time=0.075 ms
+
+--- 172.17.0.2 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.075/0.082/0.089 ms
+
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 alpine4
+<span class="go">
+PING alpine4 (172.18.0.4): 56 data bytes
+64 bytes from 172.18.0.4: seq=0 ttl=64 time=0.033 ms
+64 bytes from 172.18.0.4: seq=1 ttl=64 time=0.064 ms
+
+--- alpine4 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.033/0.048/0.064 ms
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>As a final test, make sure your containers can all connect to the internet
+by pinging <code class="highlighter-rouge">google.com</code>. You are already attached to <code class="highlighter-rouge">alpine4</code> so start by
+trying from there. Next, detach from <code class="highlighter-rouge">alpine4</code> and connect to <code class="highlighter-rouge">alpine3</code>
+(which is only attached to the <code class="highlighter-rouge">bridge</code> network) and try again. Finally,
+connect to <code class="highlighter-rouge">alpine1</code> (which is only connected to the <code class="highlighter-rouge">alpine-net</code> network)
+and try again.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span> ping <span class="nt">-c</span> 2 google.com
+<span class="go">
+PING google.com (172.217.3.174): 56 data bytes
+64 bytes from 172.217.3.174: seq=0 ttl=41 time=9.778 ms
+64 bytes from 172.217.3.174: seq=1 ttl=41 time=9.634 ms
+
+--- google.com ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 9.634/9.706/9.778 ms
+
+CTRL+p CTRL+q
+
+</span><span class="gp">$</span> docker container attach alpine3
+<span class="go">
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 google.com
+<span class="go">
+PING google.com (172.217.3.174): 56 data bytes
+64 bytes from 172.217.3.174: seq=0 ttl=41 time=9.706 ms
+64 bytes from 172.217.3.174: seq=1 ttl=41 time=9.851 ms
+
+--- google.com ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 9.706/9.778/9.851 ms
+
+CTRL+p CTRL+q
+
+</span><span class="gp">$</span> docker container attach alpine1
+<span class="go">
+</span><span class="gp">#</span> ping <span class="nt">-c</span> 2 google.com
+<span class="go">
+PING google.com (172.217.3.174): 56 data bytes
+64 bytes from 172.217.3.174: seq=0 ttl=41 time=9.606 ms
+64 bytes from 172.217.3.174: seq=1 ttl=41 time=9.603 ms
+
+--- google.com ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 9.603/9.604/9.606 ms
+
+CTRL+p CTRL+q
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Stop and remove all containers and the <code class="highlighter-rouge">alpine-net</code> network.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker container stop alpine1 alpine2 alpine3 alpine4
+
+$ docker container rm alpine1 alpine2 alpine3 alpine4
+
+$ docker network rm alpine-net
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="other-networking-tutorials">Other networking tutorials</h2>
+
+<p>Now that you have completed the networking tutorials for standalone containers,
+you might want to run through these other networking tutorials:</p>
+
+<ul>
+  <li><a href="../network-tutorial-host/index.html">Host networking tutorial</a></li>
+  <li><a href="../network-tutorial-overlay/index.html">Overlay networking tutorial</a></li>
+  <li><a href="../network-tutorial-macvlan/index.html">Macvlan networking tutorial</a></li>
+</ul>
+
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../search/index.html%3Fq=networking.html">networking</a>, <a href="../../search/index.html%3Fq=bridge.html">bridge</a>, <a href="../../search/index.html%3Fq=routing.html">routing</a>, <a href="../../search/index.html%3Fq=ports.html">ports</a>, <a href="../../search/index.html%3Fq=overlay.html">overlay</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/network/network-tutorial-standalone.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [network/network-tutorial-standalone.md](https://docs.docker.com/network/network-tutorial-standalone/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#use-the-default-bridge-network" class="nomunge">Use the default bridge network</a></li>
+  <li><a href="index.html#use-user-defined-bridge-networks" class="nomunge">Use user-defined bridge networks</a></li>
+  <li><a href="index.html#other-networking-tutorials" class="nomunge">Other networking tutorials</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/network/network-tutorial-standalone/";</script></body>
+</html>

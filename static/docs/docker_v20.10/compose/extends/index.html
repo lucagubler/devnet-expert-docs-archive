@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Share Compose configurations between files and projects | Docker Documentation</title>
+  <meta name="description" content="How to use Docker Compose&#39;s extends keyword to share configuration between files and projects" />
+  <meta name="keywords" content="fig, composition, compose, docker, orchestration, documentation, docs">
+  <link rel="canonical" href="https://localhost:4000/compose/extends/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../js/theme-switcher.js"></script>
+  <script defer src="../../js/anchorlinks.js"></script>
+  <script defer src="../../js/jquery.js"></script>
+  <script defer src="../../js/bootstrap.min.js"></script>
+  <script defer src="../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Share Compose configurations between files and projects"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Share Compose configurations between files and projects" />
+  <meta property="og:description" content="How to use Docker Compose&#39;s extends keyword to share configuration between files and projects" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/compose/extends/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Share Compose configurations between files and projects","description":"How to use Docker Compose's extends keyword to share configuration between files and projects","url":"https://docs.docker.com/compose/extends/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../index.html">
+        <img src="../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../index.html" id="home">Home</a></li><li><a href="../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../reference/index.html" id="reference">Reference</a></li><li><a href="../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../desktop/index.html">Manuals</a></li><li><a href="../../compose.html">Docker Compose</a></li><li><a href="index.html">Extend services in Compose</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Share Compose configurations between files and projects</h1><p><em class="reading-time">Estimated reading time: 10 minutes</em></p><p>Compose supports two methods of sharing common configuration:</p>
+
+<ol>
+  <li>Extending an entire Compose file by
+<a href="index.html#multiple-compose-files">using multiple Compose files</a></li>
+  <li>Extending individual services with <a href="index.html#extending-services">the <code class="highlighter-rouge">extends</code> field</a> (for Compose file versions up to 2.1)</li>
+</ol>
+
+<h2 id="multiple-compose-files">Multiple Compose files</h2>
+
+<p>Using multiple Compose files enables you to customize a Compose application
+for different environments or different workflows.</p>
+
+<h3 id="understanding-multiple-compose-files">Understanding multiple Compose files</h3>
+
+<p>By default, Compose reads two files, a <code class="highlighter-rouge">docker-compose.yml</code> and an optional
+<code class="highlighter-rouge">docker-compose.override.yml</code> file. By convention, the <code class="highlighter-rouge">docker-compose.yml</code>
+contains your base configuration. The override file, as its name implies, can
+contain configuration overrides for existing services or entirely new
+services.</p>
+
+<p>If a service is defined in both files, Compose merges the configurations using
+the rules described in
+<a href="index.html#adding-and-overriding-configuration">Adding and overriding configuration</a>.</p>
+
+<p>To use multiple override files, or an override file with a different name, you
+can use the <code class="highlighter-rouge">-f</code> option to specify the list of files. Compose merges files in
+the order they’re specified on the command line. See the
+<a href="../reference/index.html"><code class="highlighter-rouge">docker-compose</code> command reference</a> for more information
+about using <code class="highlighter-rouge">-f</code>.</p>
+
+<p>When you use multiple configuration files, you must make sure all paths in the
+files are relative to the base Compose file (the first Compose file specified
+with <code class="highlighter-rouge">-f</code>). This is required because override files need not be valid
+Compose files. Override files can contain small fragments of configuration.
+Tracking which fragment of a service is relative to which path is difficult and
+confusing, so to keep paths easier to understand, all paths must be defined
+relative to the base file.</p>
+
+<h3 id="example-use-case">Example use case</h3>
+
+<p>In this section, there are two common use cases for multiple Compose files: changing a
+Compose app for different environments, and running administrative tasks
+against a Compose app.</p>
+
+<h4 id="different-environments">Different environments</h4>
+
+<p>A common use case for multiple files is changing a development Compose app
+for a production-like environment (which may be production, staging or CI).
+To support these differences, you can split your Compose configuration into
+a few different files:</p>
+
+<p>Start with a base file that defines the canonical configuration for the
+services.</p>
+
+<p><strong>docker-compose.yml</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">web</span><span class="pi">:</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">example/my_web_app:latest</span>
+  <span class="na">depends_on</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">db</span>
+    <span class="pi">-</span> <span class="s">cache</span>
+
+<span class="na">db</span><span class="pi">:</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:latest</span>
+
+<span class="na">cache</span><span class="pi">:</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">redis:latest</span>
+</code></pre></div></div>
+
+<p>In this example the development configuration exposes some ports to the
+host, mounts our code as a volume, and builds the web image.</p>
+
+<p><strong>docker-compose.override.yml</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">web</span><span class="pi">:</span>
+  <span class="na">build</span><span class="pi">:</span> <span class="s">.</span>
+  <span class="na">volumes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s1">'</span><span class="s">.:/code'</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">8883:80</span>
+  <span class="na">environment</span><span class="pi">:</span>
+    <span class="na">DEBUG</span><span class="pi">:</span> <span class="s1">'</span><span class="s">true'</span>
+
+<span class="na">db</span><span class="pi">:</span>
+  <span class="na">command</span><span class="pi">:</span> <span class="s1">'</span><span class="s">-d'</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">5432:5432</span>
+
+<span class="na">cache</span><span class="pi">:</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">6379:6379</span>
+</code></pre></div></div>
+
+<p>When you run <code class="highlighter-rouge">docker-compose up</code> it reads the overrides automatically.</p>
+
+<p>Now, it would be nice to use this Compose app in a production environment. So,
+create another override file (which might be stored in a different git
+repo or managed by a different team).</p>
+
+<p><strong>docker-compose.prod.yml</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">web</span><span class="pi">:</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">80:80</span>
+  <span class="na">environment</span><span class="pi">:</span>
+    <span class="na">PRODUCTION</span><span class="pi">:</span> <span class="s1">'</span><span class="s">true'</span>
+
+<span class="na">cache</span><span class="pi">:</span>
+  <span class="na">environment</span><span class="pi">:</span>
+    <span class="na">TTL</span><span class="pi">:</span> <span class="s1">'</span><span class="s">500'</span>
+</code></pre></div></div>
+
+<p>To deploy with this production Compose file you can run</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.prod.yml up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>This deploys all three services using the configuration in
+<code class="highlighter-rouge">docker-compose.yml</code> and <code class="highlighter-rouge">docker-compose.prod.yml</code> (but not the
+dev configuration in <code class="highlighter-rouge">docker-compose.override.yml</code>).</p>
+
+<p>See <a href="../production/index.html">production</a> for more information about Compose in
+production.</p>
+
+<h4 id="administrative-tasks">Administrative tasks</h4>
+
+<p>Another common use case is running adhoc or administrative tasks against one
+or more services in a Compose app. This example demonstrates running a
+database backup.</p>
+
+<p>Start with a <strong>docker-compose.yml</strong>.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">web</span><span class="pi">:</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">example/my_web_app:latest</span>
+  <span class="na">depends_on</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">db</span>
+
+<span class="na">db</span><span class="pi">:</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:latest</span>
+</code></pre></div></div>
+
+<p>In a <strong>docker-compose.admin.yml</strong> add a new service to run the database
+export or backup.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="na">dbadmin</span><span class="pi">:</span>
+      <span class="na">build</span><span class="pi">:</span> <span class="s">database_admin/</span>
+      <span class="na">depends_on</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">db</span>
+</code></pre></div></div>
+
+<p>To start a normal environment run <code class="highlighter-rouge">docker-compose up -d</code>. To run a database
+backup, include the <code class="highlighter-rouge">docker-compose.admin.yml</code> as well.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.admin.yml <span class="se">\</span>
+  run dbadmin db-backup
+</code></pre></div></div>
+
+<h2 id="extending-services">Extending services</h2>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>The <code class="highlighter-rouge">extends</code> keyword is supported in earlier Compose file formats up to Compose
+file version 2.1 (see <a href="../compose-file/compose-file-v2/index.html#extends">extends in v2</a>), but is
+not supported in Compose version 3.x. See the <a href="../compose-file/compose-versioning/index.html#version-3">Version 3 summary</a>
+of keys added and removed, along with information on <a href="../compose-file/compose-versioning/index.html#upgrading">how to upgrade</a>.
+See <a href="https://github.com/moby/moby/issues/31101">moby/moby#31101</a> to follow the
+discussion thread on the possibility of adding support for <code class="highlighter-rouge">extends</code> in some form in
+future versions. The <code class="highlighter-rouge">extends</code> keyword has been included in docker-compose versions 1.27
+and higher.</p>
+</blockquote>
+
+<p>Docker Compose’s <code class="highlighter-rouge">extends</code> keyword enables the sharing of common configurations
+among different files, or even different projects entirely. Extending services
+is useful if you have several services that reuse a common set of configuration
+options. Using <code class="highlighter-rouge">extends</code> you can define a common set of service options in one
+place and refer to it from anywhere.</p>
+
+<p>Keep in mind that <code class="highlighter-rouge">volumes_from</code> and <code class="highlighter-rouge">depends_on</code> are never shared between
+services using <code class="highlighter-rouge">extends</code>. These exceptions exist to avoid implicit
+dependencies; you always define <code class="highlighter-rouge">volumes_from</code> locally. This ensures
+dependencies between services are clearly visible when reading the current file.
+Defining these locally also ensures that changes to the referenced file don’t
+break anything.</p>
+
+<h3 id="understand-the-extends-configuration">Understand the extends configuration</h3>
+
+<p>When defining any service in <code class="highlighter-rouge">docker-compose.yml</code>, you can declare that you are
+extending another service like this:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">web</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span>
+      <span class="na">file</span><span class="pi">:</span> <span class="s">common-services.yml</span>
+      <span class="na">service</span><span class="pi">:</span> <span class="s">webapp</span>
+</code></pre></div></div>
+
+<p>This instructs Compose to re-use the configuration for the <code class="highlighter-rouge">webapp</code> service
+defined in the <code class="highlighter-rouge">common-services.yml</code> file. Suppose that <code class="highlighter-rouge">common-services.yml</code>
+looks like this:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">webapp</span><span class="pi">:</span>
+    <span class="na">build</span><span class="pi">:</span> <span class="s">.</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">8000:8000"</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">/data"</span>
+</code></pre></div></div>
+
+<p>In this case, you get exactly the same result as if you wrote
+<code class="highlighter-rouge">docker-compose.yml</code> with the same <code class="highlighter-rouge">build</code>, <code class="highlighter-rouge">ports</code> and <code class="highlighter-rouge">volumes</code> configuration
+values defined directly under <code class="highlighter-rouge">web</code>.</p>
+
+<p>You can go further and define (or re-define) configuration locally in
+<code class="highlighter-rouge">docker-compose.yml</code>:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">web</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span>
+      <span class="na">file</span><span class="pi">:</span> <span class="s">common-services.yml</span>
+      <span class="na">service</span><span class="pi">:</span> <span class="s">webapp</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">DEBUG=1</span>
+    <span class="na">cpu_shares</span><span class="pi">:</span> <span class="s">5</span>
+
+  <span class="na">important_web</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span> <span class="s">web</span>
+    <span class="na">cpu_shares</span><span class="pi">:</span> <span class="s">10</span>
+</code></pre></div></div>
+
+<p>You can also write other services and link your <code class="highlighter-rouge">web</code> service to them:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">web</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span>
+      <span class="na">file</span><span class="pi">:</span> <span class="s">common-services.yml</span>
+      <span class="na">service</span><span class="pi">:</span> <span class="s">webapp</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">DEBUG=1</span>
+    <span class="na">cpu_shares</span><span class="pi">:</span> <span class="s">5</span>
+    <span class="na">depends_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">db</span>
+  <span class="na">db</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres</span>
+</code></pre></div></div>
+
+<h3 id="example-use-case-1">Example use case</h3>
+
+<p>Extending an individual service is useful when you have multiple services that
+have a common configuration.  The example below is a Compose app with
+two services: a web application and a queue worker. Both services use the same
+codebase and share many configuration options.</p>
+
+<p>In a <strong>common.yml</strong> we define the common configuration:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">app</span><span class="pi">:</span>
+    <span class="na">build</span><span class="pi">:</span> <span class="s">.</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="na">CONFIG_FILE_PATH</span><span class="pi">:</span> <span class="s">/code/config</span>
+      <span class="na">API_KEY</span><span class="pi">:</span> <span class="s">xxxyyy</span>
+    <span class="na">cpu_shares</span><span class="pi">:</span> <span class="s">5</span>
+</code></pre></div></div>
+
+<p>In a <strong>docker-compose.yml</strong> we define the concrete services which use the
+common configuration:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">webapp</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span>
+      <span class="na">file</span><span class="pi">:</span> <span class="s">common.yml</span>
+      <span class="na">service</span><span class="pi">:</span> <span class="s">app</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">/code/run_web_app</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">8080:8080</span>
+    <span class="na">depends_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">queue</span>
+      <span class="pi">-</span> <span class="s">db</span>
+
+  <span class="na">queue_worker</span><span class="pi">:</span>
+    <span class="na">extends</span><span class="pi">:</span>
+      <span class="na">file</span><span class="pi">:</span> <span class="s">common.yml</span>
+      <span class="na">service</span><span class="pi">:</span> <span class="s">app</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">/code/run_worker</span>
+    <span class="na">depends_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">queue</span>
+</code></pre></div></div>
+
+<h2 id="adding-and-overriding-configuration">Adding and overriding configuration</h2>
+
+<p>Compose copies configurations from the original service over to the local one.
+If a configuration option is defined in both the original service and the local
+service, the local value <em>replaces</em> or <em>extends</em> the original value.</p>
+
+<p>For single-value options like <code class="highlighter-rouge">image</code>, <code class="highlighter-rouge">command</code> or <code class="highlighter-rouge">mem_limit</code>, the new value
+replaces the old value.</p>
+
+<p>original service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">python app.py</span>
+</code></pre></div></div>
+
+<p>local service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">python otherapp.py</span>
+</code></pre></div></div>
+
+<p>result:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">command</span><span class="pi">:</span> <span class="s">python otherapp.py</span>
+</code></pre></div></div>
+
+<p>For the <strong>multi-value options</strong> <code class="highlighter-rouge">ports</code>, <code class="highlighter-rouge">expose</code>, <code class="highlighter-rouge">external_links</code>, <code class="highlighter-rouge">dns</code>,
+<code class="highlighter-rouge">dns_search</code>, and <code class="highlighter-rouge">tmpfs</code>, Compose concatenates both sets of values:</p>
+
+<p>original service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">expose</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">3000"</span>
+</code></pre></div></div>
+
+<p>local service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">expose</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">4000"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">5000"</span>
+</code></pre></div></div>
+
+<p>result:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">expose</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">3000"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">4000"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">5000"</span>
+</code></pre></div></div>
+
+<p>In the case of <code class="highlighter-rouge">environment</code>, <code class="highlighter-rouge">labels</code>, <code class="highlighter-rouge">volumes</code>, and <code class="highlighter-rouge">devices</code>, Compose
+“merges” entries together with locally-defined values taking precedence. For
+<code class="highlighter-rouge">environment</code> and <code class="highlighter-rouge">labels</code>, the environment variable or label name determines
+which value is used:</p>
+
+<p>original service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">FOO=original</span>
+      <span class="pi">-</span> <span class="s">BAR=original</span>
+</code></pre></div></div>
+
+<p>local service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">BAR=local</span>
+      <span class="pi">-</span> <span class="s">BAZ=local</span>
+</code></pre></div></div>
+
+<p>result</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">FOO=original</span>
+      <span class="pi">-</span> <span class="s">BAR=local</span>
+      <span class="pi">-</span> <span class="s">BAZ=local</span>
+</code></pre></div></div>
+
+<p>Entries for <code class="highlighter-rouge">volumes</code> and <code class="highlighter-rouge">devices</code> are merged using the mount path in the
+container:</p>
+
+<p>original service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">./original:/foo</span>
+      <span class="pi">-</span> <span class="s">./original:/bar</span>
+</code></pre></div></div>
+
+<p>local service:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">./local:/bar</span>
+      <span class="pi">-</span> <span class="s">./local:/baz</span>
+</code></pre></div></div>
+
+<p>result:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">services</span><span class="pi">:</span>
+  <span class="na">myservice</span><span class="pi">:</span>
+    <span class="c1"># ...</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">./original:/foo</span>
+      <span class="pi">-</span> <span class="s">./local:/bar</span>
+      <span class="pi">-</span> <span class="s">./local:/baz</span>
+</code></pre></div></div>
+
+<h2 id="compose-documentation">Compose documentation</h2>
+
+<ul>
+  <li><a href="../../compose.html">User guide</a></li>
+  <li><a href="../install/index.html">Installing Compose</a></li>
+  <li><a href="../gettingstarted/index.html">Getting Started</a></li>
+  <li><a href="../reference/index.html">Command line reference</a></li>
+  <li><a href="../compose-file/index.html">Compose file reference</a></li>
+  <li><a href="../samples-for-compose/index.html">Sample apps with Compose</a></li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../search/index.html%3Fq=fig.html">fig</a>, <a href="../../search/index.html%3Fq=composition.html">composition</a>, <a href="../../search/index.html%3Fq=compose.html">compose</a>, <a href="../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../search/index.html%3Fq=orchestration.html">orchestration</a>, <a href="../../search/index.html%3Fq=documentation.html">documentation</a>, <a href="../../search/index.html%3Fq=docs.html">docs</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/compose/extends.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [compose/extends.md](https://docs.docker.com/compose/extends/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#multiple-compose-files" class="nomunge">Multiple Compose files</a>
+    <ul>
+      <li><a href="index.html#understanding-multiple-compose-files" class="nomunge">Understanding multiple Compose files</a></li>
+      <li><a href="index.html#example-use-case" class="nomunge">Example use case</a>
+        <ul>
+          <li><a href="index.html#different-environments" class="nomunge">Different environments</a></li>
+          <li><a href="index.html#administrative-tasks" class="nomunge">Administrative tasks</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="index.html#extending-services" class="nomunge">Extending services</a>
+    <ul>
+      <li><a href="index.html#understand-the-extends-configuration" class="nomunge">Understand the extends configuration</a></li>
+      <li><a href="index.html#example-use-case-1" class="nomunge">Example use case</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#adding-and-overriding-configuration" class="nomunge">Adding and overriding configuration</a></li>
+  <li><a href="index.html#compose-documentation" class="nomunge">Compose documentation</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/compose/extends/";</script></body>
+</html>

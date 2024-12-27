@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Docker volume plugins | Docker Documentation</title>
+  <meta name="description" content="How to manage data with external volume plugins" />
+  <meta name="keywords" content="Examples, Usage, volume, docker, data, volumes, plugin, api">
+  <link rel="canonical" href="https://localhost:4000/engine/extend/plugins_volume/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Docker volume plugins"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Docker volume plugins" />
+  <meta property="og:description" content="How to manage data with external volume plugins" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/extend/plugins_volume/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Docker volume plugins","description":"How to manage data with external volume plugins","url":"https://docs.docker.com/engine/extend/plugins_volume/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../../config/containers/start-containers-automatically/index.html">Configure containers</a></li><li><a href="../index.html">Extend Docker</a></li><li><a href="index.html">Volume plugins</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><p><em class="reading-time">Estimated reading time: 8 minutes</em></p><!-- This file is maintained within the docker/cli GitHub
+     repository at https://github.com/docker/cli/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
+
+<h1 id="docker-volume-plugins">Docker volume plugins</h1>
+
+<p>Docker Engine volume plugins enable Engine deployments to be integrated with
+external storage systems such as Amazon EBS, and enable data volumes to persist
+beyond the lifetime of a single Docker host. See the
+<a href="../legacy_plugins/index.html">plugin documentation</a> for more information.</p>
+
+<h2 id="changelog">Changelog</h2>
+
+<h3 id="1130">1.13.0</h3>
+
+<ul>
+  <li>If used as part of the v2 plugin architecture, mountpoints that are part of
+paths returned by the plugin must be mounted under the directory specified by
+<code class="highlighter-rouge">PropagatedMount</code> in the plugin configuration
+(<a href="https://github.com/docker/docker/pull/26398">#26398</a>)</li>
+</ul>
+
+<h3 id="1120">1.12.0</h3>
+
+<ul>
+  <li>Add <code class="highlighter-rouge">Status</code> field to <code class="highlighter-rouge">VolumeDriver.Get</code> response
+(<a href="https://github.com/docker/docker/pull/21006#">#21006</a>)</li>
+  <li>Add <code class="highlighter-rouge">VolumeDriver.Capabilities</code> to get capabilities of the volume driver
+(<a href="https://github.com/docker/docker/pull/22077">#22077</a>)</li>
+</ul>
+
+<h3 id="1100">1.10.0</h3>
+
+<ul>
+  <li>Add <code class="highlighter-rouge">VolumeDriver.Get</code> which gets the details about the volume
+(<a href="https://github.com/docker/docker/pull/16534">#16534</a>)</li>
+  <li>Add <code class="highlighter-rouge">VolumeDriver.List</code> which lists all volumes owned by the driver
+(<a href="https://github.com/docker/docker/pull/16534">#16534</a>)</li>
+</ul>
+
+<h3 id="180">1.8.0</h3>
+
+<ul>
+  <li>Initial support for volume driver plugins
+(<a href="https://github.com/docker/docker/pull/14659">#14659</a>)</li>
+</ul>
+
+<h2 id="command-line-changes">Command-line changes</h2>
+
+<p>To give a container access to a volume, use the <code class="highlighter-rouge">--volume</code> and <code class="highlighter-rouge">--volume-driver</code>
+flags on the <code class="highlighter-rouge">docker container run</code> command.  The <code class="highlighter-rouge">--volume</code> (or <code class="highlighter-rouge">-v</code>) flag
+accepts a volume name and path on the host, and the <code class="highlighter-rouge">--volume-driver</code> flag
+accepts a driver type.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker volume create <span class="nt">--driver</span><span class="o">=</span>flocker volumename
+<span class="go">
+</span><span class="gp">$</span> docker container run <span class="nt">-it</span> <span class="nt">--volume</span> volumename:/data busybox sh
+</code></pre></div></div>
+
+<h3 id="--volume"><code class="highlighter-rouge">--volume</code></h3>
+
+<p>The <code class="highlighter-rouge">--volume</code> (or <code class="highlighter-rouge">-v</code>) flag takes a value that is in the format
+<code class="highlighter-rouge">&lt;volume_name&gt;:&lt;mountpoint&gt;</code>. The two parts of the value are
+separated by a colon (<code class="highlighter-rouge">:</code>) character.</p>
+
+<ul>
+  <li>The volume name is a human-readable name for the volume, and cannot begin with
+a <code class="highlighter-rouge">/</code> character. It is referred to as <code class="highlighter-rouge">volume_name</code> in the rest of this topic.</li>
+  <li>The <code class="highlighter-rouge">Mountpoint</code> is the path on the host (v1) or in the plugin (v2) where the
+volume has been made available.</li>
+</ul>
+
+<h3 id="volumedriver"><code class="highlighter-rouge">volumedriver</code></h3>
+
+<p>Specifying a <code class="highlighter-rouge">volumedriver</code> in conjunction with a <code class="highlighter-rouge">volumename</code> allows you to
+use plugins such as <a href="https://github.com/ScatterHQ/flocker">Flocker</a> to manage
+volumes external to a single host, such as those on EBS.</p>
+
+<h2 id="create-a-volumedriver">Create a VolumeDriver</h2>
+
+<p>The container creation endpoint (<code class="highlighter-rouge">/containers/create</code>) accepts a <code class="highlighter-rouge">VolumeDriver</code>
+field of type <code class="highlighter-rouge">string</code> allowing to specify the name of the driver. If not
+specified, it defaults to <code class="highlighter-rouge">"local"</code> (the default driver for local volumes).</p>
+
+<h2 id="volume-plugin-protocol">Volume plugin protocol</h2>
+
+<p>If a plugin registers itself as a <code class="highlighter-rouge">VolumeDriver</code> when activated, it must
+provide the Docker Daemon with writeable paths on the host filesystem. The Docker
+daemon provides these paths to containers to consume. The Docker daemon makes
+the volumes available by bind-mounting the provided paths into the containers.</p>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>Volume plugins should <em>not</em> write data to the <code class="highlighter-rouge">/var/lib/docker/</code> directory,
+including <code class="highlighter-rouge">/var/lib/docker/volumes</code>. The <code class="highlighter-rouge">/var/lib/docker/</code> directory is
+reserved for Docker.</p>
+</blockquote>
+
+<h3 id="volumedrivercreate"><code class="highlighter-rouge">/VolumeDriver.Create</code></h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Opts"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Instruct the plugin that the user wants to create a volume, given a user
+specified volume name. The plugin does not need to actually manifest the
+volume on the filesystem yet (until <code class="highlighter-rouge">Mount</code> is called).
+<code class="highlighter-rouge">Opts</code> is a map of driver specific options passed through from the user request.</p>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Respond with a string error if an error occurred.</p>
+
+<h3 id="volumedriverremove"><code class="highlighter-rouge">/VolumeDriver.Remove</code></h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Delete the specified volume from disk. This request is issued when a user
+invokes <code class="highlighter-rouge">docker rm -v</code> to remove volumes associated with a container.</p>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Respond with a string error if an error occurred.</p>
+
+<h3 id="volumedrivermount"><code class="highlighter-rouge">/VolumeDriver.Mount</code></h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b87d7442095999a92b65b3d9691e697b61713829cc0ffd1bb72e4ccd51aa4d6c"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Docker requires the plugin to provide a volume, given a user specified volume
+name. <code class="highlighter-rouge">Mount</code> is called once per container start. If the same <code class="highlighter-rouge">volume_name</code> is requested
+more than once, the plugin may need to keep track of each new mount request and provision
+at the first mount request and deprovision at the last corresponding unmount request.</p>
+
+<p><code class="highlighter-rouge">ID</code> is a unique ID for the caller that is requesting the mount.</p>
+
+<p><strong>Response</strong>:</p>
+
+<ul>
+  <li>
+    <p><strong>v1</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/directory/on/host"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>v2</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/under/PropagatedMount"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><code class="highlighter-rouge">Mountpoint</code> is the path on the host (v1) or in the plugin (v2) where the volume
+has been made available.</p>
+
+<p><code class="highlighter-rouge">Err</code> is either empty or contains an error string.</p>
+
+<h3 id="volumedriverpath"><code class="highlighter-rouge">/VolumeDriver.Path</code></h3>
+
+<p><strong>Request</strong>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Request the path to the volume with the given <code class="highlighter-rouge">volume_name</code>.</p>
+
+<p><strong>Response</strong>:</p>
+
+<ul>
+  <li>
+    <p><strong>v1</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/directory/on/host"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>v2</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/under/PropagatedMount"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Respond with the path on the host (v1) or inside the plugin (v2) where the
+volume has been made available, and/or a string error if an error occurred.</p>
+
+<p><code class="highlighter-rouge">Mountpoint</code> is optional. However, the plugin may be queried again later if one
+is not provided.</p>
+
+<h3 id="volumedriverunmount"><code class="highlighter-rouge">/VolumeDriver.Unmount</code></h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b87d7442095999a92b65b3d9691e697b61713829cc0ffd1bb72e4ccd51aa4d6c"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Docker is no longer using the named volume. <code class="highlighter-rouge">Unmount</code> is called once per
+container stop. Plugin may deduce that it is safe to deprovision the volume at
+this point.</p>
+
+<p><code class="highlighter-rouge">ID</code> is a unique ID for the caller that is requesting the mount.</p>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Respond with a string error if an error occurred.</p>
+
+<h3 id="volumedriverget"><code class="highlighter-rouge">/VolumeDriver.Get</code></h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Get info about <code class="highlighter-rouge">volume_name</code>.</p>
+
+<p><strong>Response</strong>:</p>
+
+<ul>
+  <li>
+    <p><strong>v1</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Volume"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/directory/on/host"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Status"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>v2</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Volume"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/under/PropagatedMount"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Status"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Respond with a string error if an error occurred. <code class="highlighter-rouge">Mountpoint</code> and <code class="highlighter-rouge">Status</code> are
+optional.</p>
+
+<h3 id="volumedriverlist">/VolumeDriver.List</h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Get the list of volumes registered with the plugin.</p>
+
+<p><strong>Response</strong>:</p>
+
+<ul>
+  <li>
+    <p><strong>v1</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Volumes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/directory/on/host"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>v2</strong>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Volumes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"volume_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"Mountpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/under/PropagatedMount"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"Err"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Respond with a string error if an error occurred. <code class="highlighter-rouge">Mountpoint</code> is optional.</p>
+
+<h3 id="volumedrivercapabilities">/VolumeDriver.Capabilities</h3>
+
+<p><strong>Request</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Get the list of capabilities the driver supports.</p>
+
+<p>The driver is not required to implement <code class="highlighter-rouge">Capabilities</code>. If it is not
+implemented, the default values are used.</p>
+
+<p><strong>Response</strong>:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Capabilities"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"Scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Supported scopes are <code class="highlighter-rouge">global</code> and <code class="highlighter-rouge">local</code>. Any other value in <code class="highlighter-rouge">Scope</code> will be
+ignored, and <code class="highlighter-rouge">local</code> is used. <code class="highlighter-rouge">Scope</code> allows cluster managers to handle the
+volume in different ways. For instance, a scope of <code class="highlighter-rouge">global</code>, signals to the
+cluster manager that it only needs to create the volume once instead of on each
+Docker host. More capabilities may be added in the future.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=Examples.html">Examples</a>, <a href="../../../search/index.html%3Fq=Usage.html">Usage</a>, <a href="../../../search/index.html%3Fq=volume.html">volume</a>, <a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=data.html">data</a>, <a href="../../../search/index.html%3Fq=volumes.html">volumes</a>, <a href="../../../search/index.html%3Fq=plugin.html">plugin</a>, <a href="../../../search/index.html%3Fq=api.html">api</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/extend/plugins_volume.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/extend/plugins_volume.md](https://docs.docker.com/engine/extend/plugins_volume/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#changelog" class="nomunge">Changelog</a>
+    <ul>
+      <li><a href="index.html#1130" class="nomunge">1.13.0</a></li>
+      <li><a href="index.html#1120" class="nomunge">1.12.0</a></li>
+      <li><a href="index.html#1100" class="nomunge">1.10.0</a></li>
+      <li><a href="index.html#180" class="nomunge">1.8.0</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#command-line-changes" class="nomunge">Command-line changes</a>
+    <ul>
+      <li><a href="index.html#--volume" class="nomunge">--volume</a></li>
+      <li><a href="index.html#volumedriver" class="nomunge">volumedriver</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#create-a-volumedriver" class="nomunge">Create a VolumeDriver</a></li>
+  <li><a href="index.html#volume-plugin-protocol" class="nomunge">Volume plugin protocol</a>
+    <ul>
+      <li><a href="index.html#volumedrivercreate" class="nomunge">/VolumeDriver.Create</a></li>
+      <li><a href="index.html#volumedriverremove" class="nomunge">/VolumeDriver.Remove</a></li>
+      <li><a href="index.html#volumedrivermount" class="nomunge">/VolumeDriver.Mount</a></li>
+      <li><a href="index.html#volumedriverpath" class="nomunge">/VolumeDriver.Path</a></li>
+      <li><a href="index.html#volumedriverunmount" class="nomunge">/VolumeDriver.Unmount</a></li>
+      <li><a href="index.html#volumedriverget" class="nomunge">/VolumeDriver.Get</a></li>
+      <li><a href="index.html#volumedriverlist" class="nomunge">/VolumeDriver.List</a></li>
+      <li><a href="index.html#volumedrivercapabilities" class="nomunge">/VolumeDriver.Capabilities</a></li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/extend/plugins_volume/";</script></body>
+</html>

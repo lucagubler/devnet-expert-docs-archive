@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Container networking | Docker Documentation</title>
+  <meta name="description" content="How networking works from the container&#39;s point of view" />
+  <meta name="keywords" content="networking, container, standalone">
+  <link rel="canonical" href="https://localhost:4000/config/containers/container-networking/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Container networking"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Container networking" />
+  <meta property="og:description" content="How networking works from the container&#39;s point of view" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/config/containers/container-networking/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Container networking","description":"How networking works from the container's point of view","url":"https://docs.docker.com/config/containers/container-networking/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../../network/index.html">Configure networking</a></li><li><a href="../../daemon/ipv6/index.html">Configure the daemon and containers</a></li><li><a href="index.html">Container networking</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Container networking</h1><p><em class="reading-time">Estimated reading time: 4 minutes</em></p><p>The type of network a container uses, whether it is a <a href="../../../network/bridge/index.html">bridge</a>, an
+<a href="../../../network/overlay/index.html">overlay</a>, a <a href="../../../network/macvlan/index.html">macvlan network</a>, or a custom network
+plugin, is transparent from within the container. From the container’s point of
+view, it has a network interface with an IP address, a gateway, a routing table,
+DNS services, and other networking details (assuming the container is not using
+the <code class="highlighter-rouge">none</code> network driver). This topic is about networking concerns from the
+point of view of the container.</p>
+
+<h2 id="published-ports">Published ports</h2>
+
+<p>By default, when you create or run a container using <code class="highlighter-rouge">docker create</code> or <code class="highlighter-rouge">docker run</code>,
+it does not publish any of its ports to the outside world. To make a port available
+to services outside of Docker, or to Docker containers which are not connected to
+the container’s network, use the <code class="highlighter-rouge">--publish</code> or <code class="highlighter-rouge">-p</code> flag. This creates a firewall
+rule which maps a container port to a port on the Docker host to the outside world.
+Here are some examples.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80</code></td>
+      <td>Map TCP port 80 in the container to port 8080 on the Docker host.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 192.168.1.100:8080:80</code></td>
+      <td>Map TCP port 80 in the container to port 8080 on the Docker host for connections to host IP 192.168.1.100.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80/udp</code></td>
+      <td>Map UDP port 80 in the container to port 8080 on the Docker host.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80/tcp -p 8080:80/udp</code></td>
+      <td>Map TCP port 80 in the container to TCP port 8080 on the Docker host, and map UDP port 80 in the container to UDP port 8080 on the Docker host.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="ip-address-and-hostname">IP address and hostname</h2>
+
+<p>By default, the container is assigned an IP address for every Docker network it
+connects to. The IP address is assigned from the pool assigned to
+the network, so the Docker daemon effectively acts as a DHCP server for each
+container. Each network also has a default subnet mask and gateway.</p>
+
+<p>When the container starts, it can only be connected to a single network, using
+<code class="highlighter-rouge">--network</code>. However, you can connect a running container to multiple
+networks using <code class="highlighter-rouge">docker network connect</code>. When you start a container using the
+<code class="highlighter-rouge">--network</code> flag, you can specify the IP address assigned to the container on
+that network using the <code class="highlighter-rouge">--ip</code> or <code class="highlighter-rouge">--ip6</code> flags.</p>
+
+<p>When you connect an existing container to a different network using
+<code class="highlighter-rouge">docker network connect</code>, you can use the <code class="highlighter-rouge">--ip</code> or <code class="highlighter-rouge">--ip6</code> flags on that
+command to specify the container’s IP address on the additional network.</p>
+
+<p>In the same way, a container’s hostname defaults to be the container’s ID in
+Docker. You can override the hostname using <code class="highlighter-rouge">--hostname</code>. When connecting to an
+existing network using <code class="highlighter-rouge">docker network connect</code>, you can use the <code class="highlighter-rouge">--alias</code>
+flag to specify an additional network alias for the container on that network.</p>
+
+<h2 id="dns-services">DNS services</h2>
+
+<p>By default, a container inherits the DNS settings of the host, as defined in the
+<code class="highlighter-rouge">/etc/resolv.conf</code> configuration file. Containers that use the default <code class="highlighter-rouge">bridge</code>
+network get a copy of this file, whereas containers that use a
+<a href="../../../network/network-tutorial-standalone/index.html#use-user-defined-bridge-networks">custom network</a>
+use Docker’s embedded DNS server, which forwards external DNS lookups to the DNS
+servers configured on the host.</p>
+
+<p>Custom hosts defined in <code class="highlighter-rouge">/etc/hosts</code> are not inherited. To pass additional hosts
+into your container, refer to <a href="../../../engine/reference/commandline/run/index.html#add-entries-to-container-hosts-file---add-host">add entries to container hosts file</a>
+in the <code class="highlighter-rouge">docker run</code> reference documentation. You can override these settings on
+a per-container basis.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">--dns</code></td>
+      <td>The IP address of a DNS server. To specify multiple DNS servers, use multiple <code class="highlighter-rouge">--dns</code> flags. If the container cannot reach any of the IP addresses you specify, Google’s public DNS server <code class="highlighter-rouge">8.8.8.8</code> is added, so that your container can resolve internet domains.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">--dns-search</code></td>
+      <td>A DNS search domain to search non-fully-qualified hostnames. To specify multiple DNS search prefixes, use multiple <code class="highlighter-rouge">--dns-search</code> flags.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">--dns-opt</code></td>
+      <td>A key-value pair representing a DNS option and its value. See your operating system’s documentation for <code class="highlighter-rouge">resolv.conf</code> for valid options.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">--hostname</code></td>
+      <td>The hostname a container uses for itself. Defaults to the container’s ID if not specified.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="proxy-server">Proxy server</h2>
+
+<p>If your container needs to use a proxy server, see
+<a href="../../../network/proxy/index.html">Use a proxy server</a>.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=networking.html">networking</a>, <a href="../../../search/index.html%3Fq=container.html">container</a>, <a href="../../../search/index.html%3Fq=standalone.html">standalone</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/config/containers/container-networking.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [config/containers/container-networking.md](https://docs.docker.com/config/containers/container-networking/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#published-ports" class="nomunge">Published ports</a></li>
+  <li><a href="index.html#ip-address-and-hostname" class="nomunge">IP address and hostname</a></li>
+  <li><a href="index.html#dns-services" class="nomunge">DNS services</a></li>
+  <li><a href="index.html#proxy-server" class="nomunge">Proxy server</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/config/containers/container-networking/";</script></body>
+</html>

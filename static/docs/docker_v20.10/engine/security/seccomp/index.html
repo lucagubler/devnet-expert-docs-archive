@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Seccomp security profiles for Docker | Docker Documentation</title>
+  <meta name="description" content="Enabling seccomp in Docker" />
+  <meta name="keywords" content="seccomp, security, docker, documentation">
+  <link rel="canonical" href="https://localhost:4000/engine/security/seccomp/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Seccomp security profiles for Docker"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Seccomp security profiles for Docker" />
+  <meta property="og:description" content="Enabling seccomp in Docker" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/security/seccomp/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Seccomp security profiles for Docker","description":"Enabling seccomp in Docker","url":"https://docs.docker.com/engine/security/seccomp/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../desktop/index.html">Manuals</a></li><li><a href="../../../security/index.html">Security</a></li><li><a href="../index.html">Docker Engine security</a></li><li><a href="index.html">Seccomp security profiles</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Seccomp security profiles for Docker</h1><p><em class="reading-time">Estimated reading time: 7 minutes</em></p><p>Secure computing mode (<code class="highlighter-rouge">seccomp</code>) is a Linux kernel feature. You can use it to
+restrict the actions available within the container. The <code class="highlighter-rouge">seccomp()</code> system
+call operates on the seccomp state of the calling process. You can use this
+feature to restrict your application’s access.</p>
+
+<p>This feature is available only if Docker has been built with <code class="highlighter-rouge">seccomp</code> and the
+kernel is configured with <code class="highlighter-rouge">CONFIG_SECCOMP</code> enabled. To check if your kernel
+supports <code class="highlighter-rouge">seccomp</code>:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">grep </span><span class="nv">CONFIG_SECCOMP</span><span class="o">=</span> /boot/config-<span class="k">$(</span>uname <span class="nt">-r</span><span class="k">)</span>
+<span class="go">CONFIG_SECCOMP=y
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong>: <code class="highlighter-rouge">seccomp</code> profiles require seccomp 2.2.1 which is not available on
+Ubuntu 14.04, Debian Wheezy, or Debian Jessie. To use <code class="highlighter-rouge">seccomp</code> on these
+distributions, you must download the <a href="../../install/binaries/index.html">latest static Linux binaries</a>
+(rather than packages).</p>
+</blockquote>
+
+<h2 id="pass-a-profile-for-a-container">Pass a profile for a container</h2>
+
+<p>The default <code class="highlighter-rouge">seccomp</code> profile provides a sane default for running containers with
+seccomp and disables around 44 system calls out of 300+. It is moderately
+protective while providing wide application compatibility. The default Docker
+profile can be found
+<a href="https://github.com/moby/moby/blob/master/profiles/seccomp/default.json">here</a>.</p>
+
+<p>In effect, the profile is a allowlist which denies access to system calls by
+default, then allowlists specific system calls. The profile works by defining a
+<code class="highlighter-rouge">defaultAction</code> of <code class="highlighter-rouge">SCMP_ACT_ERRNO</code> and overriding that action only for specific
+system calls. The effect of <code class="highlighter-rouge">SCMP_ACT_ERRNO</code> is to cause a <code class="highlighter-rouge">Permission Denied</code>
+error. Next, the profile defines a specific list of system calls which are fully
+allowed, because their <code class="highlighter-rouge">action</code> is overridden to be <code class="highlighter-rouge">SCMP_ACT_ALLOW</code>. Finally,
+some specific rules are for individual system calls such as <code class="highlighter-rouge">personality</code>, and others, 
+to allow variants of those system calls with specific arguments.</p>
+
+<p><code class="highlighter-rouge">seccomp</code> is instrumental for running Docker containers with least privilege. It
+is not recommended to change the default <code class="highlighter-rouge">seccomp</code> profile.</p>
+
+<p>When you run a container, it uses the default profile unless you override it
+with the <code class="highlighter-rouge">--security-opt</code> option. For example, the following explicitly
+specifies a policy:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="se">\</span>
+             <span class="nt">-it</span> <span class="se">\</span>
+             <span class="nt">--security-opt</span> <span class="nv">seccomp</span><span class="o">=</span>/path/to/seccomp/profile.json <span class="se">\</span>
+             hello-world
+</code></pre></div></div>
+
+<h3 id="significant-syscalls-blocked-by-the-default-profile">Significant syscalls blocked by the default profile</h3>
+
+<p>Docker’s default seccomp profile is an allowlist which specifies the calls that
+are allowed. The table below lists the significant (but not all) syscalls that
+are effectively blocked because they are not on the Allowlist. The table includes
+the reason each syscall is blocked rather than white-listed.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Syscall</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">acct</code></td>
+      <td>Accounting syscall which could let containers disable their own resource limits or process accounting. Also gated by <code class="highlighter-rouge">CAP_SYS_PACCT</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">add_key</code></td>
+      <td>Prevent containers from using the kernel keyring, which is not namespaced.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">bpf</code></td>
+      <td>Deny loading potentially persistent bpf programs into kernel, already gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">clock_adjtime</code></td>
+      <td>Time/date is not namespaced. Also gated by <code class="highlighter-rouge">CAP_SYS_TIME</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">clock_settime</code></td>
+      <td>Time/date is not namespaced. Also gated by <code class="highlighter-rouge">CAP_SYS_TIME</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">clone</code></td>
+      <td>Deny cloning new namespaces. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code> for CLONE_* flags, except <code class="highlighter-rouge">CLONE_NEWUSER</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">create_module</code></td>
+      <td>Deny manipulation and functions on kernel modules. Obsolete. Also gated by <code class="highlighter-rouge">CAP_SYS_MODULE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">delete_module</code></td>
+      <td>Deny manipulation and functions on kernel modules. Also gated by <code class="highlighter-rouge">CAP_SYS_MODULE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">finit_module</code></td>
+      <td>Deny manipulation and functions on kernel modules. Also gated by <code class="highlighter-rouge">CAP_SYS_MODULE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">get_kernel_syms</code></td>
+      <td>Deny retrieval of exported kernel and module symbols. Obsolete.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">get_mempolicy</code></td>
+      <td>Syscall that modifies kernel memory and NUMA settings. Already gated by <code class="highlighter-rouge">CAP_SYS_NICE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">init_module</code></td>
+      <td>Deny manipulation and functions on kernel modules. Also gated by <code class="highlighter-rouge">CAP_SYS_MODULE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">ioperm</code></td>
+      <td>Prevent containers from modifying kernel I/O privilege levels. Already gated by <code class="highlighter-rouge">CAP_SYS_RAWIO</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">iopl</code></td>
+      <td>Prevent containers from modifying kernel I/O privilege levels. Already gated by <code class="highlighter-rouge">CAP_SYS_RAWIO</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">kcmp</code></td>
+      <td>Restrict process inspection capabilities, already blocked by dropping <code class="highlighter-rouge">CAP_SYS_PTRACE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">kexec_file_load</code></td>
+      <td>Sister syscall of <code class="highlighter-rouge">kexec_load</code> that does the same thing, slightly different arguments. Also gated by <code class="highlighter-rouge">CAP_SYS_BOOT</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">kexec_load</code></td>
+      <td>Deny loading a new kernel for later execution. Also gated by <code class="highlighter-rouge">CAP_SYS_BOOT</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">keyctl</code></td>
+      <td>Prevent containers from using the kernel keyring, which is not namespaced.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">lookup_dcookie</code></td>
+      <td>Tracing/profiling syscall, which could leak a lot of information on the host. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">mbind</code></td>
+      <td>Syscall that modifies kernel memory and NUMA settings. Already gated by <code class="highlighter-rouge">CAP_SYS_NICE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">mount</code></td>
+      <td>Deny mounting, already gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">move_pages</code></td>
+      <td>Syscall that modifies kernel memory and NUMA settings.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">name_to_handle_at</code></td>
+      <td>Sister syscall to <code class="highlighter-rouge">open_by_handle_at</code>. Already gated by <code class="highlighter-rouge">CAP_DAC_READ_SEARCH</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">nfsservctl</code></td>
+      <td>Deny interaction with the kernel nfs daemon. Obsolete since Linux 3.1.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">open_by_handle_at</code></td>
+      <td>Cause of an old container breakout. Also gated by <code class="highlighter-rouge">CAP_DAC_READ_SEARCH</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">perf_event_open</code></td>
+      <td>Tracing/profiling syscall, which could leak a lot of information on the host.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">personality</code></td>
+      <td>Prevent container from enabling BSD emulation. Not inherently dangerous, but poorly tested, potential for a lot of kernel vulns.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">pivot_root</code></td>
+      <td>Deny <code class="highlighter-rouge">pivot_root</code>, should be privileged operation.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">process_vm_readv</code></td>
+      <td>Restrict process inspection capabilities, already blocked by dropping <code class="highlighter-rouge">CAP_SYS_PTRACE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">process_vm_writev</code></td>
+      <td>Restrict process inspection capabilities, already blocked by dropping <code class="highlighter-rouge">CAP_SYS_PTRACE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">ptrace</code></td>
+      <td>Tracing/profiling syscall. Blocked in Linux kernel versions before 4.8 to avoid seccomp bypass. Tracing/profiling arbitrary processes is already blocked by dropping <code class="highlighter-rouge">CAP_SYS_PTRACE</code>, because it could leak a lot of information on the host.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">query_module</code></td>
+      <td>Deny manipulation and functions on kernel modules. Obsolete.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">quotactl</code></td>
+      <td>Quota syscall which could let containers disable their own resource limits or process accounting. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">reboot</code></td>
+      <td>Don’t let containers reboot the host. Also gated by <code class="highlighter-rouge">CAP_SYS_BOOT</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">request_key</code></td>
+      <td>Prevent containers from using the kernel keyring, which is not namespaced.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">set_mempolicy</code></td>
+      <td>Syscall that modifies kernel memory and NUMA settings. Already gated by <code class="highlighter-rouge">CAP_SYS_NICE</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">setns</code></td>
+      <td>Deny associating a thread with a namespace. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">settimeofday</code></td>
+      <td>Time/date is not namespaced. Also gated by <code class="highlighter-rouge">CAP_SYS_TIME</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">stime</code></td>
+      <td>Time/date is not namespaced. Also gated by <code class="highlighter-rouge">CAP_SYS_TIME</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">swapon</code></td>
+      <td>Deny start/stop swapping to file/device. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">swapoff</code></td>
+      <td>Deny start/stop swapping to file/device. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">sysfs</code></td>
+      <td>Obsolete syscall.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">_sysctl</code></td>
+      <td>Obsolete, replaced by /proc/sys.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">umount</code></td>
+      <td>Should be a privileged operation. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">umount2</code></td>
+      <td>Should be a privileged operation. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">unshare</code></td>
+      <td>Deny cloning new namespaces for processes. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>, with the exception of <code class="highlighter-rouge">unshare --user</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">uselib</code></td>
+      <td>Older syscall related to shared libraries, unused for a long time.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">userfaultfd</code></td>
+      <td>Userspace page fault handling, largely needed for process migration.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">ustat</code></td>
+      <td>Obsolete syscall.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">vm86</code></td>
+      <td>In kernel x86 real mode virtual machine. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">vm86old</code></td>
+      <td>In kernel x86 real mode virtual machine. Also gated by <code class="highlighter-rouge">CAP_SYS_ADMIN</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="run-without-the-default-seccomp-profile">Run without the default seccomp profile</h2>
+
+<p>You can pass <code class="highlighter-rouge">unconfined</code> to run a container without the default seccomp
+profile.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">--rm</span> <span class="nt">-it</span> <span class="nt">--security-opt</span> <span class="nv">seccomp</span><span class="o">=</span>unconfined debian:jessie <span class="se">\</span>
+    unshare <span class="nt">--map-root-user</span> <span class="nt">--user</span> sh <span class="nt">-c</span> whoami
+</code></pre></div></div>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=seccomp.html">seccomp</a>, <a href="../../../search/index.html%3Fq=security.html">security</a>, <a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=documentation.html">documentation</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/security/seccomp.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/security/seccomp.md](https://docs.docker.com/engine/security/seccomp/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#pass-a-profile-for-a-container" class="nomunge">Pass a profile for a container</a>
+    <ul>
+      <li><a href="index.html#significant-syscalls-blocked-by-the-default-profile" class="nomunge">Significant syscalls blocked by the default profile</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#run-without-the-default-seccomp-profile" class="nomunge">Run without the default seccomp profile</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/security/seccomp/";</script></body>
+</html>

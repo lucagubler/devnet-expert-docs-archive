@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Deploy a registry server | Docker Documentation</title>
+  <meta name="description" content="Explains how to deploy a registry" />
+  <meta name="keywords" content="registry, on-prem, images, tags, repository, distribution, deployment">
+  <link rel="canonical" href="https://localhost:4000/registry/deploying/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../js/theme-switcher.js"></script>
+  <script defer src="../../js/anchorlinks.js"></script>
+  <script defer src="../../js/jquery.js"></script>
+  <script defer src="../../js/bootstrap.min.js"></script>
+  <script defer src="../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Deploy a registry server"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Deploy a registry server" />
+  <meta property="og:description" content="Explains how to deploy a registry" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/registry/deploying/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Deploy a registry server","description":"Explains how to deploy a registry","url":"https://docs.docker.com/registry/deploying/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../index.html">
+        <img src="../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../index.html" id="home">Home</a></li><li><a href="../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../reference/index.html" id="reference">Reference</a></li><li><a href="../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../desktop/index.html">Manuals</a></li><li><a>Open-source projects</a></li><li><a href="../index.html">Docker Registry</a></li><li><a href="index.html">Deploy a registry server</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Deploy a registry server</h1><p><em class="reading-time">Estimated reading time: 18 minutes</em></p><!-- This text will be included in the Docker Registry docs -->
+
+<blockquote class="important">
+
+  <p>This page contains information about hosting your own registry using the
+open source Docker Registry. For information about Docker Hub, which offers a
+hosted registry with additional features such as teams, organizations, web
+hooks, automated builds, etc, see <a href="../../docker-hub/index.html">Docker Hub</a>.</p>
+</blockquote>
+
+<p>Before you can deploy a registry, you need to install Docker on the host.
+A registry is an instance of the <code class="highlighter-rouge">registry</code> image, and runs within Docker.</p>
+
+<p>This topic provides basic information about deploying and configuring a
+registry. For an exhaustive list of configuration options, see the
+<a href="../configuration/index.html">configuration reference</a>.</p>
+
+<p>If you have an air-gapped datacenter, see
+<a href="index.html#considerations-for-air-gapped-registries">Considerations for air-gapped registries</a>.</p>
+
+<h2 id="run-a-local-registry">Run a local registry</h2>
+
+<p>Use a command like the following to start the registry container:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="nt">-p</span> 5000:5000 <span class="nt">--restart</span><span class="o">=</span>always <span class="nt">--name</span> registry registry:2
+</code></pre></div></div>
+
+<p>The registry is now ready to use.</p>
+
+<blockquote>
+  <p><strong>Warning</strong>: These first few examples show registry configurations that are
+only appropriate for testing. A production-ready registry must be protected by
+TLS and should ideally use an access-control mechanism. Keep reading and then
+continue to the <a href="../configuration/index.html">configuration guide</a> to deploy a
+production-ready registry.</p>
+</blockquote>
+
+<h2 id="copy-an-image-from-docker-hub-to-your-registry">Copy an image from Docker Hub to your registry</h2>
+
+<p>You can pull an image from Docker Hub and push it to your registry. The
+following example pulls the <code class="highlighter-rouge">ubuntu:16.04</code> image from Docker Hub and re-tags it
+as <code class="highlighter-rouge">my-ubuntu</code>, then pushes it to the local registry. Finally, the
+<code class="highlighter-rouge">ubuntu:16.04</code> and <code class="highlighter-rouge">my-ubuntu</code> images are deleted locally and the
+<code class="highlighter-rouge">my-ubuntu</code> image is pulled from the local registry.</p>
+
+<ol>
+  <li>
+    <p>Pull the <code class="highlighter-rouge">ubuntu:16.04</code> image from Docker Hub.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull ubuntu:16.04
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Tag the image as <code class="highlighter-rouge">localhost:5000/my-ubuntu</code>. This creates an additional tag
+for the existing image. When the first part of the tag is a hostname and
+port, Docker interprets this as the location of a registry, when pushing.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker tag ubuntu:16.04 localhost:5000/my-ubuntu
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Push the image to the local registry running at <code class="highlighter-rouge">localhost:5000</code>:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker push localhost:5000/my-ubuntu
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Remove the locally-cached <code class="highlighter-rouge">ubuntu:16.04</code> and <code class="highlighter-rouge">localhost:5000/my-ubuntu</code>
+images, so that you can test pulling the image from your registry. This
+does not remove the <code class="highlighter-rouge">localhost:5000/my-ubuntu</code> image from your registry.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker image remove ubuntu:16.04
+<span class="gp">$</span> docker image remove localhost:5000/my-ubuntu
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Pull the <code class="highlighter-rouge">localhost:5000/my-ubuntu</code> image from your local registry.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull localhost:5000/my-ubuntu
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="stop-a-local-registry">Stop a local registry</h2>
+
+<p>To stop the registry, use the same <code class="highlighter-rouge">docker container stop</code> command as with any other
+container.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container stop registry
+</code></pre></div></div>
+
+<p>To remove the container, use <code class="highlighter-rouge">docker container rm</code>.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container stop registry <span class="o">&amp;&amp;</span> docker container rm <span class="nt">-v</span> registry
+</code></pre></div></div>
+
+<h2 id="basic-configuration">Basic configuration</h2>
+
+<p>To configure the container, you can pass additional or modified options to the
+<code class="highlighter-rouge">docker run</code> command.</p>
+
+<p>The following sections provide basic guidelines for configuring your registry.
+For more details, see the <a href="../configuration/index.html">registry configuration reference</a>.</p>
+
+<h3 id="start-the-registry-automatically">Start the registry automatically</h3>
+
+<p>If you want to use the registry as part of your permanent infrastructure, you
+should set it to restart automatically when Docker restarts or if it exits.
+This example uses the <code class="highlighter-rouge">--restart always</code> flag to set a restart policy for the
+registry.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-p</span> 5000:5000 <span class="se">\</span>
+  <span class="nt">--restart</span><span class="o">=</span>always <span class="se">\</span>
+  <span class="nt">--name</span> registry <span class="se">\</span>
+  registry:2
+</code></pre></div></div>
+
+<h3 id="customize-the-published-port">Customize the published port</h3>
+
+<p>If you are already using port 5000, or you want to run multiple local
+registries to separate areas of concern, you can customize the registry’s
+port settings. This example runs the registry on port 5001 and also names it
+<code class="highlighter-rouge">registry-test</code>. Remember, the first part of the <code class="highlighter-rouge">-p</code> value is the host port
+and the second part is the port within the container. Within the container, the
+registry listens on port <code class="highlighter-rouge">5000</code> by default.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-p</span> 5001:5000 <span class="se">\</span>
+  <span class="nt">--name</span> registry-test <span class="se">\</span>
+  registry:2
+</code></pre></div></div>
+
+<p>If you want to change the port the registry listens on within the container, you
+can use the environment variable <code class="highlighter-rouge">REGISTRY_HTTP_ADDR</code> to change it. This command
+causes the registry to listen on port 5001 within the container:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_ADDR</span><span class="o">=</span>0.0.0.0:5001 <span class="se">\</span>
+  <span class="nt">-p</span> 5001:5001 <span class="se">\</span>
+  <span class="nt">--name</span> registry-test <span class="se">\</span>
+  registry:2
+</code></pre></div></div>
+
+<h2 id="storage-customization">Storage customization</h2>
+
+<h3 id="customize-the-storage-location">Customize the storage location</h3>
+
+<p>By default, your registry data is persisted as a <a href="../../storage/volumes/index.html">docker volume</a>
+on the host filesystem. If you want to store your registry contents at a specific
+location on your host filesystem, such as if you have an SSD or SAN mounted into
+a particular directory, you might decide to use a bind mount instead. A bind mount
+is more dependent on the filesystem layout of the Docker host, but more performant
+in many situations. The following example bind-mounts the host directory
+<code class="highlighter-rouge">/mnt/registry</code> into the registry container at <code class="highlighter-rouge">/var/lib/registry/</code>.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-p</span> 5000:5000 <span class="se">\</span>
+  <span class="nt">--restart</span><span class="o">=</span>always <span class="se">\</span>
+  <span class="nt">--name</span> registry <span class="se">\</span>
+  <span class="nt">-v</span> /mnt/registry:/var/lib/registry <span class="se">\</span>
+  registry:2
+</code></pre></div></div>
+
+<h3 id="customize-the-storage-back-end">Customize the storage back-end</h3>
+
+<p>By default, the registry stores its data on the local filesystem, whether you
+use a bind mount or a volume. You can store the registry data in an Amazon S3
+bucket, Google Cloud Platform, or on another storage back-end by using
+<a href="../storage-drivers/index.html">storage drivers</a>. For more information, see
+<a href="../configuration/index.html#storage">storage configuration options</a>.</p>
+
+<h2 id="run-an-externally-accessible-registry">Run an externally-accessible registry</h2>
+
+<p>Running a registry only accessible on <code class="highlighter-rouge">localhost</code> has limited usefulness. In
+order to make your registry accessible to external hosts, you must first secure
+it using TLS.</p>
+
+<p>This example is extended in <a href="index.html#run-the-registry-as-a-service">Run the registry as a
+service</a> below.</p>
+
+<h3 id="get-a-certificate">Get a certificate</h3>
+
+<p>These examples assume the following:</p>
+
+<ul>
+  <li>Your registry URL is <code class="highlighter-rouge">https://myregistry.domain.com/</code>.</li>
+  <li>Your DNS, routing, and firewall settings allow access to the registry’s host
+on port 443.</li>
+  <li>You have already obtained a certificate from a certificate authority (CA).</li>
+</ul>
+
+<p>If you have been issued an <em>intermediate</em> certificate instead, see
+<a href="index.html#use-an-intermediate-certificate">use an intermediate certificate</a>.</p>
+
+<ol>
+  <li>
+    <p>Create a <code class="highlighter-rouge">certs</code> directory.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> mkdir <span class="nt">-p</span> certs
+</code></pre></div>    </div>
+
+    <p>Copy the <code class="highlighter-rouge">.crt</code> and <code class="highlighter-rouge">.key</code> files from the CA into the <code class="highlighter-rouge">certs</code> directory.
+The following steps assume that the files are named <code class="highlighter-rouge">domain.crt</code> and
+<code class="highlighter-rouge">domain.key</code>.</p>
+  </li>
+  <li>
+    <p>Stop the registry if it is currently running.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container stop registry
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Restart the registry, directing it to use the TLS certificate. This command
+bind-mounts the <code class="highlighter-rouge">certs/</code> directory into the container at <code class="highlighter-rouge">/certs/</code>, and sets
+environment variables that tell the container where to find the <code class="highlighter-rouge">domain.crt</code>
+and <code class="highlighter-rouge">domain.key</code> file. The registry runs on port 443, the default HTTPS port.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">--restart</span><span class="o">=</span>always <span class="se">\</span>
+  <span class="nt">--name</span> registry <span class="se">\</span>
+  <span class="nt">-v</span> <span class="s2">"</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">"</span>/certs:/certs <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_ADDR</span><span class="o">=</span>0.0.0.0:443 <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/domain.crt <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/domain.key <span class="se">\</span>
+  <span class="nt">-p</span> 443:443 <span class="se">\</span>
+  registry:2
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Docker clients can now pull from and push to your registry using its
+external address. The following commands demonstrate this:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull ubuntu:16.04
+<span class="gp">$</span> docker tag ubuntu:16.04 myregistry.domain.com/my-ubuntu
+<span class="gp">$</span> docker push myregistry.domain.com/my-ubuntu
+<span class="gp">$</span> docker pull myregistry.domain.com/my-ubuntu
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h4 id="use-an-intermediate-certificate">Use an intermediate certificate</h4>
+
+<p>A certificate issuer may supply you with an <em>intermediate</em> certificate. In this
+case, you must concatenate your certificate with the intermediate certificate to
+form a <em>certificate bundle</em>. You can do this using the <code class="highlighter-rouge">cat</code> command:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">cat domain.crt intermediate-certificates.pem &gt;</span> certs/domain.crt
+</code></pre></div></div>
+
+<p>You can use the certificate bundle just as you use the <code class="highlighter-rouge">domain.crt</code> file in
+the previous example.</p>
+
+<h3 id="support-for-lets-encrypt">Support for Let’s Encrypt</h3>
+
+<p>The registry supports using Let’s Encrypt to automatically obtain a
+browser-trusted certificate. For more information on Let’s Encrypt, see
+<a href="https://letsencrypt.org/how-it-works/">https://letsencrypt.org/how-it-works/</a>
+and the relevant section of the
+<a href="../configuration/index.html#letsencrypt">registry configuration</a>.</p>
+
+<h3 id="use-an-insecure-registry-testing-only">Use an insecure registry (testing only)</h3>
+
+<p>It is possible to use a self-signed certificate, or to use our registry
+insecurely. Unless you have set up verification for your self-signed
+certificate, this is for testing only. See <a href="../insecure/index.html">run an insecure registry</a>.</p>
+
+<h2 id="run-the-registry-as-a-service">Run the registry as a service</h2>
+
+<p><a href="../../engine/swarm/services/index.html">Swarm services</a> provide several advantages over
+standalone containers. They use a declarative model, which means that you define
+the desired state and Docker works to keep your service in that state. Services
+provide automatic load balancing scaling, and the ability to control the
+distribution of your service, among other advantages. Services also allow you to
+store sensitive data such as TLS certificates in
+<a href="../../engine/swarm/secrets/index.html">secrets</a>.</p>
+
+<p>The storage back-end you use determines whether you use a fully scaled service
+or a service with either only a single node or a node constraint.</p>
+
+<ul>
+  <li>
+    <p>If you use a distributed storage driver, such as Amazon S3, you can use a
+fully replicated service. Each worker can write to the storage back-end
+without causing write conflicts.</p>
+  </li>
+  <li>
+    <p>If you use a local bind mount or volume, each worker node writes to its
+own storage location, which means that each registry contains a different
+data set. You can solve this problem by using a single-replica service and a
+node constraint to ensure that only a single worker is writing to the bind
+mount.</p>
+  </li>
+</ul>
+
+<p>The following example starts a registry as a single-replica service, which is
+accessible on any swarm node on port 80. It assumes you are using the same
+TLS certificates as in the previous examples.</p>
+
+<p>First, save the TLS certificate and key as secrets:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker secret create domain.crt certs/domain.crt
+<span class="go">
+</span><span class="gp">$</span> docker secret create domain.key certs/domain.key
+</code></pre></div></div>
+
+<p>Next, add a label to the node where you want to run the registry.
+To get the node’s name, use <code class="highlighter-rouge">docker node ls</code>. Substitute your node’s name for
+<code class="highlighter-rouge">node1</code> below.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker node update <span class="nt">--label-add</span> <span class="nv">registry</span><span class="o">=</span><span class="nb">true </span>node1
+</code></pre></div></div>
+
+<p>Next, create the service, granting it access to the two secrets and constraining
+it to only run on nodes with the label <code class="highlighter-rouge">registry=true</code>. Besides the constraint,
+you are also specifying that only a single replica should run at a time. The
+example bind-mounts <code class="highlighter-rouge">/mnt/registry</code> on the swarm node to <code class="highlighter-rouge">/var/lib/registry/</code>
+within the container. Bind mounts rely on the pre-existing source directory,
+so be sure <code class="highlighter-rouge">/mnt/registry</code> exists on <code class="highlighter-rouge">node1</code>. You might need to create it before
+running the following <code class="highlighter-rouge">docker service create</code> command.</p>
+
+<p>By default, secrets are mounted into a service at <code class="highlighter-rouge">/run/secrets/&lt;secret-name&gt;</code>.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service create <span class="se">\</span>
+  <span class="nt">--name</span> registry <span class="se">\</span>
+  <span class="nt">--secret</span> domain.crt <span class="se">\</span>
+  <span class="nt">--secret</span> domain.key <span class="se">\</span>
+  <span class="nt">--constraint</span> <span class="s1">'node.labels.registry==true'</span> <span class="se">\</span>
+  <span class="nt">--mount</span> <span class="nb">type</span><span class="o">=</span><span class="nb">bind</span>,src<span class="o">=</span>/mnt/registry,dst<span class="o">=</span>/var/lib/registry <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_ADDR</span><span class="o">=</span>0.0.0.0:443 <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/run/secrets/domain.crt <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/run/secrets/domain.key <span class="se">\</span>
+  <span class="nt">--publish</span> <span class="nv">published</span><span class="o">=</span>443,target<span class="o">=</span>443 <span class="se">\</span>
+  <span class="nt">--replicas</span> 1 <span class="se">\</span>
+  registry:2
+</code></pre></div></div>
+
+<p>You can access the service on port 443 of any swarm node. Docker sends the
+requests to the node which is running the service.</p>
+
+<h2 id="load-balancing-considerations">Load balancing considerations</h2>
+
+<p>One may want to use a load balancer to distribute load, terminate TLS or
+provide high availability. While a full load balancing setup is outside the
+scope of this document, there are a few considerations that can make the process
+smoother.</p>
+
+<p>The most important aspect is that a load balanced cluster of registries must
+share the same resources. For the current version of the registry, this means
+the following must be the same:</p>
+
+<ul>
+  <li>Storage Driver</li>
+  <li>HTTP Secret</li>
+  <li>Redis Cache (if configured)</li>
+</ul>
+
+<p>Differences in any of the above cause problems serving requests.
+As an example, if you’re using the filesystem driver, all registry instances
+must have access to the same filesystem root, on
+the same machine. For other drivers, such as S3 or Azure, they should be
+accessing the same resource and share an identical configuration.
+The <em>HTTP Secret</em> coordinates uploads, so also must be the same across
+instances. Configuring different redis instances works (at the time
+of writing), but is not optimal if the instances are not shared, because
+more requests are directed to the backend.</p>
+
+<h3 id="importantrequired-http-headers">Important/Required HTTP-Headers</h3>
+
+<p>Getting the headers correct is very important. For all responses to any
+request under the “/v2/” url space, the <code class="highlighter-rouge">Docker-Distribution-API-Version</code>
+header should be set to the value “registry/2.0”, even for a 4xx response.
+This header allows the docker engine to quickly resolve authentication realms
+and fallback to version 1 registries, if necessary. Confirming this is setup
+correctly can help avoid problems with fallback.</p>
+
+<p>In the same train of thought, you must make sure you are properly sending the
+<code class="highlighter-rouge">X-Forwarded-Proto</code>, <code class="highlighter-rouge">X-Forwarded-For</code>, and <code class="highlighter-rouge">Host</code> headers to their “client-side”
+values. Failure to do so usually makes the registry issue redirects to internal
+hostnames or downgrading from https to http.</p>
+
+<p>A properly secured registry should return 401 when the “/v2/” endpoint is hit
+without credentials. The response should include a <code class="highlighter-rouge">WWW-Authenticate</code>
+challenge, providing guidance on how to authenticate, such as with basic auth
+or a token service. If the load balancer has health checks, it is recommended
+to configure it to consider a 401 response as healthy and any other as down.
+This secures your registry by ensuring that configuration problems with
+authentication don’t accidentally expose an unprotected registry. If you’re
+using a less sophisticated load balancer, such as Amazon’s Elastic Load
+Balancer, that doesn’t allow one to change the healthy response code, health
+checks can be directed at “/”, which always returns a <code class="highlighter-rouge">200 OK</code> response.</p>
+
+<h2 id="restricting-access">Restricting access</h2>
+
+<p>Except for registries running on secure local networks, registries should always
+implement access restrictions.</p>
+
+<h3 id="native-basic-auth">Native basic auth</h3>
+
+<p>The simplest way to achieve access restriction is through basic authentication
+(this is very similar to other web servers’ basic authentication mechanism).
+This example uses native basic authentication using <code class="highlighter-rouge">htpasswd</code> to store the
+secrets.</p>
+
+<blockquote class="warning">
+  <p><strong>Warning</strong>:
+You <strong>cannot</strong> use authentication with authentication schemes that send
+credentials as clear text. You must
+<a href="index.html#run-an-externally-accessible-registry">configure TLS first</a> for
+authentication to work.</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p>Create a password file with one entry for the user <code class="highlighter-rouge">testuser</code>, with password
+<code class="highlighter-rouge">testpassword</code>:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> mkdir auth
+<span class="gp">$</span> docker run <span class="se">\</span>
+  <span class="nt">--entrypoint</span> htpasswd <span class="se">\</span>
+  httpd:2 <span class="nt">-Bbn</span> testuser testpassword <span class="o">&gt;</span> auth/htpasswd
+</code></pre></div>    </div>
+
+    <p>On Windows, make sure the output file is correctly encoded:</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm --entrypoint htpasswd httpd:2 -Bbn testuser testpassword | <span class="nb">Set-Content</span> -Encoding ASCII auth/htpasswd
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Stop the registry.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker container stop registry
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Start the registry with basic authentication.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> <span class="se">\</span>
+  <span class="nt">-p</span> 5000:5000 <span class="se">\</span>
+  <span class="nt">--restart</span><span class="o">=</span>always <span class="se">\</span>
+  <span class="nt">--name</span> registry <span class="se">\</span>
+  <span class="nt">-v</span> <span class="s2">"</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">"</span>/auth:/auth <span class="se">\</span>
+  <span class="nt">-e</span> <span class="s2">"REGISTRY_AUTH=htpasswd"</span> <span class="se">\</span>
+  <span class="nt">-e</span> <span class="s2">"REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"</span> <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_AUTH_HTPASSWD_PATH</span><span class="o">=</span>/auth/htpasswd <span class="se">\</span>
+  <span class="nt">-v</span> <span class="s2">"</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">"</span>/certs:/certs <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="o">=</span>/certs/domain.crt <span class="se">\</span>
+  <span class="nt">-e</span> <span class="nv">REGISTRY_HTTP_TLS_KEY</span><span class="o">=</span>/certs/domain.key <span class="se">\</span>
+  registry:2
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Try to pull an image from the registry, or push an image to the registry.
+These commands fail.</p>
+  </li>
+  <li>
+    <p>Log in to the registry.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker login myregistrydomain.com:5000
+</code></pre></div>    </div>
+
+    <p>Provide the username and password from the first step.</p>
+
+    <p>Test that you can now pull an image from the registry or push an image to
+the registry.</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p><strong>X509 errors</strong>: X509 errors usually indicate that you are attempting to use
+a self-signed certificate without configuring the Docker daemon correctly.
+See <a href="../insecure/index.html">run an insecure registry</a>.</p>
+</blockquote>
+
+<h3 id="more-advanced-authentication">More advanced authentication</h3>
+
+<p>You may want to leverage more advanced basic auth implementations by using a
+proxy in front of the registry. See the <a href="../recipes/index.html">recipes list</a>.</p>
+
+<p>The registry also supports delegated authentication which redirects users to a
+specific trusted token server. This approach is more complicated to set up, and
+only makes sense if you need to fully configure ACLs and need more control over
+the registry’s integration into your global authorization and authentication
+systems. Refer to the following <a href="../spec/auth/token/index.html">background information</a> and
+<a href="../configuration/index.html#auth">configuration information here</a>.</p>
+
+<p>This approach requires you to implement your own authentication system or
+leverage a third-party implementation.</p>
+
+<h2 id="deploy-your-registry-using-a-compose-file">Deploy your registry using a Compose file</h2>
+
+<p>If your registry invocation is advanced, it may be easier to use a Docker
+compose file to deploy it, rather than relying on a specific <code class="highlighter-rouge">docker run</code>
+invocation. Use the following example <code class="highlighter-rouge">docker-compose.yml</code> as a template.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">registry</span><span class="pi">:</span>
+  <span class="na">restart</span><span class="pi">:</span> <span class="s">always</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">registry:2</span>
+  <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">5000:5000</span>
+  <span class="na">environment</span><span class="pi">:</span>
+    <span class="na">REGISTRY_HTTP_TLS_CERTIFICATE</span><span class="pi">:</span> <span class="s">/certs/domain.crt</span>
+    <span class="na">REGISTRY_HTTP_TLS_KEY</span><span class="pi">:</span> <span class="s">/certs/domain.key</span>
+    <span class="na">REGISTRY_AUTH</span><span class="pi">:</span> <span class="s">htpasswd</span>
+    <span class="na">REGISTRY_AUTH_HTPASSWD_PATH</span><span class="pi">:</span> <span class="s">/auth/htpasswd</span>
+    <span class="na">REGISTRY_AUTH_HTPASSWD_REALM</span><span class="pi">:</span> <span class="s">Registry Realm</span>
+  <span class="na">volumes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">/path/data:/var/lib/registry</span>
+    <span class="pi">-</span> <span class="s">/path/certs:/certs</span>
+    <span class="pi">-</span> <span class="s">/path/auth:/auth</span>
+</code></pre></div></div>
+
+<p class="warning">Replace <code class="highlighter-rouge">/path</code> with the directory which contains the <code class="highlighter-rouge">certs/</code> and <code class="highlighter-rouge">auth/</code>
+directories.</p>
+
+<p>Start your registry by issuing the following command in the directory containing
+the <code class="highlighter-rouge">docker-compose.yml</code> file:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker-compose up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<h2 id="considerations-for-air-gapped-registries">Considerations for air-gapped registries</h2>
+
+<p>You can run a registry in an environment with no internet connectivity.
+However, if you rely on any images which are not local, you need to consider the
+following:</p>
+
+<ul>
+  <li>
+    <p>You may need to build your local registry’s data volume on a connected
+host where you can run <code class="highlighter-rouge">docker pull</code> to get any images which are available
+remotely, and then migrate the registry’s data volume to the air-gapped
+network.</p>
+  </li>
+  <li>
+    <p>Certain images, such as the official Microsoft Windows base images, are not
+distributable. This means that when you push an image based on one of these
+images to your private registry, the non-distributable layers are <strong>not</strong>
+pushed, but are always fetched from their authorized location. This is fine
+for internet-connected hosts, but not in an air-gapped set-up.</p>
+
+    <p>You can configure the Docker daemon to allow pushing non-distributable layers 
+to private registries.
+<strong>This is only useful in air-gapped set-ups in the presence of
+non-distributable images, or in extremely bandwidth-limited situations.</strong>
+You are responsible for ensuring that you are in compliance with the terms of
+use for non-distributable layers.</p>
+
+    <ol>
+      <li>
+        <p>Edit the <code class="highlighter-rouge">daemon.json</code> file, which is located in <code class="highlighter-rouge">/etc/docker/</code> on Linux
+hosts and <code class="highlighter-rouge">C:\ProgramData\docker\config\daemon.json</code> on Windows Server.
+Assuming the file was previously empty, add the following contents:</p>
+
+        <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"allow-nondistributable-artifacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"myregistrydomain.com:5000"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>        </div>
+
+        <p>The value is an array of registry addresses, separated by commas.</p>
+
+        <p>Save and exit the file.</p>
+      </li>
+      <li>
+        <p>Restart Docker.</p>
+      </li>
+      <li>
+        <p>Restart the registry if it does not start automatically.</p>
+      </li>
+      <li>
+        <p>When you push images to the registries in the list, their
+non-distributable layers are pushed to the registry.</p>
+
+        <blockquote>
+          <p><strong>Warning</strong>: Non-distributable artifacts typically have restrictions on
+how and where they can be distributed and shared. Only use this feature
+to push artifacts to private registries and ensure that you are in
+compliance with any terms that cover redistributing non-distributable
+artifacts.</p>
+        </blockquote>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>More specific and advanced information is available in the following sections:</p>
+
+<ul>
+  <li><a href="../configuration/index.html">Configuration reference</a></li>
+  <li><a href="../notifications/index.html">Working with notifications</a></li>
+  <li><a href="../recipes/index.html">Advanced “recipes”</a></li>
+  <li><a href="../spec/api/index.html">Registry API</a></li>
+  <li><a href="../storage-drivers/index.html">Storage driver model</a></li>
+  <li><a href="../spec/auth/token/index.html">Token authentication</a></li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../search/index.html%3Fq=registry.html">registry</a>, <a href="../../search/index.html%3Fq=on-prem.html">on-prem</a>, <a href="../../search/index.html%3Fq=images.html">images</a>, <a href="../../search/index.html%3Fq=tags.html">tags</a>, <a href="../../search/index.html%3Fq=repository.html">repository</a>, <a href="../../search/index.html%3Fq=distribution.html">distribution</a>, <a href="../../search/index.html%3Fq=deployment.html">deployment</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/registry/deploying.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [registry/deploying.md](https://docs.docker.com/registry/deploying/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#run-a-local-registry" class="nomunge">Run a local registry</a></li>
+  <li><a href="index.html#copy-an-image-from-docker-hub-to-your-registry" class="nomunge">Copy an image from Docker Hub to your registry</a></li>
+  <li><a href="index.html#stop-a-local-registry" class="nomunge">Stop a local registry</a></li>
+  <li><a href="index.html#basic-configuration" class="nomunge">Basic configuration</a>
+    <ul>
+      <li><a href="index.html#start-the-registry-automatically" class="nomunge">Start the registry automatically</a></li>
+      <li><a href="index.html#customize-the-published-port" class="nomunge">Customize the published port</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#storage-customization" class="nomunge">Storage customization</a>
+    <ul>
+      <li><a href="index.html#customize-the-storage-location" class="nomunge">Customize the storage location</a></li>
+      <li><a href="index.html#customize-the-storage-back-end" class="nomunge">Customize the storage back-end</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#run-an-externally-accessible-registry" class="nomunge">Run an externally-accessible registry</a>
+    <ul>
+      <li><a href="index.html#get-a-certificate" class="nomunge">Get a certificate</a>
+        <ul>
+          <li><a href="index.html#use-an-intermediate-certificate" class="nomunge">Use an intermediate certificate</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#support-for-lets-encrypt" class="nomunge">Support for Let’s Encrypt</a></li>
+      <li><a href="index.html#use-an-insecure-registry-testing-only" class="nomunge">Use an insecure registry (testing only)</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#run-the-registry-as-a-service" class="nomunge">Run the registry as a service</a></li>
+  <li><a href="index.html#load-balancing-considerations" class="nomunge">Load balancing considerations</a>
+    <ul>
+      <li><a href="index.html#importantrequired-http-headers" class="nomunge">Important/Required HTTP-Headers</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#restricting-access" class="nomunge">Restricting access</a>
+    <ul>
+      <li><a href="index.html#native-basic-auth" class="nomunge">Native basic auth</a></li>
+      <li><a href="index.html#more-advanced-authentication" class="nomunge">More advanced authentication</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#deploy-your-registry-using-a-compose-file" class="nomunge">Deploy your registry using a Compose file</a></li>
+  <li><a href="index.html#considerations-for-air-gapped-registries" class="nomunge">Considerations for air-gapped registries</a></li>
+  <li><a href="index.html#next-steps" class="nomunge">Next steps</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/registry/deploying/";</script></body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Manage swarm security with public key infrastructure (PKI) | Docker Documentation</title>
+  <meta name="description" content="How PKI works in swarm mode" />
+  <meta name="keywords" content="swarm, security, tls, pki,">
+  <link rel="canonical" href="https://localhost:4000/engine/swarm/how-swarm-mode-works/pki/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../../js/theme-switcher.js"></script>
+  <script defer src="../../../../js/anchorlinks.js"></script>
+  <script defer src="../../../../js/jquery.js"></script>
+  <script defer src="../../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Manage swarm security with public key infrastructure (PKI)"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Manage swarm security with public key infrastructure (PKI)" />
+  <meta property="og:description" content="How PKI works in swarm mode" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/swarm/how-swarm-mode-works/pki/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Manage swarm security with public key infrastructure (PKI)","description":"How PKI works in swarm mode","url":"https://docs.docker.com/engine/swarm/how-swarm-mode-works/pki/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../../index.html">
+                <img class="logo" src="../../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../../index.html">
+        <img src="../../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../../index.html" id="home">Home</a></li><li><a href="../../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+</div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Manage swarm security with public key infrastructure (PKI)</h1><p><em class="reading-time">Estimated reading time: 3 minutes</em></p><p>The swarm mode public key infrastructure (PKI) system built into Docker
+makes it simple to securely deploy a container orchestration system. The nodes
+in a swarm use mutual Transport Layer Security (TLS) to authenticate, authorize,
+and encrypt the communications with other nodes in the swarm.</p>
+
+<p>When you create a swarm by running <code class="highlighter-rouge">docker swarm init</code>, Docker designates itself
+as a manager node. By default, the manager node generates a new root Certificate
+Authority (CA) along with a key pair, which are used to secure communications
+with other nodes that join the swarm. If you prefer, you can specify your own
+externally-generated root CA, using the <code class="highlighter-rouge">--external-ca</code> flag of the
+<a href="../../../reference/commandline/swarm_init/index.html">docker swarm init</a> command.</p>
+
+<p>The manager node also generates two tokens to use when you join additional nodes
+to the swarm: one <strong>worker token</strong> and one <strong>manager token</strong>. Each token
+includes the digest of the root CA’s certificate and a randomly generated
+secret. When a node joins the swarm, the joining node uses the digest to
+validate the root CA certificate from the remote manager. The remote manager
+uses the secret to ensure the joining node is an approved node.</p>
+
+<p>Each time a new node joins the swarm, the manager issues a certificate to the
+node. The certificate contains a randomly generated node ID to identify the node
+under the certificate common name (CN) and the role under the organizational
+unit (OU). The node ID serves as the cryptographically secure node identity for
+the lifetime of the node in the current swarm.</p>
+
+<p>The diagram below illustrates how manager nodes and worker nodes encrypt
+communications using a minimum of TLS 1.2.</p>
+
+<p><img src="../../images/tls.png" alt="tls diagram" /></p>
+
+<p>The example below shows the information from a certificate from a worker node:</p>
+
+<pre><code class="language-none">Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            3b:1c:06:91:73:fb:16:ff:69:c3:f7:a2:fe:96:c1:73:e2:80:97:3b
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN=swarm-ca
+        Validity
+            Not Before: Aug 30 02:39:00 2016 GMT
+            Not After : Nov 28 03:39:00 2016 GMT
+        Subject: O=ec2adilxf4ngv7ev8fwsi61i7, OU=swarm-worker, CN=dw02poa4vqvzxi5c10gm4pq2g
+...snip...
+</code></pre>
+
+<p>By default, each node in the swarm renews its certificate every three months.
+You can configure this interval by running the <code class="highlighter-rouge">docker swarm update
+--cert-expiry &lt;TIME PERIOD&gt;</code> command. The minimum rotation value is 1 hour.
+Refer to the
+<a href="../../../reference/commandline/swarm_update/index.html">docker swarm update</a> CLI
+reference for details.</p>
+
+<h2 id="rotating-the-ca-certificate">Rotating the CA certificate</h2>
+
+<p>In the event that a cluster CA key or a manager node is compromised, you can
+rotate the swarm root CA so that none of the nodes trust certificates
+signed by the old root CA anymore.</p>
+
+<p>Run <code class="highlighter-rouge">docker swarm ca --rotate</code> to generate a new CA certificate and key. If you
+prefer, you can pass the <code class="highlighter-rouge">--ca-cert</code> and <code class="highlighter-rouge">--external-ca</code> flags to specify the
+root certificate and to use a root CA external to the swarm. Alternately,
+you can pass the <code class="highlighter-rouge">--ca-cert</code> and <code class="highlighter-rouge">--ca-key</code> flags to specify the exact
+certificate and key you would like the swarm to use.</p>
+
+<p>When you issue the <code class="highlighter-rouge">docker swarm ca --rotate</code> command, the following things
+happen in sequence:</p>
+
+<ol>
+  <li>
+    <p>Docker generates a cross-signed certificate. This means that a version of
+the new root CA certificate is signed with the old root CA certificate.
+This cross-signed certificate is used as an intermediate certificate for all
+new node certificates. This ensures that nodes that still trust the old root
+CA can still validate a certificate signed by the new CA.</p>
+  </li>
+  <li>
+    <p>Docker also tells all nodes to immediately renew their TLS certificates.
+This process may take several minutes, depending on the number of nodes in
+the swarm.</p>
+  </li>
+  <li>
+    <p>After every node in the swarm has a new TLS certificate signed by the new CA,
+Docker forgets about the old CA certificate and key material, and tells
+all the nodes to trust the new CA certificate only.</p>
+
+    <p>This also causes a change in the swarm’s join tokens. The previous
+join tokens are no longer valid.</p>
+  </li>
+</ol>
+
+<p>From this point on, all new node certificates issued are signed with the new
+root CA, and do not contain any intermediates.</p>
+
+<h2 id="learn-more">Learn More</h2>
+
+<ul>
+  <li>Read about how <a href="../nodes/index.html">nodes</a> work.</li>
+  <li>Learn how swarm mode <a href="../services/index.html">services</a> work.</li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../../search/index.html%3Fq=swarm.html">swarm</a>, <a href="../../../../search/index.html%3Fq=security.html">security</a>, <a href="../../../../search/index.html%3Fq=tls.html">tls</a>, <a href="../../../../search/index.html%3Fq=pki.html">pki</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/swarm/how-swarm-mode-works/pki.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/swarm/how-swarm-mode-works/pki.md](https://docs.docker.com/engine/swarm/how-swarm-mode-works/pki/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#rotating-the-ca-certificate" class="nomunge">Rotating the CA certificate</a></li>
+  <li><a href="index.html#learn-more" class="nomunge">Learn More</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/swarm/how-swarm-mode-works/pki/";</script></body>
+</html>

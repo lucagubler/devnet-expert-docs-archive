@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Isolate containers with a user namespace | Docker Documentation</title>
+  <meta name="description" content="Isolate containers within a user namespace" />
+  <meta name="keywords" content="security, namespaces">
+  <link rel="canonical" href="https://localhost:4000/engine/security/userns-remap/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Isolate containers with a user namespace"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Isolate containers with a user namespace" />
+  <meta property="og:description" content="Isolate containers within a user namespace" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/security/userns-remap/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Isolate containers with a user namespace","description":"Isolate containers within a user namespace","url":"https://docs.docker.com/engine/security/userns-remap/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../desktop/index.html">Manuals</a></li><li><a href="../../../security/index.html">Security</a></li><li><a href="../index.html">Docker Engine security</a></li><li><a href="index.html">Isolate containers with a user namespace</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Isolate containers with a user namespace</h1><p><em class="reading-time">Estimated reading time: 10 minutes</em></p><p>Linux namespaces provide isolation for running processes, limiting their access
+to system resources without the running process being aware of the limitations.
+For more information on Linux namespaces, see
+<a href="https://www.linux.com/news/understanding-and-securing-linux-namespaces" target="_blank" rel="noopener" class="_">Linux namespaces</a>.</p>
+
+<p>The best way to prevent privilege-escalation attacks from within a container is
+to configure your container’s applications to run as unprivileged users. For
+containers whose processes must run as the <code class="highlighter-rouge">root</code> user within the container, you
+can re-map this user to a less-privileged user on the Docker host. The mapped
+user is assigned a range of UIDs which function within the namespace as normal
+UIDs from 0 to 65536, but have no privileges on the host machine itself.</p>
+
+<h2 id="about-remapping-and-subordinate-user-and-group-ids">About remapping and subordinate user and group IDs</h2>
+
+<p>The remapping itself is handled by two files: <code class="highlighter-rouge">/etc/subuid</code> and <code class="highlighter-rouge">/etc/subgid</code>.
+Each file works the same, but one is concerned with the user ID range, and the
+other with the group ID range. Consider the following entry in <code class="highlighter-rouge">/etc/subuid</code>:</p>
+
+<pre><code class="language-none">testuser:231072:65536
+</code></pre>
+
+<p>This means that <code class="highlighter-rouge">testuser</code> is assigned a subordinate user ID range of <code class="highlighter-rouge">231072</code>
+and the next 65536 integers in sequence. UID <code class="highlighter-rouge">231072</code> is mapped within the
+namespace (within the container, in this case) as UID <code class="highlighter-rouge">0</code> (<code class="highlighter-rouge">root</code>). UID <code class="highlighter-rouge">231073</code>
+is mapped as UID <code class="highlighter-rouge">1</code>, and so forth. If a process attempts to escalate privilege
+outside of the namespace, the process is running as an unprivileged high-number
+UID on the host, which does not even map to a real user. This means the process
+has no privileges on the host system at all.</p>
+
+<blockquote>
+  <p>Multiple ranges</p>
+
+  <p>It is possible to assign multiple subordinate ranges for a given user or group
+by adding multiple non-overlapping mappings for the same user or group in the
+<code class="highlighter-rouge">/etc/subuid</code> or <code class="highlighter-rouge">/etc/subgid</code> file. In this case, Docker uses only the first
+five mappings, in accordance with the kernel’s limitation of only five entries
+in <code class="highlighter-rouge">/proc/self/uid_map</code> and <code class="highlighter-rouge">/proc/self/gid_map</code>.</p>
+</blockquote>
+
+<p>When you configure Docker to use the <code class="highlighter-rouge">userns-remap</code> feature, you can optionally
+specify an existing user and/or group, or you can specify <code class="highlighter-rouge">default</code>. If you
+specify <code class="highlighter-rouge">default</code>, a user and group <code class="highlighter-rouge">dockremap</code> is created and used for this
+purpose.</p>
+
+<blockquote class="warning-vanila">
+  <p><strong>Warning</strong>: Some distributions, such as RHEL and CentOS 7.3, do not
+automatically add the new group to the <code class="highlighter-rouge">/etc/subuid</code> and <code class="highlighter-rouge">/etc/subgid</code> files.
+You are responsible for editing these files and assigning non-overlapping
+ranges, in this case. This step is covered in <a href="index.html#prerequisites">Prerequisites</a>.</p>
+</blockquote>
+
+<p>It is very important that the ranges do not overlap, so that a process cannot gain
+access in a different namespace. On most Linux distributions, system utilities
+manage the ranges for you when you add or remove users.</p>
+
+<p>This re-mapping is transparent to the container, but introduces some
+configuration complexity in situations where the container needs access to
+resources on the Docker host, such as bind mounts into areas of the filesystem
+that the system user cannot write to. From a security standpoint, it is best to
+avoid these situations.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ol>
+  <li>
+    <p>The subordinate UID and GID ranges must be associated with an existing user,
+even though the association is an implementation detail. The user owns
+the namespaced storage directories under <code class="highlighter-rouge">/var/lib/docker/</code>. If you don’t
+want to use an existing user, Docker can create one for you and use that. If
+you want to use an existing username or user ID, it must already exist.
+Typically, this means that the relevant entries need to be in
+<code class="highlighter-rouge">/etc/passwd</code> and <code class="highlighter-rouge">/etc/group</code>, but if you are using a different
+authentication back-end, this requirement may translate differently.</p>
+
+    <p>To verify this, use the <code class="highlighter-rouge">id</code> command:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> id testuser
+<span class="go">
+uid=1001(testuser) gid=1001(testuser) groups=1001(testuser)
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The way the namespace remapping is handled on the host is using two files,
+<code class="highlighter-rouge">/etc/subuid</code> and <code class="highlighter-rouge">/etc/subgid</code>. These files are typically managed
+automatically when you add or remove users or groups, but on a few
+distributions such as RHEL and CentOS 7.3, you may need to manage these
+files manually.</p>
+
+    <p>Each file contains three fields: the username or ID of the user, followed by
+a beginning UID or GID (which is treated as UID or GID 0 within the namespace)
+and a maximum number of UIDs or GIDs available to the user. For instance,
+given the following entry:</p>
+
+    <pre><code class="language-none">testuser:231072:65536
+</code></pre>
+
+    <p>This means that user-namespaced processes started by <code class="highlighter-rouge">testuser</code> are
+owned by host UID <code class="highlighter-rouge">231072</code> (which looks like UID <code class="highlighter-rouge">0</code> inside the
+namespace) through 296607 (231072 + 65536 - 1). These ranges should not overlap,
+to ensure that namespaced processes cannot access each other’s namespaces.</p>
+
+    <p>After adding your user, check <code class="highlighter-rouge">/etc/subuid</code> and <code class="highlighter-rouge">/etc/subgid</code> to see if your
+user has an entry in each. If not, you need to add it, being careful to
+avoid overlap.</p>
+
+    <p>If you want to use the <code class="highlighter-rouge">dockremap</code> user automatically created by Docker,
+check for the <code class="highlighter-rouge">dockremap</code> entry in these files <strong>after</strong>
+configuring and restarting Docker.</p>
+  </li>
+  <li>
+    <p>If there are any locations on the Docker host where the unprivileged
+user needs to write, adjust the permissions of those locations
+accordingly. This is also true if you want to use the <code class="highlighter-rouge">dockremap</code> user
+automatically created by Docker, but you can’t modify the
+permissions until after configuring and restarting Docker.</p>
+  </li>
+  <li>
+    <p>Enabling <code class="highlighter-rouge">userns-remap</code> effectively masks existing image and container
+layers, as well as other Docker objects within <code class="highlighter-rouge">/var/lib/docker/</code>. This is
+because Docker needs to adjust the ownership of these resources and actually
+stores them in a subdirectory within <code class="highlighter-rouge">/var/lib/docker/</code>. It is best to enable
+this feature on a new Docker installation rather than an existing one.</p>
+
+    <p>Along the same lines, if you disable <code class="highlighter-rouge">userns-remap</code> you can’t access any
+of the resources created while it was enabled.</p>
+  </li>
+  <li>
+    <p>Check the <a href="index.html#user-namespace-known-limitations">limitations</a> on user
+namespaces to be sure your use case is possible.</p>
+  </li>
+</ol>
+
+<h2 id="enable-userns-remap-on-the-daemon">Enable userns-remap on the daemon</h2>
+
+<p>You can start <code class="highlighter-rouge">dockerd</code> with the <code class="highlighter-rouge">--userns-remap</code> flag or follow this
+procedure to configure the daemon using the <code class="highlighter-rouge">daemon.json</code> configuration file.
+The <code class="highlighter-rouge">daemon.json</code> method is recommended. If you use the flag, use the following
+command as a model:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> dockerd <span class="nt">--userns-remap</span><span class="o">=</span><span class="s2">"testuser:testuser"</span>
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>Edit <code class="highlighter-rouge">/etc/docker/daemon.json</code>. Assuming the file was previously empty, the
+following entry enables <code class="highlighter-rouge">userns-remap</code> using user and group called
+<code class="highlighter-rouge">testuser</code>. You can address the user and group by ID or name. You only need to
+specify the group name or ID if it is different from the user name or ID. If
+you provide both the user and group name or ID, separate them by a colon
+(<code class="highlighter-rouge">:</code>) character. The following formats all work for the value, assuming
+the UID and GID of <code class="highlighter-rouge">testuser</code> are <code class="highlighter-rouge">1001</code>:</p>
+
+    <ul>
+      <li><code class="highlighter-rouge">testuser</code></li>
+      <li><code class="highlighter-rouge">testuser:testuser</code></li>
+      <li><code class="highlighter-rouge">1001</code></li>
+      <li><code class="highlighter-rouge">1001:1001</code></li>
+      <li><code class="highlighter-rouge">testuser:1001</code></li>
+      <li><code class="highlighter-rouge">1001:testuser</code></li>
+    </ul>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"userns-remap"</span><span class="p">:</span><span class="w"> </span><span class="s2">"testuser"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <blockquote>
+      <p><strong>Note</strong>: To use the <code class="highlighter-rouge">dockremap</code> user and have Docker create it for you,
+set the value to <code class="highlighter-rouge">default</code> rather than <code class="highlighter-rouge">testuser</code>.</p>
+    </blockquote>
+
+    <p>Save the file and restart Docker.</p>
+  </li>
+  <li>
+    <p>If you are using the <code class="highlighter-rouge">dockremap</code> user, verify that Docker created it using
+the <code class="highlighter-rouge">id</code> command.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> id dockremap
+<span class="go">
+uid=112(dockremap) gid=116(dockremap) groups=116(dockremap)
+</span></code></pre></div>    </div>
+
+    <p>Verify that the entry has been added to <code class="highlighter-rouge">/etc/subuid</code> and <code class="highlighter-rouge">/etc/subgid</code>:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">grep </span>dockremap /etc/subuid
+<span class="go">
+dockremap:231072:65536
+
+</span><span class="gp">$</span> <span class="nb">grep </span>dockremap /etc/subgid
+<span class="go">
+dockremap:231072:65536
+</span></code></pre></div>    </div>
+
+    <p>If these entries are not present, edit the files as the <code class="highlighter-rouge">root</code> user and
+assign a starting UID and GID that is the highest-assigned one plus the
+offset (in this case, <code class="highlighter-rouge">65536</code>). Be careful not to allow any overlap in the
+ranges.</p>
+  </li>
+  <li>
+    <p>Verify that previous images are not available using the <code class="highlighter-rouge">docker image ls</code>
+command. The output should be empty.</p>
+  </li>
+  <li>
+    <p>Start a container from the <code class="highlighter-rouge">hello-world</code> image.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run hello-world
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Verify that a namespaced directory exists within <code class="highlighter-rouge">/var/lib/docker/</code> named
+with the UID and GID of the namespaced user, owned by that UID and GID,
+and not group-or-world-readable. Some of the subdirectories are still
+owned by <code class="highlighter-rouge">root</code> and have different permissions.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo ls</span> <span class="nt">-ld</span> /var/lib/docker/231072.231072/
+<span class="go">
+drwx------ 11 231072 231072 11 Jun 21 21:19 /var/lib/docker/231072.231072/
+
+</span><span class="gp">$</span> <span class="nb">sudo ls</span> <span class="nt">-l</span> /var/lib/docker/231072.231072/
+<span class="go">
+total 14
+drwx------ 5 231072 231072 5 Jun 21 21:19 aufs
+drwx------ 3 231072 231072 3 Jun 21 21:21 containers
+drwx------ 3 root   root   3 Jun 21 21:19 image
+drwxr-x--- 3 root   root   3 Jun 21 21:19 network
+drwx------ 4 root   root   4 Jun 21 21:19 plugins
+drwx------ 2 root   root   2 Jun 21 21:19 swarm
+drwx------ 2 231072 231072 2 Jun 21 21:21 tmp
+drwx------ 2 root   root   2 Jun 21 21:19 trust
+drwx------ 2 231072 231072 3 Jun 21 21:19 volumes
+</span></code></pre></div>    </div>
+
+    <p>Your directory listing may have some differences, especially if you
+use a different container storage driver than <code class="highlighter-rouge">aufs</code>.</p>
+
+    <p>The directories which are owned by the remapped user are used instead
+of the same directories directly beneath <code class="highlighter-rouge">/var/lib/docker/</code> and the
+unused versions (such as <code class="highlighter-rouge">/var/lib/docker/tmp/</code> in the example here)
+can be removed. Docker does not use them while <code class="highlighter-rouge">userns-remap</code> is
+enabled.</p>
+  </li>
+</ol>
+
+<h2 id="disable-namespace-remapping-for-a-container">Disable namespace remapping for a container</h2>
+
+<p>If you enable user namespaces on the daemon, all containers are started with
+user namespaces enabled by default. In some situations, such as privileged
+containers, you may need to disable user namespaces for a specific container.
+See
+<a href="index.html#user-namespace-known-limitations">user namespace known limitations</a>
+for some of these limitations.</p>
+
+<p>To disable user namespaces for a specific container, add the <code class="highlighter-rouge">--userns=host</code>
+flag to the <code class="highlighter-rouge">docker container create</code>, <code class="highlighter-rouge">docker container run</code>, or <code class="highlighter-rouge">docker container exec</code> command.</p>
+
+<p>There is a side effect when using this flag: user remapping will not be enabled for that container but, because the read-only (image) layers are shared between containers, ownership of the containers filesystem will still be remapped.</p>
+
+<p>What this means is that the whole container filesystem will belong to the user specified in the <code class="highlighter-rouge">--userns-remap</code> daemon config (<code class="highlighter-rouge">231072</code> in the example above). This can lead to unexpected behavior of programs inside the container. For instance <code class="highlighter-rouge">sudo</code> (which checks that its binaries belong to user <code class="highlighter-rouge">0</code>) or binaries with a <code class="highlighter-rouge">setuid</code> flag.</p>
+
+<h2 id="user-namespace-known-limitations">User namespace known limitations</h2>
+
+<p>The following standard Docker features are incompatible with running a Docker
+daemon with user namespaces enabled:</p>
+
+<ul>
+  <li>sharing PID or NET namespaces with the host (<code class="highlighter-rouge">--pid=host</code> or <code class="highlighter-rouge">--network=host</code>).</li>
+  <li>external (volume or storage) drivers which are unaware or incapable of using
+daemon user mappings.</li>
+  <li>Using the <code class="highlighter-rouge">--privileged</code> mode flag on <code class="highlighter-rouge">docker run</code> without also specifying
+<code class="highlighter-rouge">--userns=host</code>.</li>
+</ul>
+
+<p>User namespaces are an advanced feature and require coordination with other
+capabilities. For example, if volumes are mounted from the host, file ownership
+must be pre-arranged need read or write access to the volume contents.</p>
+
+<p>While the root user inside a user-namespaced container process has many of the
+expected privileges of the superuser within the container, the Linux kernel
+imposes restrictions based on internal knowledge that this is a user-namespaced
+process. One notable restriction is the inability to use the <code class="highlighter-rouge">mknod</code> command.
+Permission is denied for device creation within the container when run by
+the <code class="highlighter-rouge">root</code> user.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=security.html">security</a>, <a href="../../../search/index.html%3Fq=namespaces.html">namespaces</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/security/userns-remap.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/security/userns-remap.md](https://docs.docker.com/engine/security/userns-remap/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#about-remapping-and-subordinate-user-and-group-ids" class="nomunge">About remapping and subordinate user and group IDs</a></li>
+  <li><a href="index.html#prerequisites" class="nomunge">Prerequisites</a></li>
+  <li><a href="index.html#enable-userns-remap-on-the-daemon" class="nomunge">Enable userns-remap on the daemon</a></li>
+  <li><a href="index.html#disable-namespace-remapping-for-a-container" class="nomunge">Disable namespace remapping for a container</a></li>
+  <li><a href="index.html#user-namespace-known-limitations" class="nomunge">User namespace known limitations</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/security/userns-remap/";</script></body>
+</html>

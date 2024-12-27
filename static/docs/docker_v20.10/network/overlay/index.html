@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Use overlay networks | Docker Documentation</title>
+  <meta name="description" content="All about using overlay networks" />
+  <meta name="keywords" content="network, overlay, user-defined, swarm, service">
+  <link rel="canonical" href="https://localhost:4000/network/overlay/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../js/theme-switcher.js"></script>
+  <script defer src="../../js/anchorlinks.js"></script>
+  <script defer src="../../js/jquery.js"></script>
+  <script defer src="../../js/bootstrap.min.js"></script>
+  <script defer src="../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Use overlay networks"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Use overlay networks" />
+  <meta property="og:description" content="All about using overlay networks" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/network/overlay/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Use overlay networks","description":"All about using overlay networks","url":"https://docs.docker.com/network/overlay/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../index.html">
+                <img class="logo" src="../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../index.html">
+        <img src="../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../index.html" id="home">Home</a></li><li><a href="../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../reference/index.html" id="reference">Reference</a></li><li><a href="../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../index.html">Configure networking</a></li><li><a href="index.html">Use overlay networks</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Use overlay networks</h1><p><em class="reading-time">Estimated reading time: 11 minutes</em></p><p>The <code class="highlighter-rouge">overlay</code> network driver creates a distributed network among multiple
+Docker daemon hosts. This network sits on top of (overlays) the host-specific
+networks, allowing containers connected to it (including swarm service
+containers) to communicate securely when encryption is enabled. Docker
+transparently handles routing of each packet to and from the correct Docker
+daemon host and the correct destination container.</p>
+
+<p>When you initialize a swarm or join a Docker host to an existing swarm, two
+new networks are created on that Docker host:</p>
+
+<ul>
+  <li>an overlay network called <code class="highlighter-rouge">ingress</code>, which handles the control and data traffic
+related to swarm services. When you create a swarm service and do not
+connect it to a user-defined overlay network, it connects to the <code class="highlighter-rouge">ingress</code>
+network by default.</li>
+  <li>a bridge network called <code class="highlighter-rouge">docker_gwbridge</code>, which connects the individual
+Docker daemon to the other daemons participating in the swarm.</li>
+</ul>
+
+<p>You can create user-defined <code class="highlighter-rouge">overlay</code> networks using <code class="highlighter-rouge">docker network create</code>,
+in the same way that you can create user-defined <code class="highlighter-rouge">bridge</code> networks. Services
+or containers can be connected to more than one network at a time. Services or
+containers can only communicate across networks they are each connected to.</p>
+
+<p>Although you can connect both swarm services and standalone containers to an
+overlay network, the default behaviors and configuration concerns are different.
+For that reason, the rest of this topic is divided into operations that apply to
+all overlay networks, those that apply to swarm service networks, and those that
+apply to overlay networks used by standalone containers.</p>
+
+<h2 id="operations-for-all-overlay-networks">Operations for all overlay networks</h2>
+
+<h3 id="create-an-overlay-network">Create an overlay network</h3>
+
+<blockquote>
+  <p><strong>Prerequisites</strong>:</p>
+
+  <ul>
+    <li>
+      <p>Firewall rules for Docker daemons using overlay networks</p>
+
+      <p>You need the following ports open to traffic to and from each Docker host
+participating on an overlay network:</p>
+
+      <ul>
+        <li>TCP port 2377 for cluster management communications</li>
+        <li>TCP and UDP port 7946 for communication among nodes</li>
+        <li>UDP port 4789 for overlay network traffic</li>
+      </ul>
+    </li>
+    <li>
+      <p>Before you can create an overlay network, you need to either initialize your
+Docker daemon as a swarm manager using <code class="highlighter-rouge">docker swarm init</code> or join it to an
+existing swarm using <code class="highlighter-rouge">docker swarm join</code>. Either of these creates the default
+<code class="highlighter-rouge">ingress</code> overlay network which is used by swarm services by default. You need
+to do this even if you never plan to use swarm services. Afterward, you can
+create additional user-defined overlay networks.</p>
+    </li>
+  </ul>
+</blockquote>
+
+<p>To create an overlay network for use with swarm services, use a command like
+the following:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="nt">-d</span> overlay my-overlay
+</code></pre></div></div>
+
+<p>To create an overlay network which can be used by swarm services <strong>or</strong>
+standalone containers to communicate with other standalone containers running on
+other Docker daemons, add the <code class="highlighter-rouge">--attachable</code> flag:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="nt">-d</span> overlay <span class="nt">--attachable</span> my-attachable-overlay
+</code></pre></div></div>
+
+<p>You can specify the IP address range, subnet, gateway, and other options. See
+<code class="highlighter-rouge">docker network create --help</code> for details.</p>
+
+<h3 id="encrypt-traffic-on-an-overlay-network">Encrypt traffic on an overlay network</h3>
+
+<p>All swarm service management traffic is encrypted by default, using the
+<a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">AES algorithm</a> in
+GCM mode. Manager nodes in the swarm rotate the key used to encrypt gossip data
+every 12 hours.</p>
+
+<p>To encrypt application data as well, add <code class="highlighter-rouge">--opt encrypted</code> when creating the
+overlay network. This enables IPSEC encryption at the level of the vxlan. This
+encryption imposes a non-negligible performance penalty, so you should test this
+option before using it in production.</p>
+
+<p>When you enable overlay encryption, Docker creates IPSEC tunnels between all the
+nodes where tasks are scheduled for services attached to the overlay network.
+These tunnels also use the AES algorithm in GCM mode and manager nodes
+automatically rotate the keys every 12 hours.</p>
+
+<blockquote class="warning">
+  <p><strong>Do not attach Windows nodes to encrypted overlay networks.</strong></p>
+
+  <p>Overlay network encryption is not supported on Windows. If a Windows node
+attempts to connect to an encrypted overlay network, no error is detected but
+the node cannot communicate.</p>
+</blockquote>
+
+<h4 id="swarm-mode-overlay-networks-and-standalone-containers">Swarm mode overlay networks and standalone containers</h4>
+
+<p>You can use the overlay network feature with both <code class="highlighter-rouge">--opt encrypted --attachable</code>
+ and attach unmanaged containers to that network:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="nt">--opt</span> encrypted <span class="nt">--driver</span> overlay <span class="nt">--attachable</span> my-attachable-multi-host-network
+</code></pre></div></div>
+
+<h3 id="customize-the-default-ingress-network">Customize the default ingress network</h3>
+
+<p>Most users never need to configure the <code class="highlighter-rouge">ingress</code> network, but Docker allows you
+to do so. This can be useful if the automatically-chosen subnet conflicts with
+one that already exists on your network, or you need to customize other low-level
+network settings such as the MTU.</p>
+
+<p>Customizing the <code class="highlighter-rouge">ingress</code> network involves removing and recreating it. This is
+usually done before you create any services in the swarm. If you have existing
+services which publish ports, those services need to be removed before you can
+remove the <code class="highlighter-rouge">ingress</code> network.</p>
+
+<p>During the time that no <code class="highlighter-rouge">ingress</code> network exists, existing services which do not
+publish ports continue to function but are not load-balanced. This affects
+services which publish ports, such as a WordPress service which publishes port
+80.</p>
+
+<ol>
+  <li>
+    <p>Inspect the <code class="highlighter-rouge">ingress</code> network using <code class="highlighter-rouge">docker network inspect ingress</code>, and
+remove any services whose containers are connected to it. These are services
+that publish ports, such as a WordPress service which publishes port 80. If
+all such services are not stopped, the next step fails.</p>
+  </li>
+  <li>
+    <p>Remove the existing <code class="highlighter-rouge">ingress</code> network:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network rm ingress
+<span class="go">
+WARNING! Before removing the routing-mesh network, make sure all the nodes
+in your swarm run the same docker engine version. Otherwise, removal may not
+be effective and functionality of newly created ingress networks will be
+impaired.
+Are you sure you want to continue? [y/N]
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a new overlay network using the <code class="highlighter-rouge">--ingress</code> flag, along  with the
+custom options you want to set. This example sets the MTU to 1200, sets
+the subnet to <code class="highlighter-rouge">10.11.0.0/16</code>, and sets the gateway to <code class="highlighter-rouge">10.11.0.2</code>.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="se">\</span>
+  <span class="nt">--driver</span> overlay <span class="se">\</span>
+  <span class="nt">--ingress</span> <span class="se">\</span>
+  <span class="nt">--subnet</span><span class="o">=</span>10.11.0.0/16 <span class="se">\</span>
+  <span class="nt">--gateway</span><span class="o">=</span>10.11.0.2 <span class="se">\</span>
+  <span class="nt">--opt</span> com.docker.network.driver.mtu<span class="o">=</span>1200 <span class="se">\</span>
+  my-ingress
+</code></pre></div>    </div>
+
+    <blockquote>
+      <p><strong>Note</strong>: You can name your <code class="highlighter-rouge">ingress</code> network something other than
+<code class="highlighter-rouge">ingress</code>, but you can only have one. An attempt to create a second one
+fails.</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>Restart the services that you stopped in the first step.</p>
+  </li>
+</ol>
+
+<h3 id="customize-the-docker_gwbridge-interface">Customize the docker_gwbridge interface</h3>
+
+<p>The <code class="highlighter-rouge">docker_gwbridge</code> is a virtual bridge that connects the overlay networks
+(including the <code class="highlighter-rouge">ingress</code> network) to an individual Docker daemon’s physical
+network. Docker creates it automatically when you initialize a swarm or join a
+Docker host to a swarm, but it is not a Docker device. It exists in the kernel
+of the Docker host. If you need to customize its settings, you must do so before
+joining the Docker host to the swarm, or after temporarily removing the host
+from the swarm.</p>
+
+<ol>
+  <li>
+    <p>Stop Docker.</p>
+  </li>
+  <li>
+    <p>Delete the existing <code class="highlighter-rouge">docker_gwbridge</code> interface.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>ip link <span class="nb">set </span>docker_gwbridge down
+<span class="go">
+</span><span class="gp">$</span> <span class="nb">sudo </span>ip link del dev docker_gwbridge
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Start Docker. Do not join or initialize the swarm.</p>
+  </li>
+  <li>
+    <p>Create or re-create the <code class="highlighter-rouge">docker_gwbridge</code> bridge manually with your custom
+settings, using the <code class="highlighter-rouge">docker network create</code> command.
+This example uses the subnet <code class="highlighter-rouge">10.11.0.0/16</code>. For a full list of customizable
+options, see <a href="../../engine/reference/commandline/network_create/index.html#bridge-driver-options">Bridge driver options</a>.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker network create <span class="se">\</span>
+<span class="nt">--subnet</span> 10.11.0.0/16 <span class="se">\</span>
+<span class="nt">--opt</span> com.docker.network.bridge.name<span class="o">=</span>docker_gwbridge <span class="se">\</span>
+<span class="nt">--opt</span> com.docker.network.bridge.enable_icc<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
+<span class="nt">--opt</span> com.docker.network.bridge.enable_ip_masquerade<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+docker_gwbridge
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Initialize or join the swarm. Since the bridge already exists, Docker does
+not create it with automatic settings.</p>
+  </li>
+</ol>
+
+<h2 id="operations-for-swarm-services">Operations for swarm services</h2>
+
+<h3 id="publish-ports-on-an-overlay-network">Publish ports on an overlay network</h3>
+
+<p>Swarm services connected to the same overlay network effectively expose all
+ports to each other. For a port to be accessible outside of the service, that
+port must be <em>published</em> using the <code class="highlighter-rouge">-p</code> or <code class="highlighter-rouge">--publish</code> flag on <code class="highlighter-rouge">docker service
+create</code> or <code class="highlighter-rouge">docker service update</code>. Both the legacy colon-separated syntax and
+the newer comma-separated value syntax are supported. The longer syntax is
+preferred because it is somewhat self-documenting.</p>
+
+<table>
+<thead>
+<tr>
+<th>Flag value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tr>
+<td><tt>-p 8080:80</tt> or<br /><tt>-p published=8080,target=80</tt></td>
+<td>Map TCP port 80 on the service to port 8080 on the routing mesh.</td>
+</tr>
+<tr>
+<td><tt>-p 8080:80/udp</tt> or<br /><tt>-p published=8080,target=80,protocol=udp</tt></td>
+<td>Map UDP port 80 on the service to port 8080 on the routing mesh.</td>
+</tr>
+<tr>
+<td><tt>-p 8080:80/tcp -p 8080:80/udp</tt> or <br /><tt>-p published=8080,target=80,protocol=tcp -p published=8080,target=80,protocol=udp</tt></td>
+<td>Map TCP port 80 on the service to TCP port 8080 on the routing mesh, and map UDP port 80 on the service to UDP port 8080 on the routing mesh.</td>
+</tr>
+</table>
+
+<h3 id="bypass-the-routing-mesh-for-a-swarm-service">Bypass the routing mesh for a swarm service</h3>
+
+<p>By default, swarm services which publish ports do so using the routing mesh.
+When you connect to a published port on any swarm node (whether it is running a
+given service or not), you are redirected to a worker which is running that
+service, transparently. Effectively, Docker acts as a load balancer for your
+swarm services. Services using the routing mesh are running in <em>virtual IP (VIP)
+mode</em>. Even a service running on each node (by means of the <code class="highlighter-rouge">--mode global</code>
+flag) uses the routing mesh. When using the routing mesh, there is no guarantee
+about which Docker node services client requests.</p>
+
+<p>To bypass the routing mesh, you can start a service using <em>DNS Round Robin
+(DNSRR) mode</em>, by setting the <code class="highlighter-rouge">--endpoint-mode</code> flag to <code class="highlighter-rouge">dnsrr</code>. You must run
+your own load balancer in front of the service. A DNS query for the service name
+on the Docker host returns a list of IP addresses for the nodes running the
+service. Configure your load balancer to consume this list and balance the
+traffic across the nodes.</p>
+
+<h3 id="separate-control-and-data-traffic">Separate control and data traffic</h3>
+
+<p>By default, control traffic relating to swarm management and traffic to and from
+your applications runs over the same network, though the swarm control traffic
+is encrypted. You can configure Docker to use separate network interfaces for
+handling the two different types of traffic. When you initialize or join the
+swarm, specify <code class="highlighter-rouge">--advertise-addr</code> and <code class="highlighter-rouge">--datapath-addr</code> separately. You must do
+this for each node joining the swarm.</p>
+
+<h2 id="operations-for-standalone-containers-on-overlay-networks">Operations for standalone containers on overlay networks</h2>
+
+<h3 id="attach-a-standalone-container-to-an-overlay-network">Attach a standalone container to an overlay network</h3>
+
+<p>The <code class="highlighter-rouge">ingress</code> network is created without the <code class="highlighter-rouge">--attachable</code> flag, which means
+that only swarm services can use it, and not standalone containers. You can
+connect standalone containers to user-defined overlay networks which are created
+with the <code class="highlighter-rouge">--attachable</code> flag. This gives standalone containers running on
+different Docker daemons the ability to communicate without the need to set up
+routing on the individual Docker daemon hosts.</p>
+
+<h3 id="publish-ports">Publish ports</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80</code></td>
+      <td>Map TCP port 80 in the container to port 8080 on the overlay network.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80/udp</code></td>
+      <td>Map UDP port 80 in the container to port 8080 on the overlay network.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80/sctp</code></td>
+      <td>Map SCTP port 80 in the container to port 8080 on the overlay network.</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">-p 8080:80/tcp -p 8080:80/udp</code></td>
+      <td>Map TCP port 80 in the container to TCP port 8080 on the overlay network, and map UDP port 80 in the container to UDP port 8080 on the overlay network.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="container-discovery">Container discovery</h3>
+
+<p>For most situations, you should connect to the service name, which is load-balanced and handled by all containers (“tasks”) backing the service. To get a list of all tasks backing the service, do a DNS lookup for <code class="highlighter-rouge">tasks.&lt;service-name&gt;.</code></p>
+
+<h2 id="next-steps">Next steps</h2>
+
+<ul>
+  <li>Go through the <a href="../network-tutorial-overlay/index.html">overlay networking tutorial</a></li>
+  <li>Learn about <a href="../../config/containers/container-networking/index.html">networking from the container’s point of view</a></li>
+  <li>Learn about <a href="../bridge/index.html">standalone bridge networks</a></li>
+  <li>Learn about <a href="../macvlan/index.html">Macvlan networks</a></li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../search/index.html%3Fq=network.html">network</a>, <a href="../../search/index.html%3Fq=overlay.html">overlay</a>, <a href="../../search/index.html%3Fq=user-defined.html">user-defined</a>, <a href="../../search/index.html%3Fq=swarm.html">swarm</a>, <a href="../../search/index.html%3Fq=service.html">service</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/network/overlay.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [network/overlay.md](https://docs.docker.com/network/overlay/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#operations-for-all-overlay-networks" class="nomunge">Operations for all overlay networks</a>
+    <ul>
+      <li><a href="index.html#create-an-overlay-network" class="nomunge">Create an overlay network</a></li>
+      <li><a href="index.html#encrypt-traffic-on-an-overlay-network" class="nomunge">Encrypt traffic on an overlay network</a>
+        <ul>
+          <li><a href="index.html#swarm-mode-overlay-networks-and-standalone-containers" class="nomunge">Swarm mode overlay networks and standalone containers</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#customize-the-default-ingress-network" class="nomunge">Customize the default ingress network</a></li>
+      <li><a href="index.html#customize-the-docker_gwbridge-interface" class="nomunge">Customize the docker_gwbridge interface</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#operations-for-swarm-services" class="nomunge">Operations for swarm services</a>
+    <ul>
+      <li><a href="index.html#publish-ports-on-an-overlay-network" class="nomunge">Publish ports on an overlay network</a></li>
+      <li><a href="index.html#bypass-the-routing-mesh-for-a-swarm-service" class="nomunge">Bypass the routing mesh for a swarm service</a></li>
+      <li><a href="index.html#separate-control-and-data-traffic" class="nomunge">Separate control and data traffic</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#operations-for-standalone-containers-on-overlay-networks" class="nomunge">Operations for standalone containers on overlay networks</a>
+    <ul>
+      <li><a href="index.html#attach-a-standalone-container-to-an-overlay-network" class="nomunge">Attach a standalone container to an overlay network</a></li>
+      <li><a href="index.html#publish-ports" class="nomunge">Publish ports</a></li>
+      <li><a href="index.html#container-discovery" class="nomunge">Container discovery</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#next-steps" class="nomunge">Next steps</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/network/overlay/";</script></body>
+</html>

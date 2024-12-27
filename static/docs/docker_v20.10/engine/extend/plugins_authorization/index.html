@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Access authorization plugin | Docker Documentation</title>
+  <meta name="description" content="How to create authorization plugins to manage access control to your Docker daemon." />
+  <meta name="keywords" content="security, authorization, authentication, docker, documentation, plugin, extend">
+  <link rel="canonical" href="https://localhost:4000/engine/extend/plugins_authorization/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Access authorization plugin"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Access authorization plugin" />
+  <meta property="og:description" content="How to create authorization plugins to manage access control to your Docker daemon." />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/extend/plugins_authorization/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Access authorization plugin","description":"How to create authorization plugins to manage access control to your Docker daemon.","url":"https://docs.docker.com/engine/extend/plugins_authorization/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../../config/containers/start-containers-automatically/index.html">Configure containers</a></li><li><a href="../index.html">Extend Docker</a></li><li><a href="index.html">Access authorization plugin</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><p><em class="reading-time">Estimated reading time: 9 minutes</em></p><!-- This file is maintained within the docker/cli GitHub
+     repository at https://github.com/docker/cli/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
+
+<h1 id="access-authorization-plugin">Access authorization plugin</h1>
+
+<p>This document describes the Docker Engine plugins generally available in Docker
+Engine. To view information on plugins managed by Docker Engine,
+refer to <a href="../index.html">Docker Engine plugin system</a>.</p>
+
+<p>Docker’s out-of-the-box authorization model is all or nothing. Any user with
+permission to access the Docker daemon can run any Docker client command. The
+same is true for callers using Docker’s Engine API to contact the daemon. If you
+require greater access control, you can create authorization plugins and add
+them to your Docker daemon configuration. Using an authorization plugin, a
+Docker administrator can configure granular access policies for managing access
+to the Docker daemon.</p>
+
+<p>Anyone with the appropriate skills can develop an authorization plugin. These
+skills, at their most basic, are knowledge of Docker, understanding of REST, and
+sound programming knowledge. This document describes the architecture, state,
+and methods information available to an authorization plugin developer.</p>
+
+<h2 id="basic-principles">Basic principles</h2>
+
+<p>Docker’s <a href="../plugin_api/index.html">plugin infrastructure</a> enables
+extending Docker by loading, removing and communicating with
+third-party components using a generic API. The access authorization subsystem
+was built using this mechanism.</p>
+
+<p>Using this subsystem, you don’t need to rebuild the Docker daemon to add an
+authorization plugin.  You can add a plugin to an installed Docker daemon. You do
+need to restart the Docker daemon to add a new plugin.</p>
+
+<p>An authorization plugin approves or denies requests to the Docker daemon based
+on both the current authentication context and the command context. The
+authentication context contains all user details and the authentication method.
+The command context contains all the relevant request data.</p>
+
+<p>Authorization plugins must follow the rules described in <a href="../plugin_api/index.html">Docker Plugin API</a>.
+Each plugin must reside within directories described under the
+<a href="../plugin_api/index.html#plugin-discovery">Plugin discovery</a> section.</p>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>The abbreviations <code class="highlighter-rouge">AuthZ</code> and <code class="highlighter-rouge">AuthN</code> mean authorization and authentication
+respectively.</p>
+</blockquote>
+
+<h2 id="default-user-authorization-mechanism">Default user authorization mechanism</h2>
+
+<p>If TLS is enabled in the <a href="../../security/https/index.html">Docker daemon</a>, the default user authorization flow extracts the user details from the certificate subject name.
+That is, the <code class="highlighter-rouge">User</code> field is set to the client certificate subject common name, and the <code class="highlighter-rouge">AuthenticationMethod</code> field is set to <code class="highlighter-rouge">TLS</code>.</p>
+
+<h2 id="basic-architecture">Basic architecture</h2>
+
+<p>You are responsible for registering your plugin as part of the Docker daemon
+startup. You can install multiple plugins and chain them together. This chain
+can be ordered. Each request to the daemon passes in order through the chain.
+Only when all the plugins grant access to the resource, is the access granted.</p>
+
+<p>When an HTTP request is made to the Docker daemon through the CLI or via the
+Engine API, the authentication subsystem passes the request to the installed
+authentication plugin(s). The request contains the user (caller) and command
+context. The plugin is responsible for deciding whether to allow or deny the
+request.</p>
+
+<p>The sequence diagrams below depict an allow and deny authorization flow:</p>
+
+<p><img src="../images/authz_allow.png" alt="Authorization Allow flow" /></p>
+
+<p><img src="../images/authz_deny.png" alt="Authorization Deny flow" /></p>
+
+<p>Each request sent to the plugin includes the authenticated user, the HTTP
+headers, and the request/response body. Only the user name and the
+authentication method used are passed to the plugin. Most importantly, no user
+credentials or tokens are passed. Finally, not all request/response bodies
+are sent to the authorization plugin. Only those request/response bodies where
+the <code class="highlighter-rouge">Content-Type</code> is either <code class="highlighter-rouge">text/*</code> or <code class="highlighter-rouge">application/json</code> are sent.</p>
+
+<p>For commands that can potentially hijack the HTTP connection (<code class="highlighter-rouge">HTTP
+Upgrade</code>), such as <code class="highlighter-rouge">exec</code>, the authorization plugin is only called for the
+initial HTTP requests. Once the plugin approves the command, authorization is
+not applied to the rest of the flow. Specifically, the streaming data is not
+passed to the authorization plugins. For commands that return chunked HTTP
+response, such as <code class="highlighter-rouge">logs</code> and <code class="highlighter-rouge">events</code>, only the HTTP request is sent to the
+authorization plugins.</p>
+
+<p>During request/response processing, some authorization flows might
+need to do additional queries to the Docker daemon. To complete such flows,
+plugins can call the daemon API similar to a regular user. To enable these
+additional queries, the plugin must provide the means for an administrator to
+configure proper authentication and security policies.</p>
+
+<h2 id="docker-client-flows">Docker client flows</h2>
+
+<p>To enable and configure the authorization plugin, the plugin developer must
+support the Docker client interactions detailed in this section.</p>
+
+<h3 id="setting-up-docker-daemon">Setting up Docker daemon</h3>
+
+<p>Enable the authorization plugin with a dedicated command line flag in the
+<code class="highlighter-rouge">--authorization-plugin=PLUGIN_ID</code> format. The flag supplies a <code class="highlighter-rouge">PLUGIN_ID</code>
+value. This value can be the plugin’s socket or a path to a specification file.
+Authorization plugins can be loaded without restarting the daemon. Refer
+to the <a href="../../reference/commandline/dockerd.html#configuration-reload-behavior"><code class="highlighter-rouge">dockerd</code> documentation</a> for more information.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> dockerd <span class="nt">--authorization-plugin</span><span class="o">=</span>plugin1 <span class="nt">--authorization-plugin</span><span class="o">=</span>plugin2,...
+</code></pre></div></div>
+
+<p>Docker’s authorization subsystem supports multiple <code class="highlighter-rouge">--authorization-plugin</code> parameters.</p>
+
+<h3 id="calling-authorized-command-allow">Calling authorized command (allow)</h3>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull centos
+<span class="c">&lt;...&gt;
+</span><span class="go">f1b10cd84249: Pull complete
+</span><span class="c">&lt;...&gt;
+</span></code></pre></div></div>
+
+<h3 id="calling-unauthorized-command-deny">Calling unauthorized command (deny)</h3>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull centos
+<span class="c">&lt;...&gt;
+</span><span class="go">docker: Error response from daemon: authorization denied by plugin PLUGIN_NAME: volumes are not allowed.
+</span></code></pre></div></div>
+
+<h3 id="error-from-plugins">Error from plugins</h3>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker pull centos
+<span class="c">&lt;...&gt;
+</span><span class="go">docker: Error response from daemon: plugin PLUGIN_NAME failed with error: AuthZPlugin.AuthZReq: Cannot connect to the Docker daemon. Is the docker daemon running on this host?.
+</span></code></pre></div></div>
+
+<h2 id="api-schema-and-implementation">API schema and implementation</h2>
+
+<p>In addition to Docker’s standard plugin registration method, each plugin
+should implement the following two methods:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">/AuthZPlugin.AuthZReq</code> This authorize request method is called before the Docker daemon processes the client request.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">/AuthZPlugin.AuthZRes</code> This authorize response method is called before the response is returned from Docker daemon to the client.</p>
+  </li>
+</ul>
+
+<h4 id="authzpluginauthzreq">/AuthZPlugin.AuthZReq</h4>
+
+<p><strong>Request</strong>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"User"</span><span class="p">:</span><span class="w">              </span><span class="s2">"The user identification"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"UserAuthNMethod"</span><span class="p">:</span><span class="w">   </span><span class="s2">"The authentication method used"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestMethod"</span><span class="p">:</span><span class="w">     </span><span class="s2">"The HTTP method"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestURI"</span><span class="p">:</span><span class="w">        </span><span class="s2">"The HTTP request URI"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestBody"</span><span class="p">:</span><span class="w">       </span><span class="s2">"Byte array containing the raw HTTP request body"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestHeader"</span><span class="p">:</span><span class="w">     </span><span class="s2">"Byte array containing the raw HTTP request header as a map[string][]string "</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response</strong>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Allow"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Determined whether the user is allowed or not"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Msg"</span><span class="p">:</span><span class="w">   </span><span class="s2">"The authorization message"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Err"</span><span class="p">:</span><span class="w">   </span><span class="s2">"The error message if things go wrong"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="authzpluginauthzres">/AuthZPlugin.AuthZRes</h4>
+
+<p><strong>Request</strong>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"User"</span><span class="p">:</span><span class="w">              </span><span class="s2">"The user identification"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"UserAuthNMethod"</span><span class="p">:</span><span class="w">   </span><span class="s2">"The authentication method used"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestMethod"</span><span class="p">:</span><span class="w">     </span><span class="s2">"The HTTP method"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestURI"</span><span class="p">:</span><span class="w">        </span><span class="s2">"The HTTP request URI"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestBody"</span><span class="p">:</span><span class="w">       </span><span class="s2">"Byte array containing the raw HTTP request body"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"RequestHeader"</span><span class="p">:</span><span class="w">     </span><span class="s2">"Byte array containing the raw HTTP request header as a map[string][]string"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ResponseBody"</span><span class="p">:</span><span class="w">      </span><span class="s2">"Byte array containing the raw HTTP response body"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ResponseHeader"</span><span class="p">:</span><span class="w">    </span><span class="s2">"Byte array containing the raw HTTP response header as a map[string][]string"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"ResponseStatusCode"</span><span class="p">:</span><span class="s2">"Response status code"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response</strong>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"Allow"</span><span class="p">:</span><span class="w">              </span><span class="s2">"Determined whether the user is allowed or not"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"Msg"</span><span class="p">:</span><span class="w">                </span><span class="s2">"The authorization message"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"Err"</span><span class="p">:</span><span class="w">                </span><span class="s2">"The error message if things go wrong"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="request-authorization">Request authorization</h3>
+
+<p>Each plugin must support two request authorization messages formats, one from the daemon to the plugin and then from the plugin to the daemon. The tables below detail the content expected in each message.</p>
+
+<h4 id="daemon---plugin">Daemon -&gt; Plugin</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>User</td>
+      <td>string</td>
+      <td>The user identification</td>
+    </tr>
+    <tr>
+      <td>Authentication method</td>
+      <td>string</td>
+      <td>The authentication method used</td>
+    </tr>
+    <tr>
+      <td>Request method</td>
+      <td>enum</td>
+      <td>The HTTP method (GET/DELETE/POST)</td>
+    </tr>
+    <tr>
+      <td>Request URI</td>
+      <td>string</td>
+      <td>The HTTP request URI including API version (e.g., v.1.17/containers/json)</td>
+    </tr>
+    <tr>
+      <td>Request headers</td>
+      <td>map[string]string</td>
+      <td>Request headers as key value pairs (without the authorization header)</td>
+    </tr>
+    <tr>
+      <td>Request body</td>
+      <td>[]byte</td>
+      <td>Raw request body</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="plugin---daemon">Plugin -&gt; Daemon</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Allow</td>
+      <td>bool</td>
+      <td>Boolean value indicating whether the request is allowed or denied</td>
+    </tr>
+    <tr>
+      <td>Msg</td>
+      <td>string</td>
+      <td>Authorization message (will be returned to the client in case the access is denied)</td>
+    </tr>
+    <tr>
+      <td>Err</td>
+      <td>string</td>
+      <td>Error message (will be returned to the client in case the plugin encounter an error. The string value supplied may appear in logs, so should not include confidential information)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="response-authorization">Response authorization</h3>
+
+<p>The plugin must support two authorization messages formats, one from the daemon to the plugin and then from the plugin to the daemon. The tables below detail the content expected in each message.</p>
+
+<h4 id="daemon---plugin-1">Daemon -&gt; Plugin</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>User</td>
+      <td>string</td>
+      <td>The user identification</td>
+    </tr>
+    <tr>
+      <td>Authentication method</td>
+      <td>string</td>
+      <td>The authentication method used</td>
+    </tr>
+    <tr>
+      <td>Request method</td>
+      <td>string</td>
+      <td>The HTTP method (GET/DELETE/POST)</td>
+    </tr>
+    <tr>
+      <td>Request URI</td>
+      <td>string</td>
+      <td>The HTTP request URI including API version (e.g., v.1.17/containers/json)</td>
+    </tr>
+    <tr>
+      <td>Request headers</td>
+      <td>map[string]string</td>
+      <td>Request headers as key value pairs (without the authorization header)</td>
+    </tr>
+    <tr>
+      <td>Request body</td>
+      <td>[]byte</td>
+      <td>Raw request body</td>
+    </tr>
+    <tr>
+      <td>Response status code</td>
+      <td>int</td>
+      <td>Status code from the docker daemon</td>
+    </tr>
+    <tr>
+      <td>Response headers</td>
+      <td>map[string]string</td>
+      <td>Response headers as key value pairs</td>
+    </tr>
+    <tr>
+      <td>Response body</td>
+      <td>[]byte</td>
+      <td>Raw docker daemon response body</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="plugin---daemon-1">Plugin -&gt; Daemon</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Allow</td>
+      <td>bool</td>
+      <td>Boolean value indicating whether the response is allowed or denied</td>
+    </tr>
+    <tr>
+      <td>Msg</td>
+      <td>string</td>
+      <td>Authorization message (will be returned to the client in case the access is denied)</td>
+    </tr>
+    <tr>
+      <td>Err</td>
+      <td>string</td>
+      <td>Error message (will be returned to the client in case the plugin encounter an error. The string value supplied may appear in logs, so should not include confidential information)</td>
+    </tr>
+  </tbody>
+</table>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=security.html">security</a>, <a href="../../../search/index.html%3Fq=authorization.html">authorization</a>, <a href="../../../search/index.html%3Fq=authentication.html">authentication</a>, <a href="../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../search/index.html%3Fq=documentation.html">documentation</a>, <a href="../../../search/index.html%3Fq=plugin.html">plugin</a>, <a href="../../../search/index.html%3Fq=extend.html">extend</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/extend/plugins_authorization.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/extend/plugins_authorization.md](https://docs.docker.com/engine/extend/plugins_authorization/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#basic-principles" class="nomunge">Basic principles</a></li>
+  <li><a href="index.html#default-user-authorization-mechanism" class="nomunge">Default user authorization mechanism</a></li>
+  <li><a href="index.html#basic-architecture" class="nomunge">Basic architecture</a></li>
+  <li><a href="index.html#docker-client-flows" class="nomunge">Docker client flows</a>
+    <ul>
+      <li><a href="index.html#setting-up-docker-daemon" class="nomunge">Setting up Docker daemon</a></li>
+      <li><a href="index.html#calling-authorized-command-allow" class="nomunge">Calling authorized command (allow)</a></li>
+      <li><a href="index.html#calling-unauthorized-command-deny" class="nomunge">Calling unauthorized command (deny)</a></li>
+      <li><a href="index.html#error-from-plugins" class="nomunge">Error from plugins</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#api-schema-and-implementation" class="nomunge">API schema and implementation</a>
+    <ul>
+      <li><a href="index.html#authzpluginauthzreq" class="nomunge">/AuthZPlugin.AuthZReq</a></li>
+      <li><a href="index.html#authzpluginauthzres" class="nomunge">/AuthZPlugin.AuthZRes</a></li>
+      <li><a href="index.html#request-authorization" class="nomunge">Request authorization</a>
+        <ul>
+          <li><a href="index.html#daemon---plugin" class="nomunge">Daemon -&gt; Plugin</a></li>
+          <li><a href="index.html#plugin---daemon" class="nomunge">Plugin -&gt; Daemon</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#response-authorization" class="nomunge">Response authorization</a>
+        <ul>
+          <li><a href="index.html#daemon---plugin-1" class="nomunge">Daemon -&gt; Plugin</a></li>
+          <li><a href="index.html#plugin---daemon-1" class="nomunge">Plugin -&gt; Daemon</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/extend/plugins_authorization/";</script></body>
+</html>

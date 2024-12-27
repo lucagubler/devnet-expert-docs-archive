@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Store configuration data using Docker Configs | Docker Documentation</title>
+  <meta name="description" content="How to store configuration data separate from the runtime" />
+  <meta name="keywords" content="swarm, configuration, configs">
+  <link rel="canonical" href="https://localhost:4000/engine/swarm/configs/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Store configuration data using Docker Configs"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Store configuration data using Docker Configs" />
+  <meta property="og:description" content="How to store configuration data separate from the runtime" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/swarm/configs/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Store configuration data using Docker Configs","description":"How to store configuration data separate from the runtime","url":"https://docs.docker.com/engine/swarm/configs/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../../config/containers/start-containers-automatically/index.html">Configure containers</a></li><li><a href="../index.html">Scale your app</a></li><li><a href="index.html">Store service configuration data</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Store configuration data using Docker Configs</h1><p><em class="reading-time">Estimated reading time: 20 minutes</em></p><h2 id="about-configs">About configs</h2>
+
+<p>Docker swarm service configs  allow you to store non-sensitive information,
+such as configuration files, outside a service’s image or running containers.
+This allows you to keep your images as generic as possible, without the need to
+bind-mount configuration files into the containers or use environment variables.</p>
+
+<p>Configs operate in a similar way to <a href="../secrets/index.html">secrets</a>, except that they are
+not encrypted at rest and are mounted directly into the container’s filesystem
+without the use of RAM disks. Configs can be added or removed from a service at
+any time, and services can share a config. You can even use configs in
+conjunction with environment variables or labels, for maximum flexibility.
+Config values can be generic strings or binary content (up to 500 kb in size).</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Docker configs are only available to swarm services, not to
+standalone containers. To use this feature, consider adapting your container
+to run as a service with a scale of 1.</p>
+</blockquote>
+
+<p>Configs are supported on both Linux and Windows services.</p>
+
+<h3 id="windows-support">Windows support</h3>
+
+<p>Docker includes support for configs on Windows containers, but there are differences
+in the implementations, which are called out in the examples below. Keep the
+following notable differences in mind:</p>
+
+<ul>
+  <li>
+    <p>Config files with custom targets are not directly bind-mounted into Windows
+containers, since Windows does not support non-directory file bind-mounts.
+Instead, configs for a container are all mounted in
+<code class="highlighter-rouge">C:\ProgramData\Docker\internal\configs</code> (an implementation detail which
+should not be relied upon by applications) within the container. Symbolic
+links are used to point from there to the desired target of the config within
+the container. The default target is <code class="highlighter-rouge">C:\ProgramData\Docker\configs</code>.</p>
+  </li>
+  <li>
+    <p>When creating a service which uses Windows containers, the options to specify
+UID, GID, and mode are not supported for configs. Configs are currently only
+accessible by administrators and users with <code class="highlighter-rouge">system</code> access within the
+container.</p>
+  </li>
+  <li>
+    <p>On Windows, create or update a service using <code class="highlighter-rouge">--credential-spec</code> with the
+<code class="highlighter-rouge">config://&lt;config-name&gt;</code> format.  This passes the gMSA credentials file
+directly to nodes before a container starts. No gMSA credentials are written
+to disk on worker nodes. For more information, refer to
+<a href="../services/index.html#gmsa-for-swarm">Deploy services to a swarm</a>.</p>
+  </li>
+</ul>
+
+<h2 id="how-docker-manages-configs">How Docker manages configs</h2>
+
+<p>When you add a config to the swarm, Docker sends the config to the swarm manager
+over a mutual TLS connection. The config is stored in the Raft log, which is
+encrypted. The entire Raft log is replicated across the other managers, ensuring
+the same high availability guarantees for configs as for the rest of the swarm
+management data.</p>
+
+<p>When you grant a newly-created or running service access to a config, the config
+is mounted as a file in the container. The location of the mount point within
+the container defaults to <code class="highlighter-rouge">/&lt;config-name&gt;</code> in Linux containers. In Windows
+containers, configs are all mounted into <code class="highlighter-rouge">C:\ProgramData\Docker\configs</code> and
+symbolic links are created to the desired location, which defaults to
+<code class="highlighter-rouge">C:\&lt;config-name&gt;</code>.</p>
+
+<p>You can set the ownership (<code class="highlighter-rouge">uid</code> and <code class="highlighter-rouge">gid</code>) for the config, using either the
+numerical ID or the name of the user or group. You can also specify the file
+permissions (<code class="highlighter-rouge">mode</code>). These settings are ignored for Windows containers.</p>
+
+<ul>
+  <li>If not set, the config is owned by the user running the container
+command (often <code class="highlighter-rouge">root</code>) and that user’s default group (also often <code class="highlighter-rouge">root</code>).</li>
+  <li>If not set, the config has world-readable permissions (mode <code class="highlighter-rouge">0444</code>), unless a
+<code class="highlighter-rouge">umask</code> is set within the container, in which case the mode is impacted by
+that <code class="highlighter-rouge">umask</code> value.</li>
+</ul>
+
+<p>You can update a service to grant it access to additional configs or revoke its
+access to a given config at any time.</p>
+
+<p>A node only has access to configs if the node is a swarm manager or if it is
+running service tasks which have been granted access to the config. When a
+container task stops running, the configs shared to it are unmounted from the
+in-memory filesystem for that container and flushed from the node’s memory.</p>
+
+<p>If a node loses connectivity to the swarm while it is running a task container
+with access to a config, the task container still has access to its configs, but
+cannot receive updates until the node reconnects to the swarm.</p>
+
+<p>You can add or inspect an individual config at any time, or list all
+configs. You cannot remove a config that a running service is
+using. See <a href="index.html#example-rotate-a-config">Rotate a config</a> for a way to
+remove a config without disrupting running services.</p>
+
+<p>To update or roll back configs more easily, consider adding a version
+number or date to the config name. This is made easier by the ability to control
+the mount point of the config within a given container.</p>
+
+<p>To update a stack, make changes to your Compose file, then re-run <code class="highlighter-rouge">docker
+stack deploy -c &lt;new-compose-file&gt; &lt;stack-name&gt;</code>. If you use a new config in
+that file, your services start using them. Keep in mind that configurations
+are immutable, so you can’t change the file for an existing service.
+Instead, you create a new config to use a different file</p>
+
+<p>You can run <code class="highlighter-rouge">docker stack rm</code> to stop the app and take down the stack. This
+removes any config that was created by <code class="highlighter-rouge">docker stack deploy</code> with the same stack
+name. This removes <em>all</em> configs, including those not referenced by services and
+those remaining after a <code class="highlighter-rouge">docker service update --config-rm</code>.</p>
+
+<h2 id="read-more-about-docker-config-commands">Read more about <code class="highlighter-rouge">docker config</code> commands</h2>
+
+<p>Use these links to read about specific commands, or continue to the
+<a href="index.html#advanced-example-use-configs-with-a-nginx-service">example about using configs with a service</a>.</p>
+
+<ul>
+  <li><a href="../../reference/commandline/config_create/index.html"><code class="highlighter-rouge">docker config create</code></a></li>
+  <li><a href="../../reference/commandline/config_inspect/index.html"><code class="highlighter-rouge">docker config inspect</code></a></li>
+  <li><a href="../../reference/commandline/config_ls/index.html"><code class="highlighter-rouge">docker config ls</code></a></li>
+  <li><a href="../../reference/commandline/config_rm/index.html"><code class="highlighter-rouge">docker config rm</code></a></li>
+</ul>
+
+<h2 id="examples">Examples</h2>
+
+<p>This section includes graduated examples which illustrate how to use
+Docker configs.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: These examples use a single-Engine swarm and unscaled services for
+simplicity. The examples use Linux containers, but Windows containers also
+support configs.</p>
+</blockquote>
+
+<h3 id="defining-and-using-configs-in-compose-files">Defining and using configs in compose files</h3>
+
+<p>The <code class="highlighter-rouge">docker stack</code> command supports defining configs in a Compose file.
+However, the <code class="highlighter-rouge">configs</code> key is not supported for <code class="highlighter-rouge">docker compose</code>. See
+<a href="../../../compose/compose-file/compose-file-v3/index.html#configs">the Compose file reference</a> for details.</p>
+
+<h3 id="simple-example-get-started-with-configs">Simple example: Get started with configs</h3>
+
+<p>This simple example shows how configs work in just a few commands. For a
+real-world example, continue to
+<a href="index.html#advanced-example-use-configs-with-a-nginx-service">Advanced example: Use configs with a Nginx service</a>.</p>
+
+<ol>
+  <li>
+    <p>Add a config to Docker. The <code class="highlighter-rouge">docker config create</code> command reads standard
+input because the last argument, which represents the file to read the
+config from, is set to <code class="highlighter-rouge">-</code>.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">echo</span> <span class="s2">"This is a config"</span> | docker config create my-config -
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a <code class="highlighter-rouge">redis</code> service and grant it access to the config. By default,
+the container can access the config at <code class="highlighter-rouge">/my-config</code>, but
+you can customize the file name on the container using the <code class="highlighter-rouge">target</code> option.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service create <span class="nt">--name</span> redis <span class="nt">--config</span> my-config redis:alpine
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Verify that the task is running without issues using <code class="highlighter-rouge">docker service ps</code>. If
+everything is working, the output looks similar to this:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service ps redis
+<span class="go">
+ID            NAME     IMAGE         NODE              DESIRED STATE  CURRENT STATE          ERROR  PORTS
+bkna6bpn8r1a  redis.1  redis:alpine  ip-172-31-46-109  Running        Running 8 seconds ago
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Get the ID of the <code class="highlighter-rouge">redis</code> service task container using <code class="highlighter-rouge">docker ps</code>, so that
+you can use <code class="highlighter-rouge">docker container exec</code> to connect to the container and read the contents
+of the config data file, which defaults to being readable by all and has the
+same name as the name of the config. The first command below illustrates
+how to find the container ID, and the second and third commands use shell
+completion to do this automatically.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker ps <span class="nt">--filter</span> <span class="nv">name</span><span class="o">=</span>redis <span class="nt">-q</span>
+<span class="go">
+5cb1c2348a59
+
+</span><span class="gp">$</span> docker container <span class="nb">exec</span> <span class="k">$(</span>docker ps <span class="nt">--filter</span> <span class="nv">name</span><span class="o">=</span>redis <span class="nt">-q</span><span class="k">)</span> <span class="nb">ls</span> <span class="nt">-l</span> /my-config
+<span class="go">
+-r--r--r--    1 root     root            12 Jun  5 20:49 my-config
+
+</span><span class="gp">$</span> docker container <span class="nb">exec</span> <span class="k">$(</span>docker ps <span class="nt">--filter</span> <span class="nv">name</span><span class="o">=</span>redis <span class="nt">-q</span><span class="k">)</span> <span class="nb">cat</span> /my-config
+<span class="go">
+This is a config
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Try removing the config. The removal fails because the <code class="highlighter-rouge">redis</code> service is
+running and has access to the config.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">
+</span><span class="gp">$</span> docker config <span class="nb">ls</span>
+<span class="go">
+ID                          NAME                CREATED             UPDATED
+fzwcfuqjkvo5foqu7ts7ls578   hello               31 minutes ago      31 minutes ago
+
+
+</span><span class="gp">$</span> docker config rm my-config
+<span class="go">
+Error response from daemon: rpc error: code = 3 desc = config 'my-config' is
+in use by the following service: redis
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Remove access to the config from the running <code class="highlighter-rouge">redis</code> service by updating the
+service.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service update <span class="nt">--config-rm</span> my-config redis
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Repeat steps 3 and 4 again, verifying that the service no longer has access
+to the config. The container ID is different, because the
+<code class="highlighter-rouge">service update</code> command redeploys the service.</p>
+
+    <pre><code class="language-none">$ docker container exec -it $(docker ps --filter name=redis -q) cat /my-config
+
+cat: can't open '/my-config': No such file or directory
+</code></pre>
+  </li>
+  <li>
+    <p>Stop and remove the service, and remove the config from Docker.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service rm redis
+<span class="go">
+</span><span class="gp">$</span> docker config rm my-config
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="simple-example-use-configs-in-a-windows-service">Simple example: Use configs in a Windows service</h3>
+
+<p>This is a very simple example which shows how to use configs with a Microsoft
+IIS service running on Docker for Windows running Windows containers on
+Microsoft Windows 10.  It is a naive example that stores the webpage in a config.</p>
+
+<p>This example assumes that you have PowerShell installed.</p>
+
+<ol>
+  <li>
+    <p>Save the following into a new file <code class="highlighter-rouge">index.html</code>.</p>
+
+    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;&lt;title&gt;</span>Hello Docker<span class="nt">&lt;/title&gt;&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;p&gt;</span>Hello Docker! You have deployed a HTML page.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>If you have not already done so, initialize or join the swarm.</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker swarm init
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Save the <code class="highlighter-rouge">index.html</code> file as a swarm config named <code class="highlighter-rouge">homepage</code>.</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker config create homepage index.html
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create an IIS service and grant it access to the <code class="highlighter-rouge">homepage</code> config.</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker service create
+    --name my-iis
+    --publish <span class="nv">published</span><span class="o">=</span>8000,target<span class="o">=</span>8000
+    --config <span class="nv">src</span><span class="o">=</span>homepage,target<span class="o">=</span><span class="s2">"\inetpub\wwwroot\index.html"</span>
+    microsoft/iis:nanoserver
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Access the IIS service at <code class="highlighter-rouge">http://localhost:8000/</code>. It should serve
+the HTML content from the first step.</p>
+  </li>
+  <li>
+    <p>Remove the service and the config.</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker service <span class="nb">rm </span>my-iis
+
+docker config <span class="nb">rm </span>homepage
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="example-use-a-templated-config">Example: Use a templated config</h3>
+
+<p>To create a configuration in which the content will be generated using a
+template engine, use the <code class="highlighter-rouge">--template-driver</code> parameter and specify the engine
+name as its argument. The template will be rendered when container is created.</p>
+
+<ol>
+  <li>
+    <p>Save the following into a new file <code class="highlighter-rouge">index.html.tmpl</code>.</p>
+
+    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;&lt;title&gt;</span>Hello Docker<span class="nt">&lt;/title&gt;&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;p&gt;</span>Hello {{ env "HELLO" }}! I'm service {{ .Service.Name }}.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Save the <code class="highlighter-rouge">index.html.tmpl</code> file as a swarm config named <code class="highlighter-rouge">homepage</code>. Provide
+parameter <code class="highlighter-rouge">--template-driver</code> and specify <code class="highlighter-rouge">golang</code> as template engine.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker config create <span class="nt">--template-driver</span> golang homepage index.html.tmpl
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a service that runs Nginx and has access to the environment variable
+HELLO and to the config.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service create <span class="se">\</span>
+     <span class="nt">--name</span> hello-template <span class="se">\</span>
+     <span class="nt">--env</span> <span class="nv">HELLO</span><span class="o">=</span><span class="s2">"Docker"</span> <span class="se">\</span>
+     <span class="nt">--config</span> <span class="nb">source</span><span class="o">=</span>homepage,target<span class="o">=</span>/usr/share/nginx/html/index.html <span class="se">\</span>
+     <span class="nt">--publish</span> <span class="nv">published</span><span class="o">=</span>3000,target<span class="o">=</span>80 <span class="se">\</span>
+     nginx:alpine
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Verify that the service is operational: you can reach the Nginx server, and
+that the correct output is being served.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl http://0.0.0.0:3000
+<span class="go">
+</span><span class="gp">&lt;html lang="en"&gt;</span>
+<span class="gp">  &lt;head&gt;</span>&lt;title&gt;Hello Docker&lt;/title&gt;&lt;/head&gt;
+<span class="gp">  &lt;body&gt;</span>
+<span class="gp">    &lt;p&gt;</span>Hello Docker! I<span class="s1">'m service hello-template.&lt;/p&gt;
+</span><span class="gp">  &lt;/body&gt;</span>
+<span class="gp">&lt;/html&gt;</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="advanced-example-use-configs-with-a-nginx-service">Advanced example: Use configs with a Nginx service</h3>
+
+<p>This example is divided into two parts.
+<a href="index.html#generate-the-site-certificate">The first part</a> is all about generating
+the site certificate and does not directly involve Docker configs at all, but
+it sets up <a href="index.html#configure-the-nginx-container">the second part</a>, where you store
+and use the site certificate as a series of secrets and the Nginx configuration
+as a config. The example shows how to set options on the config, such as the
+target location within the container and the file permissions (<code class="highlighter-rouge">mode</code>).</p>
+
+<h4 id="generate-the-site-certificate">Generate the site certificate</h4>
+
+<p>Generate a root CA and TLS certificate and key for your site. For production
+sites, you may want to use a service such as <code class="highlighter-rouge">Let’s Encrypt</code> to generate the
+TLS certificate and key, but this example uses command-line tools. This step
+is a little complicated, but is only a set-up step so that you have
+something to store as a Docker secret. If you want to skip these sub-steps,
+you can <a href="https://letsencrypt.org/getting-started/">use Let’s Encrypt</a> to
+generate the site key and certificate, name the files <code class="highlighter-rouge">site.key</code> and
+<code class="highlighter-rouge">site.crt</code>, and skip to
+<a href="index.html#configure-the-nginx-container">Configure the Nginx container</a>.</p>
+
+<ol>
+  <li>
+    <p>Generate a root key.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl genrsa <span class="nt">-out</span> <span class="s2">"root-ca.key"</span> 4096
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Generate a CSR using the root key.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl req <span class="se">\</span>
+          <span class="nt">-new</span> <span class="nt">-key</span> <span class="s2">"root-ca.key"</span> <span class="se">\</span>
+          <span class="nt">-out</span> <span class="s2">"root-ca.csr"</span> <span class="nt">-sha256</span> <span class="se">\</span>
+          <span class="nt">-subj</span> <span class="s1">'/C=US/ST=CA/L=San Francisco/O=Docker/CN=Swarm Secret Example CA'</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Configure the root CA. Edit a new file called <code class="highlighter-rouge">root-ca.cnf</code> and paste
+the following contents into it. This constrains the root CA to only sign
+leaf certificates and not intermediate CAs.</p>
+
+    <pre><code class="language-none">[root_ca]
+basicConstraints = critical,CA:TRUE,pathlen:1
+keyUsage = critical, nonRepudiation, cRLSign, keyCertSign
+subjectKeyIdentifier=hash
+</code></pre>
+  </li>
+  <li>
+    <p>Sign the certificate.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl x509 <span class="nt">-req</span> <span class="nt">-days</span> 3650 <span class="nt">-in</span> <span class="s2">"root-ca.csr"</span> <span class="se">\</span>
+               <span class="nt">-signkey</span> <span class="s2">"root-ca.key"</span> <span class="nt">-sha256</span> <span class="nt">-out</span> <span class="s2">"root-ca.crt"</span> <span class="se">\</span>
+               <span class="nt">-extfile</span> <span class="s2">"root-ca.cnf"</span> <span class="nt">-extensions</span> <span class="se">\</span>
+               root_ca
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Generate the site key.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl genrsa <span class="nt">-out</span> <span class="s2">"site.key"</span> 4096
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Generate the site certificate and sign it with the site key.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl req <span class="nt">-new</span> <span class="nt">-key</span> <span class="s2">"site.key"</span> <span class="nt">-out</span> <span class="s2">"site.csr"</span> <span class="nt">-sha256</span> <span class="se">\</span>
+          <span class="nt">-subj</span> <span class="s1">'/C=US/ST=CA/L=San Francisco/O=Docker/CN=localhost'</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Configure the site certificate. Edit a new file called <code class="highlighter-rouge">site.cnf</code> and
+paste the following contents into it. This constrains the site
+certificate so that it can only be used to authenticate a server and
+can’t be used to sign certificates.</p>
+
+    <pre><code class="language-none">[server]
+authorityKeyIdentifier=keyid,issuer
+basicConstraints = critical,CA:FALSE
+extendedKeyUsage=serverAuth
+keyUsage = critical, digitalSignature, keyEncipherment
+subjectAltName = DNS:localhost, IP:127.0.0.1
+subjectKeyIdentifier=hash
+</code></pre>
+  </li>
+  <li>
+    <p>Sign the site certificate.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl x509 <span class="nt">-req</span> <span class="nt">-days</span> 750 <span class="nt">-in</span> <span class="s2">"site.csr"</span> <span class="nt">-sha256</span> <span class="se">\</span>
+    <span class="nt">-CA</span> <span class="s2">"root-ca.crt"</span> <span class="nt">-CAkey</span> <span class="s2">"root-ca.key"</span> <span class="nt">-CAcreateserial</span> <span class="se">\</span>
+    <span class="nt">-out</span> <span class="s2">"site.crt"</span> <span class="nt">-extfile</span> <span class="s2">"site.cnf"</span> <span class="nt">-extensions</span> server
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">site.csr</code> and <code class="highlighter-rouge">site.cnf</code> files are not needed by the Nginx service, but
+you need them if you want to generate a new site certificate. Protect
+the <code class="highlighter-rouge">root-ca.key</code> file.</p>
+  </li>
+</ol>
+
+<h4 id="configure-the-nginx-container">Configure the Nginx container</h4>
+
+<ol>
+  <li>
+    <p>Produce a very basic Nginx configuration that serves static files over HTTPS.
+The TLS certificate and key are stored as Docker secrets so that they
+can be rotated easily.</p>
+
+    <p>In the current directory, create a new file called <code class="highlighter-rouge">site.conf</code> with the
+following contents:</p>
+
+    <pre><code class="language-none">server {
+    listen                443 ssl;
+    server_name           localhost;
+    ssl_certificate       /run/secrets/site.crt;
+    ssl_certificate_key   /run/secrets/site.key;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+}
+</code></pre>
+  </li>
+  <li>
+    <p>Create two secrets, representing the key and the certificate. You can store
+any file as a secret as long as it is smaller than 500 KB. This allows you
+to decouple the key and certificate from the services that use them.
+In these examples, the secret name and the file name are the same.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker secret create site.key site.key
+<span class="go">
+</span><span class="gp">$</span> docker secret create site.crt site.crt
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Save the <code class="highlighter-rouge">site.conf</code> file in a Docker config. The first parameter is the
+name of the config, and the second parameter is the file to read it from.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker config create site.conf site.conf
+</code></pre></div>    </div>
+
+    <p>List the configs:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker config <span class="nb">ls</span>
+<span class="go">
+ID                          NAME                CREATED             UPDATED
+4ory233120ccg7biwvy11gl5z   site.conf           4 seconds ago       4 seconds ago
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a service that runs Nginx and has access to the two secrets and the
+config. Set the mode to <code class="highlighter-rouge">0440</code> so that the file is only readable by its
+owner and that owner’s group, not the world.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service create <span class="se">\</span>
+     <span class="nt">--name</span> nginx <span class="se">\</span>
+     <span class="nt">--secret</span> site.key <span class="se">\</span>
+     <span class="nt">--secret</span> site.crt <span class="se">\</span>
+     <span class="nt">--config</span> <span class="nb">source</span><span class="o">=</span>site.conf,target<span class="o">=</span>/etc/nginx/conf.d/site.conf,mode<span class="o">=</span>0440 <span class="se">\</span>
+     <span class="nt">--publish</span> <span class="nv">published</span><span class="o">=</span>3000,target<span class="o">=</span>443 <span class="se">\</span>
+     nginx:latest <span class="se">\</span>
+     sh <span class="nt">-c</span> <span class="s2">"exec nginx -g 'daemon off;'"</span>
+</code></pre></div>    </div>
+
+    <p>Within the running containers, the following three files now exist:</p>
+
+    <ul>
+      <li><code class="highlighter-rouge">/run/secrets/site.key</code></li>
+      <li><code class="highlighter-rouge">/run/secrets/site.crt</code></li>
+      <li><code class="highlighter-rouge">/etc/nginx/conf.d/site.conf</code></li>
+    </ul>
+  </li>
+  <li>
+    <p>Verify that the Nginx service is running.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service <span class="nb">ls</span>
+<span class="go">
+ID            NAME   MODE        REPLICAS  IMAGE
+zeskcec62q24  nginx  replicated  1/1       nginx:latest
+
+</span><span class="gp">$</span> docker service ps nginx
+<span class="go">
+NAME                  IMAGE         NODE  DESIRED STATE  CURRENT STATE          ERROR  PORTS
+nginx.1.9ls3yo9ugcls  nginx:latest  moby  Running        Running 3 minutes ago
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Verify that the service is operational: you can reach the Nginx
+server, and that the correct TLS certificate is being used.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--cacert</span> root-ca.crt https://0.0.0.0:3000
+<span class="go">
+</span><span class="gp">&lt;!DOCTYPE html&gt;</span>
+<span class="gp">&lt;html&gt;</span>
+<span class="gp">&lt;head&gt;</span>
+<span class="gp">&lt;title&gt;</span>Welcome to nginx!&lt;/title&gt;
+<span class="gp">&lt;style&gt;</span>
+<span class="go">    body {
+</span><span class="gp">        width: 35em;</span>
+<span class="gp">        margin: 0 auto;</span>
+<span class="gp">        font-family: Tahoma, Verdana, Arial, sans-serif;</span>
+<span class="go">    }
+</span><span class="gp">&lt;/style&gt;</span>
+<span class="gp">&lt;/head&gt;</span>
+<span class="gp">&lt;body&gt;</span>
+<span class="gp">&lt;h1&gt;</span>Welcome to nginx!&lt;/h1&gt;
+<span class="gp">&lt;p&gt;</span>If you see this page, the nginx web server is successfully installed and
+<span class="gp">working. Further configuration is required.&lt;/p&gt;</span>
+<span class="go">
+</span><span class="gp">&lt;p&gt;</span>For online documentation and support, refer to
+<span class="gp">&lt;a href="https://nginx.org"&gt;</span>nginx.org&lt;/a&gt;.&lt;br/&gt;
+<span class="go">Commercial support is available at
+</span><span class="gp">&lt;a href="https://www.nginx.com"&gt;</span>www.nginx.com&lt;/a&gt;.&lt;/p&gt;
+<span class="go">
+</span><span class="gp">&lt;p&gt;</span>&lt;em&gt;Thank you <span class="k">for </span>using nginx.&lt;/em&gt;&lt;/p&gt;
+<span class="gp">&lt;/body&gt;</span>
+<span class="gp">&lt;/html&gt;</span>
+</code></pre></div>    </div>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> openssl s_client <span class="nt">-connect</span> 0.0.0.0:3000 <span class="nt">-CAfile</span> root-ca.crt
+<span class="go">
+CONNECTED(00000003)
+depth=1 /C=US/ST=CA/L=San Francisco/O=Docker/CN=Swarm Secret Example CA
+verify return:1
+depth=0 /C=US/ST=CA/L=San Francisco/O=Docker/CN=localhost
+verify return:1
+---
+Certificate chain
+ 0 s:/C=US/ST=CA/L=San Francisco/O=Docker/CN=localhost
+   i:/C=US/ST=CA/L=San Francisco/O=Docker/CN=Swarm Secret Example CA
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+…
+-----END CERTIFICATE-----
+subject=/C=US/ST=CA/L=San Francisco/O=Docker/CN=localhost
+issuer=/C=US/ST=CA/L=San Francisco/O=Docker/CN=Swarm Secret Example CA
+---
+No client certificate CA names sent
+---
+SSL handshake has read 1663 bytes and written 712 bytes
+---
+New, TLSv1/SSLv3, Cipher is AES256-SHA
+Server public key is 4096 bit
+Secure Renegotiation IS supported
+Compression: NONE
+Expansion: NONE
+SSL-Session:
+    Protocol  : TLSv1
+    Cipher    : AES256-SHA
+    Session-ID: A1A8BF35549C5715648A12FD7B7E3D861539316B03440187D9DA6C2E48822853
+    Session-ID-ctx:
+    Master-Key: F39D1B12274BA16D3A906F390A61438221E381952E9E1E05D3DD784F0135FB81353DA38C6D5C021CB926E844DFC49FC4
+    Key-Arg   : None
+    Start Time: 1481685096
+    Timeout   : 300 (sec)
+    Verify return code: 0 (ok)
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Unless you are going to continue to the next example, clean up after running
+this example by removing the <code class="highlighter-rouge">nginx</code> service and the stored secrets and
+config.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service rm nginx
+<span class="go">
+</span><span class="gp">$</span> docker secret rm site.crt site.key
+<span class="go">
+</span><span class="gp">$</span> docker config rm site.conf
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>You have now configured a Nginx service with its configuration decoupled from
+its image. You could run multiple sites with exactly the same image but
+separate configurations, without the need to build a custom image at all.</p>
+
+<h3 id="example-rotate-a-config">Example: Rotate a config</h3>
+
+<p>To rotate a config, you first save a new config with a different name than the
+one that is currently in use. You then redeploy the service, removing the old
+config and adding the new config at the same mount point within the container.
+This example builds upon the previous one by rotating the <code class="highlighter-rouge">site.conf</code>
+configuration file.</p>
+
+<ol>
+  <li>
+    <p>Edit the <code class="highlighter-rouge">site.conf</code> file locally. Add <code class="highlighter-rouge">index.php</code> to the <code class="highlighter-rouge">index</code> line, and
+save the file.</p>
+
+    <pre><code class="language-none">server {
+    listen                443 ssl;
+    server_name           localhost;
+    ssl_certificate       /run/secrets/site.crt;
+    ssl_certificate_key   /run/secrets/site.key;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm index.php;
+    }
+}
+</code></pre>
+  </li>
+  <li>
+    <p>Create a new Docker config using the new <code class="highlighter-rouge">site.conf</code>, called <code class="highlighter-rouge">site-v2.conf</code>.</p>
+
+    <pre><code class="language-bah">$ docker config create site-v2.conf site.conf
+</code></pre>
+  </li>
+  <li>
+    <p>Update the <code class="highlighter-rouge">nginx</code> service to use the new config instead of the old one.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service update <span class="se">\</span>
+  <span class="nt">--config-rm</span> site.conf <span class="se">\</span>
+  <span class="nt">--config-add</span> <span class="nb">source</span><span class="o">=</span>site-v2.conf,target<span class="o">=</span>/etc/nginx/conf.d/site.conf,mode<span class="o">=</span>0440 <span class="se">\</span>
+  nginx
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Verify that the <code class="highlighter-rouge">nginx</code> service is fully re-deployed, using
+<code class="highlighter-rouge">docker service ps nginx</code>. When it is, you can remove the old <code class="highlighter-rouge">site.conf</code>
+config.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker config rm site.conf
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>To clean up, you can remove the <code class="highlighter-rouge">nginx</code> service, as well as the secrets and
+configs.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker service rm nginx
+<span class="go">
+</span><span class="gp">$</span> docker secret rm site.crt site.key
+<span class="go">
+</span><span class="gp">$</span> docker config rm site-v2.conf
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>You have now updated your <code class="highlighter-rouge">nginx</code> service’s configuration without the need to
+rebuild its image.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=swarm.html">swarm</a>, <a href="../../../search/index.html%3Fq=configuration.html">configuration</a>, <a href="../../../search/index.html%3Fq=configs.html">configs</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/swarm/configs.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/swarm/configs.md](https://docs.docker.com/engine/swarm/configs/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#about-configs" class="nomunge">About configs</a>
+    <ul>
+      <li><a href="index.html#windows-support" class="nomunge">Windows support</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#how-docker-manages-configs" class="nomunge">How Docker manages configs</a></li>
+  <li><a href="index.html#read-more-about-docker-config-commands" class="nomunge">Read more about docker config commands</a></li>
+  <li><a href="index.html#examples" class="nomunge">Examples</a>
+    <ul>
+      <li><a href="index.html#defining-and-using-configs-in-compose-files" class="nomunge">Defining and using configs in compose files</a></li>
+      <li><a href="index.html#simple-example-get-started-with-configs" class="nomunge">Simple example: Get started with configs</a></li>
+      <li><a href="index.html#simple-example-use-configs-in-a-windows-service" class="nomunge">Simple example: Use configs in a Windows service</a></li>
+      <li><a href="index.html#example-use-a-templated-config" class="nomunge">Example: Use a templated config</a></li>
+      <li><a href="index.html#advanced-example-use-configs-with-a-nginx-service" class="nomunge">Advanced example: Use configs with a Nginx service</a>
+        <ul>
+          <li><a href="index.html#generate-the-site-certificate" class="nomunge">Generate the site certificate</a></li>
+          <li><a href="index.html#configure-the-nginx-container" class="nomunge">Configure the Nginx container</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#example-rotate-a-config" class="nomunge">Example: Rotate a config</a></li>
+    </ul>
+  </li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/swarm/configs/";</script></body>
+</html>

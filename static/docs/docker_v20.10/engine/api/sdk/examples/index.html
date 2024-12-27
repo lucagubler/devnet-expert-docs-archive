@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Examples using the Docker Engine SDKs and Docker API | Docker Documentation</title>
+  <meta name="description" content="Examples on how to perform a given Docker operation using the Go and Python SDKs and the HTTP API using curl." />
+  <meta name="keywords" content="developing, api, sdk, developers, rest, curl, python, go">
+  <link rel="canonical" href="https://localhost:4000/engine/api/sdk/examples/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../../js/theme-switcher.js"></script>
+  <script defer src="../../../../js/anchorlinks.js"></script>
+  <script defer src="../../../../js/jquery.js"></script>
+  <script defer src="../../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Examples using the Docker Engine SDKs and Docker API"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Examples using the Docker Engine SDKs and Docker API" />
+  <meta property="og:description" content="Examples on how to perform a given Docker operation using the Go and Python SDKs and the HTTP API using curl." />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/api/sdk/examples/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Examples using the Docker Engine SDKs and Docker API","description":"Examples on how to perform a given Docker operation using the Go and Python SDKs and the HTTP API using curl.","url":"https://docs.docker.com/engine/api/sdk/examples/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../../index.html">
+                <img class="logo" src="../../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../../index.html">
+        <img src="../../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../../index.html" id="home">Home</a></li><li><a href="../../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../../reference/index.html">Reference</a></li><li><a>API reference</a></li><li><a href="../../index.html">Docker Engine API</a></li><li><a href="index.html">SDK examples</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Examples using the Docker Engine SDKs and Docker API</h1><p><em class="reading-time">Estimated reading time: 23 minutes</em></p><p>After you
+<a href="../../../../get-docker/index.html">install Docker</a>, you can
+<a href="../index.html#install-the-sdks">install the Go or Python SDK</a> and
+also try out the Docker Engine API.</p>
+
+<p>Each of these examples show how to perform a given Docker operation using the Go
+and Python SDKs and the HTTP API using <code class="highlighter-rouge">curl</code>.</p>
+
+<h2 id="run-a-container">Run a container</h2>
+
+<p>This first example shows how to run a container using the Docker API. On the
+command line, you would use the <code class="highlighter-rouge">docker run</code> command, but this is just as easy
+to do from your own apps too.</p>
+
+<p>This is the equivalent of typing <code class="highlighter-rouge">docker run alpine echo hello world</code> at the
+command prompt:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-run-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-run-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-run-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-run-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"io"</span><span class="x">
+	</span><span class="s">"os"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/api/types/container"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/pkg/stdcopy"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">reader</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ImagePull</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="s">"docker.io/library/alpine"</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ImagePullOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">defer</span><span class="x"> </span><span class="n">reader</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span><span class="x">
+	</span><span class="n">io</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">reader</span><span class="p">)</span><span class="x">
+
+	</span><span class="n">resp</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerCreate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="o">&amp;</span><span class="n">container</span><span class="o">.</span><span class="n">Config</span><span class="p">{</span><span class="x">
+		</span><span class="n">Image</span><span class="o">:</span><span class="x"> </span><span class="s">"alpine"</span><span class="p">,</span><span class="x">
+		</span><span class="n">Cmd</span><span class="o">:</span><span class="x">   </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">"echo"</span><span class="p">,</span><span class="x"> </span><span class="s">"hello world"</span><span class="p">},</span><span class="x">
+		</span><span class="n">Tty</span><span class="o">:</span><span class="x">   </span><span class="no">false</span><span class="p">,</span><span class="x">
+	</span><span class="p">},</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="s">""</span><span class="p">)</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerStart</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">resp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerStartOptions</span><span class="p">{});</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">statusCh</span><span class="p">,</span><span class="x"> </span><span class="n">errCh</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerWait</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">resp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="o">.</span><span class="n">WaitConditionNotRunning</span><span class="p">)</span><span class="x">
+	</span><span class="k">select</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="k">case</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="o">&lt;-</span><span class="n">errCh</span><span class="o">:</span><span class="x">
+		</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+			</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+		</span><span class="p">}</span><span class="x">
+	</span><span class="k">case</span><span class="x"> </span><span class="o">&lt;-</span><span class="n">statusCh</span><span class="o">:</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">out</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerLogs</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">resp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerLogsOptions</span><span class="p">{</span><span class="n">ShowStdout</span><span class="o">:</span><span class="x"> </span><span class="no">true</span><span class="p">})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">stdcopy</span><span class="o">.</span><span class="n">StdCopy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">os</span><span class="o">.</span><span class="n">Stderr</span><span class="p">,</span><span class="x"> </span><span class="n">out</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-run-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">"alpine"</span><span class="p">,</span> <span class="p">[</span><span class="s">"echo"</span><span class="p">,</span> <span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">]))</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-run-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"Image": "alpine", "Cmd": ["echo", "hello world"]}'</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST http://localhost/v1.41/containers/create
+<span class="go">{"Id":"1c6594faf5","Warnings":null}
+
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="nt">-X</span> POST http://localhost/v1.41/containers/1c6594faf5/start
+<span class="go">
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="nt">-X</span> POST http://localhost/v1.41/containers/1c6594faf5/wait
+<span class="go">{"StatusCode":0}
+
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="s2">"http://localhost/v1.41/containers/1c6594faf5/logs?stdout=1"</span>
+<span class="go">hello world
+</span></code></pre></div>    </div>
+
+    <p>When using cURL to connect over a unix socket, the hostname is not important. The
+examples above use <code class="highlighter-rouge">localhost</code>, but any hostname would work.</p>
+
+    <blockquote class="important">
+      <p><strong>Using cURL 7.47.0 or below?</strong></p>
+
+      <p>The examples above assume you are using cURL 7.50.0 or above. Older versions of
+cURL used a <a href="https://github.com/moby/moby/issues/17960" target="_blank" rel="noopener" class="_">non-standard URL notation</a>
+when using a socket connection.</p>
+
+      <p>If you are using an older version of cURL, use <code class="highlighter-rouge">http:/&lt;API version&gt;/</code> instead,
+for example, <code class="highlighter-rouge">http:/v1.41/containers/1c6594faf5/start</code></p>
+    </blockquote>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="run-a-container-in-the-background">Run a container in the background</h2>
+
+<p>You can also run containers in the background, the equivalent of typing
+<code class="highlighter-rouge">docker run -d bfirsh/reticulate-splines</code>:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-rundetach-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-rundetach-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-rundetach-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-rundetach-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+	</span><span class="s">"io"</span><span class="x">
+	</span><span class="s">"os"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/api/types/container"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">imageName</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="s">"bfirsh/reticulate-splines"</span><span class="x">
+
+	</span><span class="n">out</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ImagePull</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">imageName</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ImagePullOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+	</span><span class="k">defer</span><span class="x"> </span><span class="n">out</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span><span class="x">
+	</span><span class="n">io</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">out</span><span class="p">)</span><span class="x">
+
+	</span><span class="n">resp</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerCreate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="o">&amp;</span><span class="n">container</span><span class="o">.</span><span class="n">Config</span><span class="p">{</span><span class="x">
+		</span><span class="n">Image</span><span class="o">:</span><span class="x"> </span><span class="n">imageName</span><span class="p">,</span><span class="x">
+	</span><span class="p">},</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="s">""</span><span class="p">)</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerStart</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">resp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerStartOptions</span><span class="p">{});</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-rundetach-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">container</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">"bfirsh/reticulate-splines"</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-rundetach-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"Image": "bfirsh/reticulate-splines"}'</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST http://localhost/v1.41/containers/create
+<span class="go">{"Id":"1c6594faf5","Warnings":null}
+
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="nt">-X</span> POST http://localhost/v1.41/containers/1c6594faf5/start
+</code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="list-and-manage-containers">List and manage containers</h2>
+
+<p>You can use the API to list containers that are running, just like using
+<code class="highlighter-rouge">docker ps</code>:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-listcontainers-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-listcontainers-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-listcontainers-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-listcontainers-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">containers</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerList</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerListOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">for</span><span class="x"> </span><span class="n">_</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="k">range</span><span class="x"> </span><span class="n">containers</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-listcontainers-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="nb">list</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-listcontainers-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock http://localhost/v1.41/containers/json
+<span class="go">[{
+  "Id":"ae63e8b89a26f01f6b4b2c9a7817c31a1b6196acf560f66586fbc8809ffcd772",
+  "Names":["/tender_wing"],
+  "Image":"bfirsh/reticulate-splines",
+</span><span class="c">  ...
+</span><span class="go">}]
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="stop-all-running-containers">Stop all running containers</h2>
+
+<p>Now that you know what containers exist, you can perform operations on them.
+This example stops all running containers.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Don’t run this on a production server. Also, if you are using swarm
+services, the containers stop, but Docker creates new ones to keep
+the service running in its configured state.</p>
+</blockquote>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-stopcontainers-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-stopcontainers-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-stopcontainers-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-stopcontainers-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">containers</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerList</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerListOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">for</span><span class="x"> </span><span class="n">_</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="k">range</span><span class="x"> </span><span class="n">containers</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="n">fmt</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s">"Stopping container "</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="o">.</span><span class="n">ID</span><span class="p">[</span><span class="o">:</span><span class="m">10</span><span class="p">],</span><span class="x"> </span><span class="s">"... "</span><span class="p">)</span><span class="x">
+		</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerStop</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">);</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+			</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+		</span><span class="p">}</span><span class="x">
+		</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Success"</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-stopcontainers-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="nb">list</span><span class="p">():</span>
+  <span class="n">container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-stopcontainers-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock http://localhost/v1.41/containers/json
+<span class="go">[{
+  "Id":"ae63e8b89a26f01f6b4b2c9a7817c31a1b6196acf560f66586fbc8809ffcd772",
+  "Names":["/tender_wing"],
+  "Image":"bfirsh/reticulate-splines",
+</span><span class="c">  ...
+</span><span class="go">}]
+
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="se">\</span>
+  <span class="nt">-X</span> POST http://localhost/v1.41/containers/ae63e8b89a26/stop
+</code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="print-the-logs-of-a-specific-container">Print the logs of a specific container</h2>
+
+<p>You can also perform actions on individual containers. This example prints the
+logs of a container given its ID. You need to modify the code before running it
+to change the hard-coded ID of the container to print the logs for.</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-containerlogs-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-containerlogs-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-containerlogs-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-containerlogs-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"io"</span><span class="x">
+	</span><span class="s">"os"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">options</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerLogsOptions</span><span class="p">{</span><span class="n">ShowStdout</span><span class="o">:</span><span class="x"> </span><span class="no">true</span><span class="p">}</span><span class="x">
+	</span><span class="c">// Replace this ID with a container that really exists</span><span class="x">
+	</span><span class="n">out</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerLogs</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="s">"f1064a8a4c82"</span><span class="p">,</span><span class="x"> </span><span class="n">options</span><span class="p">)</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">io</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">out</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-containerlogs-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">container</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'f1064a8a4c82'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">logs</span><span class="p">())</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-containerlogs-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="s2">"http://localhost/v1.41/containers/ca5f55cdb/logs?stdout=1"</span>
+<span class="go">Reticulating spline 1...
+Reticulating spline 2...
+Reticulating spline 3...
+Reticulating spline 4...
+Reticulating spline 5...
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="list-all-images">List all images</h2>
+
+<p>List the images on your Engine, similar to <code class="highlighter-rouge">docker image ls</code>:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-listimages-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-listimages-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-listimages-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-listimages-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">images</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ImageList</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ImageListOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">for</span><span class="x"> </span><span class="n">_</span><span class="p">,</span><span class="x"> </span><span class="n">image</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="k">range</span><span class="x"> </span><span class="n">images</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-listimages-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="nb">list</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-listimages-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock http://localhost/v1.41/images/json
+<span class="go">[{
+  "Id":"sha256:31d9a31e1dd803470c5a151b8919ef1988ac3efd44281ac59d43ad623f275dcd",
+  "ParentId":"sha256:ee4603260daafe1a8c2f3b78fd760922918ab2441cbb2853ed5c439e59c52f96",
+</span><span class="c">  ...
+</span><span class="go">}]
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+
+<h2 id="pull-an-image">Pull an image</h2>
+
+<p>Pull an image, like <code class="highlighter-rouge">docker pull</code>:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-pullimages-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-pullimages-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-pullimages-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-pullimages-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"io"</span><span class="x">
+	</span><span class="s">"os"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">out</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ImagePull</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="s">"alpine"</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ImagePullOptions</span><span class="p">{})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">defer</span><span class="x"> </span><span class="n">out</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span><span class="x">
+
+	</span><span class="n">io</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">out</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-pullimages-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">"alpine"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-pullimages-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="se">\</span>
+  <span class="nt">-X</span> POST <span class="s2">"http://localhost/v1.41/images/create?fromImage=alpine"</span>
+<span class="go">{"status":"Pulling from library/alpine","id":"3.1"}
+{"status":"Pulling fs layer","progressDetail":{},"id":"8f13703509f7"}
+{"status":"Downloading","progressDetail":{"current":32768,"total":2244027},"progress":"[\u003e                                                  ] 32.77 kB/2.244 MB","id":"8f13703509f7"}
+</span><span class="c">...
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<p><!-- end tab-content --></p>
+
+<h2 id="pull-an-image-with-authentication">Pull an image with authentication</h2>
+
+<p>Pull an image, like <code class="highlighter-rouge">docker pull</code>, with authentication:</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Credentials are sent in the clear. Docker’s official registries use
+HTTPS. Private registries should also be configured to use HTTPS.</p>
+</blockquote>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-pullimages-auth-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-pullimages-auth-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-pullimages-auth-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-pullimages-auth-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"encoding/base64"</span><span class="x">
+	</span><span class="s">"encoding/json"</span><span class="x">
+	</span><span class="s">"io"</span><span class="x">
+	</span><span class="s">"os"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">authConfig</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">AuthConfig</span><span class="p">{</span><span class="x">
+		</span><span class="n">Username</span><span class="o">:</span><span class="x"> </span><span class="s">"username"</span><span class="p">,</span><span class="x">
+		</span><span class="n">Password</span><span class="o">:</span><span class="x"> </span><span class="s">"password"</span><span class="p">,</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+	</span><span class="n">encodedJSON</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">json</span><span class="o">.</span><span class="n">Marshal</span><span class="p">(</span><span class="n">authConfig</span><span class="p">)</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+	</span><span class="n">authStr</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">base64</span><span class="o">.</span><span class="n">URLEncoding</span><span class="o">.</span><span class="n">EncodeToString</span><span class="p">(</span><span class="n">encodedJSON</span><span class="p">)</span><span class="x">
+
+	</span><span class="n">out</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ImagePull</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="s">"alpine"</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ImagePullOptions</span><span class="p">{</span><span class="n">RegistryAuth</span><span class="o">:</span><span class="x"> </span><span class="n">authStr</span><span class="p">})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">defer</span><span class="x"> </span><span class="n">out</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span><span class="x">
+	</span><span class="n">io</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">Stdout</span><span class="p">,</span><span class="x"> </span><span class="n">out</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-pullimages-auth-python" class="tab-pane fade">
+
+    <p>The Python SDK retrieves authentication information from the <a href="../../../reference/commandline/login/index.html#credentials-store">credentials
+store</a> file and
+integrates with <a href="https://github.com/docker/docker-credential-helpers" target="_blank" class="_">credential
+helpers</a>. It is possible to override these credentials, but that is out of
+scope for this Getting Started guide. After using <code class="highlighter-rouge">docker login</code>, the Python SDK
+uses these credentials automatically.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">"alpine"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-pullimages-auth-curl" class="tab-pane fade">
+
+    <p>This example leaves the credentials in your shell’s history, so consider
+this a naive implementation. The credentials are passed as a Base-64-encoded
+JSON structure.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nv">JSON</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s1">'{"username": "string", "password": "string", "serveraddress": "string"}'</span> | base64<span class="k">)</span>
+<span class="go">
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/tar"</span>
+<span class="go">  -X POST "http://localhost/v1.41/images/create?fromImage=alpine"
+  -H "X-Registry-Auth"
+</span><span class="gp">  -d "$</span>JSON<span class="s2">"
+</span><span class="go">{"status":"Pulling from library/alpine","id":"3.1"}
+{"status":"Pulling fs layer","progressDetail":{},"id":"8f13703509f7"}
+{"status":"Downloading","progressDetail":{"current":32768,"total":2244027},"progress":"[\u003e                                                  ] 32.77 kB/2.244 MB","id":"8f13703509f7"}
+</span><span class="c">...
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<p><!-- end tab-content --></p>
+
+<h2 id="commit-a-container">Commit a container</h2>
+
+<p>Commit a container to create an image from its contents:</p>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" data-target="#tab-commit-go" data-group="go">Go</a></li>
+  <li><a data-toggle="tab" data-target="#tab-commit-python" data-group="python">Python</a></li>
+  <li><a data-toggle="tab" data-target="#tab-commit-curl" data-group="curl">HTTP</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-commit-go" class="tab-pane fade in active">
+
+    <div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span><span class="x"> </span><span class="n">main</span><span class="x">
+
+</span><span class="k">import</span><span class="x"> </span><span class="p">(</span><span class="x">
+	</span><span class="s">"context"</span><span class="x">
+	</span><span class="s">"fmt"</span><span class="x">
+
+	</span><span class="s">"github.com/docker/docker/api/types"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/api/types/container"</span><span class="x">
+	</span><span class="s">"github.com/docker/docker/client"</span><span class="x">
+</span><span class="p">)</span><span class="x">
+
+</span><span class="k">func</span><span class="x"> </span><span class="n">main</span><span class="p">()</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="n">ctx</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span><span class="x">
+	</span><span class="n">cli</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">NewClientWithOpts</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">FromEnv</span><span class="p">,</span><span class="x"> </span><span class="n">client</span><span class="o">.</span><span class="n">WithAPIVersionNegotiation</span><span class="p">())</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">createResp</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerCreate</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="o">&amp;</span><span class="n">container</span><span class="o">.</span><span class="n">Config</span><span class="p">{</span><span class="x">
+		</span><span class="n">Image</span><span class="o">:</span><span class="x"> </span><span class="s">"alpine"</span><span class="p">,</span><span class="x">
+		</span><span class="n">Cmd</span><span class="o">:</span><span class="x">   </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">"touch"</span><span class="p">,</span><span class="x"> </span><span class="s">"/helloworld"</span><span class="p">},</span><span class="x">
+	</span><span class="p">},</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="no">nil</span><span class="p">,</span><span class="x"> </span><span class="s">""</span><span class="p">)</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerStart</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">createResp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerStartOptions</span><span class="p">{});</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">statusCh</span><span class="p">,</span><span class="x"> </span><span class="n">errCh</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerWait</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">createResp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">container</span><span class="o">.</span><span class="n">WaitConditionNotRunning</span><span class="p">)</span><span class="x">
+	</span><span class="k">select</span><span class="x"> </span><span class="p">{</span><span class="x">
+	</span><span class="k">case</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="o">&lt;-</span><span class="n">errCh</span><span class="o">:</span><span class="x">
+		</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+			</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+		</span><span class="p">}</span><span class="x">
+	</span><span class="k">case</span><span class="x"> </span><span class="o">&lt;-</span><span class="n">statusCh</span><span class="o">:</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">commitResp</span><span class="p">,</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">:=</span><span class="x"> </span><span class="n">cli</span><span class="o">.</span><span class="n">ContainerCommit</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="x"> </span><span class="n">createResp</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span><span class="x"> </span><span class="n">types</span><span class="o">.</span><span class="n">ContainerCommitOptions</span><span class="p">{</span><span class="n">Reference</span><span class="o">:</span><span class="x"> </span><span class="s">"helloworld"</span><span class="p">})</span><span class="x">
+	</span><span class="k">if</span><span class="x"> </span><span class="n">err</span><span class="x"> </span><span class="o">!=</span><span class="x"> </span><span class="no">nil</span><span class="x"> </span><span class="p">{</span><span class="x">
+		</span><span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="x">
+	</span><span class="p">}</span><span class="x">
+
+	</span><span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">commitResp</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span><span class="x">
+</span><span class="p">}</span><span class="x">
+</span></code></pre></div>    </div>
+
+  </div>
+  <div id="tab-commit-python" class="tab-pane fade">
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">docker</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">container</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">"alpine"</span><span class="p">,</span> <span class="p">[</span><span class="s">"touch"</span><span class="p">,</span> <span class="s">"/helloworld"</span><span class="p">],</span> <span class="n">detach</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">container</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="s">"helloworld"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="nb">id</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+  </div>
+  <div id="tab-commit-curl" class="tab-pane fade">
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker run <span class="nt">-d</span> alpine touch /helloworld
+<span class="go">0888269a9d584f0fa8fc96b3c0d8d57969ceea3a64acf47cd34eebb4744dbc52
+</span><span class="gp">$</span> curl <span class="nt">--unix-socket</span> /var/run/docker.sock<span class="se">\</span>
+  <span class="nt">-X</span> POST <span class="s2">"http://localhost/v1.41/commit?container=0888269a9d&amp;repo=helloworld"</span>
+<span class="go">{"Id":"sha256:6c86a5cd4b87f2771648ce619e319f3e508394b5bfc2cdbd2d60f59d52acda6c"}
+</span></code></pre></div>    </div>
+
+  </div>
+</div>
+<!-- end tab-content -->
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../../search/index.html%3Fq=developing.html">developing</a>, <a href="../../../../search/index.html%3Fq=api.html">api</a>, <a href="../../../../search/index.html%3Fq=sdk.html">sdk</a>, <a href="../../../../search/index.html%3Fq=developers.html">developers</a>, <a href="../../../../search/index.html%3Fq=rest.html">rest</a>, <a href="../../../../search/index.html%3Fq=curl.html">curl</a>, <a href="../../../../search/index.html%3Fq=python.html">python</a>, <a href="../../../../search/index.html%3Fq=go.html">go</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/api/sdk/examples.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/api/sdk/examples.md](https://docs.docker.com/engine/api/sdk/examples/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#run-a-container" class="nomunge">Run a container</a></li>
+  <li><a href="index.html#run-a-container-in-the-background" class="nomunge">Run a container in the background</a></li>
+  <li><a href="index.html#list-and-manage-containers" class="nomunge">List and manage containers</a></li>
+  <li><a href="index.html#stop-all-running-containers" class="nomunge">Stop all running containers</a></li>
+  <li><a href="index.html#print-the-logs-of-a-specific-container" class="nomunge">Print the logs of a specific container</a></li>
+  <li><a href="index.html#list-all-images" class="nomunge">List all images</a></li>
+  <li><a href="index.html#pull-an-image" class="nomunge">Pull an image</a></li>
+  <li><a href="index.html#pull-an-image-with-authentication" class="nomunge">Pull an image with authentication</a></li>
+  <li><a href="index.html#commit-a-container" class="nomunge">Commit a container</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/api/sdk/examples/";</script></body>
+</html>

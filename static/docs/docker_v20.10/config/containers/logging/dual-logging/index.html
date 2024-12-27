@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Use docker logs with remote logging drivers | Docker Documentation</title>
+  <meta name="description" content="Learn how to read container logs locally when using a third party logging solution." />
+  <meta name="keywords" content="docker, logging, driver, dual logging, dual-logging, cache, ring-buffer, configuration">
+  <link rel="canonical" href="https://localhost:4000/config/containers/logging/dual-logging/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../../js/theme-switcher.js"></script>
+  <script defer src="../../../../js/anchorlinks.js"></script>
+  <script defer src="../../../../js/jquery.js"></script>
+  <script defer src="../../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Use docker logs with remote logging drivers"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Use docker logs with remote logging drivers" />
+  <meta property="og:description" content="Learn how to read container logs locally when using a third party logging solution." />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/config/containers/logging/dual-logging/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Use docker logs with remote logging drivers","description":"Learn how to read container logs locally when using a third party logging solution.","url":"https://docs.docker.com/config/containers/logging/dual-logging/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../../index.html">
+                <img class="logo" src="../../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../../index.html">
+        <img src="../../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../../index.html" id="home">Home</a></li><li><a href="../../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../start-containers-automatically/index.html">Configure containers</a></li><li><a href="../index.html">Logging</a></li><li><a href="index.html">Use docker logs with a logging driver</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Use docker logs with remote logging drivers</h1><p><em class="reading-time">Estimated reading time: 6 minutes</em></p><h2 id="overview">Overview</h2>
+
+<p>Prior to Docker Engine 20.10, the <a href="../../../../engine/reference/commandline/logs/index.html"><code class="highlighter-rouge">docker logs</code> command</a>
+could only be used with logging drivers that supported  for containers using the
+<code class="highlighter-rouge">local</code>, <code class="highlighter-rouge">json-file</code>, or <code class="highlighter-rouge">journald</code> log drivers. However, many third party logging
+drivers had no support for locally reading logs using <code class="highlighter-rouge">docker logs</code></p>
+
+<p>This created multiple problems when attempting to gather log data in an
+automated and standard way. Log information could only be accessed and viewed
+through the third-party solution in the format specified by that
+third-party tool.</p>
+
+<p>Starting with Docker Engine 20.10, you can use <code class="highlighter-rouge">docker logs</code> to read container
+logs regardless of the configured logging driver or plugin. This capability,
+referred to as “dual logging”, allows you to use <code class="highlighter-rouge">docker logs</code> to read container
+logs locally in a consistent format, regardless of the log driver used, because
+the engine is configured to log information to the “local” logging driver. Refer
+to <a href="../configure/index.html">Configure the default logging driver</a> for additional information.</p>
+
+<p>Dual logging uses the <a href="../local/index.html"><code class="highlighter-rouge">local</code></a> logging driver to act as cache for
+reading the latest logs of your containers. By default, the cache has log-file
+rotation enabled, and is limited to a maximum of 5 files of 20MB each (before
+compression) per container.</p>
+
+<p>Refer to the <a href="index.html#configuration-options">configuration options</a> section to customize
+these defaults, or to the <a href="index.html#disable-the-dual-logging-cache">disable dual-logging</a>
+section to disable this feature.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>No configuration changes are needed to use dual logging. Docker Engine 20.10 and
+up automatically enable dual logging if the configured logging driver does not
+support reading logs.</p>
+
+<p>The following examples show the result of running a <code class="highlighter-rouge">docker logs</code> command with
+and without dual logging availability:</p>
+
+<h3 id="without-dual-logging-capability">Without dual logging capability</h3>
+
+<p>When a container is configured with a remote logging driver such as <code class="highlighter-rouge">splunk</code>, and
+dual logging is disabled, an error is displayed when attempting to read container
+logs locally:</p>
+
+<ul>
+  <li>
+    <p>Step 1: Configure Docker daemon</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> <span class="nb">cat</span> /etc/docker/daemon.json
+<span class="go">  {
+    "log-driver": "splunk",
+    "log-opts": {
+      "cache-disabled": "true",
+      ... (options for "splunk" logging driver)
+    }
+  }
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Step 2: Start the container</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> docker run <span class="nt">-d</span> busybox <span class="nt">--name</span> testlog top 
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Step 3: Read the container logs</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> docker logs 7d6ac83a89a0
+<span class="go">  Error response from daemon: configured logging driver does not support reading
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="with-dual-logging-capability">With dual logging capability</h3>
+
+<p>With the dual logging cache enabled, the <code class="highlighter-rouge">docker logs</code> command can be used to
+read logs, even if the logging driver does not support reading logs. The following
+examples shows a daemon configuration that uses the <code class="highlighter-rouge">splunk</code> remote logging driver
+as a default, with dual logging caching enabled:</p>
+
+<ul>
+  <li>
+    <p>Step 1: Configure Docker daemon</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> <span class="nb">cat</span> /etc/docker/daemon.json
+<span class="go">  {
+    "log-driver": "splunk",
+    "log-opts": {
+      ... (options for "splunk" logging driver)
+    }
+  }
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Step 2: Start the container</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> docker run <span class="nt">-d</span> busybox <span class="nt">--name</span> testlog top 
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Step 3: Read the container logs</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">  $</span> docker logs 7d6ac83a89a0
+<span class="go">  2019-02-04T19:48:15.423Z [INFO]  core: marked as sealed                                          	 
+  2019-02-04T19:48:15.423Z [INFO]  core: pre-seal teardown starting                                                                                                 	 
+  2019-02-04T19:48:15.423Z [INFO]  core: stopping cluster listeners                                                                                             	 
+  2019-02-04T19:48:15.423Z [INFO]  core: shutting down forwarding rpc listeners                                                                                 	 
+  2019-02-04T19:48:15.423Z [INFO]  core: forwarding rpc listeners stopped
+  2019-02-04T19:48:15.599Z [INFO]  core: rpc listeners successfully shut down
+  2019-02-04T19:48:15.599Z [INFO]  core: cluster listeners successfully shut down	
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>For logging drivers that support reading logs, such as the <code class="highlighter-rouge">local</code>, <code class="highlighter-rouge">json-file</code>
+and <code class="highlighter-rouge">journald</code> drivers, there is no difference in functionality before or after
+the dual logging capability became available. For these drivers, Logs can be
+read using <code class="highlighter-rouge">docker logs</code> in both scenarios.</p>
+</blockquote>
+
+<h3 id="configuration-options">Configuration options</h3>
+
+<p>The “dual logging” cache accepts the same configuration options as the
+<a href="../local/index.html"><code class="highlighter-rouge">local</code> logging driver</a>, but with a <code class="highlighter-rouge">cache-</code> prefix. These options
+can be specified per container, and defaults for new containers can be set using
+the <a href="../../../../engine/reference/commandline/dockerd.html#daemon-configuration-file">daemon configuration file</a>.</p>
+
+<p>By default, the cache has log-file rotation enabled, and is limited to a maximum
+of 5 files of 20MB each (before compression) per container. Use the configuration
+options described below to customize these defaults.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Option</th>
+      <th style="text-align: left">Default</th>
+      <th style="text-align: left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="highlighter-rouge">cache-disabled</code></td>
+      <td style="text-align: left"><code class="highlighter-rouge">"false"</code></td>
+      <td style="text-align: left">Disable local caching. Boolean value passed as a string (<code class="highlighter-rouge">true</code>, <code class="highlighter-rouge">1</code>, <code class="highlighter-rouge">0</code>, or <code class="highlighter-rouge">false</code>).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="highlighter-rouge">cache-max-size</code></td>
+      <td style="text-align: left"><code class="highlighter-rouge">"20m"</code></td>
+      <td style="text-align: left">The maximum size of the cache before it is rotated. A positive integer plus a modifier representing the unit of measure (<code class="highlighter-rouge">k</code>, <code class="highlighter-rouge">m</code>, or <code class="highlighter-rouge">g</code>).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="highlighter-rouge">cache-max-file</code></td>
+      <td style="text-align: left"><code class="highlighter-rouge">"5"</code></td>
+      <td style="text-align: left">The maximum number of cache files that can be present. If rotating the logs creates excess files, the oldest file is removed. A positive integer.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="highlighter-rouge">cache-compress</code></td>
+      <td style="text-align: left"><code class="highlighter-rouge">"true"</code></td>
+      <td style="text-align: left">Enable or disable compression of rotated log files. Boolean value passed as a string (<code class="highlighter-rouge">true</code>, <code class="highlighter-rouge">1</code>, <code class="highlighter-rouge">0</code>, or <code class="highlighter-rouge">false</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="disable-the-dual-logging-cache">Disable the dual logging cache</h2>
+
+<p>Use the <code class="highlighter-rouge">cache-disabled</code> option to disable the dual logging cache. Disabling the
+cache can be useful to save storage space in situations where logs are only read
+through a remote logging system, and if there is no need to read logs through
+<code class="highlighter-rouge">docker logs</code> for debugging purposes.</p>
+
+<p>Caching can be disabled for individual containers or by default for new containers,
+when using the <a href="../../../../engine/reference/commandline/dockerd.html#daemon-configuration-file">daemon configuration file</a>.</p>
+
+<p>The following example uses the daemon configuration file to use the <a href="../splunk/index.html">“splunk’</a>
+logging driver as a default, with caching disabled:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">cat</span> /etc/docker/daemon.json
+<span class="go">{
+  "log-driver": "splunk",
+  "log-opts": {
+    "cache-disabled": "true",
+    ... (options for "splunk" logging driver)
+  }
+}
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>For logging drivers that support reading logs, such as the <code class="highlighter-rouge">local</code>, <code class="highlighter-rouge">json-file</code>
+and <code class="highlighter-rouge">journald</code> drivers, dual logging is not used, and disabling the option has
+no effect.</p>
+</blockquote>
+
+<h2 id="limitations">Limitations</h2>
+
+<ul>
+  <li>If a container using a logging driver or plugin that sends logs remotely
+suddenly has a “network” issue, no ‘write’ to the local cache occurs.</li>
+  <li>If a write to <code class="highlighter-rouge">logdriver</code> fails for any reason (file system full, write
+permissions removed), the cache write fails and is logged in the daemon log.
+The log entry to the cache is not retried.</li>
+  <li>Some logs might be lost from the cache in the default configuration because a
+ring buffer is used to prevent blocking the stdio of the container in case of
+slow file writes. An admin must repair these while the daemon is shut down.</li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../../search/index.html%3Fq=docker.html">docker</a>, <a href="../../../../search/index.html%3Fq=logging.html">logging</a>, <a href="../../../../search/index.html%3Fq=driver.html">driver</a>, <a href="../../../../search/index.html%3Fq=dual%20logging.html">dual logging</a>, <a href="../../../../search/index.html%3Fq=dual-logging.html">dual-logging</a>, <a href="../../../../search/index.html%3Fq=cache.html">cache</a>, <a href="../../../../search/index.html%3Fq=ring-buffer.html">ring-buffer</a>, <a href="../../../../search/index.html%3Fq=configuration.html">configuration</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/config/containers/logging/dual-logging.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [config/containers/logging/dual-logging.md](https://docs.docker.com/config/containers/logging/dual-logging/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#overview" class="nomunge">Overview</a></li>
+  <li><a href="index.html#prerequisites" class="nomunge">Prerequisites</a>
+    <ul>
+      <li><a href="index.html#without-dual-logging-capability" class="nomunge">Without dual logging capability</a></li>
+      <li><a href="index.html#with-dual-logging-capability" class="nomunge">With dual logging capability</a></li>
+      <li><a href="index.html#configuration-options" class="nomunge">Configuration options</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#disable-the-dual-logging-cache" class="nomunge">Disable the dual logging cache</a></li>
+  <li><a href="index.html#limitations" class="nomunge">Limitations</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/config/containers/logging/dual-logging/";</script></body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Docker Plugin API | Docker Documentation</title>
+  <meta name="description" content="How to write Docker plugins extensions " />
+  <meta name="keywords" content="API, Usage, plugins, documentation, developer">
+  <link rel="canonical" href="https://localhost:4000/engine/extend/plugin_api/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Docker Plugin API"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Docker Plugin API" />
+  <meta property="og:description" content="How to write Docker plugins extensions " />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/engine/extend/plugin_api/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Docker Plugin API","description":"How to write Docker plugins extensions ","url":"https://docs.docker.com/engine/extend/plugin_api/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../../config/containers/start-containers-automatically/index.html">Configure containers</a></li><li><a href="../index.html">Extend Docker</a></li><li><a href="index.html">Plugins</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><p><em class="reading-time">Estimated reading time: 5 minutes</em></p><!-- This file is maintained within the docker/cli GitHub
+     repository at https://github.com/docker/cli/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
+
+<h1 id="docker-plugin-api">Docker Plugin API</h1>
+
+<p>Docker plugins are out-of-process extensions which add capabilities to the
+Docker Engine.</p>
+
+<p>This document describes the Docker Engine plugin API. To view information on
+plugins managed by Docker Engine, refer to <a href="../index.html">Docker Engine plugin system</a>.</p>
+
+<p>This page is intended for people who want to develop their own Docker plugin.
+If you just want to learn about or use Docker plugins, look
+<a href="../legacy_plugins/index.html">here</a>.</p>
+
+<h2 id="what-plugins-are">What plugins are</h2>
+
+<p>A plugin is a process running on the same or a different host as the docker daemon,
+which registers itself by placing a file on the same docker host in one of the plugin
+directories described in <a href="index.html#plugin-discovery">Plugin discovery</a>.</p>
+
+<p>Plugins have human-readable names, which are short, lowercase strings. For
+example, <code class="highlighter-rouge">flocker</code> or <code class="highlighter-rouge">weave</code>.</p>
+
+<p>Plugins can run inside or outside containers. Currently running them outside
+containers is recommended.</p>
+
+<h2 id="plugin-discovery">Plugin discovery</h2>
+
+<p>Docker discovers plugins by looking for them in the plugin directory whenever a
+user or container tries to use one by name.</p>
+
+<p>There are three types of files which can be put in the plugin directory.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">.sock</code> files are UNIX domain sockets.</li>
+  <li><code class="highlighter-rouge">.spec</code> files are text files containing a URL, such as <code class="highlighter-rouge">unix:///other.sock</code> or <code class="highlighter-rouge">tcp://localhost:8080</code>.</li>
+  <li><code class="highlighter-rouge">.json</code> files are text files containing a full json specification for the plugin.</li>
+</ul>
+
+<p>Plugins with UNIX domain socket files must run on the same docker host, whereas
+plugins with spec or json files can run on a different host if a remote URL is specified.</p>
+
+<p>UNIX domain socket files must be located under <code class="highlighter-rouge">/run/docker/plugins</code>, whereas
+spec files can be located either under <code class="highlighter-rouge">/etc/docker/plugins</code> or <code class="highlighter-rouge">/usr/lib/docker/plugins</code>.</p>
+
+<p>The name of the file (excluding the extension) determines the plugin name.</p>
+
+<p>For example, the <code class="highlighter-rouge">flocker</code> plugin might create a UNIX socket at
+<code class="highlighter-rouge">/run/docker/plugins/flocker.sock</code>.</p>
+
+<p>You can define each plugin into a separated subdirectory if you want to isolate definitions from each other.
+For example, you can create the <code class="highlighter-rouge">flocker</code> socket under <code class="highlighter-rouge">/run/docker/plugins/flocker/flocker.sock</code> and only
+mount <code class="highlighter-rouge">/run/docker/plugins/flocker</code> inside the <code class="highlighter-rouge">flocker</code> container.</p>
+
+<p>Docker always searches for unix sockets in <code class="highlighter-rouge">/run/docker/plugins</code> first. It checks for spec or json files under
+<code class="highlighter-rouge">/etc/docker/plugins</code> and <code class="highlighter-rouge">/usr/lib/docker/plugins</code> if the socket doesn’t exist. The directory scan stops as
+soon as it finds the first plugin definition with the given name.</p>
+
+<h3 id="json-specification">JSON specification</h3>
+
+<p>This is the JSON format for a plugin:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"Name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plugin-example"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"Addr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/docker/plugin"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"TLSConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"InsecureSkipVerify"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"CAFile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/shared/docker/certs/example-ca.pem"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"CertFile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/shared/docker/certs/example-cert.pem"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"KeyFile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/shared/docker/certs/example-key.pem"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">TLSConfig</code> field is optional and TLS will only be verified if this configuration is present.</p>
+
+<h2 id="plugin-lifecycle">Plugin lifecycle</h2>
+
+<p>Plugins should be started before Docker, and stopped after Docker.  For
+example, when packaging a plugin for a platform which supports <code class="highlighter-rouge">systemd</code>, you
+might use <a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Before="><code class="highlighter-rouge">systemd</code> dependencies</a> to
+manage startup and shutdown order.</p>
+
+<p>When upgrading a plugin, you should first stop the Docker daemon, upgrade the
+plugin, then start Docker again.</p>
+
+<h2 id="plugin-activation">Plugin activation</h2>
+
+<p>When a plugin is first referred to -- either by a user referring to it by name
+(e.g.  <code class="highlighter-rouge">docker run --volume-driver=foo</code>) or a container already configured to
+use a plugin being started -- Docker looks for the named plugin in the plugin
+directory and activates it with a handshake. See Handshake API below.</p>
+
+<p>Plugins are <em>not</em> activated automatically at Docker daemon startup. Rather,
+they are activated only lazily, or on-demand, when they are needed.</p>
+
+<h2 id="systemd-socket-activation">Systemd socket activation</h2>
+
+<p>Plugins may also be socket activated by <code class="highlighter-rouge">systemd</code>. The official <a href="https://github.com/docker/go-plugins-helpers">Plugins helpers</a>
+natively supports socket activation. In order for a plugin to be socket activated it needs
+a <code class="highlighter-rouge">service</code> file and a <code class="highlighter-rouge">socket</code> file.</p>
+
+<p>The <code class="highlighter-rouge">service</code> file (for example <code class="highlighter-rouge">/lib/systemd/system/your-plugin.service</code>):</p>
+
+<pre><code class="language-systemd">[Unit]
+Description=Your plugin
+Before=docker.service
+After=network.target your-plugin.socket
+Requires=your-plugin.socket docker.service
+
+[Service]
+ExecStart=/usr/lib/docker/your-plugin
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>The <code class="highlighter-rouge">socket</code> file (for example <code class="highlighter-rouge">/lib/systemd/system/your-plugin.socket</code>):</p>
+
+<pre><code class="language-systemd">[Unit]
+Description=Your plugin
+
+[Socket]
+ListenStream=/run/docker/plugins/your-plugin.sock
+
+[Install]
+WantedBy=sockets.target
+</code></pre>
+
+<p>This will allow plugins to be actually started when the Docker daemon connects to
+the sockets they’re listening on (for instance the first time the daemon uses them
+or if one of the plugin goes down accidentally).</p>
+
+<h2 id="api-design">API design</h2>
+
+<p>The Plugin API is RPC-style JSON over HTTP, much like webhooks.</p>
+
+<p>Requests flow <em>from</em> the Docker daemon <em>to</em> the plugin.  So the plugin needs to
+implement an HTTP server and bind this to the UNIX socket mentioned in the
+“plugin discovery” section.</p>
+
+<p>All requests are HTTP <code class="highlighter-rouge">POST</code> requests.</p>
+
+<p>The API is versioned via an Accept header, which currently is always set to
+<code class="highlighter-rouge">application/vnd.docker.plugins.v1+json</code>.</p>
+
+<h2 id="handshake-api">Handshake API</h2>
+
+<p>Plugins are activated via the following “handshake” API call.</p>
+
+<h3 id="pluginactivate">/Plugin.Activate</h3>
+
+<p><strong>Request:</strong> empty body</p>
+
+<p><strong>Response:</strong></p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"Implements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"VolumeDriver"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Responds with a list of Docker subsystems which this plugin implements.
+After activation, the plugin will then be sent events from this subsystem.</p>
+
+<p>Possible values are:</p>
+
+<ul>
+  <li><a href="../plugins_authorization/index.html"><code class="highlighter-rouge">authz</code></a></li>
+  <li><a href="../plugins_network/index.html"><code class="highlighter-rouge">NetworkDriver</code></a></li>
+  <li><a href="../plugins_volume/index.html"><code class="highlighter-rouge">VolumeDriver</code></a></li>
+</ul>
+
+<h2 id="plugin-retries">Plugin retries</h2>
+
+<p>Attempts to call a method on a plugin are retried with an exponential backoff
+for up to 30 seconds. This may help when packaging plugins as containers, since
+it gives plugin containers a chance to start up before failing any user
+containers which depend on them.</p>
+
+<h2 id="plugins-helpers">Plugins helpers</h2>
+
+<p>To ease plugins development, we’re providing an <code class="highlighter-rouge">sdk</code> for each kind of plugins
+currently supported by Docker at <a href="https://github.com/docker/go-plugins-helpers">docker/go-plugins-helpers</a>.</p>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=API.html">API</a>, <a href="../../../search/index.html%3Fq=Usage.html">Usage</a>, <a href="../../../search/index.html%3Fq=plugins.html">plugins</a>, <a href="../../../search/index.html%3Fq=documentation.html">documentation</a>, <a href="../../../search/index.html%3Fq=developer.html">developer</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/engine/extend/plugin_api.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [engine/extend/plugin_api.md](https://docs.docker.com/engine/extend/plugin_api/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#what-plugins-are" class="nomunge">What plugins are</a></li>
+  <li><a href="index.html#plugin-discovery" class="nomunge">Plugin discovery</a>
+    <ul>
+      <li><a href="index.html#json-specification" class="nomunge">JSON specification</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#plugin-lifecycle" class="nomunge">Plugin lifecycle</a></li>
+  <li><a href="index.html#plugin-activation" class="nomunge">Plugin activation</a></li>
+  <li><a href="index.html#systemd-socket-activation" class="nomunge">Systemd socket activation</a></li>
+  <li><a href="index.html#api-design" class="nomunge">API design</a></li>
+  <li><a href="index.html#handshake-api" class="nomunge">Handshake API</a>
+    <ul>
+      <li><a href="index.html#pluginactivate" class="nomunge">/Plugin.Activate</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#plugin-retries" class="nomunge">Plugin retries</a></li>
+  <li><a href="index.html#plugins-helpers" class="nomunge">Plugins helpers</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/engine/extend/plugin_api/";</script></body>
+</html>

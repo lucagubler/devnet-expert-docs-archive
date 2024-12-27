@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<!-- Page generated 2022-04-20 18:09:54 +0000-->
+<html lang="en"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex"/><title>Use the BTRFS storage driver | Docker Documentation</title>
+  <meta name="description" content="Learn how to optimize your use of Btrfs driver." />
+  <meta name="keywords" content="container, storage, driver, Btrfs ">
+  <link rel="canonical" href="https://localhost:4000/storage/storagedriver/btrfs-driver/" />
+
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <link rel="apple-touch-icon" type="image/x-icon" href="../../../favicons/docs@2x.ico" sizes="129x128">
+  <meta name="msapplication-TileImage" content="/favicons/docs@2x.ico">
+  <meta property="og:image" content="/favicons/docs@2x.ico"/>
+  <meta name="theme-color" content="#2496ed" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- hide elements that are only shown without JavaScript enabled -->
+  <script>document.documentElement.classList.add('js')</script>
+  <style>html.js .no-js { display: none !important; }</style><script defer src="../../../js/theme-switcher.js"></script>
+  <script defer src="../../../js/anchorlinks.js"></script>
+  <script defer src="../../../js/jquery.js"></script>
+  <script defer src="../../../js/bootstrap.min.js"></script>
+  <script defer src="../../../js/docs.js"></script><link rel="preload" as="font" href="https://fonts.gstatic.com/s/opensans/v18/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Book.woff2"    type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/geomanist/hinted-Geomanist-Regular.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/glyphicons-halflings-regular.woff2"       type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="../../../fonts/fontawesome-webfont.woff2%3Fv=4.7.0"        type="font/woff2" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="../../../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../css/style.css" id="pagestyle">
+
+  <!-- SEO stuff -->
+  <meta name="twitter:title" itemprop="title name" content="Use the BTRFS storage driver"/>
+  <meta name="twitter:description" property="og:description" itemprop="description" content="" />
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:domain" content="docs.docker.com"/>
+  <meta name="twitter:site" content="@docker_docs"/>
+  <meta name="twitter:url" content="https://twitter.com/docker_docs"/>
+  <meta name="twitter:image:src" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta name="twitter:image:alt" content="Docker Documentation"/>
+  <meta property="og:title" content="Use the BTRFS storage driver" />
+  <meta property="og:description" content="Learn how to optimize your use of Btrfs driver." />
+  <meta property="og:type" content="website"/>
+  <meta property="og:updated_time" itemprop="dateUpdated" content="2022-04-20T18:09:54+00:00"/>
+  <meta property="og:image" itemprop="image primaryImageOfPage" content="https://docs.docker.com/images/docs@2x.png"/>
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://docs.docker.com/storage/storagedriver/btrfs-driver/" />
+  <meta property="og:site_name" content="Docker Documentation" />
+  <meta property="article:published_time" itemprop="datePublished" content="2022-04-20T18:09:54+00:00"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","headline":"Use the BTRFS storage driver","description":"Learn how to optimize your use of Btrfs driver.","url":"https://docs.docker.com/storage/storagedriver/btrfs-driver/"}</script>
+  <!-- END SEO STUFF -->
+</head>
+<body class="colums">
+    <header>
+        <nav class="nav-secondary navbar navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="../../../index.html">
+                <img class="logo" src="../../../images/docker-docs-logo.svg" alt="Docker Docs" title="Docker Docs" width="160" height="28" />
+            </a>
+        </div>
+        <div class="navbar-collapse" aria-expanded="false" style="height: 1px;">
+            <div class="logo-mobile">
+    <a href="../../../index.html">
+        <img src="../../../images/docker-icon.svg" alt="Docker Docs" title="Docker Docs" width="30" height="30" />
+    </a>
+</div>
+<div class="search-form" id="search-div">
+    <form class="search-form form-inline" id="searchForm" action="http://localhost:4000/search/" method="get">
+        <label for="st-search-input" class="sr-only">Search</label>
+        <input class="search-field form-control ds-input" id="st-search-input" name="q" placeholder="Search the docs" type="search" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;">
+        <div id="autocompleteResults"></div>
+        <!-- <button type="submit" class="search-submit btn btn-default">Search</button> -->
+    </form>
+</div>
+<div class="sidebar-toggle">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+</div>
+<div class="nav-container hidden-sm hidden-xs">
+    <div>
+        <ul class="nav navbar-nav"><li><a href="../../../index.html" id="home">Home</a></li><li><a href="../../../get-started/overview/index.html" id="guides">Guides</a></li><li><a href="../../../desktop/index.html" id="manuals">Manuals</a></li><li><a href="../../../reference/index.html" id="reference">Reference</a></li><li><a href="../../../samples/index.html" id="samples">Samples</a></li></ul>
+    </div>
+    <div class="ctrl-right">
+        <a href="javascript:void(0)" id="menu-toggle" aria-label="Current page's menu toggle"><i class="fa fa-indent" aria-hidden="true"></i></a>
+    </div>
+</div>
+<div class="row hidden-sm hidden-xs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li><a href="../../../index.html" title="Docker docs homepage"><i class="fa fa-home"></i></a></li>
+            <li><a href="../../../get-started/overview/index.html">Guides</a></li><li><a>Run your app in production</a></li><li><a href="../../index.html">Manage application data</a></li><li><a href="../index.html">Store data within containers</a></li><li><a href="index.html">Use the Btrfs storage driver</a></li></ol>
+    </nav>
+</div></div>
+    </div>
+</nav>
+
+    </header>
+    <div class="wrapper right-open">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-body">
+                    <main class="col-content content">
+                        <section class="section"><h1>Use the BTRFS storage driver</h1><p><em class="reading-time">Estimated reading time: 11 minutes</em></p><p>Btrfs is a next generation copy-on-write filesystem that supports many advanced
+storage technologies that make it a good fit for Docker. Btrfs is included in
+the mainline Linux kernel.</p>
+
+<p>Docker’s <code class="highlighter-rouge">btrfs</code> storage driver leverages many Btrfs features for image and
+container management. Among these features are block-level operations, thin
+provisioning, copy-on-write snapshots, and ease of administration. You can
+easily combine multiple physical block devices into a single Btrfs filesystem.</p>
+
+<p>This article refers to Docker’s Btrfs storage driver as <code class="highlighter-rouge">btrfs</code> and the overall
+Btrfs Filesystem as Btrfs.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: The <code class="highlighter-rouge">btrfs</code> storage driver is only supported on Docker Engine - Community on SLES, Ubuntu or Debian.</p>
+</blockquote>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p><code class="highlighter-rouge">btrfs</code> is supported if you meet the following prerequisites:</p>
+
+<ul>
+  <li>
+    <p><strong>Docker Engine - Community</strong>: For Docker Engine - Community, <code class="highlighter-rouge">btrfs</code> is only recommended on Ubuntu or Debian.</p>
+  </li>
+  <li>
+    <p>Changing the storage driver makes any containers you have already
+created inaccessible on the local system. Use <code class="highlighter-rouge">docker save</code> to save containers,
+and push existing images to Docker Hub or a private repository, so that you
+not need to re-create them later.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">btrfs</code> requires a dedicated block storage device such as a physical disk. This
+block device must be formatted for Btrfs and mounted into <code class="highlighter-rouge">/var/lib/docker/</code>.
+The configuration instructions below walk you through this procedure. By
+default, the SLES <code class="highlighter-rouge">/</code> filesystem is formatted with BTRFS, so for SLES, you do
+not need to use a separate block device, but you can choose to do so for
+performance reasons.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">btrfs</code> support must exist in your kernel. To check this, run the following
+command:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">grep </span>btrfs /proc/filesystems
+<span class="go">
+btrfs
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>To manage BTRFS filesystems at the level of the operating system, you need the
+<code class="highlighter-rouge">btrfs</code> command. If you do not have this command, install the <code class="highlighter-rouge">btrfsprogs</code>
+package (SLES) or <code class="highlighter-rouge">btrfs-tools</code> package (Ubuntu).</p>
+  </li>
+</ul>
+
+<h2 id="configure-docker-to-use-the-btrfs-storage-driver">Configure Docker to use the btrfs storage driver</h2>
+
+<p>This procedure is essentially identical on SLES and Ubuntu.</p>
+
+<ol>
+  <li>
+    <p>Stop Docker.</p>
+  </li>
+  <li>
+    <p>Copy the contents of <code class="highlighter-rouge">/var/lib/docker/</code> to a backup location, then empty
+the contents of <code class="highlighter-rouge">/var/lib/docker/</code>:</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>cp <span class="nt">-au</span> /var/lib/docker /var/lib/docker.bk
+<span class="gp">$</span> <span class="nb">sudo </span>rm <span class="nt">-rf</span> /var/lib/docker/<span class="k">*</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Format your dedicated block device or devices as a Btrfs filesystem. This
+example assumes that you are using two block devices called <code class="highlighter-rouge">/dev/xvdf</code> and
+<code class="highlighter-rouge">/dev/xvdg</code>. Double-check the block device names because this is a
+destructive operation.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>mkfs.btrfs <span class="nt">-f</span> /dev/xvdf /dev/xvdg
+</code></pre></div>    </div>
+
+    <p>There are many more options for Btrfs, including striping and RAID. See the
+<a href="https://btrfs.wiki.kernel.org/index.php/Using_Btrfs_with_Multiple_Devices">Btrfs documentation</a>.</p>
+  </li>
+  <li>
+    <p>Mount the new Btrfs filesystem on the <code class="highlighter-rouge">/var/lib/docker/</code> mount point. You
+can specify any of the block devices used to create the Btrfs filesystem.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>mount <span class="nt">-t</span> btrfs /dev/xvdf /var/lib/docker
+</code></pre></div>    </div>
+
+    <p>Don’t forget to make the change permanent across reboots by adding an
+entry to <code class="highlighter-rouge">/etc/fstab</code>.</p>
+  </li>
+  <li>
+    <p>Copy the contents of <code class="highlighter-rouge">/var/lib/docker.bk</code> to <code class="highlighter-rouge">/var/lib/docker/</code>.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>cp <span class="nt">-au</span> /var/lib/docker.bk/<span class="k">*</span> /var/lib/docker/
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Configure Docker to use the <code class="highlighter-rouge">btrfs</code> storage driver. This is required even
+though <code class="highlighter-rouge">/var/lib/docker/</code> is now using a Btrfs filesystem.
+Edit or create the file <code class="highlighter-rouge">/etc/docker/daemon.json</code>. If it is a new file, add
+the following contents. If it is an existing file, add the key and value
+only, being careful to end the line with a comma if it is not the final
+line before an ending curly bracket (<code class="highlighter-rouge">}</code>).</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"storage-driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"btrfs"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <p>See all storage options for each storage driver in the
+<a href="../../../engine/reference/commandline/dockerd.html#options-per-storage-driver">daemon reference documentation</a></p>
+  </li>
+  <li>
+    <p>Start Docker. After it is running, verify that <code class="highlighter-rouge">btrfs</code> is being used as the
+storage driver.</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> docker info
+<span class="go">
+Containers: 0
+ Running: 0
+ Paused: 0
+ Stopped: 0
+Images: 0
+Server Version: 17.03.1-ce
+Storage Driver: btrfs
+ Build Version: Btrfs v4.4
+ Library Version: 101
+</span><span class="c">&lt;...&gt;
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>When you are ready, remove the <code class="highlighter-rouge">/var/lib/docker.bk</code> directory.</p>
+  </li>
+</ol>
+
+<h2 id="manage-a-btrfs-volume">Manage a Btrfs volume</h2>
+
+<p>One of the benefits of Btrfs is the ease of managing Btrfs filesystems without
+the need to unmount the filesystem or restart Docker.</p>
+
+<p>When space gets low, Btrfs automatically expands the volume in <em>chunks</em> of
+roughly 1 GB.</p>
+
+<p>To add a block device to a Btrfs volume, use the <code class="highlighter-rouge">btrfs device add</code> and
+<code class="highlighter-rouge">btrfs filesystem balance</code> commands.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span> <span class="nb">sudo </span>btrfs device add /dev/svdh /var/lib/docker
+<span class="go">
+</span><span class="gp">$</span> <span class="nb">sudo </span>btrfs filesystem balance /var/lib/docker
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong>: While you can do these operations with Docker running, performance
+suffers. It might be best to plan an outage window to balance the Btrfs
+filesystem.</p>
+</blockquote>
+
+<h2 id="how-the-btrfs-storage-driver-works">How the <code class="highlighter-rouge">btrfs</code> storage driver works</h2>
+
+<p>The <code class="highlighter-rouge">btrfs</code> storage driver works differently from <code class="highlighter-rouge">devicemapper</code> or other
+storage drivers in that your entire <code class="highlighter-rouge">/var/lib/docker/</code> directory is stored on a
+Btrfs volume.</p>
+
+<h3 id="image-and-container-layers-on-disk">Image and container layers on-disk</h3>
+
+<p>Information about image layers and writable container layers is stored in
+<code class="highlighter-rouge">/var/lib/docker/btrfs/subvolumes/</code>. This subdirectory contains one directory
+per image or container layer, with the unified filesystem built from a layer
+plus all its parent layers. Subvolumes are natively copy-on-write and have space
+allocated to them on-demand from an underlying storage pool. They can also be
+nested and snapshotted. The diagram below shows 4 subvolumes. ‘Subvolume 2’ and
+‘Subvolume 3’ are nested, whereas ‘Subvolume 4’ shows its own internal directory
+tree.</p>
+
+<p><img src="../images/btfs_subvolume.jpg" alt="subvolume example" /></p>
+
+<p>Only the base layer of an image is stored as a true subvolume. All the other
+layers are stored as snapshots, which only contain the differences introduced
+in that layer. You can create snapshots of snapshots as shown in the diagram
+below.</p>
+
+<p><img src="../images/btfs_snapshots.jpg" alt="snapshots diagram" /></p>
+
+<p>On disk, snapshots look and feel just like subvolumes, but in reality they are
+much smaller and more space-efficient. Copy-on-write is used to maximize storage
+efficiency and minimize layer size, and writes in the container’s writable layer
+are managed at the block level. The following image shows a subvolume and its
+snapshot sharing data.</p>
+
+<p><img src="../images/btfs_pool.jpg" alt="snapshot and subvolume sharing data" /></p>
+
+<p>For maximum efficiency, when a container needs more space, it is allocated in
+<em>chunks</em> of roughly 1 GB in size.</p>
+
+<p>Docker’s <code class="highlighter-rouge">btrfs</code> storage driver stores every image layer and container in its
+own Btrfs subvolume or snapshot. The base layer of an image is stored as a
+subvolume whereas child image layers and containers are stored as snapshots.
+This is shown in the diagram below.</p>
+
+<p><img src="../images/btfs_container_layer.jpg" alt="Btrfs container layers" /></p>
+
+<p>The high level process for creating images and containers on Docker hosts
+running the <code class="highlighter-rouge">btrfs</code> driver is as follows:</p>
+
+<ol>
+  <li>
+    <p>The image’s base layer is stored in a Btrfs <em>subvolume</em> under
+<code class="highlighter-rouge">/var/lib/docker/btrfs/subvolumes</code>.</p>
+  </li>
+  <li>
+    <p>Subsequent image layers are stored as a Btrfs <em>snapshot</em> of the parent
+layer’s subvolume or snapshot, but with the changes introduced by this
+layer. These differences are stored at the block level.</p>
+  </li>
+  <li>
+    <p>The container’s writable layer is a Btrfs snapshot of the final image layer,
+with the differences introduced by the running container. These differences
+are stored at the block level.</p>
+  </li>
+</ol>
+
+<h2 id="how-container-reads-and-writes-work-with-btrfs">How container reads and writes work with <code class="highlighter-rouge">btrfs</code></h2>
+
+<h3 id="reading-files">Reading files</h3>
+
+<p>A container is a space-efficient snapshot of an image. Metadata in the snapshot
+points to the actual data blocks in the storage pool. This is the same as with
+a subvolume. Therefore, reads performed against a snapshot are essentially the
+same as reads performed against a subvolume.</p>
+
+<h3 id="writing-files">Writing files</h3>
+
+<ul>
+  <li>
+    <p><strong>Writing new files</strong>: Writing a new file to a container invokes an allocate-on-demand
+operation to allocate new data block to the container’s snapshot. The file is
+then written to this new space. The allocate-on-demand operation is native to
+all writes with Btrfs and is the same as writing new data to a subvolume. As a
+result, writing new files to a container’s snapshot operates at native Btrfs
+speeds.</p>
+  </li>
+  <li>
+    <p><strong>Modifying existing files</strong>: Updating an existing file in a container is a copy-on-write
+operation (<em>redirect-on-write</em> is the Btrfs terminology). The original data is
+read from the layer where the file currently exists, and only the modified
+blocks are written into the container’s writable layer. Next, the Btrfs driver
+updates the filesystem metadata in the snapshot to point to this new data.
+This behavior incurs very little overhead.</p>
+  </li>
+  <li>
+    <p><strong>Deleting files or directories</strong>: If a container deletes a file or directory
+that exists in a lower layer, Btrfs masks the existence of the file or
+directory in the lower layer. If a container creates a file and then deletes
+it, this operation is performed in the Btrfs filesystem itself and the space
+is reclaimed.</p>
+  </li>
+</ul>
+
+<p>With Btrfs, writing and updating lots of small files can result in slow
+performance.</p>
+
+<h2 id="btrfs-and-docker-performance">Btrfs and Docker performance</h2>
+
+<p>There are several factors that influence Docker’s performance under the <code class="highlighter-rouge">btrfs</code>
+storage driver.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Many of these factors are mitigated by using Docker volumes for
+write-heavy workloads, rather than relying on storing data in the container’s
+writable layer. However, in the case of Btrfs, Docker volumes still suffer
+from these draw-backs unless <code class="highlighter-rouge">/var/lib/docker/volumes/</code> is <strong>not</strong> backed by
+Btrfs.</p>
+</blockquote>
+
+<ul>
+  <li>
+    <p><strong>Page caching</strong>. Btrfs does not support page cache sharing. This means that
+each process accessing the same file copies the file into the Docker hosts’s
+memory. As a result, the <code class="highlighter-rouge">btrfs</code> driver may not be the best choice
+high-density use cases such as PaaS.</p>
+  </li>
+  <li>
+    <p><strong>Small writes</strong>. Containers performing lots of small writes (this usage
+pattern matches what happens when you start and stop many containers in a short
+period of time, as well) can lead to poor use of Btrfs chunks. This can
+prematurely fill the Btrfs filesystem and lead to out-of-space conditions on
+your Docker host. Use <code class="highlighter-rouge">btrfs filesys show</code> to closely monitor the amount of
+free space on your Btrfs device.</p>
+  </li>
+  <li>
+    <p><strong>Sequential writes</strong>. Btrfs uses a journaling technique when writing to disk.
+This can impact the performance of sequential writes, reducing performance by
+up to 50%.</p>
+  </li>
+  <li>
+    <p><strong>Fragmentation</strong>. Fragmentation is a natural byproduct of copy-on-write
+filesystems like Btrfs. Many small random writes can compound this issue.
+Fragmentation can manifest as CPU spikes when using SSDs or head thrashing
+when using spinning disks. Either of these issues can harm performance.</p>
+
+    <p>If your Linux kernel version is 3.9 or higher, you can enable the <code class="highlighter-rouge">autodefrag</code>
+feature when mounting a Btrfs volume. Test this feature on your own workloads
+before deploying it into production, as some tests have shown a negative
+impact on performance.</p>
+  </li>
+  <li>
+    <p><strong>SSD performance</strong>: Btrfs includes native optimizations for SSD media.
+To enable these features, mount the Btrfs filesystem with the <code class="highlighter-rouge">-o ssd</code> mount
+option. These optimizations include enhanced SSD write performance by avoiding
+optimization such as <em>seek optimizations</em> which do not apply to solid-state
+media.</p>
+  </li>
+  <li>
+    <p><strong>Balance Btrfs filesystems often</strong>: Use operating system utilities such as a
+<code class="highlighter-rouge">cron</code> job to balance the Btrfs filesystem regularly, during non-peak hours.
+This reclaims unallocated blocks and helps to prevent the filesystem from
+filling up unnecessarily. You cannot rebalance a totally full Btrfs
+filesystem unless you add additional physical block devices to the filesystem.
+See the
+<a href="https://btrfs.wiki.kernel.org/index.php/Balance_Filters#Balancing_to_fix_filesystem_full_errors">BTRFS Wiki</a>.</p>
+  </li>
+  <li>
+    <p><strong>Use fast storage</strong>: Solid-state drives (SSDs) provide faster reads and
+writes than spinning disks.</p>
+  </li>
+  <li>
+    <p><strong>Use volumes for write-heavy workloads</strong>: Volumes provide the best and most
+predictable performance for write-heavy workloads. This is because they bypass
+the storage driver and do not incur any of the potential overheads introduced
+by thin provisioning and copy-on-write. Volumes have other benefits, such as
+allowing you to share data among containers and persisting even when no
+running container is using them.</p>
+  </li>
+</ul>
+
+<h2 id="related-information">Related Information</h2>
+
+<ul>
+  <li><a href="../../volumes/index.html">Volumes</a></li>
+  <li><a href="../index.html">Understand images, containers, and storage drivers</a></li>
+  <li><a href="../select-storage-driver/index.html">Select a storage driver</a></li>
+</ul>
+<span class="glyphicon glyphicon-tags" style="padding-right: 10px"></span><span style="vertical-align: 2px"><a href="../../../search/index.html%3Fq=container.html">container</a>, <a href="../../../search/index.html%3Fq=storage.html">storage</a>, <a href="../../../search/index.html%3Fq=driver.html">driver</a>, <a href="../../../search/index.html%3Fq=Btrfs.html">Btrfs</a></span></section>
+                    </main>
+                    <nav class="col-nav">
+                        <div id="sidebar-nav" class="sidebar hidden-sm hidden-xs">
+                            <div id="navbar" class="nav-sidebar">
+                                <ul class="nav hidden-md hidden-lg"></ul>
+                                <ul class="nav" id="jsTOCLeftNav"></ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="col-toc">
+                        <div class="sidebar hidden-xs hidden-sm">
+                            <div class="toc-nav">
+                                <div class="feedback-links">
+                                    <ul><li><a href="https://github.com/docker/docker.github.io/edit/master/storage/storagedriver/btrfs-driver.md"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit this page</a></li><li><a href="https://github.com/docker/docker.github.io/issues/new?body=File: [storage/storagedriver/btrfs-driver.md](https://docs.docker.com/storage/storagedriver/btrfs-driver/)" class="nomunge"><i class="fa fa-check" aria-hidden="true"></i> Request docs changes</a></li>
+                                        <li><div class="toggle-mode">
+  <div class="icon">
+      <i class="fa fa-sun-o" aria-hidden="true"></i>
+  </div>
+  <div class="toggle-switch">
+      <label class="switch">
+          <input type="checkbox" id="switch-style">
+          <span class="slider round"></span>
+      </label>
+  </div>
+  <div class="icon">
+      <i class="fa fa-moon-o" aria-hidden="true"></i>
+  </div>
+</div>
+</li>
+                                    </ul>
+                                </div><div id="side-toc-title">On this page:</div>
+<ul id="my_toc" class="inline_toc">
+  <li><a href="index.html#prerequisites" class="nomunge">Prerequisites</a></li>
+  <li><a href="index.html#configure-docker-to-use-the-btrfs-storage-driver" class="nomunge">Configure Docker to use the btrfs storage driver</a></li>
+  <li><a href="index.html#manage-a-btrfs-volume" class="nomunge">Manage a Btrfs volume</a></li>
+  <li><a href="index.html#how-the-btrfs-storage-driver-works" class="nomunge">How the btrfs storage driver works</a>
+    <ul>
+      <li><a href="index.html#image-and-container-layers-on-disk" class="nomunge">Image and container layers on-disk</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#how-container-reads-and-writes-work-with-btrfs" class="nomunge">How container reads and writes work with btrfs</a>
+    <ul>
+      <li><a href="index.html#reading-files" class="nomunge">Reading files</a></li>
+      <li><a href="index.html#writing-files" class="nomunge">Writing files</a></li>
+    </ul>
+  </li>
+  <li><a href="index.html#btrfs-and-docker-performance" class="nomunge">Btrfs and Docker performance</a></li>
+  <li><a href="index.html#related-information" class="nomunge">Related Information</a></li>
+</ul>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+          
+    <div class="container">
+        <div class="top_footer">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products" target="_blank" rel="noopener">Product offerings</a></b></li>
+                        <li><a href="https://www.docker.com/products/personal" target="_blank" rel="noopener">Docker Personal</a></li>
+                        <li><a href="https://www.docker.com/products/pro" target="_blank" rel="noopener">Docker Pro</a></li>
+                        <li><a href="https://www.docker.com/products/team" target="_blank" rel="noopener">Docker Team</a></li>
+                        <li><a href="https://www.docker.com/products/business" target="_blank" rel="noopener">Docker Business</a></li>
+                        <li><a href="https://www.docker.com/products" target="_blank" rel="noopener">Compare Subscriptions</a></li>
+                        <li><b><a href="https://www.docker.com/" target="_blank" rel="noopener">Features</a></b></li>
+                        <li><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Docker Desktop</a></li>
+                        <li><a href="https://www.docker.com/products/docker-hub" target="_blank" rel="noopener">Docker Hub</a></li>
+                        <li><a href="https://www.docker.com/products/secure-software-supply-chain" target="_blank" rel="noopener">Secure Software Supply Chain</a></li>
+                        <li><a href="https://www.docker.com/products/container-runtime" target="_blank" rel="noopener">Container Runtime</a></li>
+                        <li><a href="https://www.docker.com/products/developer-tools" target="_blank" rel="noopener">Developer Tools</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Trusted Content</a></li>
+                        <li><a href="https://www.docker.com/roadmap" target="_blank" rel="noopener">Docker Product Roadmap</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Developers</a></b></li>
+                        <li><a href="https://www.docker.com/use-cases" target="_blank" rel="noopener">Use Cases</a></li>
+                        <li><a href="../../../get-started/index.html" target="_blank" rel="noopener">Get Started</a></li>
+                        <li><a href="https://www.docker.com/blog/" target="_blank" rel="noopener">Blog</a></li>
+                        <li><a href="https://www.docker.com/docker-community" target="_blank" rel="noopener">Community</a></li>
+                        <li><a href="https://www.docker.com/open-source" target="_blank" rel="noopener">Open Source</a></li>
+                        <li><a href="https://www.docker.com/community/get-involved/developer-preview" target="_blank" rel="noopener">Preview Program</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">Pricing</a></b></li>
+                        <li><a href="https://www.docker.com/pricing/faq" target="_blank" rel="noopener">FAQ</a></li>
+                        <li><a href="https://www.docker.com/partners/programs" target="_blank" rel="noopener">Docker Verified Publisher</a></li>
+                        <li><a href="https://www.docker.com/partners" target="_blank" rel="noopener">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <ul class="footer_links">
+                        <li><b><a href="https://www.docker.com/company" target="_blank" rel="noopener">About Us</a></b></li>
+                        <li><a href="https://www.docker.com/what-container" target="_blank" rel="noopener">What is a Container?</a></li>
+                        <li><a href="https://www.docker.com/why-docker" target="_blank" rel="noopener">Why Docker?</a></li>
+                        <li><a href="https://www.docker.com/events" target="_blank" rel="noopener">Virtual Events</a></li>
+                        <li><a href="https://www.docker.com/swag" target="_blank" rel="noopener">Swag Store
+                        </a></li>
+                        <li><a href="https://www.docker.com/company/newsroom" target="_blank" rel="noopener">Newsroom</a></li>
+                        <li><a href="https://www.docker.com/careers" target="_blank" rel="noopener">Careers</a></li>
+                        <li><a href="https://www.docker.com/company/contact" target="_blank" rel="noopener">Contact Us</a></li>
+                        <li><a href="https://www.docker.com/customers" target="_blank" rel="noopener">Customers</a></li>
+                        <li><a href="https://www.docker.com/newsletter-subscription" target="_blank" rel="noopener">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-nav">
+                <nav class="footer_sub_nav">
+                    <ul class="menu">
+                        <li><a href="https://www.docker.com/legal/docker-terms-service" target="_blank" rel="noopener">Terms of Service</a></li>
+                        <li><a href="https://status.docker.com/" target="_blank" rel="noopener">Status</a></li>
+                        <li><a href="https://www.docker.com/legal" target="_blank" rel="noopener">Legal</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="bottom_footer">
+            <div class="footer-copyright col-xs-12 col-md-8">
+                <p class="copyright">
+                    Copyright &copy; 2013-2021 Docker Inc. All rights reserved. </p>
+            </div>
+            <div class="footer_social_nav">
+                <ul class="nav-social">
+                    <li class="fa fa-twitter"><a href="https://twitter.com/docker">Twitter</a></li>
+                    <li class="fa fa-youtube"><a href="https://www.youtube.com/user/dockerrun">Youtube</a></li>
+                    <li class="fa fa-github"><a href="https://github.com/docker">GitHub</a></li>
+                    <li class="fa fa-linkedin"><a href="https://www.linkedin.com/company/docker">Linkedin</a></li>
+                    <li class="fa fa-facebook"><a href="https://www.facebook.com/docker.run">Facebook</a></li>
+                    <li class="fa fa-slideshare"><a href="https://www.slideshare.net/docker">Slideshare</a></li>
+                    <li class="fa fa-reddit"><a href="https://www.reddit.com/r/docker">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </footer>
+    <script>const pageURL = "/storage/storagedriver/btrfs-driver/";</script></body>
+</html>
