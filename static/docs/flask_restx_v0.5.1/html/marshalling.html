@@ -1,0 +1,656 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Response marshalling &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Request Parsing" href="parsing.html" />
+    <link rel="prev" title="Quick start" href="quickstart.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="response-marshalling">
+<span id="fields"></span><h1>Response marshalling<a class="headerlink" href="#response-marshalling" title="Permalink to this heading">¶</a></h1>
+<p>Flask-RESTX provides an easy way to control what data you actually render in
+your response or expect as an input payload.
+With the <a class="reference internal" href="api.html#module-flask_restx.fields" title="flask_restx.fields"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code></a> module, you can use whatever objects (ORM
+models/custom classes/etc.) you want in your resource.
+<a class="reference internal" href="api.html#module-flask_restx.fields" title="flask_restx.fields"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code></a> also lets you format and filter the response
+so you don’t have to worry about exposing internal data structures.</p>
+<p>It’s also very clear when looking at your code what data will be rendered and
+how it will be formatted.</p>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading">¶</a></h2>
+<p>You can define a dict or OrderedDict of fields whose keys are names of attributes or keys on the object to render,
+and whose values are a class that will format &amp; return the value for that field.
+This example has three fields:
+two are <a class="reference internal" href="api.html#flask_restx.fields.String" title="flask_restx.fields.String"><code class="xref py py-class docutils literal notranslate"><span class="pre">String</span></code></a> and one is a <a class="reference internal" href="api.html#flask_restx.fields.DateTime" title="flask_restx.fields.DateTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">DateTime</span></code></a>,
+formatted as an ISO 8601 datetime string (RFC 822 is supported as well):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">fields</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;date_updated&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">DateTime</span><span class="p">(</span><span class="n">dt_format</span><span class="o">=</span><span class="s1">&#39;rfc822&#39;</span><span class="p">),</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/todo&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Todo</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">envelope</span><span class="o">=</span><span class="s1">&#39;resource&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">db_get_todo</span><span class="p">()</span>  <span class="c1"># Some function that queries the db</span>
+</pre></div>
+</div>
+<p>This example assumes that you have a custom database object (<code class="docutils literal notranslate"><span class="pre">todo</span></code>) that
+has attributes <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">address</span></code>, and <code class="docutils literal notranslate"><span class="pre">date_updated</span></code>.
+Any additional attributes on the object are considered private and won’t be rendered in the output.
+An optional <code class="docutils literal notranslate"><span class="pre">envelope</span></code> keyword argument is specified to wrap the resulting output.</p>
+<p>The decorator <code class="xref py py-meth docutils literal notranslate"><span class="pre">marshal_with()</span></code> is what actually takes your data object and applies the field filtering.
+The marshalling can work on single objects, dicts, or lists of objects.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="api.html#flask_restx.marshal_with" title="flask_restx.marshal_with"><code class="xref py py-func docutils literal notranslate"><span class="pre">marshal_with()</span></code></a> is a convenience decorator, that is functionally
+equivalent to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Todo</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">marshal</span><span class="p">(</span><span class="n">db_get_todo</span><span class="p">(),</span> <span class="n">model</span><span class="p">),</span> <span class="mi">200</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">&#64;api.marshal_with</span></code> decorator add the swagger documentation ability.</p>
+</div>
+<p>This explicit expression can be used to return HTTP status codes other than 200
+along with a successful response (see <a class="reference internal" href="api.html#flask_restx.errors.abort" title="flask_restx.errors.abort"><code class="xref py py-func docutils literal notranslate"><span class="pre">abort()</span></code></a> for errors).</p>
+</section>
+<section id="renaming-attributes">
+<h2>Renaming Attributes<a class="headerlink" href="#renaming-attributes" title="Permalink to this heading">¶</a></h2>
+<p>Often times your public facing field name is different from your internal field name.
+To configure this mapping, use the <code class="docutils literal notranslate"><span class="pre">attribute</span></code> keyword argument.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;private_name&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A lambda (or any callable) can also be specified as the <code class="docutils literal notranslate"><span class="pre">attribute</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">_private_name</span><span class="p">),</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Nested properties can also be accessed with <code class="docutils literal notranslate"><span class="pre">attribute</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;people_list.0.person_dictionary.name&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="default-values">
+<h2>Default Values<a class="headerlink" href="#default-values" title="Permalink to this heading">¶</a></h2>
+<p>If for some reason your data object doesn’t have an attribute in your fields list,
+you can specify a default value to return instead of <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;Anonymous User&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-fields-multiple-values">
+<h2>Custom Fields &amp; Multiple Values<a class="headerlink" href="#custom-fields-multiple-values" title="Permalink to this heading">¶</a></h2>
+<p>Sometimes you have your own custom formatting needs.
+You can subclass the <a class="reference internal" href="api.html#flask_restx.fields.Raw" title="flask_restx.fields.Raw"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Raw</span></code></a> class and implement the format function.
+This is especially useful when an attribute stores multiple pieces of information.
+e.g. a bit-field whose individual bits represent distinct values.
+You can use fields to multiplex a single attribute to multiple output values.</p>
+<p>This example assumes that bit 1 in the <code class="docutils literal notranslate"><span class="pre">flags</span></code> attribute signifies a
+“Normal” or “Urgent” item, and bit 2 signifies “Read” or “Unread”.
+These items might be easy to store in a bitfield,
+but for a human readable output it’s nice to convert them to separate string fields.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UrgentItem</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Urgent&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="mh">0x01</span> <span class="k">else</span> <span class="s2">&quot;Normal&quot;</span>
+
+<span class="k">class</span> <span class="nc">UnreadItem</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Unread&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="mh">0x02</span> <span class="k">else</span> <span class="s2">&quot;Read&quot;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;priority&#39;</span><span class="p">:</span> <span class="n">UrgentItem</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;flags&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">UnreadItem</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;flags&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="url-other-concrete-fields">
+<h2>Url &amp; Other Concrete Fields<a class="headerlink" href="#url-other-concrete-fields" title="Permalink to this heading">¶</a></h2>
+<p>Flask-RESTX includes a special field, <a class="reference internal" href="api.html#flask_restx.fields.Url" title="flask_restx.fields.Url"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Url</span></code></a>,
+that synthesizes a uri for the resource that’s being requested.
+This is also a good example of how to add data to your response that’s not actually present on your data object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomNumber</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="c1"># todo_resource is the endpoint name when you called api.route()</span>
+    <span class="s1">&#39;uri&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Url</span><span class="p">(</span><span class="s1">&#39;todo_resource&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="n">RandomNumber</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>By default <a class="reference internal" href="api.html#flask_restx.fields.Url" title="flask_restx.fields.Url"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Url</span></code></a> returns a relative uri.
+To generate an absolute uri that includes the scheme, hostname and port,
+pass the keyword argument <code class="docutils literal notranslate"><span class="pre">absolute=True</span></code> in the field declaration.
+To override the default scheme, pass the <code class="docutils literal notranslate"><span class="pre">scheme</span></code> keyword argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;uri&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Url</span><span class="p">(</span><span class="s1">&#39;todo_resource&#39;</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="s1">&#39;https_uri&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Url</span><span class="p">(</span><span class="s1">&#39;todo_resource&#39;</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;https&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="complex-structures">
+<h2>Complex Structures<a class="headerlink" href="#complex-structures" title="Permalink to this heading">¶</a></h2>
+<p>You can have a flat structure that <a class="reference internal" href="api.html#flask_restx.marshal" title="flask_restx.marshal"><code class="xref py py-func docutils literal notranslate"><span class="pre">marshal()</span></code></a> will transform to a nested structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="s1">&#39;line 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;addr1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="s1">&#39;line 2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;addr2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="s1">&#39;city&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="s1">&#39;zip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="s1">&#39;addr1&#39;</span><span class="p">:</span> <span class="s1">&#39;123 fake street&#39;</span><span class="p">,</span> <span class="s1">&#39;addr2&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="s1">&#39;New York&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;NY&#39;</span><span class="p">,</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span> <span class="s1">&#39;10468&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">resource_fields</span><span class="p">))</span>
+<span class="go">&#39;{&quot;name&quot;: &quot;bob&quot;, &quot;address&quot;: {&quot;line 1&quot;: &quot;123 fake street&quot;, &quot;line 2&quot;: &quot;&quot;, &quot;state&quot;: &quot;NY&quot;, &quot;zip&quot;: &quot;10468&quot;, &quot;city&quot;: &quot;New York&quot;}}&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The address field doesn’t actually exist on the data object,
+but any of the sub-fields can access attributes directly from the object
+as if they were not nested.</p>
+</div>
+</section>
+<section id="list-field">
+<span id="id1"></span><h2>List Field<a class="headerlink" href="#list-field" title="Permalink to this heading">¶</a></h2>
+<p>You can also unmarshal fields as lists</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="s1">&#39;first_names&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">)}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Bougnazal&#39;</span><span class="p">,</span> <span class="s1">&#39;first_names&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Emile&#39;</span><span class="p">,</span> <span class="s1">&#39;Raoul&#39;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">resource_fields</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;{&quot;first_names&quot;: [&quot;Emile&quot;, &quot;Raoul&quot;], &quot;name&quot;: &quot;Bougnazal&quot;}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="wildcard-field">
+<span id="id2"></span><h2>Wildcard Field<a class="headerlink" href="#wildcard-field" title="Permalink to this heading">¶</a></h2>
+<p>If you don’t know the name(s) of the field(s) you want to unmarshall, you can
+use <a class="reference internal" href="api.html#flask_restx.fields.Wildcard" title="flask_restx.fields.Wildcard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wildcard</span></code></a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wild</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Wildcard</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wildcard_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">wild</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;John&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;bob&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">:</span> <span class="s1">&#39;68&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">wildcard_fields</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;{&quot;Jane&quot;: &quot;68&quot;, &quot;bob&quot;: &quot;42&quot;, &quot;John&quot;: &quot;12&quot;}&#39;</span>
+</pre></div>
+</div>
+<p>The name you give to your <a class="reference internal" href="api.html#flask_restx.fields.Wildcard" title="flask_restx.fields.Wildcard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wildcard</span></code></a> acts as a real glob as
+shown bellow</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wild</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Wildcard</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wildcard_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;j*&#39;</span><span class="p">:</span> <span class="n">wild</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;John&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;bob&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">:</span> <span class="s1">&#39;68&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">wildcard_fields</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;{&quot;Jane&quot;: &quot;68&quot;, &quot;John&quot;: &quot;12&quot;}&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is important you define your <a class="reference internal" href="api.html#flask_restx.fields.Wildcard" title="flask_restx.fields.Wildcard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wildcard</span></code></a> <strong>outside</strong> your
+model (ie. you <strong>cannot</strong> use it like this:
+<code class="docutils literal notranslate"><span class="pre">res_fields</span> <span class="pre">=</span> <span class="pre">{'*':</span> <span class="pre">fields.Wildcard(fields.String)}</span></code>) because it has to be
+stateful to keep a track of what fields it has already treated.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The glob is not a regex, it can only treat simple wildcards like ‘*’ or ‘?’.</p>
+</div>
+<p>In order to avoid unexpected behavior, when mixing <a class="reference internal" href="api.html#flask_restx.fields.Wildcard" title="flask_restx.fields.Wildcard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wildcard</span></code></a>
+with other fields, you may want to use an <code class="docutils literal notranslate"><span class="pre">OrderedDict</span></code> and use the
+<a class="reference internal" href="api.html#flask_restx.fields.Wildcard" title="flask_restx.fields.Wildcard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wildcard</span></code></a> as the last field</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wild</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Wildcard</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># you can use it in api.model like this:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># some_fields = api.model(&#39;MyModel&#39;, {&#39;zoro&#39;: fields.String, &#39;*&#39;: wild})</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;John&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;bob&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">:</span> <span class="s1">&#39;68&#39;</span><span class="p">,</span> <span class="s1">&#39;zoro&#39;</span><span class="p">:</span> <span class="mi">72</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mod</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;{&quot;zoro&quot;: &quot;72&quot;, &quot;Jane&quot;: 68, &quot;bob&quot;: 42, &quot;John&quot;: 12}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="nested-field">
+<span id="id3"></span><h2>Nested Field<a class="headerlink" href="#nested-field" title="Permalink to this heading">¶</a></h2>
+<p>While nesting fields using dicts can turn a flat data object into a nested
+response, you can use <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> to unmarshal nested data
+structures and render them appropriately.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span><span class="p">[</span><span class="s1">&#39;line 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;addr1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span><span class="p">[</span><span class="s1">&#39;line 2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;addr2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span><span class="p">[</span><span class="s1">&#39;city&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;city&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;state&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address_fields</span><span class="p">[</span><span class="s1">&#39;zip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;billing_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">address_fields</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_fields</span><span class="p">[</span><span class="s1">&#39;shipping_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">address_fields</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;addr1&#39;</span><span class="p">:</span> <span class="s1">&#39;123 fake street&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="s1">&#39;New York&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;NY&#39;</span><span class="p">,</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span> <span class="s1">&#39;10468&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">address2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;addr1&#39;</span><span class="p">:</span> <span class="s1">&#39;555 nowhere&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="s1">&#39;New York&#39;</span><span class="p">,</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="s1">&#39;NY&#39;</span><span class="p">,</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span> <span class="s1">&#39;10468&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="s1">&#39;billing_address&#39;</span><span class="p">:</span> <span class="n">address1</span><span class="p">,</span> <span class="s1">&#39;shipping_address&#39;</span><span class="p">:</span> <span class="n">address2</span><span class="p">}</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">resource_fields</span><span class="p">))</span>
+<span class="go">&#39;{&quot;billing_address&quot;: {&quot;line 1&quot;: &quot;123 fake street&quot;, &quot;line 2&quot;: null, &quot;state&quot;: &quot;NY&quot;, &quot;zip&quot;: &quot;10468&quot;, &quot;city&quot;: &quot;New York&quot;}, &quot;name&quot;: &quot;bob&quot;, &quot;shipping_address&quot;: {&quot;line 1&quot;: &quot;555 nowhere&quot;, &quot;line 2&quot;: null, &quot;state&quot;: &quot;NY&quot;, &quot;zip&quot;: &quot;10468&quot;, &quot;city&quot;: &quot;New York&quot;}}&#39;</span>
+</pre></div>
+</div>
+<p>This example uses two <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> fields.
+The <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> constructor takes a dict of fields to render as sub-fields.input.
+The important difference between the <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> constructor and nested dicts (previous example),
+is the context for attributes.
+In this example,
+<code class="docutils literal notranslate"><span class="pre">billing_address</span></code> is a complex object that has its own fields and
+the context passed to the nested field is the sub-object instead of the original <code class="docutils literal notranslate"><span class="pre">data</span></code> object.
+In other words:
+<code class="docutils literal notranslate"><span class="pre">data.billing_address.addr1</span></code> is in scope here,
+whereas in the previous example <code class="docutils literal notranslate"><span class="pre">data.addr1</span></code> was the location attribute.
+Remember: <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> and <a class="reference internal" href="api.html#flask_restx.fields.List" title="flask_restx.fields.List"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a> objects create a new scope for attributes.</p>
+<p>By default when the sub-object is <cite>None</cite>, an object with default values for the nested fields will be generated instead of <cite>null</cite>. This can be modified by passing the <cite>allow_null</cite> parameter, see the <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> constructor for more details.</p>
+<p>Use <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nested</span></code></a> with <a class="reference internal" href="api.html#flask_restx.fields.List" title="flask_restx.fields.List"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a> to marshal lists of more complex objects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">user_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;User&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">user_list_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;UserList&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;users&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">user_fields</span><span class="p">)),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="the-api-model-factory">
+<h2>The <code class="docutils literal notranslate"><span class="pre">api.model()</span></code> factory<a class="headerlink" href="#the-api-model-factory" title="Permalink to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="api.html#flask_restx.Namespace.model" title="flask_restx.Namespace.model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">model()</span></code></a> factory allows you to instantiate
+and register models to your <code class="xref py py-class docutils literal notranslate"><span class="pre">API</span></code> or <a class="reference internal" href="api.html#flask_restx.Namespace" title="flask_restx.Namespace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Namespace</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1"># Equivalent to</span>
+<span class="n">my_fields</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="n">api</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">my_fields</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_fields</span>
+</pre></div>
+</div>
+<section id="duplicating-with-clone">
+<h3>Duplicating with <code class="docutils literal notranslate"><span class="pre">clone</span></code><a class="headerlink" href="#duplicating-with-clone" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.clone()</span></code> method allows you to instantiate an augmented model.
+It saves you duplicating all fields.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;Parent&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="p">})</span>
+
+<span class="n">child</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s1">&#39;Child&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Api/Namespace.clone</span></code> also register it on the API.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Parent&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="p">})</span>
+
+<span class="n">child</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s1">&#39;Child&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="polymorphism-with-api-inherit">
+<h3>Polymorphism with <code class="docutils literal notranslate"><span class="pre">api.inherit</span></code><a class="headerlink" href="#polymorphism-with-api-inherit" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.inherit()</span></code> method allows to extend a model in the “Swagger way”
+and to start handling polymorphism.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Parent&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="n">child</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">inherit</span><span class="p">(</span><span class="s1">&#39;Child&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Api/Namespace.clone</span></code> will register both the parent and the child
+in the Swagger models definitions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;Parent&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="n">child</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">inherit</span><span class="p">(</span><span class="s1">&#39;Child&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">class</span></code> field in this example will be populated with the serialized model name
+only if the property does not exists in the serialized object.</p>
+<p>The <a class="reference internal" href="api.html#flask_restx.fields.Polymorph" title="flask_restx.fields.Polymorph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Polymorph</span></code></a> field allows you to specify a mapping between Python classes
+and fields specifications.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Child1</span><span class="p">:</span> <span class="n">child1_fields</span><span class="p">,</span>
+    <span class="n">Child2</span><span class="p">:</span> <span class="n">child2_fields</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Thing&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Polymorph</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="custom-fields">
+<h2>Custom fields<a class="headerlink" href="#custom-fields" title="Permalink to this heading">¶</a></h2>
+<p>Custom output fields let you perform your own output formatting without having
+to modify your internal objects directly.
+All you have to do is subclass <a class="reference internal" href="api.html#flask_restx.fields.Raw" title="flask_restx.fields.Raw"><code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code></a> and implement the <a class="reference internal" href="api.html#flask_restx.fields.Raw.format" title="flask_restx.fields.Raw.format"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format()</span></code></a> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">AllCapsString</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+
+<span class="c1"># example usage</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;all_caps_name&#39;</span><span class="p">:</span> <span class="n">AllCapsString</span><span class="p">(</span><span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can also use the <code class="xref py py-attr docutils literal notranslate"><span class="pre">__schema_format__</span></code>, <code class="docutils literal notranslate"><span class="pre">__schema_type__</span></code> and
+<code class="docutils literal notranslate"><span class="pre">__schema_example__</span></code> to specify the produced types and examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyIntField</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">):</span>
+    <span class="n">__schema_format__</span> <span class="o">=</span> <span class="s1">&#39;int64&#39;</span>
+
+<span class="k">class</span> <span class="nc">MySpecialField</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s1">&#39;some-type&#39;</span>
+    <span class="n">__schema_format__</span> <span class="o">=</span> <span class="s1">&#39;some-format&#39;</span>
+
+<span class="k">class</span> <span class="nc">MyVerySpecialField</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="n">__schema_example__</span> <span class="o">=</span> <span class="s1">&#39;hello, world&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="skip-fields-which-value-is-none">
+<h2>Skip fields which value is None<a class="headerlink" href="#skip-fields-which-value-is-none" title="Permalink to this heading">¶</a></h2>
+<p>You can skip those fields which values is <code class="docutils literal notranslate"><span class="pre">None</span></code> instead of marshaling those fields with JSON value, null.
+This feature is useful to reduce the size of response when you have a lots of fields which value may be None,
+but which fields are <code class="docutils literal notranslate"><span class="pre">None</span></code> are unpredictable.</p>
+<p>Let consider the following example with an optional <code class="docutils literal notranslate"><span class="pre">skip_none</span></code> keyword argument be set to True.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal_with</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;address_1&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;address_2&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@marshal_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">skip_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">get</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span> <span class="s1">&#39;address_1&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get</span><span class="p">()</span>
+<span class="go">OrderedDict([(&#39;name&#39;, &#39;John&#39;)])</span>
+</pre></div>
+</div>
+<p>You can see that <code class="docutils literal notranslate"><span class="pre">address_1</span></code> and <code class="docutils literal notranslate"><span class="pre">address_2</span></code> are skipped by <a class="reference internal" href="api.html#flask_restx.marshal_with" title="flask_restx.marshal_with"><code class="xref py py-func docutils literal notranslate"><span class="pre">marshal_with()</span></code></a>.
+<code class="docutils literal notranslate"><span class="pre">address_1</span></code> be skipped because value is <code class="docutils literal notranslate"><span class="pre">None</span></code>.
+<code class="docutils literal notranslate"><span class="pre">address_2</span></code> be skipped because the dictionary return by <code class="docutils literal notranslate"><span class="pre">get()</span></code> have no key, <code class="docutils literal notranslate"><span class="pre">address_2</span></code>.</p>
+<section id="skip-none-in-nested-fields">
+<h3>Skip none in Nested fields<a class="headerlink" href="#skip-none-in-nested-fields" title="Permalink to this heading">¶</a></h3>
+<p>If your module use <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Nested</span></code></a>, you need to pass <code class="docutils literal notranslate"><span class="pre">skip_none=True</span></code> keyword argument to <a class="reference internal" href="api.html#flask_restx.fields.Nested" title="flask_restx.fields.Nested"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Nested</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">marshal_with</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">(</span><span class="n">location_model</span><span class="p">,</span> <span class="n">skip_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="define-model-using-json-schema">
+<h2>Define model using JSON Schema<a class="headerlink" href="#define-model-using-json-schema" title="Permalink to this heading">¶</a></h2>
+<p>You can define models using <a class="reference external" href="http://json-schema.org/examples.html">JSON Schema</a> (Draft v4).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">address</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">schema_model</span><span class="p">(</span><span class="s1">&#39;Address&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;road&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;object&#39;</span>
+<span class="p">})</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">schema_model</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;integer&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;birthdate&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;date-time&#39;</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;$ref&#39;</span><span class="p">:</span> <span class="s1">&#39;#/definitions/Address&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;object&#39;</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Response marshalling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renaming-attributes">Renaming Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-values">Default Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-fields-multiple-values">Custom Fields &amp; Multiple Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#url-other-concrete-fields">Url &amp; Other Concrete Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complex-structures">Complex Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#list-field">List Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wildcard-field">Wildcard Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nested-field">Nested Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-api-model-factory">The <code class="docutils literal notranslate"><span class="pre">api.model()</span></code> factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-fields">Custom fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#skip-fields-which-value-is-none">Skip fields which value is None</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#define-model-using-json-schema">Define model using JSON Schema</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Quick start</a></li>
+      <li>Next: <a href="parsing.html" title="next chapter">Request Parsing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/marshalling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

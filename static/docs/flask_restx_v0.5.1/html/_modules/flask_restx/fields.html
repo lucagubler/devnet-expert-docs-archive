@@ -1,0 +1,1073 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>flask_restx.fields &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/restx.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../../_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for flask_restx.fields</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">timegm</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span><span class="p">,</span> <span class="n">ROUND_HALF_EVEN</span>
+<span class="kn">from</span> <span class="nn">email.utils</span> <span class="kn">import</span> <span class="n">formatdate</span>
+
+<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">iteritems</span><span class="p">,</span> <span class="n">itervalues</span><span class="p">,</span> <span class="n">text_type</span><span class="p">,</span> <span class="n">string_types</span>
+<span class="kn">from</span> <span class="nn">six.moves.urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">werkzeug.utils</span> <span class="kn">import</span> <span class="n">cached_property</span>
+
+<span class="kn">from</span> <span class="nn">.inputs</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">date_from_iso8601</span><span class="p">,</span>
+    <span class="n">datetime_from_iso8601</span><span class="p">,</span>
+    <span class="n">datetime_from_rfc822</span><span class="p">,</span>
+    <span class="n">boolean</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">RestError</span>
+<span class="kn">from</span> <span class="nn">.marshalling</span> <span class="kn">import</span> <span class="n">marshal</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">camel_to_dash</span><span class="p">,</span> <span class="n">not_none</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Raw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;String&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FormattedString&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Url&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DateTime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Boolean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Integer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Float&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Arbitrary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fixed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nested&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;List&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassName&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Polymorph&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wildcard&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StringMixin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MinMaxMixin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NumberMixin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MarshallingError&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="MarshallingError"><a class="viewcode-back" href="../../api.html#flask_restx.fields.MarshallingError">[docs]</a><span class="k">class</span> <span class="nc">MarshallingError</span><span class="p">(</span><span class="n">RestError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an encapsulating Exception in case of marshalling error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">underlying_exception</span><span class="p">):</span>
+        <span class="c1"># just put the contextual representation of the error to hint on what</span>
+        <span class="c1"># went wrong without exposing internals</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MarshallingError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">text_type</span><span class="p">(</span><span class="n">underlying_exception</span><span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">is_indexable_but_not_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;strip&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">is_integer_indexable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper for pulling a keyed value off various types of objects&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_get_value_for_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_get_value_for_keys</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_value_for_keys</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_get_value_for_key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_get_value_for_keys</span><span class="p">(</span>
+            <span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">_get_value_for_key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">),</span> <span class="n">default</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_value_for_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_indexable_but_not_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">is_integer_indexable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">to_marshallable_type</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper for converting an object to a dictionary only if it is not</span>
+<span class="sd">    dictionary already or an indexable object nor a simple type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># make it idempotent for None</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__marshallable__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">__marshallable__</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__getitem__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span>  <span class="c1"># it is indexable it is ok</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Raw"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Raw">[docs]</a><span class="k">class</span> <span class="nc">Raw</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raw provides a base field class from which others should extend. It</span>
+<span class="sd">    applies no formatting by default, and should only be used in cases where</span>
+<span class="sd">    data does not need to be formatted before being serialized. Fields should</span>
+<span class="sd">    throw a :class:`MarshallingError` in case of parsing problem.</span>
+
+<span class="sd">    :param default: The default value for the field, if no value is</span>
+<span class="sd">        specified.</span>
+<span class="sd">    :param attribute: If the public facing value differs from the internal</span>
+<span class="sd">        value, use this to retrieve a different attribute from the response</span>
+<span class="sd">        than the publicly named value.</span>
+<span class="sd">    :param str title: The field title (for documentation purpose)</span>
+<span class="sd">    :param str description: The field description (for documentation purpose)</span>
+<span class="sd">    :param bool required: Is the field required ?</span>
+<span class="sd">    :param bool readonly: Is the field read only ? (for documentation purpose)</span>
+<span class="sd">    :param example: An optional data example (for documentation purpose)</span>
+<span class="sd">    :param callable mask: An optional mask function to be applied to output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: The JSON/Swagger schema type</span>
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span>
+    <span class="c1">#: The JSON/Swagger schema format</span>
+    <span class="n">__schema_format__</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: An optional JSON/Swagger schema example</span>
+    <span class="n">__schema_example__</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">attribute</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">readonly</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">example</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readonly</span> <span class="o">=</span> <span class="n">readonly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="n">example</span> <span class="k">if</span> <span class="n">example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema_example__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
+
+<div class="viewcode-block" id="Raw.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Raw.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formats a field&#39;s value. No-op by default - field classes that</span>
+<span class="sd">        modify how the value of existing object keys should be presented should</span>
+<span class="sd">        override this and apply the appropriate formatting.</span>
+
+<span class="sd">        :param value: The value to format</span>
+<span class="sd">        :raises MarshallingError: In case of formatting problem</span>
+
+<span class="sd">        Ex::</span>
+
+<span class="sd">            class TitleCase(Raw):</span>
+<span class="sd">                def format(self, value):</span>
+<span class="sd">                    return unicode(value).title()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Raw.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Raw.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pulls the value for the given key from the object, applies the</span>
+<span class="sd">        field&#39;s formatting and returns the result. If the key is not found</span>
+<span class="sd">        in the object, returns the default value. Field classes that create</span>
+<span class="sd">        values which do not require the existence of the key in the object</span>
+<span class="sd">        should override this and return the desired value.</span>
+
+<span class="sd">        :raises MarshallingError: In case of formatting problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="n">default</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">MarshallingError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Unable to marshal field &quot;</span><span class="si">{0}</span><span class="s1">&quot; value &quot;</span><span class="si">{1}</span><span class="s1">&quot;: </span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="k">else</span> <span class="n">data</span></div>
+
+    <span class="k">def</span> <span class="nf">_v</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper for getting a value from attribute allowing callable&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">__schema__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema_type__</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__schema_format__</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;readOnly&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">readonly</span><span class="p">,</span>
+            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Nested"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Nested">[docs]</a><span class="k">class</span> <span class="nc">Nested</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allows you to nest one set of fields inside another.</span>
+<span class="sd">    See :ref:`nested-field` for more information</span>
+
+<span class="sd">    :param dict model: The model dictionary to nest</span>
+<span class="sd">    :param bool allow_null: Whether to return None instead of a dictionary</span>
+<span class="sd">        with null keys, if a nested dictionary has all-null keys</span>
+<span class="sd">    :param bool skip_none: Optional key will be used to eliminate inner fields</span>
+<span class="sd">                           which value is None or the inner field&#39;s key not</span>
+<span class="sd">                           exist in data</span>
+<span class="sd">    :param kwargs: If ``default`` keyword argument is present, a nested</span>
+<span class="sd">        dictionary will be marshaled as its value if nested dictionary is</span>
+<span class="sd">        all-null keys (e.g. lets you return an empty JSON object instead of</span>
+<span class="sd">        null)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_none</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">as_list</span> <span class="o">=</span> <span class="n">as_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_null</span> <span class="o">=</span> <span class="n">allow_null</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_none</span> <span class="o">=</span> <span class="n">skip_none</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Nested</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Nested.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Nested.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_null</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+
+        <span class="k">return</span> <span class="n">marshal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span> <span class="n">skip_none</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_none</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Nested</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="s2">&quot;#/definitions/</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nested</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_list</span><span class="p">:</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;array&quot;</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$ref&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="c1"># There is already some properties in the schema</span>
+            <span class="n">allOf</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;allOf&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">allOf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;$ref&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">})</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;allOf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">allOf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;$ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">resolved</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="List"><a class="viewcode-back" href="../../api.html#flask_restx.fields.List">[docs]</a><span class="k">class</span> <span class="nc">List</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field for marshalling lists of other fields.</span>
+
+<span class="sd">    See :ref:`list-field` for more information.</span>
+
+<span class="sd">    :param cls_or_instance: The field type the list will contain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls_or_instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_items</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;min_items&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;max_items&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;unique&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;The type of the list elements must be a subclass of fields.Raw&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">cls_or_instance</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">cls_or_instance</span>
+
+<div class="viewcode-block" id="List.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.List.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># Convert all instances in typed list to container type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="n">is_nested</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">Nested</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Raw</span>
+
+        <span class="k">def</span> <span class="nf">is_attr</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">attribute</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">output</span><span class="p">(</span>
+                <span class="n">idx</span><span class="p">,</span>
+                <span class="n">val</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_attr</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_nested</span>
+                <span class="k">else</span> <span class="n">value</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="List.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.List.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># we cannot really test for external dict behavior</span>
+        <span class="k">if</span> <span class="n">is_indexable_but_not_string</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">marshal</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">nested</span><span class="p">)]</span></div>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">minItems</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;min_items&quot;</span><span class="p">),</span>
+            <span class="n">maxItems</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;max_items&quot;</span><span class="p">),</span>
+            <span class="n">uniqueItems</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;unique&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;array&quot;</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">__schema__</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">StringMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;min_length&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pattern&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StringMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">StringMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">minLength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;min_length&quot;</span><span class="p">),</span>
+            <span class="n">maxLength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;max_length&quot;</span><span class="p">),</span>
+            <span class="n">pattern</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;pattern&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+
+<span class="k">class</span> <span class="nc">MinMaxMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimum</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclusiveMinimum</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;exclusiveMin&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclusiveMaximum</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;exclusiveMax&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MinMaxMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MinMaxMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">minimum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;minimum&quot;</span><span class="p">),</span>
+            <span class="n">exclusiveMinimum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;exclusiveMinimum&quot;</span><span class="p">),</span>
+            <span class="n">maximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;maximum&quot;</span><span class="p">),</span>
+            <span class="n">exclusiveMaximum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;exclusiveMaximum&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+
+<span class="k">class</span> <span class="nc">NumberMixin</span><span class="p">(</span><span class="n">MinMaxMixin</span><span class="p">):</span>
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;number&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiple</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">multipleOf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+
+<div class="viewcode-block" id="String"><a class="viewcode-back" href="../../api.html#flask_restx.fields.String">[docs]</a><span class="k">class</span> <span class="nc">String</span><span class="p">(</span><span class="n">StringMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Marshal a value as a string. Uses ``six.text_type`` so values will</span>
+<span class="sd">    be converted to :class:`unicode` in python2 and :class:`str` in</span>
+<span class="sd">    python3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enum</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;enum&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;discriminator&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span>
+
+<div class="viewcode-block" id="String.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.String.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">text_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">ve</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="s2">&quot;enum&quot;</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">enum</span><span class="p">:</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">enum</span><span class="o">=</span><span class="n">enum</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">enum</span> <span class="ow">and</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;example&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;example&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">enum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">schema</span></div>
+
+
+<div class="viewcode-block" id="Integer"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Integer">[docs]</a><span class="k">class</span> <span class="nc">Integer</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field for outputting an integer value.</span>
+
+<span class="sd">    :param int default: The default value for the field, if no value is specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;integer&quot;</span>
+
+<div class="viewcode-block" id="Integer.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Integer.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">ve</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Float"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Float">[docs]</a><span class="k">class</span> <span class="nc">Float</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A double as IEEE-754 double precision.</span>
+
+<span class="sd">    ex : 3.141592653589793 3.1415926535897933e-06 3.141592653589793e+24 nan inf -inf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Float.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Float.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">ve</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Arbitrary"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Arbitrary">[docs]</a><span class="k">class</span> <span class="nc">Arbitrary</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A floating point number with an arbitrary precision.</span>
+
+<span class="sd">    ex: 634271127864378216478362784632784678324.23432</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Arbitrary.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Arbitrary.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">text_type</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div></div>
+
+
+<span class="n">ZERO</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Fixed"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Fixed">[docs]</a><span class="k">class</span> <span class="nc">Fixed</span><span class="p">(</span><span class="n">NumberMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A decimal number with a fixed precision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Fixed</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s2">&quot;0.&quot;</span> <span class="o">+</span> <span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">decimals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Fixed.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Fixed.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">dvalue</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dvalue</span><span class="o">.</span><span class="n">is_normal</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dvalue</span> <span class="o">!=</span> <span class="n">ZERO</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="s2">&quot;Invalid Fixed precision number.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text_type</span><span class="p">(</span><span class="n">dvalue</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="n">ROUND_HALF_EVEN</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Boolean"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Boolean">[docs]</a><span class="k">class</span> <span class="nc">Boolean</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field for outputting a boolean value.</span>
+
+<span class="sd">    Empty collections such as ``&quot;&quot;``, ``{}``, ``[]``, etc. will be converted to ``False``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span>
+
+<div class="viewcode-block" id="Boolean.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Boolean.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">boolean</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../api.html#flask_restx.fields.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">MinMaxMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a formatted datetime string in UTC. Supported formats are RFC 822 and ISO 8601.</span>
+
+<span class="sd">    See :func:`email.utils.formatdate` for more info on the RFC 822 format.</span>
+
+<span class="sd">    See :meth:`datetime.datetime.isoformat` for more info on the ISO 8601 format.</span>
+
+<span class="sd">    :param str dt_format: ``rfc822`` or ``iso8601``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__schema_type__</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+    <span class="n">__schema_format__</span> <span class="o">=</span> <span class="s2">&quot;date-time&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt_format</span><span class="o">=</span><span class="s2">&quot;iso8601&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DateTime</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt_format</span> <span class="o">=</span> <span class="n">dt_format</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">datetime_from_iso8601</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_format</span> <span class="o">==</span> <span class="s2">&quot;iso8601&quot;</span>
+                <span class="k">else</span> <span class="n">datetime_from_rfc822</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported DateTime format&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DateTime.format"><a class="viewcode-back" href="../../api.html#flask_restx.fields.DateTime.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_format</span> <span class="o">==</span> <span class="s2">&quot;iso8601&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_iso8601</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_format</span> <span class="o">==</span> <span class="s2">&quot;rfc822&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_rfc822</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="s2">&quot;Unsupported date format </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_format</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DateTime.format_rfc822"><a class="viewcode-back" href="../../api.html#flask_restx.fields.DateTime.format_rfc822">[docs]</a>    <span class="k">def</span> <span class="nf">format_rfc822</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turn a datetime object into a formatted date.</span>
+
+<span class="sd">        :param datetime dt: The datetime to transform</span>
+<span class="sd">        :return: A RFC 822 formatted date string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">formatdate</span><span class="p">(</span><span class="n">timegm</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">utctimetuple</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="DateTime.format_iso8601"><a class="viewcode-back" href="../../api.html#flask_restx.fields.DateTime.format_iso8601">[docs]</a>    <span class="k">def</span> <span class="nf">format_iso8601</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turn a datetime object into an ISO8601 formatted date.</span>
+
+<span class="sd">        :param datetime dt: The datetime to transform</span>
+<span class="sd">        :return: A ISO 8601 formatted date string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_for_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_v</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">DateTime</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_for_schema</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;minimum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_for_schema</span><span class="p">(</span><span class="s2">&quot;minimum&quot;</span><span class="p">)</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;maximum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_for_schema</span><span class="p">(</span><span class="s2">&quot;maximum&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">schema</span></div>
+
+
+<div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">DateTime</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a formatted date string in UTC in ISO 8601.</span>
+
+<span class="sd">    See :meth:`datetime.date.isoformat` for more info on the ISO 8601 format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__schema_format__</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dt_format&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Date</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dt_format</span><span class="o">=</span><span class="s2">&quot;iso8601&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">date_from_iso8601</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported Date format&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Url"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Url">[docs]</a><span class="k">class</span> <span class="nc">Url</span><span class="p">(</span><span class="n">StringMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A string representation of a Url</span>
+
+<span class="sd">    :param str endpoint: Endpoint name. If endpoint is ``None``, ``request.endpoint`` is used instead</span>
+<span class="sd">    :param bool absolute: If ``True``, ensures that the generated urls will have the hostname included</span>
+<span class="sd">    :param str scheme: URL scheme specifier (e.g. ``http``, ``https``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Url</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">absolute</span> <span class="o">=</span> <span class="n">absolute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
+
+<div class="viewcode-block" id="Url.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Url.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">to_marshallable_type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">endpoint</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">absolute</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">absolute</span><span class="p">:</span>
+                <span class="n">scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">o</span><span class="o">.</span><span class="n">scheme</span>
+                <span class="k">return</span> <span class="n">urlunparse</span><span class="p">((</span><span class="n">scheme</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">netloc</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">urlunparse</span><span class="p">((</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">te</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">te</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FormattedString"><a class="viewcode-back" href="../../api.html#flask_restx.fields.FormattedString">[docs]</a><span class="k">class</span> <span class="nc">FormattedString</span><span class="p">(</span><span class="n">StringMixin</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    FormattedString is used to interpolate other values from</span>
+<span class="sd">    the response into this field. The syntax for the source string is</span>
+<span class="sd">    the same as the string :meth:`~str.format` method from the python</span>
+<span class="sd">    stdlib.</span>
+
+<span class="sd">    Ex::</span>
+
+<span class="sd">        fields = {</span>
+<span class="sd">            &#39;name&#39;: fields.String,</span>
+<span class="sd">            &#39;greeting&#39;: fields.FormattedString(&quot;Hello {name}&quot;)</span>
+<span class="sd">        }</span>
+<span class="sd">        data = {</span>
+<span class="sd">            &#39;name&#39;: &#39;Doug&#39;,</span>
+<span class="sd">        }</span>
+<span class="sd">        marshal(data, fields)</span>
+
+<span class="sd">    :param str src_str: the string to format with the other values from the response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FormattedString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_str</span> <span class="o">=</span> <span class="n">text_type</span><span class="p">(</span><span class="n">src_str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FormattedString.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.FormattedString.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">to_marshallable_type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ClassName"><a class="viewcode-back" href="../../api.html#flask_restx.fields.ClassName">[docs]</a><span class="k">class</span> <span class="nc">ClassName</span><span class="p">(</span><span class="n">String</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the serialized object class name as string.</span>
+
+<span class="sd">    :param bool dash: If `True`, transform CamelCase to kebab_case.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClassName</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dash</span> <span class="o">=</span> <span class="n">dash</span>
+
+<div class="viewcode-block" id="ClassName.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.ClassName.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">classname</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;object&quot;</span>
+        <span class="k">return</span> <span class="n">camel_to_dash</span><span class="p">(</span><span class="n">classname</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dash</span> <span class="k">else</span> <span class="n">classname</span></div></div>
+
+
+<div class="viewcode-block" id="Polymorph"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Polymorph">[docs]</a><span class="k">class</span> <span class="nc">Polymorph</span><span class="p">(</span><span class="n">Nested</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Nested field handling inheritance.</span>
+
+<span class="sd">    Allows you to specify a mapping between Python classes and fields specifications.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        mapping = {</span>
+<span class="sd">            Child1: child1_fields,</span>
+<span class="sd">            Child2: child2_fields,</span>
+<span class="sd">        }</span>
+
+<span class="sd">        fields = api.model(&#39;Thing&#39;, {</span>
+<span class="sd">            owner: fields.Polymorph(mapping)</span>
+<span class="sd">        })</span>
+
+<span class="sd">    :param dict mapping: Maps classes to their model/fields representation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">mapping</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ancestor</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itervalues</span><span class="p">(</span><span class="n">mapping</span><span class="p">)))</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Polymorph</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="ow">not</span> <span class="n">required</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Polymorph.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Polymorph.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Copied from upstream NestedField</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_null</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+
+        <span class="c1"># Handle mappings</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;__class__&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Polymorph field only accept class instances&quot;</span><span class="p">)</span>
+
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">fields</span> <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">fields</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown class: &quot;</span> <span class="o">+</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unable to determine a candidate for: &quot;</span> <span class="o">+</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">marshal</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">resolved</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Polymorph.resolve_ancestor"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Polymorph.resolve_ancestor">[docs]</a>    <span class="k">def</span> <span class="nf">resolve_ancestor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve the common ancestor for all models.</span>
+
+<span class="sd">        Assume there is only one common ancestor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">ancestors</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">ancestors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unable to determine the common ancestor for: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">parent_name</span> <span class="o">=</span> <span class="n">candidates</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_parent</span><span class="p">(</span><span class="n">parent_name</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;mapping&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;allow_null&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+        <span class="k">return</span> <span class="n">Polymorph</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Wildcard"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Wildcard">[docs]</a><span class="k">class</span> <span class="nc">Wildcard</span><span class="p">(</span><span class="n">Raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field for marshalling list of &quot;unkown&quot; fields.</span>
+
+<span class="sd">    :param cls_or_instance: The field type the list will contain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="c1"># cache the flat object</span>
+    <span class="n">_flat</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_obj</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_cache</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls_or_instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Wildcard</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;The type of the wildcard elements must be a subclass of fields.Raw&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">cls_or_instance</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls_or_instance</span><span class="p">,</span> <span class="n">Raw</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MarshallingError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">cls_or_instance</span>
+
+    <span class="k">def</span> <span class="nf">_flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">__match_attributes</span><span class="p">(</span><span class="n">attribute</span><span class="p">):</span>
+                <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_obj</span> <span class="o">=</span> <span class="n">attribute</span>
+                <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isroutine</span><span class="p">(</span><span class="n">attr_obj</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">attr_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">attributes</span> <span class="k">if</span> <span class="n">__match_attributes</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Wildcard.output"><a class="viewcode-back" href="../../api.html#flask_restx.fields.Wildcard.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">reg</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># we are using pop() so that we don&#39;t</span>
+                    <span class="c1"># loop over the whole object every time dropping the</span>
+                    <span class="c1"># complexity to O(n)</span>
+                    <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
+                        <span class="c1"># Get first element if respecting order</span>
+                        <span class="p">(</span><span class="n">objkey</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Previous default retained</span>
+                        <span class="p">(</span><span class="n">objkey</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">objkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
+                        <span class="ow">and</span> <span class="n">objkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span>
+                        <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">reg</span><span class="p">,</span> <span class="n">objkey</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">val</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">objkey</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">objkey</span>
+                        <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">Nested</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">marshal</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">nested</span><span class="p">,</span>
+                <span class="n">skip_none</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">skip_none</span><span class="p">,</span>
+                <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Wildcard</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;additionalProperties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">__schema__</span>
+        <span class="k">return</span> <span class="n">schema</span>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

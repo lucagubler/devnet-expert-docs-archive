@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Logging &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Postman" href="postman.html" />
+    <link rel="prev" title="Swagger documentation" href="swagger.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="logging">
+<h1>Logging<a class="headerlink" href="#logging" title="Permalink to this heading">¶</a></h1>
+<p>Flask-RESTX extends <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/logging/">Flask’s logging</a>
+by providing each <code class="docutils literal notranslate"><span class="pre">API</span></code> and <code class="docutils literal notranslate"><span class="pre">Namespace</span></code> it’s own standard Python <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Logger</span></code></a> instance.
+This allows separation of logging on a per namespace basis to allow more fine-grained detail and configuration.</p>
+<p>By default, these loggers inherit configuration from the Flask application object logger.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">flask</span>
+
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">Resource</span>
+
+<span class="c1"># configure root logger</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+
+<span class="c1"># each of these loggers uses configuration from app.logger</span>
+<span class="n">ns1</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v1&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+<span class="n">ns2</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v2&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@ns1</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># will log</span>
+        <span class="n">ns1</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hello from ns1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@ns2</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyNewResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># won&#39;t log due to INFO log level from app.logger</span>
+        <span class="n">ns2</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;hello from ns2&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Loggers can be configured individually to override the configuration from the Flask
+application object logger. In the above example, <code class="docutils literal notranslate"><span class="pre">ns2</span></code> log level can be set to
+<code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> individually:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ns1 will have log level INFO from app.logger</span>
+<span class="n">ns1</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v1&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+<span class="c1"># ns2 will have log level DEBUG</span>
+<span class="n">ns2</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v2&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+<span class="n">ns2</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+
+<span class="nd">@ns1</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># will log</span>
+        <span class="n">ns1</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hello from ns1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@ns2</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyNewResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># will log</span>
+        <span class="n">ns2</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;hello from ns2&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Adding additional handlers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># configure a file handler for ns1 only</span>
+<span class="n">ns1</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v1&#39;</span><span class="p">)</span>
+<span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="s2">&quot;v1.log&quot;</span><span class="p">)</span>
+<span class="n">ns1</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+<span class="n">ns2</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">namespace</span><span class="p">(</span><span class="s1">&#39;api/v2&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@ns1</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># will log to *both* v1.log file and app.logger handlers</span>
+        <span class="n">ns1</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hello from ns1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@ns2</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyNewResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># will log to *only* app.logger handlers</span>
+        <span class="n">ns2</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hello from ns2&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="swagger.html" title="previous chapter">Swagger documentation</a></li>
+      <li>Next: <a href="postman.html" title="next chapter">Postman</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/logging.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1104 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Swagger documentation &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Logging" href="logging.html" />
+    <link rel="prev" title="Fields masks" href="mask.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="swagger-documentation">
+<span id="swagger"></span><h1>Swagger documentation<a class="headerlink" href="#swagger-documentation" title="Permalink to this heading">¶</a></h1>
+<p>Swagger API documentation is automatically generated and available from your API’s root URL.  You can configure the documentation using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code> decorator.</p>
+<section id="documenting-with-the-api-doc-decorator">
+<h2>Documenting with the <code class="docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code> decorator<a class="headerlink" href="#documenting-with-the-api-doc-decorator" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">api.doc()</span></code> decorator allows you to include additional information in the documentation.</p>
+<p>You can document a class or a method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">403</span><span class="p">:</span> <span class="s1">&#39;Not Authorized&#39;</span><span class="p">})</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="automatically-documented-models">
+<h2>Automatically documented models<a class="headerlink" href="#automatically-documented-models" title="Permalink to this heading">¶</a></h2>
+<p>All models instantiated with <a class="reference internal" href="api.html#flask_restx.Namespace.model" title="flask_restx.Namespace.model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">model()</span></code></a>, <a class="reference internal" href="api.html#flask_restx.Namespace.clone" title="flask_restx.Namespace.clone"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clone()</span></code></a> and <a class="reference internal" href="api.html#flask_restx.Namespace.inherit" title="flask_restx.Namespace.inherit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inherit()</span></code></a>
+will be automatically documented in your Swagger specifications.</p>
+<p>The <a class="reference internal" href="api.html#flask_restx.Namespace.inherit" title="flask_restx.Namespace.inherit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inherit()</span></code></a> method will register both the parent and the child in the Swagger models definitions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Parent&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="n">child</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">inherit</span><span class="p">(</span><span class="s1">&#39;Child&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;extra&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The above configuration will produce these Swagger definitions:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Parent&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;discriminator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;Child&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;allOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/definitions/Parent&quot;</span>
+<span class="w">            </span><span class="p">},</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;extra&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">}</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="the-api-marshal-with-decorator">
+<h2>The <code class="docutils literal notranslate"><span class="pre">&#64;api.marshal_with()</span></code> decorator<a class="headerlink" href="#the-api-marshal-with-decorator" title="Permalink to this heading">¶</a></h2>
+<p>This decorator works like the raw <a class="reference internal" href="api.html#flask_restx.marshal_with" title="flask_restx.marshal_with"><code class="xref py py-func docutils literal notranslate"><span class="pre">marshal_with()</span></code></a> decorator
+with the difference that it documents the methods.
+The optional parameter <code class="docutils literal notranslate"><span class="pre">code</span></code> allows you to specify the expected HTTP status code (200 by default).
+The optional parameter <code class="docutils literal notranslate"><span class="pre">as_list</span></code> allows you to specify whether or not the objects are returned as a list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">,</span> <span class="n">as_list</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_objects</span><span class="p">()</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">201</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">create_object</span><span class="p">(),</span> <span class="mi">201</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Api.marshal_list_with()</span></code> decorator is strictly equivalent to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Api.marshal_with(fields,</span> <span class="pre">as_list=True)()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_list_with</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_objects</span><span class="p">()</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">create_object</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="the-api-expect-decorator">
+<h2>The <code class="docutils literal notranslate"><span class="pre">&#64;api.expect()</span></code> decorator<a class="headerlink" href="#the-api-expect-decorator" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;api.expect()</span></code> decorator allows you to specify the expected input fields.
+It accepts an optional boolean parameter <code class="docutils literal notranslate"><span class="pre">validate</span></code> indicating whether the payload should be validated.
+The validation behavior can be customized globally either
+by setting the <code class="docutils literal notranslate"><span class="pre">RESTX_VALIDATE</span></code> configuration to <code class="docutils literal notranslate"><span class="pre">True</span></code>
+or passing <code class="docutils literal notranslate"><span class="pre">validate=True</span></code> to the API constructor.</p>
+<p>The following examples are equivalent:</p>
+<ul class="simple">
+<li><p>Using the <code class="docutils literal notranslate"><span class="pre">&#64;api.expect()</span></code> decorator:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Using the <code class="docutils literal notranslate"><span class="pre">api.doc()</span></code> decorator:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can specify lists as the expected input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="n">resource_fields</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can use <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RequestParser</span></code></a> to define the expected input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;param&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Some param&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;in_files&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">FileStorage</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/with-parser/&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;with-parser&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WithParserResource</span><span class="p">(</span><span class="n">restx</span><span class="o">.</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>Validation can be enabled or disabled on a particular endpoint:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="c1"># Payload validation disabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Payload validation enabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>An example of application-wide validation by config:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;RESTX_VALIDATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="c1"># Payload validation enabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Payload validation disabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>An example of application-wide validation by constructor:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">resource_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Resource&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="c1"># Payload validation enabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Payload validation disabled</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">resource_fields</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="documenting-with-the-api-response-decorator">
+<h2>Documenting with the <code class="docutils literal notranslate"><span class="pre">&#64;api.response()</span></code> decorator<a class="headerlink" href="#documenting-with-the-api-response-decorator" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;api.response()</span></code> decorator allows you to document the known responses
+and is a shortcut for <code class="docutils literal notranslate"><span class="pre">&#64;api.doc(responses='...')</span></code>.</p>
+<p>The following two definitions are equivalent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">)</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;Validation Error&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">responses</span><span class="o">=</span><span class="p">{</span>
+        <span class="mi">200</span><span class="p">:</span> <span class="s1">&#39;Success&#39;</span><span class="p">,</span>
+        <span class="mi">400</span><span class="p">:</span> <span class="s1">&#39;Validation Error&#39;</span>
+    <span class="p">})</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can optionally specify a response model as the third argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;api.marshal_with()</span></code> decorator automatically documents the response:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;Validation error&#39;</span><span class="p">)</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">201</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Object created&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can specify a default response sent without knowing the response code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;Error&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="the-api-route-decorator">
+<h2>The <code class="docutils literal notranslate"><span class="pre">&#64;api.route()</span></code> decorator<a class="headerlink" href="#the-api-route-decorator" title="Permalink to this heading">¶</a></h2>
+<p>You can provide class-wide documentation using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> parameter of <code class="docutils literal notranslate"><span class="pre">Api.route()</span></code>. This parameter accepts the same values as the <code class="docutils literal notranslate"><span class="pre">Api.doc()</span></code> decorator.</p>
+<p>For example, these two declarations are equivalent:</p>
+<ul class="simple">
+<li><p>Using <code class="docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Using <code class="docutils literal notranslate"><span class="pre">&#64;api.route()</span></code>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">}})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<section id="multiple-routes-per-resource">
+<h3>Multiple Routes per Resource<a class="headerlink" href="#multiple-routes-per-resource" title="Permalink to this heading">¶</a></h3>
+<p>Multiple <code class="docutils literal notranslate"><span class="pre">Api.route()</span></code> decorators can be used to add multiple routes for a <code class="docutils literal notranslate"><span class="pre">Resource</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">doc</span></code> parameter provides documentation <strong>per route</strong>.</p>
+<p>For example, here the <code class="docutils literal notranslate"><span class="pre">description</span></code> is applied only to the <code class="docutils literal notranslate"><span class="pre">/also-my-resource/&lt;id&gt;</span></code> route:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/my-resource/&lt;id&gt;&quot;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span>
+    <span class="s2">&quot;/also-my-resource/&lt;id&gt;&quot;</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alias for /my-resource/&lt;id&gt;&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>Here, the <code class="docutils literal notranslate"><span class="pre">/also-my-resource/&lt;id&gt;</span></code> route is marked as deprecated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/my-resource/&lt;id&gt;&quot;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span>
+    <span class="s2">&quot;/also-my-resource/&lt;id&gt;&quot;</span><span class="p">,</span>
+    <span class="n">doc</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alias for /my-resource/&lt;id&gt;, this route is being phased out in V2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;deprecated&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>Documentation applied to the <code class="docutils literal notranslate"><span class="pre">Resource</span></code> using <code class="docutils literal notranslate"><span class="pre">Api.doc()</span></code> is <cite>shared</cite> amongst all
+routes unless explicitly overridden:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/my-resource/&lt;id&gt;&quot;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span>
+<span class="s2">&quot;/also-my-resource/&lt;id&gt;&quot;</span><span class="p">,</span>
+<span class="n">doc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alias for /my-resource/&lt;id&gt;&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;An ID&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;My resource&quot;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>Here, the <code class="docutils literal notranslate"><span class="pre">id</span></code> documentation from the <code class="docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code> decorator is present in both routes,
+<code class="docutils literal notranslate"><span class="pre">/my-resource/&lt;id&gt;</span></code> inherits the <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">resource</span></code> description from the <code class="docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code>
+decorator and  <code class="docutils literal notranslate"><span class="pre">/also-my-resource/&lt;id&gt;</span></code> overrides the description with <code class="docutils literal notranslate"><span class="pre">Alias</span> <span class="pre">for</span> <span class="pre">/my-resource/&lt;id&gt;</span></code>.</p>
+<p>Routes with a <code class="docutils literal notranslate"><span class="pre">doc</span></code> parameter are given a <cite>unique</cite> Swagger <code class="docutils literal notranslate"><span class="pre">operationId</span></code>. Routes without
+<code class="docutils literal notranslate"><span class="pre">doc</span></code> parameter have the same Swagger <code class="docutils literal notranslate"><span class="pre">operationId</span></code> as they are deemed the same operation.</p>
+</section>
+</section>
+<section id="documenting-the-fields">
+<h2>Documenting the fields<a class="headerlink" href="#documenting-the-fields" title="Permalink to this heading">¶</a></h2>
+<p>Every Flask-RESTX field accepts optional arguments used to document the field:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">required</span></code>: a boolean indicating if the field is always set (<em>default</em>: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: some details about the field (<em>default</em>: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">example</span></code>: an example to use when displaying (<em>default</em>: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+</ul>
+<p>There are also field-specific attributes:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>The <code class="docutils literal notranslate"><span class="pre">String</span></code> field accepts the following optional arguments:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">enum</span></code>: an array restricting the authorized values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_length</span></code>: the minimum length expected.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_length</span></code>: the maximum length expected.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code>: a RegExp pattern used to validate the string.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The <code class="docutils literal notranslate"><span class="pre">Integer</span></code>, <code class="docutils literal notranslate"><span class="pre">Float</span></code> and <code class="docutils literal notranslate"><span class="pre">Arbitrary</span></code> fields accept the following optional arguments:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">min</span></code>: restrict the minimum accepted value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max</span></code>: restrict the maximum accepted value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exclusiveMin</span></code>: if <code class="docutils literal notranslate"><span class="pre">True</span></code>, minimum value is not in allowed interval.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exclusiveMax</span></code>: if <code class="docutils literal notranslate"><span class="pre">True</span></code>, maximum value is not in allowed interval.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multiple</span></code>: specify that the number must be a multiple of this value.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> field accepts the <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">exclusiveMin</span></code> and <code class="docutils literal notranslate"><span class="pre">exclusiveMax</span></code> optional arguments.  These should be dates or datetimes (either ISO strings or native objects).</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_fields</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;The name&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;The object type&#39;</span><span class="p">,</span> <span class="n">enum</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="documenting-the-methods">
+<h2>Documenting the methods<a class="headerlink" href="#documenting-the-methods" title="Permalink to this heading">¶</a></h2>
+<p>Each resource will be documented as a Swagger path.</p>
+<p>Each resource method (<code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">put</span></code>, <code class="docutils literal notranslate"><span class="pre">delete</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code>)
+will be documented as a Swagger operation.</p>
+<p>You can specify a unique Swagger <code class="docutils literal notranslate"><span class="pre">operationId</span></code> with the <code class="docutils literal notranslate"><span class="pre">id</span></code> keyword argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;get_something&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>You can also use the first argument for the same purpose:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="s1">&#39;get_something&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>If not specified, a default <code class="docutils literal notranslate"><span class="pre">operationId</span></code> is provided with the following pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{{</span><span class="n">verb</span><span class="p">}}</span><span class="n">_</span><span class="p">{{</span><span class="n">resource</span> <span class="k">class</span> <span class="nc">name</span> <span class="o">|</span> <span class="n">camelCase2dashes</span> <span class="p">}}</span>
+</pre></div>
+</div>
+<p>In the previous example, the default generated <code class="docutils literal notranslate"><span class="pre">operationId</span></code> would be <code class="docutils literal notranslate"><span class="pre">get_my_resource</span></code>.</p>
+<p>You can override the default <code class="docutils literal notranslate"><span class="pre">operationId</span></code> generator by providing a callable for the <code class="docutils literal notranslate"><span class="pre">default_id</span></code> parameter.
+This callable accepts two positional arguments:</p>
+<ul class="simple">
+<li><p>The resource class name</p></li>
+<li><p>The HTTP method (lower-case)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default_id</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">method</span><span class="p">,</span> <span class="n">resource</span><span class="p">))</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">default_id</span><span class="o">=</span><span class="n">default_id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the previous example, the generated <code class="docutils literal notranslate"><span class="pre">operationId</span></code> would be <code class="docutils literal notranslate"><span class="pre">getMyResource</span></code>.</p>
+<p>Each operation will automatically receive the namespace tag.
+If the resource is attached to the root API, it will receive the default namespace tag.</p>
+<section id="method-parameters">
+<h3>Method parameters<a class="headerlink" href="#method-parameters" title="Permalink to this heading">¶</a></h3>
+<p>Parameters from the URL path are documented automatically.
+You can provide additional information using the <code class="docutils literal notranslate"><span class="pre">params</span></code> keyword argument of the <code class="docutils literal notranslate"><span class="pre">api.doc()</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>or by using the <code class="docutils literal notranslate"><span class="pre">api.param</span></code> shortcut decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;An ID&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="input-and-output-models">
+<h3>Input and output models<a class="headerlink" href="#input-and-output-models" title="Permalink to this heading">¶</a></h3>
+<p>You can specify the serialized output model using the <code class="docutils literal notranslate"><span class="pre">model</span></code> keyword argument of the <code class="docutils literal notranslate"><span class="pre">api.doc()</span></code> decorator.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">POST</span></code> and <code class="docutils literal notranslate"><span class="pre">PUT</span></code> methods, use the <code class="docutils literal notranslate"><span class="pre">body</span></code> keyword argument to specify the input model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;The name&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;The object type&#39;</span><span class="p">,</span> <span class="n">enum</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+<span class="p">})</span>
+
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">age</span><span class="p">}</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">my_model</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">my_model</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">Person</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>If both <code class="docutils literal notranslate"><span class="pre">body</span></code> and <code class="docutils literal notranslate"><span class="pre">formData</span></code> parameters are used, a <a class="reference internal" href="api.html#flask_restx.errors.SpecsError" title="flask_restx.errors.SpecsError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SpecsError</span></code></a> will be raised.</p>
+<p>Models can also be specified with a <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;param&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Some param&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;in_files&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">FileStorage</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/with-parser/&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;with-parser&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WithParserResource</span><span class="p">(</span><span class="n">restx</span><span class="o">.</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The decoded payload will be available as a dictionary in the payload attribute
+in the request context.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">payload</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a> is preferred over the <code class="docutils literal notranslate"><span class="pre">api.param()</span></code> decorator
+to document form fields as it also perform validation.</p>
+</div>
+</section>
+<section id="headers">
+<h3>Headers<a class="headerlink" href="#headers" title="Permalink to this heading">¶</a></h3>
+<p>You can document response headers with the <code class="docutils literal notranslate"><span class="pre">&#64;api.header()</span></code> decorator shortcut.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/with-headers/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s1">&#39;X-Header&#39;</span><span class="p">,</span> <span class="s1">&#39;Some class header&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WithHeaderResource</span><span class="p">(</span><span class="n">restx</span><span class="o">.</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s1">&#39;X-Collection&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">collectionType</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>If you need to specify an header that appear only on a given response,
+just use the <cite>&#64;api.response</cite> <cite>headers</cite> parameter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/response-headers/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WithHeaderResource</span><span class="p">(</span><span class="n">restx</span><span class="o">.</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;X-Header&#39;</span><span class="p">:</span> <span class="s1">&#39;Some header&#39;</span><span class="p">})</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Documenting expected/request headers is done through the <cite>&#64;api.expect</cite> decorator</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;Some-Header&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;headers&#39;</span><span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/expect-headers/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ExpectHeaderResource</span><span class="p">(</span><span class="n">restx</span><span class="o">.</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cascading">
+<h2>Cascading<a class="headerlink" href="#cascading" title="Permalink to this heading">¶</a></h2>
+<p>Method documentation takes precedence over class documentation,
+and inherited documentation takes precedence over parent documentation.</p>
+<p>For example, these two declarations are equivalent:</p>
+<ul class="simple">
+<li><p>Class documentation is inherited by methods:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;An ID&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Class documentation is overridden by method-specific documentation:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;Class-wide description&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;An ID&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>You can also provide method-specific documentation from a class decorator.
+The following example will produce the same documentation as the two previous examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;my-resource&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;Class-wide description&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">get</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">}})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="marking-as-deprecated">
+<h2>Marking as deprecated<a class="headerlink" href="#marking-as-deprecated" title="Permalink to this heading">¶</a></h2>
+<p>You can mark resources or methods as deprecated with the <code class="docutils literal notranslate"><span class="pre">&#64;api.deprecated</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deprecate the full resource</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">deprecated</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource1/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource1</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+<span class="c1"># Deprecate methods</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource4/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource4</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">deprecated</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="hiding-from-documentation">
+<h2>Hiding from documentation<a class="headerlink" href="#hiding-from-documentation" title="Permalink to this heading">¶</a></h2>
+<p>You can hide some resources or methods from documentation using any of the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hide the full resource</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource1/&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource1</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource2/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource2</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource3/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">hide</span>
+<span class="k">class</span> <span class="nc">Resource3</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+<span class="c1"># Hide methods</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource4/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource4</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">hide</span>
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Namespace tags without attached resources will be hidden automatically from the documentation.</p>
+</div>
+</section>
+<section id="documenting-authorizations">
+<h2>Documenting authorizations<a class="headerlink" href="#documenting-authorizations" title="Permalink to this heading">¶</a></h2>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">authorizations</span></code> keyword argument to document authorization information.
+See <a class="reference external" href="https://swagger.io/docs/specification/2-0/authentication/">Swagger Authentication documentation</a>
+for configuration details.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">authorizations</span></code> is a Python dictionary representation of the Swagger <code class="docutils literal notranslate"><span class="pre">securityDefinitions</span></code> configuration.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">authorizations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;apikey&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;apiKey&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="s1">&#39;header&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;X-API-KEY&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">authorizations</span><span class="o">=</span><span class="n">authorizations</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then decorate each resource and method that requires authorization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/resource/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Resource1</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">security</span><span class="o">=</span><span class="s1">&#39;apikey&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">security</span><span class="o">=</span><span class="s1">&#39;apikey&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can apply this requirement globally with the <code class="docutils literal notranslate"><span class="pre">security</span></code> parameter on the <code class="docutils literal notranslate"><span class="pre">Api</span></code> constructor:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">authorizations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;apikey&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;apiKey&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="s1">&#39;header&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;X-API-KEY&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">authorizations</span><span class="o">=</span><span class="n">authorizations</span><span class="p">,</span> <span class="n">security</span><span class="o">=</span><span class="s1">&#39;apikey&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can have multiple security schemes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">authorizations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;apikey&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;apiKey&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="s1">&#39;header&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;X-API&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;oauth2&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;oauth2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;flow&#39;</span><span class="p">:</span> <span class="s1">&#39;accessCode&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tokenUrl&#39;</span><span class="p">:</span> <span class="s1">&#39;https://somewhere.com/token&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;authorizationUrl&#39;</span><span class="p">:</span> <span class="s1">&#39;https://somewhere.com/auth&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;scopes&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;read&#39;</span><span class="p">:</span> <span class="s1">&#39;Grant read-only access&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;write&#39;</span><span class="p">:</span> <span class="s1">&#39;Grant read-write access&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="n">security</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;apikey&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;oauth2&#39;</span><span class="p">:</span> <span class="s1">&#39;read&#39;</span><span class="p">}],</span> <span class="n">authorizations</span><span class="o">=</span><span class="n">authorizations</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Security schemes can be overridden for a particular method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/authorizations/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Authorized</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">security</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;oauth2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">]}])</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>You can disable security on a given resource or method by passing <code class="docutils literal notranslate"><span class="pre">None</span></code> or an empty list as the <code class="docutils literal notranslate"><span class="pre">security</span></code> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/without-authorization/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WithoutAuthorization</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">security</span><span class="o">=</span><span class="p">[])</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">security</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="expose-vendor-extensions">
+<h2>Expose vendor Extensions<a class="headerlink" href="#expose-vendor-extensions" title="Permalink to this heading">¶</a></h2>
+<p>Swaggers allows you to expose custom <a class="reference external" href="https://swagger.io/specification/#specification-extensions">vendor extensions</a> and you can use them
+in Flask-RESTX with the <cite>&#64;api.vendor</cite> decorator.</p>
+<p>It supports both extensions as <cite>dict</cite> or <cite>kwargs</cite> and perform automatique <cite>x-</cite> prefix:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/vendor/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">vendor</span><span class="p">(</span><span class="n">extension1</span><span class="o">=</span><span class="s1">&#39;any authorized value&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Vendor</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">vendor</span><span class="p">({</span>
+        <span class="s1">&#39;extension-1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;works&#39;</span><span class="p">:</span> <span class="s1">&#39;with complex values&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;x-extension-3&#39;</span><span class="p">:</span> <span class="s1">&#39;x- prefix is optional&#39;</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</section>
+<section id="export-swagger-specifications">
+<h2>Export Swagger specifications<a class="headerlink" href="#export-swagger-specifications" title="Permalink to this heading">¶</a></h2>
+<p>You can export the Swagger specifications for your API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">json</span>
+
+<span class="kn">from</span> <span class="nn">myapp</span> <span class="kn">import</span> <span class="n">api</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">__schema__</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="swagger-ui">
+<span id="swaggerui"></span><h2>Swagger UI<a class="headerlink" href="#swagger-ui" title="Permalink to this heading">¶</a></h2>
+<p>By default <code class="docutils literal notranslate"><span class="pre">flask-restx</span></code> provides Swagger UI documentation, served from the root URL of the API.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">fields</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Sample API&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A sample API&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/my-resource/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;An ID&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">MyResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="s1">&#39;Not Authorized&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you run the code below and visit your API’s root URL (<a class="reference external" href="http://localhost:5000">http://localhost:5000</a>)
+you can view the automatically-generated Swagger UI documentation.</p>
+<img alt="_images/screenshot-apidoc-quickstart.png" src="_images/screenshot-apidoc-quickstart.png" />
+<section id="customization">
+<h3>Customization<a class="headerlink" href="#customization" title="Permalink to this heading">¶</a></h3>
+<p>You can control the Swagger UI path with the <code class="docutils literal notranslate"><span class="pre">doc</span></code> parameter (defaults to the API root):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">Blueprint</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">blueprint</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s1">&#39;/api&#39;</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">blueprint</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s1">&#39;/doc/&#39;</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">blueprint</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;api.doc&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;/api/doc/&#39;</span>
+</pre></div>
+</div>
+<p>You can specify a custom validator URL by setting <code class="docutils literal notranslate"><span class="pre">config.SWAGGER_VALIDATOR_URL</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_VALIDATOR_URL</span> <span class="o">=</span> <span class="s1">&#39;http://domain.com/validator&#39;</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can enable [OAuth2 Implicit Flow](<a class="reference external" href="https://oauth.net/2/grant-types/implicit/">https://oauth.net/2/grant-types/implicit/</a>) for retrieving an
+authorization token for testing api endpoints interactively within Swagger UI.
+The <code class="docutils literal notranslate"><span class="pre">config.SWAGGER_UI_OAUTH_CLIENT_ID</span></code> and <code class="docutils literal notranslate"><span class="pre">authorizationUrl</span></code> and <code class="docutils literal notranslate"><span class="pre">scopes</span></code>
+will be specific to your OAuth2 IDP configuration.
+The realm string is added as a query parameter to authorizationUrl and tokenUrl.
+These values are all public knowledge. No <em>client secret</em> is specified here.
+.. Using PKCE instead of Implicit Flow depends on <a class="reference external" href="https://github.com/swagger-api/swagger-ui/issues/5348">https://github.com/swagger-api/swagger-ui/issues/5348</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OAUTH_CLIENT_ID</span> <span class="o">=</span> <span class="s1">&#39;MyClientId&#39;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OAUTH_REALM</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OAUTH_APP_NAME</span> <span class="o">=</span> <span class="s1">&#39;Demo&#39;</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OAUTH_APP_NAME</span><span class="p">,</span>
+    <span class="n">security</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;OAuth2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">]},</span>
+    <span class="n">authorizations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;OAuth2&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;oauth2&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;flow&#39;</span><span class="p">:</span> <span class="s1">&#39;implicit&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;authorizationUrl&#39;</span><span class="p">:</span> <span class="s1">&#39;https://idp.example.com/authorize?audience=https://app.example.com&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;clientId&#39;</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OAUTH_CLIENT_ID</span><span class="p">,</span>
+            <span class="s1">&#39;scopes&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;openid&#39;</span><span class="p">:</span> <span class="s1">&#39;Get ID token&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;profile&#39;</span><span class="p">:</span> <span class="s1">&#39;Get identity&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also specify the initial expansion state with the <code class="docutils literal notranslate"><span class="pre">config.SWAGGER_UI_DOC_EXPANSION</span></code>
+setting (<code class="docutils literal notranslate"><span class="pre">'none'</span></code>, <code class="docutils literal notranslate"><span class="pre">'list'</span></code> or <code class="docutils literal notranslate"><span class="pre">'full'</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_DOC_EXPANSION</span> <span class="o">=</span> <span class="s1">&#39;list&#39;</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By default, operation ID is hidden as well as request duration, you can enable them respectively with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_OPERATION_ID</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_UI_REQUEST_DURATION</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you need a custom UI,
+you can register a custom view function with the <a class="reference internal" href="api.html#flask_restx.Api.documentation" title="flask_restx.Api.documentation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">documentation()</span></code></a> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span><span class="p">,</span> <span class="n">apidoc</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">documentation</span>
+<span class="k">def</span> <span class="nf">custom_ui</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">apidoc</span><span class="o">.</span><span class="n">ui_for</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="configuring-try-it-out">
+<h3>Configuring “Try it Out”<a class="headerlink" href="#configuring-try-it-out" title="Permalink to this heading">¶</a></h3>
+<p>By default, all paths and methods have a “Try it Out” button for performing API requests in the browser.
+These can be disable <strong>per method</strong> with the <code class="docutils literal notranslate"><span class="pre">SWAGGER_SUPPORTED_SUBMIT_METHODS</span></code> configuration option,
+supporting the same values as the <code class="docutils literal notranslate"><span class="pre">supportedSubmitMethods</span></code> <a class="reference external" href="https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md#network/">Swagger UI parameter</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># disable Try it Out for all methods</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_SUPPORTED_SUBMIT_METHODS</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># enable Try it Out for specific methods</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">SWAGGER_SUPPORTED_SUBMIT_METHODS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">]</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="disabling-the-documentation">
+<h3>Disabling the documentation<a class="headerlink" href="#disabling-the-documentation" title="Permalink to this heading">¶</a></h3>
+<p>To disable Swagger UI entirely, set <code class="docutils literal notranslate"><span class="pre">doc=False</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Swagger documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#documenting-with-the-api-doc-decorator">Documenting with the <code class="docutils literal notranslate"><span class="pre">&#64;api.doc()</span></code> decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automatically-documented-models">Automatically documented models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-api-marshal-with-decorator">The <code class="docutils literal notranslate"><span class="pre">&#64;api.marshal_with()</span></code> decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-api-expect-decorator">The <code class="docutils literal notranslate"><span class="pre">&#64;api.expect()</span></code> decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documenting-with-the-api-response-decorator">Documenting with the <code class="docutils literal notranslate"><span class="pre">&#64;api.response()</span></code> decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-api-route-decorator">The <code class="docutils literal notranslate"><span class="pre">&#64;api.route()</span></code> decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documenting-the-fields">Documenting the fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documenting-the-methods">Documenting the methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cascading">Cascading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#marking-as-deprecated">Marking as deprecated</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hiding-from-documentation">Hiding from documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documenting-authorizations">Documenting authorizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expose-vendor-extensions">Expose vendor Extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#export-swagger-specifications">Export Swagger specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#swagger-ui">Swagger UI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="mask.html" title="previous chapter">Fields masks</a></li>
+      <li>Next: <a href="logging.html" title="next chapter">Logging</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/swagger.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

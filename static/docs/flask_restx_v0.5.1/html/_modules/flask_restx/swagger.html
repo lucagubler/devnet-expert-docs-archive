@@ -1,0 +1,875 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>flask_restx.swagger &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/restx.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="../../_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="../../_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for flask_restx.swagger</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span><span class="p">,</span> <span class="n">getdoc</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Hashable</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># TODO Remove this to drop Python2 support</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Hashable</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">string_types</span><span class="p">,</span> <span class="n">itervalues</span><span class="p">,</span> <span class="n">iteritems</span><span class="p">,</span> <span class="n">iterkeys</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span>
+<span class="kn">from</span> <span class="nn">werkzeug.routing</span> <span class="kn">import</span> <span class="n">parse_rule</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">,</span> <span class="n">OrderedModel</span>
+<span class="kn">from</span> <span class="nn">.reqparse</span> <span class="kn">import</span> <span class="n">RequestParser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">merge</span><span class="p">,</span> <span class="n">not_none</span><span class="p">,</span> <span class="n">not_none_sorted</span>
+<span class="kn">from</span> <span class="nn">._http</span> <span class="kn">import</span> <span class="n">HTTPStatus</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">quote</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">quote</span>
+
+<span class="c1">#: Maps Flask/Werkzeug rooting types to Swagger ones</span>
+<span class="n">PATH_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;int&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;float&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1">#: Maps Python primitives types to Swagger ones</span>
+<span class="n">PY_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nb">int</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+    <span class="nb">float</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+    <span class="nb">str</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+    <span class="nb">bool</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">:</span> <span class="s2">&quot;void&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">RE_URL</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;(?:[^:&lt;&gt;]+:)?([^&lt;&gt;]+)&gt;&quot;</span><span class="p">)</span>
+
+<span class="n">DEFAULT_RESPONSE_DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Success&quot;</span>
+<span class="n">DEFAULT_RESPONSE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">DEFAULT_RESPONSE_DESCRIPTION</span><span class="p">}</span>
+
+<span class="n">RE_RAISES</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^:raises\s+(?P&lt;name&gt;[\w\d_]+)\s*:\s*(?P&lt;description&gt;.*)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">ref</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a reference to model in definitions&quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">)</span> <span class="k">else</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;$ref&quot;</span><span class="p">:</span> <span class="s2">&quot;#/definitions/</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quote</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">))}</span>
+
+
+<span class="k">def</span> <span class="nf">_v</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dereference values (callable)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">value</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+
+<span class="k">def</span> <span class="nf">extract_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform a Flask/Werkzeug URL pattern in a Swagger one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">RE_URL</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;{\1}&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">extract_path_params</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract Flask-style parameters from an URL pattern as Swagger ones.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">converter</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">parse_rule</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">converter</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">variable</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">PATH_TYPES</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PATH_TYPES</span><span class="p">[</span><span class="n">converter</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">current_app</span><span class="o">.</span><span class="n">url_map</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported type converter: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">converter</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
+    <span class="k">return</span> <span class="n">params</span>
+
+
+<span class="k">def</span> <span class="nf">_param_to_header</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="n">param</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">param</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_clean_header</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_clean_header</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">}</span>
+    <span class="n">typedef</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typedef</span><span class="p">,</span> <span class="n">Hashable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">typedef</span> <span class="ow">in</span> <span class="n">PY_TYPES</span><span class="p">:</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PY_TYPES</span><span class="p">[</span><span class="n">typedef</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">typedef</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">typedef</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="ow">and</span> <span class="n">typedef</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">PY_TYPES</span>
+    <span class="p">):</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;array&quot;</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">PY_TYPES</span><span class="p">[</span><span class="n">typedef</span><span class="p">[</span><span class="mi">0</span><span class="p">]]}</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">typedef</span><span class="p">,</span> <span class="s2">&quot;__schema__&quot;</span><span class="p">):</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">typedef</span><span class="o">.</span><span class="n">__schema__</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">typedef</span>
+    <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_docstring</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">getdoc</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">raw</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">raises</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;. </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">RE_RAISES</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">raw</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">raises</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="p">,</span>
+        <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">summary</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">details</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;returns&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;raises&quot;</span><span class="p">:</span> <span class="n">raises</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">parsed</span>
+
+
+<span class="k">def</span> <span class="nf">is_hidden</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine whether a Resource has been hidden from Swagger documentation</span>
+<span class="sd">    i.e. by using Api.doc(False) decorator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">route_doc</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">&quot;__apidoc__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">resource</span><span class="o">.</span><span class="n">__apidoc__</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">build_request_body_parameters_schema</span><span class="p">(</span><span class="n">body_params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param body_params: List of JSON schema of body parameters.</span>
+<span class="sd">    :type body_params: list of dict, generated from the json body parameters of a request parser</span>
+<span class="sd">    :return dict: The Swagger schema representation of the request body</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;name&#39;: &#39;payload&#39;,</span>
+<span class="sd">            &#39;required&#39;: True,</span>
+<span class="sd">            &#39;in&#39;: &#39;body&#39;,</span>
+<span class="sd">            &#39;schema&#39;: {</span>
+<span class="sd">                &#39;type&#39;: &#39;object&#39;,</span>
+<span class="sd">                &#39;properties&#39;: [</span>
+<span class="sd">                    &#39;parameter1&#39;: {</span>
+<span class="sd">                        &#39;type&#39;: &#39;integer&#39;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &#39;parameter2&#39;: {</span>
+<span class="sd">                        &#39;type&#39;: &#39;string&#39;</span>
+<span class="sd">                    }</span>
+<span class="sd">                ]</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">body_params</span><span class="p">:</span>
+        <span class="n">properties</span><span class="p">[</span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">)}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;payload&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="n">properties</span><span class="p">},</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="Swagger"><a class="viewcode-back" href="../../api.html#flask_restx.swagger.Swagger">[docs]</a><span class="k">class</span> <span class="nc">Swagger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Swagger documentation wrapper for an API instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">api</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_registered_models</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Output the specification as a serializable ``dict``.</span>
+
+<span class="sd">        :returns: the full Swagger specification in a serializable format</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">basepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">base_path</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">basepath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">basepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+            <span class="n">basepath</span> <span class="o">=</span> <span class="n">basepath</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">title</span><span class="p">),</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">version</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+            <span class="n">infos</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">terms_url</span><span class="p">:</span>
+            <span class="n">infos</span><span class="p">[</span><span class="s2">&quot;termsOfService&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">terms_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact_email</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact_url</span><span class="p">):</span>
+            <span class="n">infos</span><span class="p">[</span><span class="s2">&quot;contact&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact</span><span class="p">),</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact_email</span><span class="p">),</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">contact_url</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">license</span><span class="p">:</span>
+            <span class="n">infos</span><span class="p">[</span><span class="s2">&quot;license&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">license</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">license_url</span><span class="p">:</span>
+                <span class="n">infos</span><span class="p">[</span><span class="s2">&quot;license&quot;</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_v</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">license_url</span><span class="p">)</span>
+
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_tags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+
+        <span class="c1"># register errors</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_errors</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">namespaces</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">resource</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">route_doc</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="n">ns</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ns_urls</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">urls</span><span class="p">):</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">extract_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                    <span class="n">serialized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_resource</span><span class="p">(</span>
+                        <span class="n">ns</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="n">route_doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                    <span class="p">)</span>
+                    <span class="n">paths</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialized</span>
+
+        <span class="c1"># register all models if required</span>
+        <span class="k">if</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;RESTX_INCLUDE_ALL_MODELS&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># merge in the top-level authorizations</span>
+        <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">namespaces</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">authorizations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">authorizations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">authorizations</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">authorizations</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">authorizations</span><span class="p">,</span> <span class="n">ns</span><span class="o">.</span><span class="n">authorizations</span>
+                <span class="p">)</span>
+
+        <span class="n">specs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;swagger&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basePath&quot;</span><span class="p">:</span> <span class="n">basepath</span><span class="p">,</span>
+            <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="n">not_none_sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">),</span>
+            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">infos</span><span class="p">,</span>
+            <span class="s2">&quot;produces&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">representations</span><span class="p">)),</span>
+            <span class="s2">&quot;consumes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;application/json&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;securityDefinitions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">authorizations</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;security&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_requirements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">security</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">,</span>
+            <span class="s2">&quot;definitions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_definitions</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;responses&quot;</span><span class="p">:</span> <span class="n">responses</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_host</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="n">specs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SERVER_NAME&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">hostname</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprint</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">subdomain</span><span class="p">:</span>
+            <span class="n">hostname</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">subdomain</span><span class="p">,</span> <span class="n">hostname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">hostname</span>
+
+    <span class="k">def</span> <span class="nf">extract_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">by_name</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">api</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">tag</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">tag</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tag format for </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag</span><span class="p">))</span>
+            <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="n">by_name</span><span class="p">[</span><span class="n">tag</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">tag</span>
+        <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="n">api</span><span class="o">.</span><span class="n">namespaces</span><span class="p">:</span>
+            <span class="c1"># hide namespaces without any Resources</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ns</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># hide namespaces with all Resources hidden from Swagger documentation</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_hidden</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">resource</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">route_doc</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ns</span><span class="o">.</span><span class="n">resources</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">by_name</span><span class="p">:</span>
+                <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">ns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">ns</span><span class="o">.</span><span class="n">description</span><span class="p">}</span>
+                    <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">description</span>
+                    <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">ns</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ns</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+                <span class="n">by_name</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ns</span><span class="o">.</span><span class="n">description</span>
+        <span class="k">return</span> <span class="n">tags</span>
+
+    <span class="k">def</span> <span class="nf">extract_resource_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">route_doc</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">route_doc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">route_doc</span>
+        <span class="k">if</span> <span class="n">route_doc</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">&quot;__apidoc__&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">route_doc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># ensure unique names for multiple routes to the same resource</span>
+        <span class="c1"># provides different Swagger operationId&#39;s</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span> <span class="k">if</span> <span class="n">route_doc</span> <span class="k">else</span> <span class="n">resource</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_params</span><span class="p">(</span><span class="n">doc</span><span class="p">),</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">()))</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">extract_path_params</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+        <span class="c1"># Track parameters for late deduplication</span>
+        <span class="n">up_params</span> <span class="o">=</span> <span class="p">{(</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">)):</span> <span class="n">p</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">need_to_go_down</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">methods</span> <span class="ow">or</span> <span class="p">[]]</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">method_doc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">())</span>
+            <span class="n">method_impl</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">method_impl</span><span class="p">,</span> <span class="s2">&quot;im_func&quot;</span><span class="p">):</span>
+                <span class="n">method_impl</span> <span class="o">=</span> <span class="n">method_impl</span><span class="o">.</span><span class="n">im_func</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">method_impl</span><span class="p">,</span> <span class="s2">&quot;__func__&quot;</span><span class="p">):</span>
+                <span class="n">method_impl</span> <span class="o">=</span> <span class="n">method_impl</span><span class="o">.</span><span class="vm">__func__</span>
+            <span class="n">method_doc</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span>
+                <span class="n">method_doc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">method_impl</span><span class="p">,</span> <span class="s2">&quot;__apidoc__&quot;</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">())</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">method_doc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">method_doc</span><span class="p">[</span><span class="s2">&quot;docstring&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse_docstring</span><span class="p">(</span><span class="n">method_impl</span><span class="p">)</span>
+                <span class="n">method_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_params</span><span class="p">(</span><span class="n">method_doc</span><span class="p">)</span>
+                <span class="n">method_params</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">method_params</span><span class="p">,</span> <span class="n">method_doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+                <span class="n">inherited_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">method_params</span>
+                <span class="p">)</span>
+                <span class="n">method_doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">inherited_params</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">method_doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">up_params</span><span class="p">:</span>
+                        <span class="n">need_to_go_down</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="n">method_doc</span>
+        <span class="c1"># Deduplicate parameters</span>
+        <span class="c1"># For each couple (name, in), if a method overrides it,</span>
+        <span class="c1"># we need to move the paramter down to each method</span>
+        <span class="k">if</span> <span class="n">need_to_go_down</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="n">method_doc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">method_doc</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">)):</span> <span class="n">p</span>
+                    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">method_doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">need_to_go_down</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                        <span class="n">method_doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">up_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">up_params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">need_to_go_down</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span>
+
+    <span class="k">def</span> <span class="nf">expected_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;expect&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">params</span>
+
+        <span class="k">for</span> <span class="n">expect</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;expect&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expect</span><span class="p">,</span> <span class="n">RequestParser</span><span class="p">):</span>
+                <span class="n">parser_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">expect</span><span class="o">.</span><span class="n">__schema__</span> <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;body&quot;</span>
+                <span class="p">)</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parser_params</span><span class="p">)</span>
+
+                <span class="n">body_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">expect</span><span class="o">.</span><span class="n">__schema__</span> <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;body&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">body_params</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">build_request_body_parameters_schema</span><span class="p">(</span>
+                        <span class="n">body_params</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expect</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">):</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;payload&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">expect</span><span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expect</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expect</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="c1"># this is (payload, description) shortcut</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">expect</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;payload&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;payload&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">expect</span><span class="p">),</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">register_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">exception</span><span class="p">,</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">error_handlers</span><span class="p">):</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">parse_docstring</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">]}</span>
+            <span class="n">apidoc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="s2">&quot;__apidoc__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_headers</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">apidoc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;responses&quot;</span> <span class="ow">in</span> <span class="n">apidoc</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apidoc</span><span class="p">[</span><span class="s2">&quot;responses&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">response</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">responses</span><span class="p">[</span><span class="n">exception</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">responses</span>
+
+    <span class="k">def</span> <span class="nf">serialize_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ns</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_resource_doc</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">route_doc</span><span class="o">=</span><span class="n">route_doc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters_for</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">methods</span> <span class="ow">or</span> <span class="p">[]]:</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;methods&quot;</span><span class="p">,</span> <span class="p">[])]</span>
+            <span class="k">if</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">methods</span> <span class="ow">and</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">path</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_operation</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="n">path</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">serialize_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">operation</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;responses&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses_for</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;docstring&quot;</span><span class="p">][</span><span class="s2">&quot;summary&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description_for</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;operationId&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_id_for</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">),</span>
+            <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters_for</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">])</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;security&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_for</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="c1"># Handle &#39;produces&#39; mimetypes documentation</span>
+        <span class="k">if</span> <span class="s2">&quot;produces&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]:</span>
+            <span class="n">operation</span><span class="p">[</span><span class="s2">&quot;produces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;produces&quot;</span><span class="p">]</span>
+        <span class="c1"># Handle deprecated annotation</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">):</span>
+            <span class="n">operation</span><span class="p">[</span><span class="s2">&quot;deprecated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Handle form exceptions:</span>
+        <span class="n">doc_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">all_params</span> <span class="o">=</span> <span class="n">doc_params</span> <span class="o">+</span> <span class="p">(</span><span class="n">operation</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">all_params</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;formData&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">):</span>
+                <span class="n">operation</span><span class="p">[</span><span class="s2">&quot;consumes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;multipart/form-data&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">operation</span><span class="p">[</span><span class="s2">&quot;consumes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;multipart/form-data&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+        <span class="n">operation</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vendor_fields</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">vendor_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract custom 3rd party Vendor fields prefixed with ``x-``</span>
+
+<span class="sd">        See: https://swagger.io/specification/#specification-extensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">k</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;x-&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;x-</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vendor&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">description_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the description metadata and fallback on the whole docstring&quot;&quot;&quot;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">doc</span> <span class="ow">and</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;docstring&quot;</span><span class="p">][</span><span class="s2">&quot;details&quot;</span><span class="p">]:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;docstring&quot;</span><span class="p">][</span><span class="s2">&quot;details&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">operation_id_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the operation id&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;id&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">default_id</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">method</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parameters_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]):</span>
+            <span class="n">param</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span> <span class="ow">and</span> <span class="s2">&quot;schema&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;in&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;query&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">param</span> <span class="ow">and</span> <span class="s2">&quot;schema&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+                <span class="n">ptype</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="n">typ</span> <span class="o">=</span> <span class="n">ptype</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">param</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;array&quot;</span>
+                    <span class="n">param</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">PY_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">typ</span><span class="p">)}</span>
+
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)))</span> <span class="ow">and</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="n">PY_TYPES</span><span class="p">:</span>
+                    <span class="n">param</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PY_TYPES</span><span class="p">[</span><span class="n">ptype</span><span class="p">]</span>
+
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="c1"># Handle fields mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__mask__&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">and</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;RESTX_MASK_SWAGGER&quot;</span><span class="p">]:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;RESTX_MASK_HEADER&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;mask&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An optional fields mask&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+                <span class="n">param</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">responses_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="c1"># TODO: simplify/refactor responses/model handling</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">,</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;responses&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;responses&quot;</span><span class="p">]):</span>
+                    <span class="n">code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+                        <span class="n">description</span> <span class="o">=</span> <span class="n">response</span>
+                        <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">description</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">response</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">description</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">response</span>
+                        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported response specification&quot;</span><span class="p">)</span>
+                    <span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="ow">or</span> <span class="n">DEFAULT_RESPONSE_DESCRIPTION</span>
+                    <span class="k">if</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                        <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">}</span>
+                    <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+                        <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+                        <span class="n">envelope</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;envelope&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">envelope</span><span class="p">:</span>
+                            <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">envelope</span><span class="p">:</span> <span class="n">schema</span><span class="p">}}</span>
+                        <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">process_headers</span><span class="p">(</span>
+                        <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">],</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;model&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default_code&quot;</span><span class="p">,</span> <span class="n">HTTPStatus</span><span class="o">.</span><span class="n">OK</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                    <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_headers</span><span class="p">(</span>
+                        <span class="n">DEFAULT_RESPONSE</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span>
+                    <span class="p">)</span>
+                <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="s2">&quot;docstring&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;docstring&quot;</span><span class="p">][</span><span class="s2">&quot;raises&quot;</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">exception</span><span class="p">,</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">error_handlers</span><span class="p">):</span>
+                        <span class="n">error_responses</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="s2">&quot;__apidoc__&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="s2">&quot;responses&quot;</span><span class="p">,</span> <span class="p">{}</span>
+                        <span class="p">)</span>
+                        <span class="n">code</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">error_responses</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">error_responses</span>
+                            <span class="k">else</span> <span class="kc">None</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">code</span> <span class="ow">and</span> <span class="n">exception</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                            <span class="n">responses</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$ref&quot;</span><span class="p">:</span> <span class="s2">&quot;#/responses/</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)}</span>
+                            <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="p">:</span>
+            <span class="n">responses</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">HTTPStatus</span><span class="o">.</span><span class="n">OK</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_headers</span><span class="p">(</span>
+                <span class="n">DEFAULT_RESPONSE</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">responses</span>
+
+    <span class="k">def</span> <span class="nf">process_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">method_doc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="s2">&quot;headers&quot;</span> <span class="ow">in</span> <span class="n">doc</span> <span class="ow">or</span> <span class="s2">&quot;headers&quot;</span> <span class="ow">in</span> <span class="n">method_doc</span> <span class="ow">or</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="n">response</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_clean_header</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+                    <span class="n">iteritems</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+                    <span class="n">iteritems</span><span class="p">(</span><span class="n">method_doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+                    <span class="n">iteritems</span><span class="p">(</span><span class="n">headers</span> <span class="ow">or</span> <span class="p">{}),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">def</span> <span class="nf">serialize_definitions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">__schema__</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_registered_models</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">serialize_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+            <span class="p">}</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ref</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ref</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">isclass</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_schema</span><span class="p">(</span><span class="n">model</span><span class="p">())</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Raw</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">__schema__</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)))</span> <span class="ow">and</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">PY_TYPES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">PY_TYPES</span><span class="p">[</span><span class="n">model</span><span class="p">]}</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model </span><span class="si">{0}</span><span class="s2"> not registered&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">register_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">)</span> <span class="k">else</span> <span class="n">model</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model </span><span class="si">{0}</span><span class="s2"> not registered&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registered_models</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ref</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_registered_models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">specs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="n">ModelBase</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">specs</span><span class="o">.</span><span class="n">__parents__</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specs</span><span class="p">,</span> <span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="n">OrderedModel</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">itervalues</span><span class="p">(</span><span class="n">specs</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">register_field</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ref</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">register_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Polymorph</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">itervalues</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">mapping</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Nested</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">nested</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">List</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Wildcard</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_field</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">container</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">security_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">security</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;security&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;security&quot;</span><span class="p">]</span>
+            <span class="n">security</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_requirements</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;security&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">]:</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s2">&quot;security&quot;</span><span class="p">]</span>
+            <span class="n">security</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_requirements</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">security</span>
+
+    <span class="k">def</span> <span class="nf">security_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">security_requirement</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">requirement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_requirement</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">requirement</span><span class="p">]</span> <span class="k">if</span> <span class="n">requirement</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">security_requirement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">string_types</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

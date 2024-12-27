@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Scaling your project &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Full example" href="example.html" />
+    <link rel="prev" title="Postman" href="postman.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="scaling-your-project">
+<span id="scaling"></span><h1>Scaling your project<a class="headerlink" href="#scaling-your-project" title="Permalink to this heading">¶</a></h1>
+<p>This page covers building a slightly more complex Flask-RESTX app that will
+cover out some best practices when setting up a real-world Flask-RESTX-based API.
+The <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quick start</span></a> section is great for getting started with your first Flask-RESTX app,
+so if you’re new to Flask-RESTX you’d be better off checking that out first.</p>
+<section id="multiple-namespaces">
+<h2>Multiple namespaces<a class="headerlink" href="#multiple-namespaces" title="Permalink to this heading">¶</a></h2>
+<p>There are many different ways to organize your Flask-RESTX app,
+but here we’ll describe one that scales pretty well with larger apps
+and maintains a nice level of organization.</p>
+<p>Flask-RESTX provides a way to use almost the same pattern as Flask’s <cite>blueprint</cite>.
+The main idea is to split your app into reusable namespaces.</p>
+<p>Here’s an example directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>project/
+├── app.py
+├── core
+│   ├── __init__.py
+│   ├── utils.py
+│   └── ...
+└── apis
+    ├── __init__.py
+    ├── namespace1.py
+    ├── namespace2.py
+    ├── ...
+    └── namespaceX.py
+</pre></div>
+</div>
+<p>The <cite>app</cite> module will serve as a main application entry point following one of the classic
+Flask patterns (See <a class="reference external" href="https://flask.palletsprojects.com/en/stable/patterns/packages/" title="(in Flask v3.1.x)"><span>Large Applications as Packages</span></a> and <a class="reference external" href="https://flask.palletsprojects.com/en/stable/patterns/appfactories/" title="(in Flask v3.1.x)"><span>Application Factories</span></a>).</p>
+<p>The <cite>core</cite> module is an example, it contains the business logic.
+In fact, you call it whatever you want, and there can be many packages.</p>
+<p>The <cite>apis</cite> package will be your main API entry point that you need to import and register on the application,
+whereas the namespaces modules are reusable namespaces designed like you would do with Flask’s Blueprint.</p>
+<p>A namespace module contains models and resources declarations.
+For example:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Namespace</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">fields</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="s1">&#39;cats&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Cats related operations&#39;</span><span class="p">)</span>
+
+<span class="n">cat</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Cat&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;The cat identifier&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;The cat name&#39;</span><span class="p">),</span>
+<span class="p">})</span>
+
+<span class="n">CATS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;felix&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Felix&#39;</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CatList</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="s1">&#39;list_cats&#39;</span><span class="p">)</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_list_with</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;List all cats&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">CATS</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;The cat identifier&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;Cat not found&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">doc</span><span class="p">(</span><span class="s1">&#39;get_cat&#39;</span><span class="p">)</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Fetch a cat given its identifier&#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">CATS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cat</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cat</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>apis.__init__</cite> module should aggregate them:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="kn">from</span> <span class="nn">.namespace1</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns1</span>
+<span class="kn">from</span> <span class="nn">.namespace2</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns2</span>
+<span class="c1"># ...</span>
+<span class="kn">from</span> <span class="nn">.namespaceX</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">nsX</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;My Title&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A description&#39;</span><span class="p">,</span>
+    <span class="c1"># All API metadatas</span>
+<span class="p">)</span>
+
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns1</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns2</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">nsX</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can define custom url-prefixes for namespaces during registering them in your API.
+You don’t have to bind url-prefix while declaration of Namespace object.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="kn">from</span> <span class="nn">.namespace1</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns1</span>
+<span class="kn">from</span> <span class="nn">.namespace2</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns2</span>
+<span class="c1"># ...</span>
+<span class="kn">from</span> <span class="nn">.namespaceX</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">nsX</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;My Title&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A description&#39;</span><span class="p">,</span>
+    <span class="c1"># All API metadatas</span>
+<span class="p">)</span>
+
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns1</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/prefix/of/ns1&#39;</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns2</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/prefix/of/ns2&#39;</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">nsX</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/prefix/of/nsX&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Using this pattern, you simply have to register your API in <cite>app.py</cite> like that:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">apis</span> <span class="kn">import</span> <span class="n">api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="use-with-blueprints">
+<h2>Use With Blueprints<a class="headerlink" href="#use-with-blueprints" title="Permalink to this heading">¶</a></h2>
+<p>See <a class="reference external" href="https://flask.palletsprojects.com/en/stable/blueprints/" title="(in Flask v3.1.x)"><span>Modular Applications with Blueprints</span></a> in the Flask documentation for what blueprints are and why you should use them.
+Here’s an example of how to link an <a class="reference internal" href="api.html#flask_restx.Api" title="flask_restx.Api"><code class="xref py py-class docutils literal notranslate"><span class="pre">Api</span></code></a> up to a <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Blueprint" title="(in Flask v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Blueprint</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">blueprint</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">blueprint</span><span class="p">)</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<p>Using a <cite>blueprint</cite> will allow you to mount your API on any url prefix and/or subdomain
+in you application:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">apis</span> <span class="kn">import</span> <span class="n">blueprint</span> <span class="k">as</span> <span class="n">api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s1">&#39;/api/1&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Calling <a class="reference internal" href="api.html#flask_restx.Api.init_app" title="flask_restx.Api.init_app"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Api.init_app()</span></code></a> is not required here because registering the
+blueprint with the app takes care of setting up the routing for the application.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using blueprints, remember to use the blueprint name with <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.url_for" title="(in Flask v3.1.x)"><code class="xref py py-func docutils literal notranslate"><span class="pre">url_for()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># without blueprint</span>
+<span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;my_api_endpoint&#39;</span><span class="p">)</span>
+
+<span class="c1"># with blueprint</span>
+<span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;api.my_api_endpoint&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="multiple-apis-with-reusable-namespaces">
+<h2>Multiple APIs with reusable namespaces<a class="headerlink" href="#multiple-apis-with-reusable-namespaces" title="Permalink to this heading">¶</a></h2>
+<p>Sometimes you need to maintain multiple versions of an API.
+If you built your API using namespaces composition,
+it’s quite simple to scale it to multiple APIs.</p>
+<p>Given the previous layout, we can migrate it to the following directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>project/
+├── app.py
+├── apiv1.py
+├── apiv2.py
+└── apis
+    ├── __init__.py
+    ├── namespace1.py
+    ├── namespace2.py
+    ├── ...
+    └── namespaceX.py
+</pre></div>
+</div>
+<p>Each <cite>apis/namespaceX</cite> module will have the following pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Namespace</span><span class="p">,</span> <span class="n">Resource</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="s1">&#39;mynamespace&#39;</span><span class="p">,</span> <span class="s1">&#39;Namespace Description&#39;</span> <span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Myclass</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>Each <cite>apivX</cite> module will have the following pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">blueprint</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.apis.namespace1</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns1</span>
+<span class="kn">from</span> <span class="nn">.apis.namespace2</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">ns2</span>
+<span class="c1"># ...</span>
+<span class="kn">from</span> <span class="nn">.apis.namespaceX</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">nsX</span>
+
+<span class="n">blueprint</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="s1">&#39;/api/1&#39;</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">blueprint</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;My Title&#39;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A description&#39;</span><span class="p">,</span>
+    <span class="c1"># All API metadatas</span>
+<span class="p">)</span>
+
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns1</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">ns2</span><span class="p">)</span>
+<span class="c1"># ...</span>
+<span class="n">api</span><span class="o">.</span><span class="n">add_namespace</span><span class="p">(</span><span class="n">nsX</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And the app will simply mount them:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">api1</span> <span class="kn">import</span> <span class="n">blueprint</span> <span class="k">as</span> <span class="n">api1</span>
+<span class="kn">from</span> <span class="nn">apiX</span> <span class="kn">import</span> <span class="n">blueprint</span> <span class="k">as</span> <span class="n">apiX</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">api1</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">apiX</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These are only proposals and you can do whatever suits your needs.
+Look at the <a class="reference external" href="https://github.com/python-restx/flask-restx/tree/master/examples">github repository examples folder</a> for more complete examples.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Scaling your project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-namespaces">Multiple namespaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-with-blueprints">Use With Blueprints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-apis-with-reusable-namespaces">Multiple APIs with reusable namespaces</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="postman.html" title="previous chapter">Postman</a></li>
+      <li>Next: <a href="example.html" title="next chapter">Full example</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/scaling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

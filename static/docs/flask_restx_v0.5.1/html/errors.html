@@ -1,0 +1,360 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Error handling &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fields masks" href="mask.html" />
+    <link rel="prev" title="Request Parsing" href="parsing.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="error-handling">
+<h1>Error handling<a class="headerlink" href="#error-handling" title="Permalink to this heading">¶</a></h1>
+<section id="httpexception-handling">
+<h2>HTTPException handling<a class="headerlink" href="#httpexception-handling" title="Permalink to this heading">¶</a></h2>
+<p>Werkzeug HTTPException are automatically properly seriliazed
+reusing the description attribute.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
+<span class="k">raise</span> <span class="n">BadRequest</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>will return a 400 HTTP code and output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The browser (or proxy) sent a request that this server could not understand.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>whereas this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
+<span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="s1">&#39;My custom message&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My custom message&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can attach extras attributes to the output by providing a data attribute to your exception.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">BadRequest</span><span class="p">(</span><span class="s1">&#39;My custom message&#39;</span><span class="p">)</span>
+<span class="n">e</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;custom&#39;</span><span class="p">:</span> <span class="s1">&#39;value&#39;</span><span class="p">}</span>
+<span class="k">raise</span> <span class="n">e</span>
+</pre></div>
+</div>
+<p>will output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My custom message&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;custom&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="the-flask-abort-helper">
+<h2>The Flask abort helper<a class="headerlink" href="#the-flask-abort-helper" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">abort</span></code> helper
+properly wraps errors into a <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/exceptions/#werkzeug.exceptions.HTTPException" title="(in Werkzeug v3.1.x)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">HTTPException</span></code></a>
+so it will have the same behavior.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+<span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will return a 400 HTTP code and output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The browser (or proxy) sent a request that this server could not understand.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>whereas this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+<span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;My custom message&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My custom message&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="the-flask-restx-abort-helper">
+<h2>The Flask-RESTX abort helper<a class="headerlink" href="#the-flask-restx-abort-helper" title="Permalink to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="api.html#flask_restx.errors.abort" title="flask_restx.errors.abort"><code class="xref py py-func docutils literal notranslate"><span class="pre">errors.abort()</span></code></a> and the <a class="reference internal" href="api.html#flask_restx.Namespace.abort" title="flask_restx.Namespace.abort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Namespace.abort()</span></code></a> helpers
+works like the original Flask <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.abort" title="(in Flask v3.1.x)"><code class="xref py py-func docutils literal notranslate"><span class="pre">flask.abort()</span></code></a>
+but it will also add the keyword arguments to the response.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">abort</span>
+<span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="n">custom</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will return a 400 HTTP code and output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The browser (or proxy) sent a request that this server could not understand.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;custom&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>whereas this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+<span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;My custom message&#39;</span><span class="p">,</span> <span class="n">custom</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My custom message&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;custom&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="the-api-errorhandler-decorator">
+<h2>The <code class="docutils literal notranslate"><span class="pre">&#64;api.errorhandler</span></code> decorator<a class="headerlink" href="#the-api-errorhandler-decorator" title="Permalink to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="api.html#flask_restx.Api.errorhandler" title="flask_restx.Api.errorhandler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">&#64;api.errorhandler</span></code></a> decorator
+allows you to register a specific handler for a given exception (or any exceptions inherited from it), in the same manner
+that you can do with Flask/Blueprint <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Flask.errorhandler" title="(in Flask v3.1.x)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">&#64;errorhandler</span></code></a> decorator.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">RootException</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_root_exception</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a custom message and 400 status code&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What you want&#39;</span><span class="p">},</span> <span class="mi">400</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">CustomException</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_custom_exception</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a custom message and 400 status code&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;What you want&#39;</span><span class="p">},</span> <span class="mi">400</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">AnotherException</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_another_exception</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a custom message and 500 status code&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">specific</span><span class="p">}</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">FakeException</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_fake_exception_with_header</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a custom message and 400 status code&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">},</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;My-Header&#39;</span><span class="p">:</span> <span class="s1">&#39;Value&#39;</span><span class="p">}</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">NoResultFound</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_no_result_exception</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a custom not found error message and 404 status code&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">specific</span><span class="p">},</span> <span class="mi">404</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A “NoResultFound” error with description is required by the OpenAPI 2.0 spec. The docstring in the error handle function is output in the swagger.json as the description.</p>
+</div>
+<p>You can also document the error:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">FakeException</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">error_fields</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s1">&#39;My-Header&#39;</span><span class="p">,</span>  <span class="s1">&#39;Some description&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_fake_exception_with_header</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;This is a custom error&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">},</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;My-Header&#39;</span><span class="p">:</span> <span class="s1">&#39;Value&#39;</span><span class="p">}</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/test/&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TestResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Do something</span>
+
+<span class="sd">        :raises CustomException: In case of something</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>In this example, the <code class="docutils literal notranslate"><span class="pre">:raise:</span></code> docstring will be automatically extracted
+and the response 400 will be documented properly.</p>
+<p>It also allows for overriding the default error handler when used without parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@api</span><span class="o">.</span><span class="n">errorhandler</span>
+<span class="k">def</span> <span class="nf">default_error_handler</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Default error handler&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)},</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Flask-RESTX will return a message in the error response by default.
+If a custom response is required as an error and the message field is not needed,
+it can be disabled by setting <code class="docutils literal notranslate"><span class="pre">ERROR_INCLUDE_MESSAGE</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> in your application config.</p>
+</div>
+<p>Error handlers can also be registered on namespaces. An error handler registered on a namespace
+will override one registered on the api.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ns</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="s1">&#39;cats&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Cats related operations&#39;</span><span class="p">)</span>
+
+<span class="nd">@ns</span><span class="o">.</span><span class="n">errorhandler</span>
+<span class="k">def</span> <span class="nf">specific_namespace_error_handler</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Namespace error handler&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)},</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Error handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#httpexception-handling">HTTPException handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-flask-abort-helper">The Flask abort helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-flask-restx-abort-helper">The Flask-RESTX abort helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-api-errorhandler-decorator">The <code class="docutils literal notranslate"><span class="pre">&#64;api.errorhandler</span></code> decorator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="parsing.html" title="previous chapter">Request Parsing</a></li>
+      <li>Next: <a href="mask.html" title="next chapter">Fields masks</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/errors.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

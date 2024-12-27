@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Quick start &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Response marshalling" href="marshalling.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="quick-start">
+<span id="quickstart"></span><h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading">¶</a></h1>
+<p>This guide assumes you have a working understanding of <a class="reference external" href="https://flask.palletsprojects.com/">Flask</a>,
+and that you have already installed both Flask and Flask-RESTX.
+If not, then follow the steps in the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> section.</p>
+<section id="migrate-from-flask-restplus">
+<h2>Migrate from Flask-RESTPlus<a class="headerlink" href="#migrate-from-flask-restplus" title="Permalink to this heading">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <em>migration</em> commands provided below are for illustration
+purposes.
+You may need to adapt them to properly fit your needs.
+We also recommend you make a backup of your project prior running them.</p>
+</div>
+<p>At this point, Flask-RESTX remains 100% compatible with Flask-RESTPlus’ API.
+All you need to do is update your requirements to use Flask-RESTX instead of
+Flask-RESTPlus. Then you need to update all your imports.
+This can be done using something like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>.<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/flask_restplus/flask_restx/g&quot;</span>
+</pre></div>
+</div>
+<p>Finally, you will need to update your configuration options (described <a class="reference external" href="configuration.html">here</a>). Example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>find<span class="w"> </span>.<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/RESTPLUS_/RESTX_/g&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="initialization">
+<h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this heading">¶</a></h2>
+<p>As every other extension, you can initialize it with an application object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or lazily with the factory pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Api</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">()</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="a-minimal-api">
+<h2>A Minimal API<a class="headerlink" href="#a-minimal-api" title="Permalink to this heading">¶</a></h2>
+<p>A minimal Flask-RESTX API looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/hello&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;hello&#39;</span><span class="p">:</span> <span class="s1">&#39;world&#39;</span><span class="p">}</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save this as api.py and run it using your Python interpreter.
+Note that we’ve enabled <a class="reference external" href="https://flask.palletsprojects.com/quickstart/#debug-mode">Flask debugging</a>
+mode to provide code reloading and better error messages.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>api.py
+<span class="go">* Running on http://127.0.0.1:5000/</span>
+<span class="go">* Restarting with reloader</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Debug mode should never be used in a production environment!</p>
+</div>
+<p>Now open up a new prompt to test out your API using curl:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>http://127.0.0.1:5000/hello
+<span class="go">{&quot;hello&quot;: &quot;world&quot;}</span>
+</pre></div>
+</div>
+<p>You can also use the automatic documentation on you API root (by default).
+In this case: <a class="reference external" href="http://127.0.0.1:5000/">http://127.0.0.1:5000/</a>.
+See <a class="reference internal" href="swagger.html#swaggerui"><span class="std std-ref">Swagger UI</span></a> for a complete documentation on the automatic documentation.</p>
+</section>
+<section id="resourceful-routing">
+<h2>Resourceful Routing<a class="headerlink" href="#resourceful-routing" title="Permalink to this heading">¶</a></h2>
+<p>The main building block provided by Flask-RESTX are resources.
+Resources are built on top of <a class="reference external" href="https://flask.palletsprojects.com/en/stable/views/" title="(in Flask v3.1.x)"><span class="xref std std-doc">Flask pluggable views</span></a>,
+giving you easy access to multiple HTTP methods just by defining methods on your resource.
+A basic CRUD resource for a todo application (of course) looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">todos</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;string:todo_id&gt;&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TodoSimple</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">todo_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">todo_id</span><span class="p">:</span> <span class="n">todos</span><span class="p">[</span><span class="n">todo_id</span><span class="p">]}</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">todo_id</span><span class="p">):</span>
+        <span class="n">todos</span><span class="p">[</span><span class="n">todo_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">todo_id</span><span class="p">:</span> <span class="n">todos</span><span class="p">[</span><span class="n">todo_id</span><span class="p">]}</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can try it like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>http://localhost:5000/todo1<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;data=Remember the milk&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT
+<span class="go">{&quot;todo1&quot;: &quot;Remember the milk&quot;}</span>
+<span class="gp">$ </span>curl<span class="w"> </span>http://localhost:5000/todo1
+<span class="go">{&quot;todo1&quot;: &quot;Remember the milk&quot;}</span>
+<span class="gp">$ </span>curl<span class="w"> </span>http://localhost:5000/todo2<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;data=Change my brakepads&quot;</span><span class="w"> </span>-X<span class="w"> </span>PUT
+<span class="go">{&quot;todo2&quot;: &quot;Change my brakepads&quot;}</span>
+<span class="gp">$ </span>curl<span class="w"> </span>http://localhost:5000/todo2
+<span class="go">{&quot;todo2&quot;: &quot;Change my brakepads&quot;}</span>
+</pre></div>
+</div>
+<p>Or from python if you have the <a class="reference external" href="https://docs.python-requests.org/">Requests</a> library installed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">put</span><span class="p">,</span> <span class="n">get</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;http://localhost:5000/todo1&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="s1">&#39;Remember the milk&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="go">{u&#39;todo1&#39;: u&#39;Remember the milk&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://localhost:5000/todo1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="go">{u&#39;todo1&#39;: u&#39;Remember the milk&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;http://localhost:5000/todo2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="s1">&#39;Change my brakepads&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="go">{u&#39;todo2&#39;: u&#39;Change my brakepads&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://localhost:5000/todo2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="go">{u&#39;todo2&#39;: u&#39;Change my brakepads&#39;}</span>
+</pre></div>
+</div>
+<p>Flask-RESTX understands multiple kinds of return values from view methods.
+Similar to Flask, you can return any iterable and it will be converted into a response,
+including raw Flask response objects.
+Flask-RESTX also support setting the response code and response headers using multiple return values,
+as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Todo1</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Default to 200 OK</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world&#39;</span><span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Todo2</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Set the response code to 201</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world&#39;</span><span class="p">},</span> <span class="mi">201</span>
+
+<span class="k">class</span> <span class="nc">Todo3</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Set the response code to 201 and return custom headers</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello world&#39;</span><span class="p">},</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Etag&#39;</span><span class="p">:</span> <span class="s1">&#39;some-opaque-string&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this heading">¶</a></h2>
+<p>Many times in an API, your resource will have multiple URLs.
+You can pass multiple URLs to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_resource()</span></code> method or to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">route()</span></code> decorator,
+both on the <a class="reference internal" href="api.html#flask_restx.Api" title="flask_restx.Api"><code class="xref py py-class docutils literal notranslate"><span class="pre">Api</span></code></a> object.
+Each one will be routed to your <a class="reference internal" href="api.html#flask_restx.Resource" title="flask_restx.Resource"><code class="xref py py-class docutils literal notranslate"><span class="pre">Resource</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">api</span><span class="o">.</span><span class="n">add_resource</span><span class="p">(</span><span class="n">HelloWorld</span><span class="p">,</span> <span class="s1">&#39;/hello&#39;</span><span class="p">,</span> <span class="s1">&#39;/world&#39;</span><span class="p">)</span>
+
+<span class="c1"># or</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/hello&#39;</span><span class="p">,</span> <span class="s1">&#39;/world&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can also match parts of the path as variables to your resource methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">api</span><span class="o">.</span><span class="n">add_resource</span><span class="p">(</span><span class="n">Todo</span><span class="p">,</span> <span class="s1">&#39;/todo/&lt;int:todo_id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;todo_ep&#39;</span><span class="p">)</span>
+
+<span class="c1"># or</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/todo/&lt;int:todo_id&gt;&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s1">&#39;todo_ep&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If a request does not match any of your application’s endpoints,
+Flask-RESTX will return a 404 error message with suggestions of other
+endpoints that closely match the requested endpoint.
+This can be disabled by setting <code class="docutils literal notranslate"><span class="pre">RESTX_ERROR_404_HELP</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> in your application config.</p>
+</div>
+</section>
+<section id="argument-parsing">
+<h2>Argument Parsing<a class="headerlink" href="#argument-parsing" title="Permalink to this heading">¶</a></h2>
+<p>While Flask provides easy access to request data (i.e. querystring or POST form encoded data),
+it’s still a pain to validate form data.
+Flask-RESTX has built-in support for request data validation
+using a library similar to <a class="reference external" href="https://docs.python.org/3/library/argparse.html#module-argparse" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">argparse</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">reqparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">reqparse</span><span class="o">.</span><span class="n">RequestParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;rate&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Rate to charge for this resource&#39;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the <a class="reference external" href="https://docs.python.org/3/library/argparse.html#module-argparse" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">argparse</span></code></a> module, <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.parse_args" title="flask_restx.reqparse.RequestParser.parse_args"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_args()</span></code></a>
+returns a Python dictionary instead of a custom data structure.</p>
+</div>
+<p>Using the <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a> class also gives you same error messages for free.
+If an argument fails to pass validation,
+Flask-RESTX will respond with a 400 Bad Request and a response highlighting the error.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;rate=foo&#39;</span><span class="w"> </span>http://127.0.0.1:5000/todos
+<span class="go">{&#39;status&#39;: 400, &#39;message&#39;: &#39;foo cannot be converted to int&#39;}</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">inputs</span></code> module provides a number of included common conversion
+functions such as <a class="reference internal" href="api.html#flask_restx.inputs.date" title="flask_restx.inputs.date"><code class="xref py py-func docutils literal notranslate"><span class="pre">date()</span></code></a> and <a class="reference internal" href="api.html#flask_restx.inputs.url" title="flask_restx.inputs.url"><code class="xref py py-func docutils literal notranslate"><span class="pre">url()</span></code></a>.</p>
+<p>Calling <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.parse_args" title="flask_restx.reqparse.RequestParser.parse_args"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_args()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">strict=True</span></code> ensures that an error is thrown if
+the request includes arguments your parser does not define.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="data-formatting">
+<h2>Data Formatting<a class="headerlink" href="#data-formatting" title="Permalink to this heading">¶</a></h2>
+<p>By default, all fields in your return iterable will be rendered as-is.
+While this works great when you’re just dealing with Python data structures,
+it can become very frustrating when working with objects.
+To solve this problem, Flask-RESTX provides the <code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code> module and the
+<a class="reference internal" href="api.html#flask_restx.marshal_with" title="flask_restx.marshal_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">marshal_with()</span></code></a> decorator.
+Similar to the Django ORM and WTForm,
+you use the <code class="docutils literal notranslate"><span class="pre">fields</span></code> module to describe the structure of your response.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">Api</span><span class="p">,</span> <span class="n">Resource</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s1">&#39;uri&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">Url</span><span class="p">(</span><span class="s1">&#39;todo_ep&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="k">class</span> <span class="nc">TodoDao</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">todo_id</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">todo_id</span> <span class="o">=</span> <span class="n">todo_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
+
+        <span class="c1"># This field will not be sent in the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;active&#39;</span>
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/todo&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Todo</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="nd">@api</span><span class="o">.</span><span class="n">marshal_with</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TodoDao</span><span class="p">(</span><span class="n">todo_id</span><span class="o">=</span><span class="s1">&#39;my_todo&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s1">&#39;Remember the milk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above example takes a python object and prepares it to be serialized.
+The <code class="xref py py-meth docutils literal notranslate"><span class="pre">marshal_with()</span></code> decorator will apply the transformation described by <code class="docutils literal notranslate"><span class="pre">model</span></code>.
+The only field extracted from the object is <code class="docutils literal notranslate"><span class="pre">task</span></code>.
+The <a class="reference internal" href="api.html#flask_restx.fields.Url" title="flask_restx.fields.Url"><code class="xref py py-class docutils literal notranslate"><span class="pre">fields.Url</span></code></a> field is a special field that takes an endpoint name
+and generates a URL for that endpoint in the response.
+Using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">marshal_with()</span></code> decorator also document the output in the swagger specifications.
+Many of the field types you need are already included.
+See the <code class="xref py py-mod docutils literal notranslate"><span class="pre">fields</span></code> guide for a complete list.</p>
+<section id="order-preservation">
+<h3>Order Preservation<a class="headerlink" href="#order-preservation" title="Permalink to this heading">¶</a></h3>
+<p>By default, fields order is not preserved as this have a performance drop effect.
+If you still require fields order preservation, you can pass a <code class="docutils literal notranslate"><span class="pre">ordered=True</span></code>
+parameter to some classes or function to force order preservation:</p>
+<ul class="simple">
+<li><p>globally on <a class="reference internal" href="api.html#flask_restx.Api" title="flask_restx.Api"><code class="xref py py-class docutils literal notranslate"><span class="pre">Api</span></code></a>: <code class="docutils literal notranslate"><span class="pre">api</span> <span class="pre">=</span> <span class="pre">Api(ordered=True)</span></code></p></li>
+<li><p>globally on <a class="reference internal" href="api.html#flask_restx.Namespace" title="flask_restx.Namespace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Namespace</span></code></a>: <code class="docutils literal notranslate"><span class="pre">ns</span> <span class="pre">=</span> <span class="pre">Namespace(ordered=True)</span></code></p></li>
+<li><p>locally on <a class="reference internal" href="api.html#flask_restx.marshal" title="flask_restx.marshal"><code class="xref py py-func docutils literal notranslate"><span class="pre">marshal()</span></code></a>: <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">marshal(data,</span> <span class="pre">fields,</span> <span class="pre">ordered=True)</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="full-example">
+<h2>Full example<a class="headerlink" href="#full-example" title="Permalink to this heading">¶</a></h2>
+<p>See the <a class="reference internal" href="example.html"><span class="doc">Full example</span></a> section for fully functional example.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#migrate-from-flask-restplus">Migrate from Flask-RESTPlus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-minimal-api">A Minimal API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resourceful-routing">Resourceful Routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoints">Endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#argument-parsing">Argument Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-formatting">Data Formatting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-example">Full example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parsing.html">Request Parsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="marshalling.html" title="next chapter">Response marshalling</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

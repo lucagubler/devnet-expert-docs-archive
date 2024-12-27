@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Request Parsing &#8212; Flask-RESTX 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/restx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Error handling" href="errors.html" />
+    <link rel="prev" title="Response marshalling" href="marshalling.html" />
+
+  
+  <link rel="icon" type="image/png" href="_static/favicon-64.png" sizes="64x64">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-128.png" sizes="128x128">
+  
+  <link rel="icon" type="image/png" href="_static/favicon-196.png" sizes="196x196">
+  
+
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="apple-touch-icon" href="_static/apple-180.png" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="request-parsing">
+<span id="parsing"></span><h1>Request Parsing<a class="headerlink" href="#request-parsing" title="Permalink to this heading">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The whole request parser part of Flask-RESTX is slated for removal and
+will be replaced by documentation on how to integrate with other packages
+that do the input/output stuff better
+(such as <a class="reference external" href="https://marshmallow.readthedocs.io/">marshmallow</a>).
+This means that it will be maintained until 2.0 but consider it deprecated.
+Don’t worry, if you have code using that now and wish to continue doing so,
+it’s not going to go away any time too soon.</p>
+</div>
+<p>Flask-RESTX’s request parsing interface, <code class="xref py py-mod docutils literal notranslate"><span class="pre">reqparse</span></code>,
+is modeled after the <a class="reference external" href="https://docs.python.org/3/library/argparse.html#module-argparse" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">argparse</span></code></a> interface.
+It’s designed to provide simple and uniform access to any variable on the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">flask.request</span></code> object in Flask.</p>
+<section id="basic-arguments">
+<h2>Basic Arguments<a class="headerlink" href="#basic-arguments" title="Permalink to this heading">¶</a></h2>
+<p>Here’s a simple example of the request parser.
+It looks for two arguments in the <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Request.values" title="(in Flask v3.1.x)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">flask.Request.values</span></code></a> dict: an integer and a string</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">reqparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">reqparse</span><span class="o">.</span><span class="n">RequestParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;rate&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Rate cannot be converted&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default argument type is a unicode string.
+This will be <code class="docutils literal notranslate"><span class="pre">str</span></code> in python3 and <code class="docutils literal notranslate"><span class="pre">unicode</span></code> in python2.</p>
+</div>
+<p>If you specify the <code class="docutils literal notranslate"><span class="pre">help</span></code> value,
+it will be rendered as the error message when a type error is raised while parsing it.
+If you do not specify a help message,
+the default behavior is to return the message from the type error itself.
+See <a class="reference internal" href="#error-messages"><span class="std std-ref">Error Messages</span></a> for more details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, arguments are <strong>not</strong> required.
+Also, arguments supplied in the request that are not part of the <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a> will be ignored.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Arguments declared in your request parser but not set in the request itself will default to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</div>
+</section>
+<section id="required-arguments">
+<h2>Required Arguments<a class="headerlink" href="#required-arguments" title="Permalink to this heading">¶</a></h2>
+<p>To require a value be passed for an argument,
+just add <code class="docutils literal notranslate"><span class="pre">required=True</span></code> to the call to <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.add_argument" title="flask_restx.reqparse.RequestParser.add_argument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_argument()</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name cannot be blank!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="multiple-values-lists">
+<h2>Multiple Values &amp; Lists<a class="headerlink" href="#multiple-values-lists" title="Permalink to this heading">¶</a></h2>
+<p>If you want to accept multiple values for a key as a list, you can pass <code class="docutils literal notranslate"><span class="pre">action='append'</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will let you make queries like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span> <span class="o">-</span><span class="n">d</span> <span class="s2">&quot;name=bob&quot;</span> <span class="o">-</span><span class="n">d</span> <span class="s2">&quot;name=sue&quot;</span> <span class="o">-</span><span class="n">d</span> <span class="s2">&quot;name=joe&quot;</span>
+</pre></div>
+</div>
+<p>And your args will look like this :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">args</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>    <span class="c1"># [&#39;bob&#39;, &#39;sue&#39;, &#39;joe&#39;]</span>
+</pre></div>
+</div>
+<p>If you expect a coma separated list, use the <code class="docutils literal notranslate"><span class="pre">action='split'</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;fruits&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;split&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will let you make queries like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span> <span class="o">-</span><span class="n">d</span> <span class="s2">&quot;fruits=apple,lemon,cherry&quot;</span>
+</pre></div>
+</div>
+<p>And your args will look like this :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">args</span><span class="p">[</span><span class="s1">&#39;fruits&#39;</span><span class="p">]</span>    <span class="c1"># [&#39;apple&#39;, &#39;lemon&#39;, &#39;cherry&#39;]</span>
+</pre></div>
+</div>
+</section>
+<section id="other-destinations">
+<h2>Other Destinations<a class="headerlink" href="#other-destinations" title="Permalink to this heading">¶</a></h2>
+<p>If for some reason you’d like your argument stored under a different name once
+it’s parsed, you can use the <code class="docutils literal notranslate"><span class="pre">dest</span></code> keyword argument.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;public_name&#39;</span><span class="p">)</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">args</span><span class="p">[</span><span class="s1">&#39;public_name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="argument-locations">
+<h2>Argument Locations<a class="headerlink" href="#argument-locations" title="Permalink to this heading">¶</a></h2>
+<p>By default, the <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a> tries to parse values from
+<a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Request.values" title="(in Flask v3.1.x)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">flask.Request.values</span></code></a>, and <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Request.json" title="(in Flask v3.1.x)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">flask.Request.json</span></code></a>.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">location</span></code> argument to <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.add_argument" title="flask_restx.reqparse.RequestParser.add_argument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_argument()</span></code></a>
+to specify alternate locations to pull the values from. Any variable on the
+<a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Request" title="(in Flask v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">flask.Request</span></code></a> can be used. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Look only in the POST body</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
+
+<span class="c1"># Look only in the querystring</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;PageSize&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;args&#39;</span><span class="p">)</span>
+
+<span class="c1"># From the request headers</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;headers&#39;</span><span class="p">)</span>
+
+<span class="c1"># From http cookies</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;session_id&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;cookies&#39;</span><span class="p">)</span>
+
+<span class="c1"># From file uploads</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;picture&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">werkzeug</span><span class="o">.</span><span class="n">datastructures</span><span class="o">.</span><span class="n">FileStorage</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only use <code class="docutils literal notranslate"><span class="pre">type=list</span></code> when <code class="docutils literal notranslate"><span class="pre">location='json'</span></code>. <a class="reference external" href="https://github.com/flask-restful/flask-restful/issues/380">See this issue for more
+details</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">location='form'</span></code> is way to both validate form data and document your form fields.</p>
+</div>
+</section>
+<section id="multiple-locations">
+<h2>Multiple Locations<a class="headerlink" href="#multiple-locations" title="Permalink to this heading">¶</a></h2>
+<p>Multiple argument locations can be specified by passing a list to <code class="docutils literal notranslate"><span class="pre">location</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="s1">&#39;values&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>When multiple locations are specified, the arguments from all locations
+specified are combined into a single <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/datastructures/#werkzeug.datastructures.MultiDict" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiDict</span></code></a>.
+The last <code class="docutils literal notranslate"><span class="pre">location</span></code> listed takes precedence in the result set.</p>
+<p>If the argument location list includes the <a class="reference external" href="https://flask.palletsprojects.com/en/stable/api/#flask.Request.headers" title="(in Flask v3.1.x)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">headers</span></code></a>
+location the argument names will no longer be case insensitive and must match
+their title case names (see <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.title" title="(in Python v3.13)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.title()</span></code></a>). Specifying
+<code class="docutils literal notranslate"><span class="pre">location='headers'</span></code> (not as a list) will retain case insensitivity.</p>
+</section>
+<section id="advanced-types-handling">
+<h2>Advanced types handling<a class="headerlink" href="#advanced-types-handling" title="Permalink to this heading">¶</a></h2>
+<p>Sometimes, you need more than a primitive type to handle input validation.
+The <a class="reference internal" href="api.html#module-flask_restx.inputs" title="flask_restx.inputs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">inputs</span></code></a> module provides some common type handling like:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api.html#flask_restx.inputs.boolean" title="flask_restx.inputs.boolean"><code class="xref py py-func docutils literal notranslate"><span class="pre">boolean()</span></code></a> for wider boolean handling</p></li>
+<li><p><a class="reference internal" href="api.html#flask_restx.inputs.ipv4" title="flask_restx.inputs.ipv4"><code class="xref py py-func docutils literal notranslate"><span class="pre">ipv4()</span></code></a> and <a class="reference internal" href="api.html#flask_restx.inputs.ipv6" title="flask_restx.inputs.ipv6"><code class="xref py py-func docutils literal notranslate"><span class="pre">ipv6()</span></code></a> for IP adresses</p></li>
+<li><p><a class="reference internal" href="api.html#flask_restx.inputs.date_from_iso8601" title="flask_restx.inputs.date_from_iso8601"><code class="xref py py-func docutils literal notranslate"><span class="pre">date_from_iso8601()</span></code></a> and <a class="reference internal" href="api.html#flask_restx.inputs.datetime_from_iso8601" title="flask_restx.inputs.datetime_from_iso8601"><code class="xref py py-func docutils literal notranslate"><span class="pre">datetime_from_iso8601()</span></code></a> for ISO8601 date and datetime handling</p></li>
+</ul>
+<p>You just have to use them as <cite>type</cite> argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;flag&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">boolean</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="api.html#module-flask_restx.inputs" title="flask_restx.inputs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">inputs</span></code></a> documentation for full list of available inputs.</p>
+<p>You can also write your own:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_type</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Parse my type&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">condition</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;This is not my type&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<span class="c1"># Swagger documentation</span>
+<span class="n">my_type</span><span class="o">.</span><span class="n">__schema__</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;my-custom-format&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="parser-inheritance">
+<h2>Parser Inheritance<a class="headerlink" href="#parser-inheritance" title="Permalink to this heading">¶</a></h2>
+<p>Often you will make a different parser for each resource you write. The problem
+with this is if parsers have arguments in common. Instead of rewriting
+arguments you can write a parent parser containing all the shared arguments and
+then extend the parser with <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.copy" title="flask_restx.reqparse.RequestParser.copy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy()</span></code></a>. You can
+also overwrite any argument in the parent with
+<a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.replace_argument" title="flask_restx.reqparse.RequestParser.replace_argument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">replace_argument()</span></code></a>, or remove it completely
+with <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser.remove_argument" title="flask_restx.reqparse.RequestParser.remove_argument"><code class="xref py py-meth docutils literal notranslate"><span class="pre">remove_argument()</span></code></a>. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">reqparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">reqparse</span><span class="o">.</span><span class="n">RequestParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">parser_copy</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">parser_copy</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># parser_copy has both &#39;foo&#39; and &#39;bar&#39;</span>
+
+<span class="n">parser_copy</span><span class="o">.</span><span class="n">replace_argument</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="p">)</span>
+<span class="c1"># &#39;foo&#39; is now a required str located in json, not an int as defined</span>
+<span class="c1">#  by original parser</span>
+
+<span class="n">parser_copy</span><span class="o">.</span><span class="n">remove_argument</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="c1"># parser_copy no longer has &#39;foo&#39; argument</span>
+</pre></div>
+</div>
+</section>
+<section id="file-upload">
+<h2>File Upload<a class="headerlink" href="#file-upload" title="Permalink to this heading">¶</a></h2>
+<p>To handle file upload with the <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a>,
+you need to use the <cite>files</cite> location
+and to set the type to <a class="reference external" href="https://werkzeug.palletsprojects.com/en/stable/datastructures/#werkzeug.datastructures.FileStorage" title="(in Werkzeug v3.1.x)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileStorage</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">werkzeug.datastructures</span> <span class="kn">import</span> <span class="n">FileStorage</span>
+
+<span class="n">upload_parser</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+<span class="n">upload_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;files&#39;</span><span class="p">,</span>
+                           <span class="nb">type</span><span class="o">=</span><span class="n">FileStorage</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="nd">@api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/upload/&#39;</span><span class="p">)</span>
+<span class="nd">@api</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">upload_parser</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Upload</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">upload_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+        <span class="n">uploaded_file</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span>  <span class="c1"># This is FileStorage instance</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">do_something_with_file</span><span class="p">(</span><span class="n">uploaded_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">},</span> <span class="mi">201</span>
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/">dedicated Flask documentation section</a>.</p>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this heading">¶</a></h2>
+<p>The default way errors are handled by the RequestParser is to abort on the
+first error that occurred. This can be beneficial when you have arguments that
+might take some time to process. However, often it is nice to have the errors
+bundled together and sent back to the client all at once. This behavior can be
+specified either at the Flask application level or on the specific
+RequestParser instance. To invoke a RequestParser with the bundling errors
+option, pass in the argument <code class="docutils literal notranslate"><span class="pre">bundle_errors</span></code>. For example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">reqparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">reqparse</span><span class="o">.</span><span class="n">RequestParser</span><span class="p">(</span><span class="n">bundle_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># If a request comes in not containing both &#39;foo&#39; and &#39;bar&#39;, the error that</span>
+<span class="c1"># will come back will look something like this.</span>
+
+<span class="p">{</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span>  <span class="p">{</span>
+        <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;foo error message&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="s2">&quot;bar error message&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># The default behavior would only return the first error</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">RequestParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="p">{</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span>  <span class="p">{</span>
+        <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;foo error message&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The application configuration key is “BUNDLE_ERRORS”. For example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;BUNDLE_ERRORS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">BUNDLE_ERRORS</span></code> is a global setting that overrides the <code class="docutils literal notranslate"><span class="pre">bundle_errors</span></code>
+option in individual <a class="reference internal" href="api.html#flask_restx.reqparse.RequestParser" title="flask_restx.reqparse.RequestParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">RequestParser</span></code></a> instances.</p>
+</div>
+</section>
+<section id="error-messages">
+<span id="id1"></span><h2>Error Messages<a class="headerlink" href="#error-messages" title="Permalink to this heading">¶</a></h2>
+<p>Error messages for each field may be customized using the <code class="docutils literal notranslate"><span class="pre">help</span></code> parameter
+to <code class="docutils literal notranslate"><span class="pre">Argument</span></code> (and also <code class="docutils literal notranslate"><span class="pre">RequestParser.add_argument</span></code>).</p>
+<p>If no help parameter is provided, the error message for the field will be
+the string representation of the type error itself. If <code class="docutils literal notranslate"><span class="pre">help</span></code> is provided,
+then the error message will be the value of <code class="docutils literal notranslate"><span class="pre">help</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">help</span></code> may include an interpolation token, <code class="docutils literal notranslate"><span class="pre">{error_msg}</span></code>, that will be
+replaced with the string representation of the type error. This allows the
+message to be customized while preserving the original error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask_restx</span> <span class="kn">import</span> <span class="n">reqparse</span>
+
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">reqparse</span><span class="o">.</span><span class="n">RequestParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+    <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Bad choice: </span><span class="si">{error_msg}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># If a request comes in with a value of &quot;three&quot; for `foo`:</span>
+
+<span class="p">{</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span>  <span class="p">{</span>
+        <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;Bad choice: three is not a valid choice&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-512.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Flask-RESTX</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=python-restx&repo=flask-restx&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="marshalling.html">Response marshalling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Request Parsing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-arguments">Basic Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-arguments">Required Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-values-lists">Multiple Values &amp; Lists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-destinations">Other Destinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#argument-locations">Argument Locations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-locations">Multiple Locations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-types-handling">Advanced types handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parser-inheritance">Parser Inheritance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-upload">File Upload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-messages">Error Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mask.html">Fields masks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="swagger.html">Swagger documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postman.html">Postman</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling your project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Full example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="marshalling.html" title="previous chapter">Response marshalling</a></li>
+      <li>Next: <a href="errors.html" title="next chapter">Error handling</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+<!--h3>Links</h3-->
+
+<hr class="badges" />
+
+<p class="badge"><a href="https://gitter.im/python-restx"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/python-restx" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/forks/python-restx/flask-restx.svg?style=social&label=Fork" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx/issues"><img src="https://img.shields.io/github/issues-raw/python-restx/flask-restx.svg" alt="Github repository" /></a></p>
+
+<p class="badge"><a href="https://github.com/python-restx/flask-restx"><img src="https://img.shields.io/github/license/python-restx/flask-restx.svg" alt="License" /></a></p>
+
+<p class="badge"><a href="https://pypi.python.org/pypi/flask-restx"><img src="https://img.shields.io/pypi/v/flask-restx.svg" alt="Latest version on PyPI" /></a></p>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, python-restx Authors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/parsing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/python-restx/flask-restx" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
