@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><hr>
+<h2 id="title-pyangsection-1header-user-manualfooter-pyang-versiondate-date">title: PYANG<br>
+section: 1<br>
+header: User Manual<br>
+footer: pyang-<em>VERSION</em><br>
+date: <em>DATE</em></h2>
+<h1 id="name">NAME</h1>
+<p>pyang - validate and convert YANG modules to various formats</p>
+<h1 id="synopsis">SYNOPSIS</h1>
+<p><strong>pyang</strong> [–verbose] [–canonical] [–strict] [–lint] [–ietf]<br>
+[–lax-quote-checks] [–lax-xpath-checks] [–features<br>
+<em>features</em>] [–exclude-features <em>features</em>] [–max-status<br>
+<em>maxstatus</em>] [–hello] [–implicit-hello-deviations]<br>
+[–check-update-from <em>oldfile</em>]<br>
+[-o <em>outfile</em>] [-t <em>transform</em>] [-f <em>format</em>] [-p <em>path</em>] [-W<br>
+<em>warning</em>] [-E <em>error</em>] <em>file</em>…</p>
+<p><strong>pyang</strong> [--sid-list] --sid-generate-file {count |<br>
+<em>entry-point:size</em>} <em>yang-filename</em></p>
+<p><strong>pyang</strong> [--sid-list] --sid-update-file <em>sid-filename</em> <em>yang-filename</em><br>
+[--sid-extra-range count <em>entry-point:size</em>]</p>
+<p><strong>pyang</strong> [--sid-list] --sid-check-file <em>sid-filename</em> <em>yang-filename</em></p>
+<p><strong>pyang</strong> -h | --help</p>
+<p><strong>pyang</strong> -v --version</p>
+<p>One or more <em>file</em> parameters may be given on the command line. They<br>
+denote either YANG modules to be processed (in YANG or YIN syntax) or,<br>
+using the <strong>--hello</strong> switch, a server &lt;hello&gt; message<br>
+conforming to <strong>RFC 6241</strong> and<br>
+<strong>RFC 6020</strong>,<br>
+which completely defines the data model - supported YANG modules as<br>
+well as features and capabilities. In the latter case, only one <em>file</em><br>
+parameter may be present.</p>
+<p>If no files are given, <strong>pyang</strong> reads input<br>
+from stdin, which must be one module or a server &lt;hello&gt; message.</p>
+<h1 id="description">DESCRIPTION</h1>
+<p>The <strong>pyang</strong> program is used to validate YANG modules (<strong>RFC 6020</strong> and<br>
+<strong>RFC 7950</strong>). It is also used to convert YANG modules into<br>
+equivalent YIN modules. From a valid module a hybrid DSDL<br>
+schema (<strong>RFC 6110</strong>) can be generated.</p>
+<p>If no <em>format</em> is given, the specified modules are validated, and the<br>
+program exits with exit code 0 if all modules are valid.</p>
+<h1 id="options">OPTIONS</h1>
+<dl>
+<dt><strong>-h</strong>, <strong>--help</strong></dt>
+<dd>
+<p>Print a short help text and exit.</p>
+</dd>
+<dt><strong>-v</strong>, <strong>--version</strong></dt>
+<dd>
+<p>Print the version number and exit.</p>
+</dd>
+<dt><strong>-e</strong>, <strong>--list-errors</strong></dt>
+<dd>
+<p>Print a listing of all error codes and messages pyang might<br>
+generate, and then exit.</p>
+</dd>
+<dt><strong>--print-error-code</strong></dt>
+<dd>
+<p>On errors, print the symbolic error code instead of the error message.</p>
+</dd>
+<dt><strong>--print-error-basename</strong></dt>
+<dd>
+<p>On errors, print only the base file name independent of its module<br>
+path location.</p>
+</dd>
+<dt><strong>-Werror</strong></dt>
+<dd>
+<p>Treat warnings as errors.</p>
+</dd>
+<dt><strong>-Wnone</strong></dt>
+<dd>
+<p>Do not print any warnings.</p>
+</dd>
+<dt><strong>-W</strong> <em>errorcode</em></dt>
+<dd>
+<p>Treat <em>errorcode</em> as a warning, even if <strong>-Werror</strong> is given.<br>
+<em>errorcode</em> must be a warning or a minor error.</p>
+<p>Use <strong>--list-errors</strong> to get a listing of all errors and warnings.</p>
+<p>The following example treats all warnings except the warning for<br>
+unused imports as errors:</p>
+<pre><code>  $ pyang --Werror -W UNUSED_IMPORT
+</code></pre>
+</dd>
+<dt><strong>-E</strong> <em>errorcode</em></dt>
+<dd>
+<p>Treat the warning <em>errorcode</em> as an error.</p>
+<p>Use <strong>--list-errors</strong> to get a listing of all errors and warnings.</p>
+<p>The following example treats only the warning for unused import as an error:</p>
+<pre><code>  $ pyang --Werror -W UNUSED_IMPORT
+</code></pre>
+</dd>
+<dt><strong>--ignore-error</strong> <em>errorcode</em></dt>
+<dd>
+<p>Ignore error <em>errorcode</em>.</p>
+<p>Use with care. Plugins that dont expect to be invoked if there are<br>
+errors present may crash.</p>
+<p>Use <strong>--list-errors</strong> to get a listing of all errors and warnings.</p>
+<p>The following example ignores syntax errors in patterns:</p>
+<pre><code>  $ pyang --ignore-error PATTERN_ERROR
+</code></pre>
+</dd>
+<dt><strong>--msg-template</strong> <em>msg-template</em></dt>
+<dd>
+<p>Print out error message in defined <em>msg-template</em>.</p>
+<p>Template used to display error messages. This is a python<br>
+new-style format string used to format the message information<br>
+with keys file, line, code, type, and msg.</p>
+<p>The following example create a msg template in defined pattern:</p>
+<pre><code>  $ pyang --msg-template={file} || {line} || {type} || {level}
+      || {code} || {msg}
+</code></pre>
+</dd>
+<dt><strong>--ignore-errors</strong></dt>
+<dd>
+<p>Ignore all errors. Use with care. Plugins that dont expect to be<br>
+invoked if there are errors present may crash.</p>
+</dd>
+<dt><strong>--keep-comments</strong></dt>
+<dd>
+<p>This parameter has effect only if a plugin can handle comments.</p>
+</dd>
+<dt><strong>--canonical</strong></dt>
+<dd>
+<p>Validate the module(s) according to the canonical YANG order.</p>
+</dd>
+<dt><strong>--verify-revision-history</strong></dt>
+<dd>
+<p>Ensure that the revision history in the given module(s) is<br>
+correct, by checking that it can find the old revisions of the<br>
+module(s) in the YANG module search path.</p>
+</dd>
+<dt><strong>--strict</strong></dt>
+<dd>
+<p>Force strict YANG compliance. Currently this checks that the<br>
+deref() function is not used in XPath expressions and leafrefs.</p>
+</dd>
+<dt><strong>--lint</strong></dt>
+<dd>
+<p>Validate the module(s) according to the generic YANG guideline as<br>
+specified in <strong>RFC 8407</strong>. In addition, it checks that the<br>
+module is in canonical order.</p>
+</dd>
+<dt><strong>--ietf</strong></dt>
+<dd>
+<p>Validate the module(s) like <strong>--lint</strong>, and in addition verifies<br>
+that the namespace and module name follow the IETF conventions,<br>
+and that the module has the correct license text and <strong>RFC<br>
+2119</strong> / <strong>RFC 8174</strong> boilerplate text.</p>
+</dd>
+<dt><strong>--lax-quote-checks</strong></dt>
+<dd>
+<p>Lax checks of backslashes in double quoted strings in YANG version<br>
+1 modules.  <strong>RFC 6020</strong> does not clearly define how to handle<br>
+backslahes within double quoted strings, when the character after<br>
+the backslash is not one of the characters listed in Section 6.1.3<br>
+in <strong>RFC 6020</strong>.</p>
+<p>Earlier versions of pyang silently accepted such escape sequences,<br>
+but the current version treats this as an error, just like it is<br>
+defined in YANG 1.1 <strong>RFC 7950</strong>. Passing this flag to pyang<br>
+makes pyang silently accept such escape sequences.</p>
+</dd>
+<dt><strong>--lax-xpath-checks</strong></dt>
+<dd>
+<p>Lax checks of XPath expressions. Specifically, do not generate an<br>
+error if an XPath expression uses a variable or an unknown<br>
+function.</p>
+</dd>
+<dt><strong>-L</strong> <strong>--hello</strong></dt>
+<dd>
+<p>Interpret the input file or standard input as a server &lt;hello&gt;<br>
+message. In this case, no more than one <em>file</em> parameter may be given.</p>
+</dd>
+<dt><strong>--implicit-hello-deviations</strong></dt>
+<dd>
+<p>Attempt to parse all deviations from a supplied &lt;hello&gt;<br>
+message. Not all implementations provide deviations explicitly as<br>
+modules. This flag enables more logic to attempt to derive all<br>
+deviations from the message.</p>
+</dd>
+<dt><strong>--trim-yin</strong></dt>
+<dd>
+<p>In YIN input modules, remove leading and trailing whitespace from<br>
+every line in the arguments of the following statements: contact,<br>
+description, error-message, organization and reference. This way,<br>
+the XML-indented argument texts look tidy after translating the<br>
+module to the compact YANG syntax.</p>
+</dd>
+<dt><strong>--max-line-length</strong> <em>maxlen</em></dt>
+<dd>
+<p>Give a warning if any line is longer than <em>maxlen</em>. The value 0<br>
+means no check (default).</p>
+</dd>
+<dt><strong>--max-identifier-length</strong> <em>maxlen</em></dt>
+<dd>
+<p>Give a error if any identifier is longer than_maxlen_.</p>
+</dd>
+<dt><strong>-t</strong> <strong>--transform</strong> <em>transform</em></dt>
+<dd>
+<p>Transform the module(s) after parsing them but before outputting<br>
+them. Multiple transformations can be given, and will be performed<br>
+in the order that they were specified. The supported<br>
+transformations are listed in TRANSFORMATIONS below.</p>
+</dd>
+<dt><strong>-f</strong> <strong>--format</strong> <em>format</em></dt>
+<dd>
+<p>Convert the module(s) into <em>format</em>. Some translators require a<br>
+single module, and some can translate multiple modules at one<br>
+time. If no <em>outfile</em> file is specified, the result is printed on<br>
+stdout. The supported formats are listed in OUTPUT FORMATS below.</p>
+</dd>
+<dt><strong>-o</strong> <strong>--output</strong> <em>outfile</em></dt>
+<dd>
+<p>Write the output to the file <em>outfile</em> instead of stdout.</p>
+</dd>
+<dt><strong>-F</strong> <strong>--features</strong> <em>features</em></dt>
+<dd>
+<p><em>features</em> is a string of the form<br>
+<em>modulename</em>:[<em>feature</em>(,<em>feature</em>)*]</p>
+<p>This option is used to prune the data model by removing all nodes<br>
+that are defined with a “if-feature” that is not listed as<br>
+<em>feature</em>. This option affects all output formats.</p>
+<p>This option can be given multiple times, and may also be combined<br>
+with <strong>--hello</strong>. The <strong>--features</strong> option overrides any<br>
+supported features for a module that are taken from the hello<br>
+file.</p>
+<p>If this option is not given, nothing is pruned, i.e., it works as<br>
+if all features were explicitly listed.</p>
+<p>The <strong>--exclude-features</strong> option can be used for excluding a list<br>
+of named features.  <strong>--features</strong> and <strong>--exclude-features</strong> cant<br>
+both be specified for a given module.</p>
+<p>For example, to view the tree output for a module with all<br>
+if-featured nodes removed, do:</p>
+<pre><code>  $ pyang -f tree --features mymod: mymod.yang
+</code></pre>
+</dd>
+<dt><strong>-X</strong> <strong>--exclude-features</strong> <em>features</em></dt>
+<dd>
+<p><em>features</em> is a string of the form<br>
+<em>modulename</em>:[<em>feature</em>(,<em>feature</em>)*]</p>
+<p>This option is used to prune the data model by removing all nodes<br>
+that are defined with a “if-feature” that is listed as<br>
+<em>feature</em>. This option affects all output formats.</p>
+<p>This option can be given multiple times. It cant be combined with<br>
+<strong>--hello</strong>.</p>
+<p>The <strong>--features</strong> option can be used for including all features<br>
+or a list of named features.  <strong>--features</strong> and<br>
+<strong>--exclude-features</strong> cant both be specified for a given module.</p>
+<p>For example, to view the tree output for a module with if-featured<br>
+nodes for the specified feature removed, do:</p>
+<pre><code>  $ pyang -f tree --exclude-features mymod:myfeat mymod.yang
+</code></pre>
+</dd>
+<dt><strong>--max-status</strong> <em>maxstatus</em></dt>
+<dd>
+<p><em>maxstatus</em> is one of:<em>current</em>,<em>deprecated</em>, or <em>obsolete</em>.</p>
+<p>This option is used to prune the data model by removing all nodes<br>
+that are defined with a “status” that is less than the given<br>
+<em>maxstatus</em>. This option affects all output formats.</p>
+</dd>
+<dt><strong>--deviation-module</strong> <em>file</em></dt>
+<dd>
+<p>This option is used to apply the deviations defined in<br>
+<em>file</em>. This option affects all output formats.</p>
+<p>This option can be given multiple times.</p>
+<p>For example, to view the tree output for a module with some<br>
+deviations applied, do:</p>
+<pre><code>  $ pyang -f tree --deviation-module mymod-devs.yang mymod.yang
+</code></pre>
+</dd>
+<dt><strong>-p</strong> <strong>--path</strong> <em>path</em></dt>
+<dd>
+<p><em>path</em> is a colon (:) separated list of directories to search for<br>
+imported modules. This option may be given multiple times.</p>
+<p>By default, all directories (except “.”) found in the path are<br>
+recursively scanned for modules. This behavior can be disabled by<br>
+giving the option <strong>--no-path-recurse</strong>.</p>
+<p>The following directories are always added to the search path:</p>
+<ol>
+<li>current directory</li>
+<li><strong>$YANG_MODPATH</strong></li>
+<li><strong>$HOME</strong>/yang/modules</li>
+<li><strong><span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mi>A</mi><mi>N</mi><mi>G</mi><mi mathvariant="normal">_</mi><mi>I</mi><mi>N</mi><mi>S</mi><mi>T</mi><mi>A</mi><mi>L</mi><mi>L</mi><mo>∗</mo><mo>∗</mo><mi mathvariant="normal">/</mi><mi>y</mi><mi>a</mi><mi>n</mi><mi>g</mi><mi mathvariant="normal">/</mi><mi>m</mi><mi>o</mi><mi>d</mi><mi>u</mi><mi>l</mi><mi>e</mi><mi>s</mi><mi>O</mi><mi>R</mi><mi>i</mi><mi>f</mi><mo>∗</mo><mo>∗</mo></mrow><annotation encoding="application/x-tex">YANG\_INSTALL**/yang/modules OR if **</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.99333em; vertical-align: -0.31em;"></span><span class="mord mathnormal" style="margin-right: 0.22222em;">Y</span><span class="mord mathnormal">A</span><span class="mord mathnormal">NG</span><span class="mord" style="margin-right: 0.02778em;">_</span><span class="mord mathnormal" style="margin-right: 0.07847em;">I</span><span class="mord mathnormal" style="margin-right: 0.13889em;">NST</span><span class="mord mathnormal">A</span><span class="mord mathnormal">LL</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">∗</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right: 0.03588em;">y</span><span class="mord mathnormal">an</span><span class="mord mathnormal" style="margin-right: 0.03588em;">g</span><span class="mord">/</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mord mathnormal">u</span><span class="mord mathnormal" style="margin-right: 0.01968em;">l</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right: 0.00773em;">OR</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 0.46528em; vertical-align: 0em;"></span><span class="mord">∗</span></span></span></span></span>YANG_INSTALL</strong> is unset<br>
+&lt;the default installation directory&gt;/yang/modules<br>
+(on Unix systems: /usr/share/yang/modules)</li>
+</ol>
+</dd>
+<dt><strong>--no-path-recurse</strong></dt>
+<dd>
+<p>If this parameter is given, directories in the search path are not<br>
+recursively scanned for modules.</p>
+</dd>
+<dt><strong>--plugindir</strong> <em>plugindir</em></dt>
+<dd>
+<p>Load all YANG plugins found in the directory <em>plugindir</em>. This<br>
+option may be given multiple times.</p>
+<p>List of directories to search for pyang plugins. The following<br>
+directories are always added to the search path:</p>
+<ol>
+<li>pyang/plugins from where pyang is installed</li>
+<li><strong>$PYANG_PLUGINPATH</strong></li>
+</ol>
+</dd>
+<dt><strong>--check-update-from</strong> <em>oldfile</em></dt>
+<dd>
+<p>Checks that a new revision of a module follows the update rules<br>
+given in <strong>RFC 6020</strong> and <strong>RFC 7950</strong>. <em>oldfile</em> is the old<br>
+module and <em>file</em> is the new version of the module.</p>
+<p>If the old module imports or includes any modules or submodules,<br>
+it is important that the the old versions of these modules and<br>
+submodules are found. By default, the directory where <em>oldfile</em> is<br>
+found is used as the only directory in the search path for old<br>
+modules. Use the option</p>
+</dd>
+<dt><strong>--check-update-from-path</strong></dt>
+<dd>
+<p>to control this path.</p>
+</dd>
+<dt><strong>-P</strong> <strong>--check-update-from-path</strong> <em>oldpath</em></dt>
+<dd>
+<p><em>oldpath</em> is a colon (:) separated list of directories to search for<br>
+imported modules. This option may be given multiple times.</p>
+</dd>
+<dt><strong>-D</strong> <strong>--check-update-from-deviation-module</strong> <em>olddeviation</em></dt>
+<dd>
+<p><em>olddeviation</em> is an old deviation module of the old module<br>
+<em>oldfile</em>. This option may be given multiple times. For example,<br>
+to check updates of a module with some deviations applied, do:</p>
+<pre><code>  $ pyang --check-update-from-deviation-module oldmod-devs.yang \
+      --check-update-from oldmod.yang \
+      --deviation-module newmod-devs.yang newmod.yang
+</code></pre>
+</dd>
+<dt><em>file…</em></dt>
+<dd>
+<p>These are the names of the files containing the modules to be<br>
+validated, or the module to be converted.</p>
+</dd>
+</dl>
+<h1 id="transformations">TRANSFORMATIONS</h1>
+<p>Installed <strong>pyang</strong> transformations are (like output formats) plugins<br>
+and therefore may define their own options, or add new transformations<br>
+to the <strong>-t</strong> option. These options and transformations are listed in<br>
+<strong>pyang -h</strong>.</p>
+<dl>
+<dt><em>edit</em></dt>
+<dd>Modify the supplied module(s) in various ways. This transform will<br>
+usually be used with the <em>yang</em> output format.</dd>
+</dl>
+<h1 id="edit-transform">EDIT TRANSFORM</h1>
+<p>The <em>edit</em> transform modifies the supplied module(s) in various ways.<br>
+It can, for example, replace top-level <em>description</em> statements,<br>
+update <em>include</em> statements and manage <em>revision</em> statements.  Unless<br>
+otherwise noted below, it only modifies <em>existing</em> statements.</p>
+<p>Each <em>edit</em> transform string (non-date) option value is either a plain<br>
+string (which is taken literally) or a <em>+</em>-separated list of<br>
+directives (whose expansions are concatenated with double-linebreak<br>
+separators, i.e., each directive results in one or more paragraphs).</p>
+<p>Each directive is either of the form <em>@filename</em> (which is replaced<br>
+with the contents of the file; there is no search path; trailing<br>
+whitespace is discarded) or of the form <em>%keyword</em>. Any unrecognized<br>
+directives are treated as plain strings. The following <em>%</em>-directives<br>
+are currently supported:</p>
+<ul>
+<li>
+<p><em>%SUMMARY</em> : This expands to a “summary” of the original argument<br>
+value. It’s intended for use with top-level <em>description</em> statements<br>
+that typically consist of a hand-crafted summary followed by<br>
+copyrights, license and other boiler-plate text. The summary is the<br>
+text up to but not including the first line that (ignoring leading<br>
+and trailing whitespace) starts with the word <em>Copyright</em> followed<br>
+by a space.</p>
+</li>
+<li>
+<p><em>%SUBST/old/new</em> : This expands to the original argument value with<br>
+all instances of <em>old</em> replaced with <em>new</em>.  There is no provision<br>
+for replacing characters that contain forward slashes, and there is<br>
+no terminating slash.</p>
+</li>
+<li>
+<p><em>%DELETE</em> : This clears the output buffer and suppresses a check<br>
+that would normally prevent overwriting an existing value (unless<br>
+that value is the literal string <strong>TBD</strong>).</p>
+</li>
+</ul>
+<p>In the examples given below, it’s assumed that there are <em>CONTACT</em>,<br>
+<em>CONTEXT</em>, <em>LICENSE</em>, <em>ORGANIZATION</em>, <em>REFERENCE</em> and <em>REVISION</em> files<br>
+in a top-level project directory (which in this case is the parent of<br>
+the directory in which <strong>pyang</strong> is being run). These examples<br>
+illustrate how the <em>edit</em> transform might be used with the <em>yang</em><br>
+output format to prepare YANG files for publication.</p>
+<p>Edit transform specific options:</p>
+<dl>
+<dt><strong>--edit-yang-version</strong> <em>version</em></dt>
+<dd>
+<p>Set the YANG version (i.e., the <em>yang-version</em> statement’s<br>
+argument) to <em>version</em>. This does nothing if the YANG module<br>
+doesn’t already have a <em>yang-version</em> statement.</p>
+<p>Example: <strong>--edit-yang-version 1.1</strong>.</p>
+</dd>
+<dt><strong>--edit-namespace</strong> <em>namespace</em></dt>
+<dd>
+<p>Set the YANG namespace (i.e., the <em>namespace</em> statement’s<br>
+argument) to <em>namespace</em>. This does nothing if the YANG module<br>
+doesn’t already have a <em>namespace</em> statement.</p>
+<p>Example: <strong>--edit-namespace %SUBST/acme-pacific-org/apo</strong></p>
+</dd>
+<dt><strong>--edit-update-import-dates</strong></dt>
+<dd>
+<p>Update any <em>import</em> (or <em>include</em>) <em>revision-date</em> statements to<br>
+match imported (or included) modules and submodules. If there<br>
+isn’t already a <em>revision-date</em> statement, it will be added.</p>
+</dd>
+<dt><strong>--edit-delete-import-dates</strong></dt>
+<dd>
+<p>Delete any <em>import</em> (or <em>include</em>) <em>revision-date</em> statements.</p>
+</dd>
+<dt><strong>--edit-organization</strong> <em>organization</em></dt>
+<dd>
+<p>Set the organization (i.e., the <em>organization</em> statement’s<br>
+argument) to <em>organization</em>. This does nothing if the YANG module<br>
+doesn’t already have an <em>organization</em> statement.</p>
+<p>Example: <strong>–edit-organization @…/ORGANIZATION</strong></p>
+</dd>
+<dt><strong>--edit-contact</strong> <em>contact</em></dt>
+<dd>
+<p>Set the contact info (i.e., the <em>contact</em> statement’s argument) to<br>
+<em>contact</em>. This does nothing if the YANG module doesn’t already<br>
+have a <em>contact</em> statement.</p>
+<p>Example: <strong>–edit-contact @…/CONTACT</strong></p>
+</dd>
+<dt><strong>--edit-description</strong> <em>description</em></dt>
+<dd>
+<p>Set the top-level description (i.e., the top-level <em>description</em><br>
+statement’s argument) to <em>description</em>. This does nothing if the<br>
+YANG module doesn’t already have a <em>description</em> statement.</p>
+<p>Example: <strong>–edit-description %SUMMARY+@…/LICENSE+@…/CONTEXT</strong></p>
+</dd>
+<dt><strong>--edit-delete-revisions-after</strong> <em>prevdate</em></dt>
+<dd>
+<p>Delete any <em>revision</em> statements after (i.e., that are more recent<br>
+than) the supplied <em>yyyy-mm-dd</em> revision date. A typical use case<br>
+is to supply the date of the previous release: any revisions since<br>
+then will be internal (e.g., developers often feel that they should<br>
+add revision statements for git commits) and are not wanted in the<br>
+next released version.</p>
+<p>Example: <strong>--edit-delete-revisions-after 2019-03-15</strong></p>
+</dd>
+<dt><strong>--edit-revision-date</strong> <em>date</em></dt>
+<dd>
+<p>Set the most recent revision date to the supplied <em>yyyy-mm-dd</em><br>
+revision date. This does nothing if the YANG module doesn’t<br>
+already have at least one <em>revision</em> statement. If necessary, a<br>
+new <em>revision</em> statement will be inserted before any (remaining)<br>
+existing revisions.</p>
+<p>Example: <strong>--edit-revision-date 2020-03-15</strong></p>
+</dd>
+<dt><strong>--edit-revision-description</strong> <em>description</em></dt>
+<dd>
+<p>Set the most recent revision description to <em>description</em>.</p>
+<p>Example: <strong>–edit-revision-description=%DELETE+@…/REVISION</strong></p>
+</dd>
+<dt><strong>--edit-revision-reference</strong> <em>reference</em></dt>
+<dd>
+<p>Set the most recent revision reference to <em>reference</em>.</p>
+<p>Example: <strong>–edit-revision-reference=%DELETE+@…/REFERENCE</strong></p>
+</dd>
+</dl>
+<h1 id="output-formats">OUTPUT FORMATS</h1>
+<p>Installed <strong>pyang</strong> plugins may define their own options, or add new<br>
+formats to the <strong>-f</strong> option.  These options and formats are listed in<br>
+<strong>pyang -h</strong>.</p>
+<dl>
+<dt><em>capability</em></dt>
+<dd>Capability URIs for each module of the data model.</dd>
+<dt><em>depend</em></dt>
+<dd>Makefile dependency rule for the module.</dd>
+<dt><em>dsdl</em></dt>
+<dd>Hybrid DSDL schema, see <strong>RFC 6110</strong>.</dd>
+<dt><em>identifiers</em></dt>
+<dd>All identifiers in the module.</dd>
+<dt><em>jsonxsl</em></dt>
+<dd>XSLT stylesheet for transforming XML instance documents to JSON.</dd>
+<dt><em>jstree</em></dt>
+<dd>HTML/JavaScript tree navigator.</dd>
+<dt><em>jtox</em></dt>
+<dd>Driver file for transforming JSON instance documents to XML.</dd>
+<dt><em>name</em></dt>
+<dd>Module name, and the name of the main module for a submodule.</dd>
+<dt><em>omni</em></dt>
+<dd>An applescript file that draws a diagram in <strong>OmniGraffle</strong>.</dd>
+<dt><em>sample-xml-skeleton</em></dt>
+<dd>Skeleton of a sample XML instance document.</dd>
+<dt><em>tree</em></dt>
+<dd>Tree structure of the module.</dd>
+<dt><em>flatten</em></dt>
+<dd>Print the schema nodes in CSV form.</dd>
+<dt><em>uml</em></dt>
+<dd>UML file that can be read by <strong>plantuml</strong> to generate UML diagrams.</dd>
+<dt><em>yang</em></dt>
+<dd>Normal YANG syntax.</dd>
+<dt><em>yin</em></dt>
+<dd>The XML syntax of YANG.</dd>
+</dl>
+<h1 id="lint-checker">LINT CHECKER</h1>
+<p>The <em>lint</em> option validates that the module follows the generic<br>
+conventions and rules given in <strong>RFC 8407</strong>.  In<br>
+addition, it checks that the module is in canonical order.</p>
+<p>Options for the <em>lint</em> checker:</p>
+<dl>
+<dt><strong>--lint-namespace-prefix</strong> <em>prefix</em></dt>
+<dd>Validate that the module’s namespace is of the form:<br>
+“&lt;prefix&gt;&lt;modulename&gt;”.</dd>
+<dt><strong>--lint-modulename-prefix</strong> <em>prefix</em></dt>
+<dd>Validate that the module’s name starts with <em>prefix</em>.</dd>
+<dt><strong>--lint-ensure-hyphenated-names</strong></dt>
+<dd>Validate that all identifiers use hyphenated style, i.e.,<br>
+no uppercase letters or underscores.</dd>
+</dl>
+<h1 id="yang-schema-item-identifiers-sid">YANG SCHEMA ITEM IDENTIFIERS (SID)</h1>
+<p>YANG Schema Item iDentifiers (SID) are globally unique unsigned<br>
+integers used to identify YANG items. SIDs are used instead of names<br>
+to save space in constrained applications such as COREconf. This<br>
+plugin is used to automatically generate and updated .sid files used<br>
+to persist and distribute SID assignments.</p>
+<p>Options for generating, updating and checking .sid files:</p>
+<dl>
+<dt><strong>--sid-generate-file</strong></dt>
+<dd>
+<p>This option is used to generate a new .sid file from a YANG module.</p>
+<p>Two arguments are required to generate a .sid file; the SID range<br>
+assigned to the YANG module and its definition file. The SID range<br>
+specified is a sub-range within a range obtained from a registrar<br>
+or a sub-range within the experimental range (i.e., 60000 to<br>
+99999). The SID range consists of the first SID of the range,<br>
+followed by a colon, followed by the number of SID allocated to<br>
+the YANG module. The filename consists of the module name,<br>
+followed by an @ symbol, followed by the module revision, followed<br>
+by the “.yang” extension.</p>
+<p>This example shows how to generate the file <em>toaster@2009-11-20.sid</em>.</p>
+<pre><code>  $ pyang --sid-generate-file 20000:100 toaster@2009-11-20.yang
+</code></pre>
+</dd>
+<dt><strong>--sid-update-file</strong></dt>
+<dd>
+<p>Each time new items are added to a YANG module by the introduction<br>
+of a new revision of this module, its included sub-modules or<br>
+imported modules, the associated .sid file need to be<br>
+updated. This is done by using the <strong>--sid-update-file</strong> option.</p>
+<p>Two arguments are required to generate a .sid file for an updated<br>
+YANG module; the previous .sid file generated for the YANG module<br>
+and the definition file of the updated module. Both filenames<br>
+follow the usual naming conversion consisting of the module name,<br>
+followed by an @ symbol, followed by the module revision, followed<br>
+by the extension.</p>
+<p>This example shows how to generate the file<br>
+<em>toaster@2009-12-28.sid</em> based on the SIDs already present in<br>
+<em>toaster@2009-11-20.sid</em>.</p>
+<pre><code>  $ pyang --sid-update-file toaster@2009-11-20.sid \
+      toaster@2009-12-28.yang
+</code></pre>
+</dd>
+<dt><strong>--sid-check-file</strong></dt>
+<dd>
+<p>The <strong>--sid-check-file</strong> option can be used at any time to verify<br>
+if a .sid file need to be updated.</p>
+<p>Two arguments are required to verify a .sid file; the filename of<br>
+the .sid file to be checked and the corresponding definition file.</p>
+<p>For example:</p>
+<pre><code>  $ pyang --sid-check-file toaster@2009-12-28.sid \
+      toaster@2009-12-28.yang
+</code></pre>
+</dd>
+<dt><strong>--sid-list</strong></dt>
+<dd>
+<p>The <strong>--sid-list</strong> option can be used before any of the previous<br>
+options to obtains the list of SIDs assigned or validated. For<br>
+example:</p>
+<pre><code>  $ pyang --sid-list --sid-generate-file 20000:100 \
+      toaster@2009-11-20.yang
+</code></pre>
+</dd>
+<dt><strong>--sid-extra-range</strong></dt>
+<dd>
+<p>If needed, an extra SID range can be assigned to an existing YANG module<br>
+during its update with the <strong>--sid-extra-range</strong> option.</p>
+<p>For example, this command generates the file<br>
+<em>toaster@2009-12-28.sid</em> using the initial range(s) present in<br>
+<em>toaster@2009-11-20.sid</em> and the extra range specified in the<br>
+command line.</p>
+<pre><code>  $ pyang --sid-update-file toaster@2009-11-20.sid \
+      toaster@2009-12-28.yang --sid-extra-range 20100:100
+</code></pre>
+</dd>
+<dt><em>count</em></dt>
+<dd>
+<p>The number of SID required when generating or updating a .sid file can<br>
+be computed by specifying “<em>count</em>” as SID range.</p>
+<p>For example:</p>
+<pre><code>  $ pyang --sid-generate-file count \
+      toaster@2009-11-20.yang
+</code></pre>
+<p>or:</p>
+<pre><code>  $ pyang --sid-update-file toaster@2009-11-20.sid \
+      toaster@2009-12-28.yang --sid-extra-range count
+</code></pre>
+</dd>
+</dl>
+<h1 id="capability-output">CAPABILITY OUTPUT&gt;</h1>
+<p>The <em>capability</em> output prints a capability URL for each module of the<br>
+input data model, taking into account features and deviations, as<br>
+described in section 5.6.4 of <strong>RFC 6020</strong>.</p>
+<p>Options for the <em>capability</em> output format:</p>
+<dl>
+<dt><strong>--capability-entity</strong></dt>
+<dd>Write ampersands in the output as XML entities ("&amp;amp;").</dd>
+</dl>
+<h1 id="depend-output">DEPEND OUTPUT</h1>
+<p>The <em>depend</em> output generates a Makefile dependency rule for files<br>
+based on a YANG module.  This is useful if files are generated from<br>
+the module.  For example, suppose a .c file is generated from each<br>
+YANG module.  If the YANG module imports other modules, or includes<br>
+submodules, the .c file needs to be regenerated if any of the imported<br>
+or included modules change.  Such a dependency rule can be generated<br>
+like this:</p>
+<pre><code>$ pyang -f depend --depend-target mymod.c \
+    --depend-extension .yang mymod.yang
+mymod.c : ietf-yang-types.yang my-types.yang
+</code></pre>
+<p>Options for the <em>depend</em> output format:</p>
+<dl>
+<dt><strong>--depend-target</strong></dt>
+<dd>Makefile rule target.  Default is the module name.</dd>
+<dt><strong>--depend-extension</strong></dt>
+<dd>YANG module file name extension.  Default is no extension.</dd>
+<dt><strong>--depend-no-submodules</strong></dt>
+<dd>Do not generate dependencies for included submodules.</dd>
+<dt><strong>--depend-from-submodules</strong></dt>
+<dd>Generate dependencies taken from all included submodules.</dd>
+<dt><strong>--depend-recurse</strong></dt>
+<dd>Recurse into imported modules and generate dependencies<br>
+for their imported modules etc.</dd>
+<dt><strong>--depend-include-path</strong></dt>
+<dd>Include file path in the prerequisites.  Note that if no<br>
+<strong>--depend-extension</strong> has been given, the prerequisite is the<br>
+filename as found, i.e., ending in “.yang” or “.yin”.</dd>
+<dt><strong>--depend-ignore-module</strong></dt>
+<dd>Name of YANG module or submodule to ignore in the prerequisites.<br>
+This option can be given multiple times.</dd>
+</dl>
+<h1 id="dsdl-output">DSDL Output</h1>
+<p>The <em>dsdl</em> output takes a data model consisting of one or more YANG<br>
+modules and generates a hybrid DSDL schema as described in <strong>RFC<br>
+6110</strong>. The hybrid schema is primarily intended as an interim product<br>
+used by <strong>yang2dsdl</strong>(1).</p>
+<p>The <em>dsdl</em> plugin also supports<br>
+metadata annotations, if they are defined and used as described in<br>
+<strong>RFC 7952</strong>.</p>
+<p>Options for the <em>dsdl</em> output format:</p>
+<dl>
+<dt><strong>--dsdl-no-documentation</strong></dt>
+<dd>Do not print Dublin Core metadata terms</dd>
+<dt><strong>--dsdl-record-defs</strong></dt>
+<dd>Record translations of all top-level typedefs and groupings in the<br>
+output schema, even if they are not used. This is useful for<br>
+translating library modules.</dd>
+</dl>
+<h1 id="jsonxsl-output">JSONXSL OUTPUT</h1>
+<p>The <em>jsonxsl</em> output generates an XSLT 1.0 stylesheet that can be used<br>
+for transforming an XML instance document into JSON text as specified<br>
+in <strong>RFC 7951</strong>. The XML document must be a valid instance of the data<br>
+model which is specified as one or more input YANG modules on the<br>
+command line (or via a &lt;hello&gt; message, see the <strong>--hello</strong><br>
+option).</p>
+<p>The <em>jsonxsl</em> plugin also converts metadata annotations, if they are<br>
+defined and used as described in <strong>RFC 7952</strong>.</p>
+<p>The data tree(s) must be wrapped at least in either &lt;nc:data&gt; or<br>
+&lt;nc:config&gt; element, where “nc” is the namespace prefix for the<br>
+standard NETCONF URI “urn:ietf:params:xml:ns:netconf:base:1.0”, or the<br>
+XML instance document has to be a complete NETCONF RPC request/reply<br>
+or notification. Translation of RPCs and notifications defined by the<br>
+data model is also supported.</p>
+<p>The generated stylesheet accepts the following parameters that modify<br>
+its behaviour:</p>
+<ul>
+<li>
+<p><em>compact</em>: setting this parameter to 1 results in a compact<br>
+representation of the JSON text, i.e., without any whitespace. The<br>
+default is 0 which means that the JSON output is pretty-printed.</p>
+</li>
+<li>
+<p><em>ind-step</em>: indentation step, i.e., the number of spaces to use for<br>
+each level. The default value is 2 spaces. Note that this setting is<br>
+only useful for pretty-printed output (compact=0).</p>
+</li>
+</ul>
+<p>The stylesheet also includes the file <em>jsonxsl-templates.xsl</em> which is<br>
+a part of <strong>pyang</strong> distribution.</p>
+<h1 id="jstree-output">JSTREE OUTPUT</h1>
+<p>The <em>jstree</em> output grenerates an HTML/JavaScript page that presents a<br>
+tree-navigator to the given YANG module(s).</p>
+<p>jstree output specific option:</p>
+<dl>
+<dt><strong>--jstree-no-path</strong></dt>
+<dd>Do not include paths in the output.  This option makes the page<br>
+less wide.</dd>
+</dl>
+<h1 id="jtox-output">JTOX OUTPUT</h1>
+<p>The <em>jtox</em> output generates a driver file which can be used as one of<br>
+the inputs to <strong>json2xml</strong> for transforming a JSON document to XML as<br>
+specified in <strong>RFC 7951</strong>.</p>
+<p>The <em>jtox</em> output itself is a JSON document containing a concise<br>
+representation of the data model which is specified as one or more<br>
+input YANG modules on the command line (or via a &lt;hello&gt;<br>
+message, see the <strong>--hello</strong> option).</p>
+<p>See <strong>json2xml</strong> manual page for more information.</p>
+<h1 id="omni-output">OMNI OUTPUT</h1>
+<p>The plugin generates an applescript file that draws a diagram in<br>
+OmniGraffle.  Requires OmniGraffle 6.  Usage:</p>
+<pre><code> $ pyang -f omni foo.yang -o foo.scpt
+ $ osascript foo.scpt
+</code></pre>
+<p>omni output specific option:</p>
+<dl>
+<dt><strong>--omni-path</strong> <em>path</em></dt>
+<dd>Subtree to print.  The <em>path</em> is a slash ("/") separated path to<br>
+a subtree to print.  For example “/nacm/groups”.</dd>
+</dl>
+<h1 id="name-output">NAME OUTPUT</h1>
+<p>The <em>name</em> output prints the name of each module in the input data<br>
+model. For submodules, it also shows the name of the main module to<br>
+which the submodule belongs.</p>
+<p>name output specific option:</p>
+<dl>
+<dt><strong>--name-print-revision</strong></dt>
+<dd>Print the name and revision in name@revision format.</dd>
+</dl>
+<h1 id="sample-xml-skeleton-output">SAMPLE-XML-SKELETON OUTPUT</h1>
+<p>The <em>sample-xml-skeleton</em> output generates an XML instance document<br>
+with sample elements for all nodes in the data model, according to the<br>
+following rules:</p>
+<ul>
+<li>
+<p>An element is present for every leaf, container or anyxml.</p>
+</li>
+<li>
+<p>At least one element is present for every leaf-list or<br>
+list. The number of entries in the sample is min(1,</p>
+</li>
+<li>
+<p>For a choice node, sample element(s) are present for<br>
+each case.</p>
+</li>
+<li>
+<p>Leaf, leaf-list and anyxml elements are empty (but see<br>
+the <strong>--sample-xml-skeleton-defaults</strong> option<br>
+below).</p>
+</li>
+</ul>
+<p>Note that the output document will most likely be invalid and needs<br>
+manual editing.</p>
+<p>Options specific to the <em>sample-xml-skeleton</em> output format:</p>
+<dl>
+<dt><strong>--sample-xml-skeleton-annotations</strong></dt>
+<dd>Add XML comments to the sample documents with hints about expected<br>
+contents, for example types of leaf nodes, permitted number of<br>
+list entries etc.</dd>
+<dt><strong>--sample-xml-skeleton-defaults</strong></dt>
+<dd>Add leaf elements with defined defaults to the output with their<br>
+default value. Without this option, the default elements are<br>
+omitted.</dd>
+<dt><strong>--sample-xml-skeleton-doctype=</strong><em>type</em></dt>
+<dd>Type of the sample XML document. Supported values for <em>type</em> are<br>
+<strong>data</strong> (default) and <strong>config</strong>. This option determines the document<br>
+element of the output XML document (&lt;data&gt; or &lt;config&gt;<br>
+in the NETCONF namespace) and also affects the contents: for<br>
+<strong>config</strong>, only data nodes representing configuration are included.</dd>
+<dt><strong>--sample-xml-skeleton-path=</strong><em>path</em></dt>
+<dd>Subtree of the sample XML document to generate, including all<br>
+ancestor elements.  The <em>path</em> is a slash ("/") separated list of<br>
+data node names that specifies the path to a subtree to print. For<br>
+example “/nacm/rule-list/rule/rpc-name”.</dd>
+</dl>
+<h1 id="tree-output">TREE OUTPUT</h1>
+<p>The <em>tree</em> output prints the resulting schema tree from one or more<br>
+modules.  Use <strong>pyang --tree-help</strong> to print a description on the<br>
+symbols used by this format.</p>
+<p>Tree output specific options:</p>
+<dl>
+<dt><strong>--tree-help</strong></dt>
+<dd>Print help on symbols used in the tree output and exit.</dd>
+<dt><strong>--tree-depth</strong> <em>depth</em></dt>
+<dd>Levels of the tree to print.</dd>
+<dt><strong>--tree-path</strong> <em>path</em></dt>
+<dd>Subtree to print.  The <em>path</em> is a slash ("/") separated path to a<br>
+subtree to print.  For example “/nacm/groups”.  All ancestors and<br>
+the selected subtree are printed.</dd>
+<dt><strong>--tree-print-groupings</strong></dt>
+<dd>Print the top-level groupings defined in the module.</dd>
+<dt><strong>--tree-print-structures</strong></dt>
+<dd>Print the ietf-yang-structure-ext:structure structures defined in<br>
+the module.</dd>
+<dt><strong>--tree-print-yang-data</strong></dt>
+<dd>Print the ietf-restconf:yang-data structures defined in the<br>
+module.</dd>
+<dt><strong>--tree-line-length</strong> <em>maxlen</em></dt>
+<dd>Try to break lines so they are no longer than <em>maxlen</em>.  This is<br>
+a best effort algorithm.</dd>
+<dt><strong>--tree-module-name-prefix</strong> <em>maxlen</em></dt>
+<dd>Use the module name (instead of the prefix) to prefix<br>
+parameters and types.</dd>
+</dl>
+<h1 id="flatten-output">FLATTEN OUTPUT</h1>
+<p>The <em>flatten</em> output flattens provided<br>
+YANG module and outputs the schema nodes and some of their<br>
+properties in CSV format.</p>
+<p>Flatten output specific options:</p>
+<dl>
+<dt><strong>--flatten-no-header</strong></dt>
+<dd>
+<p>Do not emit the CSV header.</p>
+</dd>
+<dt><strong>--flatten-keyword</strong></dt>
+<dd>
+<p>Output the keyword.<br>
+This will resolve as container, leaf, etc.</p>
+</dd>
+<dt><strong>--flatten-type</strong></dt>
+<dd>
+<p>Output the top-level type.<br>
+This will resolve to a module-prefixed type.</p>
+</dd>
+<dt><strong>--flatten-primitive-type</strong></dt>
+<dd>
+<p>Output the primitive type.<br>
+This resolves to a YANG type such as uint64.</p>
+</dd>
+<dt><strong>--flatten-flag</strong></dt>
+<dd>
+<p>Output flag property.<br>
+Derives a flag - for instance rw/ro for config, or x for RPC.</p>
+</dd>
+<dt><strong>--flatten-description</strong></dt>
+<dd>
+<p>Output the description.</p>
+</dd>
+<dt><strong>--flatten-keys</strong></dt>
+<dd>
+<p>Output whether the XPath is identified as a key.<br>
+<em>key</em> or null will be output per XPath.</p>
+</dd>
+<dt><strong>--flatten-keys-in-xpath</strong></dt>
+<dd>
+<p>Output the XPath with keys in path.</p>
+</dd>
+<dt><strong>--flatten-prefix-in-xpath</strong></dt>
+<dd>
+<p>Output the XPath with prefixes instead of modules.</p>
+</dd>
+<dt><strong>--flatten-qualified-in-xpath</strong></dt>
+<dd>
+<p>Output the qualified XPath i.e., /module1:root/module1:node/module2:node/…</p>
+</dd>
+<dt><strong>--flatten-qualified-module-and-prefix-path</strong></dt>
+<dd>
+<p>Output an XPath with both module and prefix i.e., /module1:prefix1:root/…<br>
+This is NOT a colloquial syntax of XPath. Emitted separately.</p>
+</dd>
+<dt><strong>--flatten-deviated</strong></dt>
+<dd>
+<p>Flatten all data keywords instead of only data definition keywords.</p>
+</dd>
+<dt><strong>--flatten-filter-keyword</strong> <em>keyword</em></dt>
+<dd>
+<p>Filter output to only desired keywords.  Keywords specified are<br>
+what will be displayed in output.  Can be specified more than<br>
+once.</p>
+</dd>
+<dt><strong>--flatten-filter-primitive</strong> <em>primitive_type</em></dt>
+<dd>
+<p>Filter output to only desired primitive types.  Primitives<br>
+specified are what will be displayed in output.  Can be specified<br>
+more than once.</p>
+</dd>
+<dt><strong>--flatten-filter-flag</strong> <em>choice</em></dt>
+<dd>
+<p>Filter output to flag.</p>
+<ul>
+<li>
+<p><em>rw</em> for configuration data.</p>
+</li>
+<li>
+<p><em>ro</em> for non-configuration data, output parameters to rpcs and<br>
+actions, and notification parameters.</p>
+</li>
+<li>
+<p><em>w</em> for input parameters to rpcs and actions.</p>
+</li>
+<li>
+<p><em>u</em> for uses of a grouping.</p>
+</li>
+<li>
+<p><em>x</em> for rpcs and actions.</p>
+</li>
+<li>
+<p><em>n</em> for notifications.</p>
+</li>
+</ul>
+</dd>
+<dt><strong>--flatten-csv-dialect</strong> <em>dialect</em></dt>
+<dd>
+<p>CSV dialect for output.<br>
+<em>dialect</em> is one of <strong>excel</strong>, <strong>excel-tab</strong>, or <strong>unix</strong>.</p>
+</dd>
+<dt><strong>--flatten-ignore-no-primitive</strong></dt>
+<dd>
+<p>Ignore error if primitive is missing.</p>
+</dd>
+<dt><strong>--flatten-status</strong></dt>
+<dd>
+<p>Output the status statement value.</p>
+</dd>
+<dt><strong>--flatten-resolve-leafref</strong></dt>
+<dd>
+<p>Output the XPath of the leafref target.</p>
+</dd>
+</dl>
+<h1 id="uml-output">UML OUTPUT</h1>
+<p>The <em>uml</em> output prints an output that can be used as input-file to<br>
+<strong>plantuml</strong> (<a href="http://plantuml.sourceforge.net">http://plantuml.sourceforge.net</a>) in order to<br>
+generate a UML diagram.  Note that it requires <strong>graphviz</strong><br>
+(<a href="http://www.graphviz.org/">http://www.graphviz.org/</a>).</p>
+<p>For large diagrams you may need to increase the Java heap-size<br>
+by the -XmxSIZEm option, to java.  For example: <strong>java<br>
+-Xmx1024m -jar plantuml.jar …</strong></p>
+<p>Options for the <em>UML</em> output format:</p>
+<dl>
+<dt><strong>--uml-classes-only</strong></dt>
+<dd>Generate UML with classes only, no attributes</dd>
+<dt><strong>--uml-split-pages=</strong><em>layout</em></dt>
+<dd>Generate UML output split into pages, NxN, example 2x2.<br>
+One .png file per page will be rendered.</dd>
+<dt><strong>--uml-output-directory=</strong><em>directory</em></dt>
+<dd>Put the generated .png files(s) in the specified output directory.<br>
+Default is “img/”</dd>
+<dt><strong>--uml-title=</strong><em>title</em></dt>
+<dd>Set the title of the generated UML diagram, (default is<br>
+YANG module name).</dd>
+<dt><strong>--uml-header=</strong><em>header</em></dt>
+<dd>Set the header of the generated UML diagram.</dd>
+<dt><strong>--uml-footer=</strong><em>footer</em></dt>
+<dd>Set the footer of the generated UML diagram.</dd>
+<dt><strong>--uml-long-identifers</strong></dt>
+<dd>Use complete YANG schema identifiers for UML class names.</dd>
+<dt><strong>--uml-no=</strong><em>arglist</em></dt>
+<dd>Render the diagram with groupings inlined.</dd>
+<dt><strong>--uml-inline-augments</strong></dt>
+<dd>Render the diagram with augments inlined.</dd>
+<dt><strong>--uml-max-enums=<em>number</em></strong></dt>
+<dd>Maximum of enum items rendered.</dd>
+<dt><strong>--uml-filter-file=<em>file</em></strong></dt>
+<dd>NOT IMPLEMENTED: Only paths in the filter file will be included in<br>
+the diagram. A default filter file is generated by option<br>
+--filter.</dd>
+</dl>
+<h1 id="yang-output">YANG OUTPUT</h1>
+<p>Options for the <em>yang</em> output format:</p>
+<dl>
+<dt><strong>--yang-canonical</strong></dt>
+<dd>Generate all statements in the canonical order.</dd>
+<dt><strong>--yang-remove-unused-imports</strong></dt>
+<dd>Remove unused import statements from the output.</dd>
+<dt><strong>--yang-remove-comments</strong></dt>
+<dd>Remove all comments from the output.</dd>
+<dt><strong>--yang-line-length</strong> <em>len</em></dt>
+<dd>Try to format each line with a maximum line length of <em>len</em>.  Does<br>
+not reformat long lines within strings.</dd>
+</dl>
+<h1 id="yin-output">YIN OUTPUT</h1>
+<p>Options for the <em>yin</em> output format:</p>
+<dl>
+<dt><strong>--yin-canonical</strong></dt>
+<dd>Generate all statements in the canonical order.</dd>
+<dt><strong>--yin-pretty-strings</strong></dt>
+<dd>Pretty print strings, i.e., print with extra whitespace in the<br>
+string.  This is not strictly correct, since the whitespace is<br>
+significant within the strings in XML, but the output is more<br>
+readable.</dd>
+</dl>
+<h1 id="yang-xpath-extensions">YANG XPATH EXTENSIONS</h1>
+<p>This section describes XPath functions that can be used in<br>
+“must”, “when”, or “path” expressions in YANG modules, in<br>
+addition to the core XPath 1.0 functions.</p>
+<p><strong>pyang</strong> can be instructed to reject the usage<br>
+of these functions with the parameter<br>
+<strong>--strict</strong>.</p>
+<dl>
+<dt><strong>Function:</strong> <em>node-set</em> <strong>deref</strong>(<em>node-set</em>)</dt>
+<dd>
+<p>The <strong>deref</strong> function follows the reference<br>
+defined by the first node in document order in the argument<br>
+node-set, and returns the nodes it refers to.</p>
+<p>If the first argument node is an <strong>instance-identifier</strong>,<br>
+the function returns a node-set that contains the single node that<br>
+the instance identifier refers to, if it exists.  If no such node<br>
+exists, an empty node-set is returned.</p>
+<p>If the first argument node is a <strong>leafref</strong>, the function<br>
+returns a node-set that contains the nodes that the leafref refers<br>
+to.</p>
+<p>If the first argument node is of any other type, an empty node-set<br>
+is returned.</p>
+<p>The following example shows how a leafref can be written with<br>
+and without the <strong>deref</strong> function:</p>
+<pre><code>  /* without deref */
+
+  leaf my-ip {
+    type leafref {
+      path "/server/ip";
+    }
+  }
+  leaf my-port {
+    type leafref {
+      path "/server[ip = current()/../my-ip]/port";
+    }
+  }
+
+  /* with deref */
+
+  leaf my-ip {
+    type leafref {
+      path "/server/ip";
+    }
+  }
+  leaf my-port {
+    type leafref {
+      path "deref(../my-ip)/../port";
+    }
+  }
+</code></pre>
+</dd>
+</dl>
+<h1 id="examples">EXAMPLES</h1>
+<p>The following example validates the standard YANG modules with<br>
+derived types:</p>
+<pre><code>$ pyang ietf-yang-types.yang ietf-inet-types.yang
+</code></pre>
+<p>The following example converts the ietf-yang-types module into YIN:</p>
+<pre><code>$ pyang -f yin -o ietf-yang-types.yin ietf-yang-types.yang
+</code></pre>
+<p>The following example converts the ietf-netconf-monitoring module into<br>
+a UML diagram:</p>
+<pre><code>$ pyang -f uml ietf-netconf-monitoring.yang &gt; \
+    ietf-netconf-monitoring.uml
+$ java -jar plantuml.jar ietf-netconf-monitoring.uml
+$ open img/ietf-netconf-monitoring.png
+</code></pre>
+<h1 id="environment-variables">ENVIRONMENT VARIABLES</h1>
+<p><strong>pyang</strong> searches for referred modules in the colon (:) separated<br>
+path defined by the environment variable <strong>$YANG_MODPATH</strong> and in the<br>
+directory <strong>$YANG_INSTALL</strong>/yang/modules.</p>
+<p><strong>pyang</strong> searches for plugins in the colon (:) separated path<br>
+defined by the environment variable<br>
+<strong>$PYANG_PLUGINDIR</strong>.</p>
+<h1 id="bugs">BUGS</h1>
+<p>The XPath arguments for the <em>must</em> and <em>when</em> statements are checked<br>
+only for basic syntax errors.</p>
+<h1 id="authors">AUTHORS</h1>
+<p>See the file CONTRIBUTORS at <a href="https://github.com/mbj4668/pyang">https://github.com/mbj4668/pyang</a>.</p>
+</div>
+</body>
+
+</html>
