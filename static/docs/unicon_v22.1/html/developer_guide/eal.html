@@ -1,0 +1,1128 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expect Abstraction Library &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="State Machine" href="statemachine.html" />
+    <link rel="prev" title="How to write a new Service" href="service_framework.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/passwords.html">Password Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/proxy.html">Connection Through Proxies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service_framework.html">How to write  a new Service</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Expect Abstraction Library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#challenges">Challenges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-not-pexpect">Why Not Pexpect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#under-the-hood">Under The Hood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spawn">Spawn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-shell-script">Example Shell Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spawning-our-first-command">Spawning Our First Command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-send-command">Using Send Command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expect-the-expected">Expect The Expected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eof-exception">EOF Exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#need-for-dialogs">Need For Dialogs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statements">Statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependency-injection-in-statements">Dependency Injection in Statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dialogs-revisited">Dialogs Revisited</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dialog-shorthand-notation">Dialog Shorthand Notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#putting-it-all-together">Putting It All Together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-session">Using Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prompt-recovery-feature">Prompt Recovery Feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="statemachine.html">State Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unittests.html">Develop &amp; Run Unittests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Expect Abstraction Library</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="expect-abstraction-library">
+<h1>Expect Abstraction Library<a class="headerlink" href="#expect-abstraction-library" title="Link to this heading">¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<p>Expect Abstraction Library (EAL), as the name suggests,  is a python based
+avatar of <a class="reference external" href="http://www.tcl.tk/man/expect5.31/expect.1.html">Tcl/Expect</a> library. This package attempts to bring in most of the
+useful features of Expect in a pythonic flavour.</p>
+<p><strong>EAL</strong> provides classes and structures required to programatically control
+any <em>interactive command</em>. For interactive programs, whose order of
+interactions varies based on the user input, we can use <strong>dialogs</strong>. <strong>Dialogs</strong>
+can dymamically invoke different callbacks based on the corresponding pattern
+match.</p>
+<p>EAL provides the lower most abstraction level to <strong>Unicon</strong> to perform device
+interactions. This library can be used even outside the context of device
+connection, for invocation of general shell commands; for example invoking
+an interactive shell program on a linux system.</p>
+<p>This library brings in following major API’s and settings.</p>
+<ul class="simple">
+<li><p>spawn</p></li>
+<li><p>expect</p></li>
+<li><p>send</p></li>
+<li><p>log_user</p></li>
+<li><p>no_transfer</p></li>
+<li><p>exp_continue</p></li>
+<li><p>dialogs</p></li>
+<li><p>timeout</p></li>
+</ul>
+<p>This is how a simple EAL program could look like.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span>
+<span class="linenos">2</span> <span class="n">prompt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^.*bash\$$\s?&quot;</span>
+<span class="linenos">3</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">spawn_command</span><span class="o">=</span><span class="s2">&quot;telnet 1.2.3.4&quot;</span><span class="p">)</span>
+<span class="linenos">4</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;username:&quot;</span><span class="p">])</span>
+<span class="linenos">5</span> <span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;admin</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">6</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;password:&quot;</span><span class="p">])</span>
+<span class="linenos">7</span> <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&quot;lab&quot;</span><span class="p">)</span> <span class="c1"># same as send but doesn&#39;t require carriage return</span>
+<span class="linenos">8</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="n">prompt</span><span class="p">])</span>
+<span class="linenos">9</span> <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="challenges">
+<h2>Challenges<a class="headerlink" href="#challenges" title="Link to this heading">¶</a></h2>
+<p>Implementing an Expect like library is a bit of task in Python becuase of
+following two reasons:</p>
+<p><strong>Event Driven</strong>:  Python, unlike Tcl is not <em>event driven</em> language at core.
+Becuase of this, python lacks asyncronous event loops. We need asyncronous event
+loops for precise tracking of timeouts.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Python 3 included asyncio as a core library for carrying out asyncronous
+tasks.</p>
+</div>
+<p><strong>Eval</strong>: Python does not encourage evaluation of arbitrary code. Yes it is
+allowed, but it should be only used only in situation when standard python
+techniques do not work. Whereas it is quite common in Tcl to pass chunks of
+code as arguments, which the receiving function can invoke in caller’s context.
+Because of this self imposed limitation, it is difficult to created nested
+<strong>Expect</strong> blocks containing patterns and action/callback pairs.</p>
+<p><strong>Globals</strong>: Globals are strongly discouraged in python. In absence of global
+variables we need some special ways to handle situations where we need our
+callback functions to communicate with each other.</p>
+<p><strong>EAL</strong> tries its best to overcome these problems and provide an intuitive set
+of APIs to handle interactive shell commands.</p>
+</section>
+<section id="why-not-pexpect">
+<h2>Why Not Pexpect<a class="headerlink" href="#why-not-pexpect" title="Link to this heading">¶</a></h2>
+<p>One common question we often receive is:</p>
+<blockquote>
+<div><p>Why not <a class="reference external" href="https://pexpect.readthedocs.org">pexpect</a> !</p>
+</div></blockquote>
+<p>In our benchmark tests we found pexpect to be significantly slower than
+Tcl/Expect. The order of difference was enough for us to consider different
+possible options. It also lacks concept of <em>Dialogs</em>, without which, it is
+difficult to scale pexpect programs.</p>
+<p>We also included the following libraries in our benchmark tests.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/2/library/telnetlib.html">Telnetlib</a></p></li>
+<li><p><a class="reference external" href="https://github.com/knipknap/exscript">Exscript</a></p></li>
+<li><p><a class="reference external" href="http://www.paramiko.org">Paramiko</a></p></li>
+</ul>
+</section>
+<section id="under-the-hood">
+<h2>Under The Hood<a class="headerlink" href="#under-the-hood" title="Link to this heading">¶</a></h2>
+<p><em>EAL</em> is developed based on <a class="reference external" href="https://docs.python.org/3.2/library/pty.html">pty</a> library. Pty is a standard python package
+for in-memory handling of pseudo terminals.</p>
+<dl class="simple">
+<dt>Pty library forks a process and provides socket like objects for communicating</dt><dd><p>with those processes.</p>
+</dd>
+</dl>
+<p>EAL uses this as follows:</p>
+<ul class="simple">
+<li><p>fork a process.</p></li>
+<li><p>in the forked process, exec the ssh command which will connect to localhost.</p></li>
+<li><p>once we have the shell, issue the command which needs to be spawned.</p></li>
+<li><p>forked process returns a file descriptor, use this for inter process communication.</p></li>
+<li><p>destroy the process when the scope of spawned command is over.</p></li>
+</ul>
+<p>Currently this option is looking scalable and provides extremely good
+performance, almost at par with Tcl/Expect or sometimes even better.</p>
+</section>
+<section id="spawn">
+<h2>Spawn<a class="headerlink" href="#spawn" title="Link to this heading">¶</a></h2>
+<p>You can <code class="docutils literal notranslate"><span class="pre">Spawn</span></code> any command to interact with it. Once the command is spawned
+you can interact with it using APIs like <code class="docutils literal notranslate"><span class="pre">send</span></code> and <code class="docutils literal notranslate"><span class="pre">expect</span></code>.</p>
+<p>This is how, in a nutshell, it works</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="s2">&quot;telnet 1.2.3.4 1000&quot;</span><span class="p">)</span>
+<span class="c1"># now we have spawn object s</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ret</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="s1">&#39;pattern&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="example-shell-script">
+<h2>Example Shell Script<a class="headerlink" href="#example-shell-script" title="Link to this heading">¶</a></h2>
+<p>Since we do not find interactive commands commonly on linux platforms, hence we
+will use the following shell program during all our subsequent examples in this
+chapter. Please make sure you save the following shell program as <code class="docutils literal notranslate"><span class="pre">router.sh</span></code>
+on your Linux/Mac system. All the example which will follow from here will spawn
+<code class="docutils literal notranslate"><span class="pre">router.sh</span></code>. You may require to give it execute permission:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="mi">755</span> <span class="n">router</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Credentials for the router:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">username</span><span class="p">:</span> <span class="n">admin</span>
+<span class="n">password</span><span class="p">:</span> <span class="n">lab</span>
+<span class="n">enable</span> <span class="n">password</span><span class="p">:</span> <span class="n">lablab</span>
+</pre></div>
+</div>
+<p>Here is the source code of <code class="docutils literal notranslate"><span class="pre">router.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/bin/bash</span>
+<span class="linenos"> 2</span><span class="nv">hostname</span><span class="o">=</span><span class="s2">&quot;sim-router&quot;</span>
+<span class="linenos"> 3</span><span class="nv">disable_prompt</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$hostname</span><span class="s2">&gt;&quot;</span>
+<span class="linenos"> 4</span><span class="nv">enable_prompt</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$hostname</span><span class="s2">#&quot;</span>
+<span class="linenos"> 5</span><span class="nv">config_prompt</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$hostname</span><span class="s2">(config)#&quot;</span>
+<span class="linenos"> 6</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Trying X.X.X.X ...</span>
+<span class="linenos"> 7</span><span class="s2">Escape character is &#39;^]&#39;.</span>
+<span class="linenos"> 8</span><span class="s2">Press enter to continue ...&quot;</span>
+<span class="linenos"> 9</span><span class="nb">read</span><span class="w"> </span>escape_char
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$escape_char</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">12</span><span class="k">then</span>
+<span class="linenos">13</span><span class="w">    </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;username: &quot;</span>
+<span class="linenos">14</span><span class="w">    </span><span class="nb">read</span><span class="w"> </span>username
+<span class="linenos">15</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$username</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">16</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">17</span><span class="w">        </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;password: &quot;</span>
+<span class="linenos">18</span><span class="w">        </span><span class="nb">read</span><span class="w"> </span>-s<span class="w"> </span>password
+<span class="linenos">19</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$password</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;lab&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">20</span><span class="w">        </span><span class="k">then</span>
+<span class="linenos">21</span><span class="w">            </span><span class="nb">echo</span>
+<span class="linenos">22</span><span class="w">            </span><span class="c1">#echo -n &quot;$disable_prompt&quot;</span>
+<span class="linenos">23</span><span class="w">        </span><span class="k">else</span>
+<span class="linenos">24</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;bad password&quot;</span>
+<span class="linenos">25</span><span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="linenos">26</span><span class="w">        </span><span class="k">fi</span>
+<span class="linenos">27</span><span class="w">    </span><span class="k">else</span>
+<span class="linenos">28</span><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;wrong username&quot;</span>
+<span class="linenos">29</span><span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="linenos">30</span><span class="w">    </span><span class="k">fi</span>
+<span class="linenos">31</span><span class="k">fi</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="nv">prompt</span><span class="o">=</span><span class="nv">$disable_prompt</span>
+<span class="linenos">34</span><span class="k">while</span><span class="w"> </span><span class="nb">true</span>
+<span class="linenos">35</span><span class="k">do</span>
+<span class="linenos">36</span><span class="w">    </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="nv">$prompt</span>
+<span class="linenos">37</span><span class="w">    </span><span class="nb">read</span><span class="w"> </span>resp
+<span class="linenos">38</span><span class="w">    </span><span class="c1"># enable command</span>
+<span class="linenos">39</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;enable&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">40</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">41</span><span class="w">        </span><span class="nv">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="linenos">42</span><span class="w">        </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;password: &quot;</span>
+<span class="linenos">43</span><span class="w">        </span><span class="nb">read</span><span class="w">  </span>password
+<span class="linenos">44</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$password</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;lablab&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">45</span><span class="w">        </span><span class="k">then</span>
+<span class="linenos">46</span><span class="w">            </span><span class="nv">prompt</span><span class="o">=</span><span class="nv">$enable_prompt</span>
+<span class="linenos">47</span><span class="w">        </span><span class="k">else</span>
+<span class="linenos">48</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Bad Password&quot;</span>
+<span class="linenos">49</span><span class="w">        </span><span class="k">fi</span>
+<span class="linenos">50</span><span class="w">    </span><span class="c1"># show clock command</span>
+<span class="linenos">51</span><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;show clock&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;sh clock&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">52</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">53</span><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="k">$(</span>date<span class="k">)</span>
+<span class="linenos">54</span>
+<span class="linenos">55</span><span class="w">    </span><span class="c1"># config mode.</span>
+<span class="linenos">56</span><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;config&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;config term&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">57</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">58</span><span class="w">        </span><span class="c1"># check if we are in enable mode</span>
+<span class="linenos">59</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$prompt</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">$enable_prompt</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">60</span><span class="w">        </span><span class="k">then</span>
+<span class="linenos">61</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;Configuring from terminal, memory, or network [terminal]? &quot;</span>
+<span class="linenos">62</span><span class="w">            </span><span class="nb">read</span><span class="w"> </span>resp
+<span class="linenos">63</span><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">64</span><span class="w">            </span><span class="k">then</span>
+<span class="linenos">65</span><span class="w">                </span><span class="nv">prompt</span><span class="o">=</span><span class="nv">$config_prompt</span>
+<span class="linenos">66</span><span class="w">            </span><span class="k">fi</span>
+<span class="linenos">67</span><span class="w">        </span><span class="k">else</span>
+<span class="linenos">68</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;you need to be in enable mode&quot;</span>
+<span class="linenos">69</span><span class="w">        </span><span class="k">fi</span>
+<span class="linenos">70</span><span class="w">    </span><span class="c1"># config end</span>
+<span class="linenos">71</span><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;end&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">72</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">73</span><span class="w">        </span><span class="c1"># check if are in config mode</span>
+<span class="linenos">74</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$prompt</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">$config_prompt</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">75</span><span class="w">        </span><span class="k">then</span>
+<span class="linenos">76</span><span class="w">            </span><span class="nv">prompt</span><span class="o">=</span><span class="nv">$enable_prompt</span>
+<span class="linenos">77</span><span class="w">        </span><span class="k">else</span>
+<span class="linenos">78</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;you need to be in config mode&quot;</span>
+<span class="linenos">79</span><span class="w">        </span><span class="k">fi</span>
+<span class="linenos">80</span><span class="w">    </span><span class="c1"># going to disable mode.</span>
+<span class="linenos">81</span><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;disable&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">82</span><span class="w">    </span><span class="k">then</span>
+<span class="linenos">83</span><span class="w">        </span><span class="c1"># check if we are in enable mode first</span>
+<span class="linenos">84</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$prompt</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">$enable_prompt</span><span class="w"> </span><span class="o">]]</span>
+<span class="linenos">85</span><span class="w">        </span><span class="k">then</span>
+<span class="linenos">86</span><span class="w">            </span><span class="nv">prompt</span><span class="o">=</span><span class="nv">$disable_prompt</span>
+<span class="linenos">87</span><span class="w">        </span><span class="k">else</span>
+<span class="linenos">88</span><span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;you need to be in enable mode&quot;</span>
+<span class="linenos">89</span><span class="w">        </span><span class="k">fi</span>
+<span class="linenos">90</span><span class="w">    </span><span class="k">fi</span>
+<span class="linenos">91</span><span class="k">done</span>
+</pre></div>
+</div>
+<p>This is a sample run of this script. It is just a minimal script to simulate a
+router kind of stuff:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./router.sh
+Trying X.X.X.X ...
+Escape character is &#39;^]&#39;.
+Press enter to continue ...
+
+username: admin
+password:
+sim-router&gt;enable
+password: lab
+sim-router#show clock
+Fri Oct 23 01:55:16 IST 2015
+sim-router#
+</pre></div>
+</div>
+<p>It is only capable to doing following things which is just enough for our
+purpose.</p>
+<ul class="simple">
+<li><p>perform a login.</p></li>
+<li><p>going to enable mode with enable command.</p></li>
+<li><p>running <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">clock</span></code> command.</p></li>
+</ul>
+</section>
+<section id="spawning-our-first-command">
+<h2>Spawning Our First Command<a class="headerlink" href="#spawning-our-first-command" title="Link to this heading">¶</a></h2>
+<p>Now let us <strong>spawn</strong> the <code class="docutils literal notranslate"><span class="pre">router.sh</span></code>. This is how it can be done. We are
+assuming that <code class="docutils literal notranslate"><span class="pre">router.sh</span></code> is in the current directory, or else you can provide
+the fully qualified path.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span>
+<span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Following events happen when above code is executed.</p>
+<ul class="simple">
+<li><p>an ssh session to localhost is created. This will be manifested a minimal lag.</p></li>
+<li><p>a new tty session is created inside the ssh connection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">router.sh</span></code> is invoked.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You may also see the login banner of localhost, which is normal. This has
+nothing to do with the spawned command.</p>
+</div>
+</section>
+<section id="using-send-command">
+<h2>Using Send Command<a class="headerlink" href="#using-send-command" title="Link to this heading">¶</a></h2>
+<p>In case you have executed the <code class="docutils literal notranslate"><span class="pre">router.sh</span></code>, you will notice that it waits for
+you to press the <code class="docutils literal notranslate"><span class="pre">ENTER</span></code> button, before it can show the username prompt. This
+is the exact place where it waits:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Press</span> <span class="n">enter</span> <span class="n">to</span> <span class="k">continue</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Hence let us send the the carriage return.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">()</span>
+<span class="c1"># we can also do it like this.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># both are equivalent.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">send/sendline</span></code> methods do not return anything, even if they do, it is
+irrelevant. Either your command will be sent or an exception will be raised.</p>
+</section>
+<section id="expect-the-expected">
+<h2>Expect The Expected<a class="headerlink" href="#expect-the-expected" title="Link to this heading">¶</a></h2>
+<p>After the sending the carriage return we expect the <strong>username:</strong> prompt. Hence
+let us write a pattern to handle this.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If the above pattern is not received within the specified amount of time, then
+a <code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code> is raised. By default, the timeout value is <em>10</em>. Let us
+reduce it since we know our <code class="docutils literal notranslate"><span class="pre">router.sh</span></code> will take almost no time to show
+the <strong>username</strong> prompt.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let us generalise the above program a bit. We may come across some routers
+where username prompt doesn’t look like <code class="docutils literal notranslate"><span class="pre">username:</span></code>, it may also show up like
+<code class="docutils literal notranslate"><span class="pre">login::</span></code>. The good news is, <code class="docutils literal notranslate"><span class="pre">expect</span></code> method can take a list of patterns.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;login:\s?$&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By default, match_mode_detect is enabled. Detect rules are as below:</p>
+<ol class="arabic simple">
+<li><p>search whole buffer with re.DOTALL if:</p></li>
+</ol>
+<ul class="simple">
+<li><p>pattern contains any of: \r, \n</p></li>
+<li><p>pattern equals to any of: .*, ^.*$, .*$, ^.*, .+, ^.+$, .+$, ^.+</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>If pattern ends with $ but not $, will only match last line</p></li>
+<li><p>In other situations, search whole buffer with re.DOTALL</p></li>
+</ol>
+<p>Now let’s introspect on the return object. The return object contains the
+following:</p>
+<ul class="simple">
+<li><p>last_match: the <code class="docutils literal notranslate"><span class="pre">re</span></code> match object.</p></li>
+<li><p>match_output: the exact text which matched in the buffer.</p></li>
+<li><p>last_match_index: the index of pattern in the list which matched.</p></li>
+<li><p>last_match_mode: the match mode eg. search whole buffer with re.DOTALL, only match last line</p></li>
+</ul>
+<p>Generally you will be interested in the <code class="docutils literal notranslate"><span class="pre">match_output</span></code>.</p>
+<p>Now lets sum it up and complete the above program to login and run a command.
+<code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">clock</span></code>. Most of the program is self explanatory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 4</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 5</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 6</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 7</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos"> 8</span><span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 9</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">()</span>
+<span class="linenos">10</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;login:\s?$&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">11</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+<span class="linenos">12</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">13</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;lab&#39;</span><span class="p">)</span>
+<span class="linenos">14</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="n">disable_prompt</span><span class="p">])</span>
+<span class="linenos">15</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">)</span>
+<span class="linenos">16</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">17</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;lablab&#39;</span><span class="p">)</span>
+<span class="linenos">18</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="n">enable_prompt</span><span class="p">])</span>
+<span class="linenos">19</span>    <span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;show clock&#39;</span><span class="p">)</span>
+<span class="linenos">20</span>    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="n">enable_prompt</span><span class="p">])</span>
+<span class="linenos">21</span><span class="k">except</span> <span class="ne">TimeoutError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="linenos">22</span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;errored becuase of timeout&#39;</span><span class="p">)</span>
+<span class="linenos">23</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A note on pattern matching and buffer size. The default search size is 8K
+which is used to search up to 8K bytes at the end of the buffer. This speeds
+up pattern matching for very large command output. To specify a different
+search size, use the <code class="xref py py-obj docutils literal notranslate"><span class="pre">search_size</span></code> parameter. Using <code class="docutils literal notranslate"><span class="pre">0</span></code> will search the
+complete buffer.</p>
+<p>You can check and set the default search size using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">SEARCH_SIZE</span></code> setting.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ret</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;huge pattern .* matching more than 8K&#39;</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">search_size</span><span class="o">=</span><span class="mi">16000</span><span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">SEARCH_SIZE</span>
+<span class="mi">8192</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">SEARCH_SIZE</span> <span class="o">=</span> <span class="mi">16000</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">SEARCH_SIZE</span>
+<span class="mi">16000</span>
+<span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="eof-exception">
+<h2>EOF Exception<a class="headerlink" href="#eof-exception" title="Link to this heading">¶</a></h2>
+<p>If the spawn connection has terminated/closed (like someone clear console line or
+close() is called on spawn) then any call to send/expect will raise an EOF exception.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="s2">&quot;telnet 127.0.0.1 15000&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">([</span><span class="sa">r</span><span class="s2">&quot;username:&quot;</span><span class="p">])</span> <span class="c1"># This will raise EOF</span>
+<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;some data&#39;</span><span class="p">)</span> <span class="c1"># this will raise EOF</span>
+<span class="c1"># Spawn again if EOF raise</span>
+<span class="kn">from</span> <span class="nn">unicon.core.errors</span> <span class="kn">import</span> <span class="n">EOF</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*&#39;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">EOF</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Spawn not available, Re-Spawn.&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="s1">&#39;telnet 127.0.0.1 15000&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="need-for-dialogs">
+<h2>Need For Dialogs<a class="headerlink" href="#need-for-dialogs" title="Link to this heading">¶</a></h2>
+<p>Above programs looks complete, but it has few limitations. We can use
+<code class="docutils literal notranslate"><span class="pre">send/expect</span></code> pair when we know for sure, that sequence of interaction will
+never change. Think of a hypothetical situation, in the above example, if the
+<code class="docutils literal notranslate"><span class="pre">router.sh</span></code> prompts for <em>password</em> before <em>username</em> ! In such situation,
+above program will timeout, even though it knows how to handle the password
+prompt. The order of interaction cannot be taken for granted in all the
+situations.</p>
+<p>We need to interact with commands which prompts for different things based on
+the user input, and our program should be able to handle it. The better example
+could be <code class="docutils literal notranslate"><span class="pre">copy</span></code> command on the router. On different platforms, and with
+different copy protocols we see different questions being asked. And it is
+expected from our API’s to handle all such variations, in order to produce a
+platform agnostic API.</p>
+<p><strong>Dialogs</strong> provide a way to handle exactly the same situation. It allows us to
+club all the anticipated interactions in one structure. It is agnostic to
+sequence of interaction as long as dialog knows how to handle it. At semantic
+level this how it looks.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span><span class="n">statement_1</span><span class="p">,</span>
+            <span class="n">statement_2</span><span class="p">,</span>
+            <span class="o">...</span><span class="p">,</span>
+            <span class="o">...</span><span class="p">,</span>
+            <span class="n">statement_n</span><span class="p">])</span>
+<span class="c1"># to execute or process a dialog.</span>
+<span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="c1"># here s is the spawn instance on which this dialog has to</span>
+<span class="c1"># be targeted.</span>
+</pre></div>
+</div>
+<p>In <strong>EAL</strong> Dialog is a class which is constituted of <em>Statements</em>. Before we
+go forward, lets study <code class="docutils literal notranslate"><span class="pre">Statement</span></code> class, the building block of a dialog.</p>
+</section>
+<section id="statements">
+<h2>Statements<a class="headerlink" href="#statements" title="Link to this heading">¶</a></h2>
+<p>Statements are building blocks of Dialogs. It has following constituents.</p>
+<ul class="simple">
+<li><p><strong>pattern</strong>: pattern for which the statments get triggered. (mandatory)</p></li>
+<li><p><strong>action</strong>: any callable which needs to be called once the pattern is matched. (optional)</p></li>
+<li><p><strong>args</strong>: a dict which contains arguments to <em>action</em>, if any. (default value <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><strong>loop_continue</strong>: whether to continue the dialog after this statement match. (default value <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>continue_timer</strong>: the dialog timeout gets reset after every match. (default value <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><strong>debug_statement</strong>: log the matched pattern if set to True. (default value <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>trim_buffer</strong>: whether to remove match content from buffer. (default value <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><strong>matched_retries</strong>: retry times if statement pattern is matched. (default value 0)</p></li>
+<li><p><strong>matched_retry_sleep</strong>: sleep between retries. (default value 0.02 seconds)</p></li>
+</ul>
+<p>This is how an statement can be constructed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="c1"># create a simple callback function</span>
+<span class="linenos"> 2</span> <span class="k">def</span> <span class="nf">send_password</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+<span class="linenos"> 3</span>     <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span> <span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span>
+<span class="linenos"> 6</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;password:&#39;</span><span class="p">,</span>
+<span class="linenos"> 7</span>               <span class="n">action</span><span class="o">=</span><span class="n">send_password</span><span class="p">,</span>
+<span class="linenos"> 8</span>               <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+<span class="linenos"> 9</span>               <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">10</span>               <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">11</span>               <span class="n">trim_buffer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">12</span>               <span class="n">debug_statement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Feel free to use lambdas in case you find it convenient for simple operations</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># By using lambda, same thing can be written as below.</span>
+<span class="c1"># in this we don&#39;t need to define the callback functions.</span>
+<span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;password:&#39;</span><span class="p">,</span>
+              <span class="n">action</span><span class="o">=</span><span class="k">lambda</span> <span class="n">spawn</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+              <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+              <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notice the <code class="docutils literal notranslate"><span class="pre">args</span></code> in both the examples. We have not supplied any value for
+the argument <code class="docutils literal notranslate"><span class="pre">spawn</span></code> even though the callback function (or the lambda) depends
+on it. EAL performs dependency injection for few thinngs which cannot be
+determined while contructing the <code class="docutils literal notranslate"><span class="pre">Statement</span></code> object. We will see it in detail
+in the next section.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Mention <code class="docutils literal notranslate"><span class="pre">args</span></code>, <code class="docutils literal notranslate"><span class="pre">loop_continue</span></code>, <code class="docutils literal notranslate"><span class="pre">continue_timer</span></code> only if you want to
+change the the default values. This will help reducting the clutter.</p>
+</div>
+<p><strong>Timeout Statement</strong>:
+By default, if none of Statement patterns get match within timeout period
+<code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code> execption gets raised. If we want to add some custom action when
+timeout occurs before <code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code> execption, this can be done by adding a
+<code class="docutils literal notranslate"><span class="pre">Statement</span></code> with pattern set as <code class="docutils literal notranslate"><span class="pre">__timeout__</span></code>. Action set for this Statement
+will get invoke if timeout occurs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_timeout_method</span><span class="p">(</span><span class="n">spawn</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;None of patterns matched within timeout period.&#39;</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;__timeout__&#39;</span><span class="p">,</span>
+              <span class="n">action</span><span class="o">=</span><span class="n">custom_timeout_method</span><span class="p">,</span>
+              <span class="n">loop_continue</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to set <code class="docutils literal notranslate"><span class="pre">continue_timer</span></code> as <code class="docutils literal notranslate"><span class="pre">False</span></code> for timeout statement, else it may
+will end up in infinite loop. If <code class="docutils literal notranslate"><span class="pre">continue_timer</span></code> set as <code class="docutils literal notranslate"><span class="pre">True</span></code>, then <code class="docutils literal notranslate"><span class="pre">Dialog</span></code> will
+start trying to match all patterns again and timeout period will be reset to
+original one.</p>
+</div>
+</section>
+<section id="dependency-injection-in-statements">
+<h2>Dependency Injection in Statements<a class="headerlink" href="#dependency-injection-in-statements" title="Link to this heading">¶</a></h2>
+<p>Few things which cannot be determined at the time of construction of Statement
+objects, are dependency injected by the EAL framework. There are three such
+things.</p>
+<ul class="simple">
+<li><p>spawn</p></li>
+<li><p>context (an attribute dict)</p></li>
+<li><p>session (an attribute dict)</p></li>
+</ul>
+<p><strong>spawn</strong>:
+Since same dialog instance can be used on multiple spawns instances, hence user
+cannot determine its (spawn) value at the time creating <code class="docutils literal notranslate"><span class="pre">Statement</span></code> instance.
+If your callback requires <em>spawn</em> then, just mention it in signature.
+You dont’t need to provide its value in the <code class="docutils literal notranslate"><span class="pre">args</span></code> section.</p>
+<p><strong>context</strong>:
+It is possible to have a situation when the value of some of the arguments of
+the callback needs to be determined at the runtime. One good example could be
+fetching the <em>password</em> from some config file, on which the developer has no
+control. In such situations, same callback function could be written like this.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="k">def</span> <span class="nf">send_password</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="linenos"> 2</span>     <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span> <span class="kn">from</span> <span class="nn">unicon.utils</span> <span class="kn">import</span> <span class="n">AttributeDict</span>
+<span class="linenos"> 5</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">AttributeDict</span><span class="p">({</span><span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;lab&#39;</span><span class="p">})</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span> <span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span>
+<span class="linenos"> 8</span> <span class="n">s</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;password:&#39;</span><span class="p">,</span>
+<span class="linenos"> 9</span>               <span class="n">action</span><span class="o">=</span><span class="n">send_password</span><span class="p">,</span>
+<span class="linenos">10</span>               <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">11</span>               <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">12</span> <span class="c1"># we are assuming we have more statements s1 and s3</span>
+<span class="linenos">13</span> <span class="c1"># also we have one spawn instance named s.</span>
+<span class="linenos">14</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span><span class="n">s</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s3</span><span class="p">])</span>
+<span class="linenos">15</span> <span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>we don’t need <code class="docutils literal notranslate"><span class="pre">args</span></code> in above statement as both the values will be
+injected in runtime.</p>
+</div>
+<p><strong>session</strong>: It is used for scenarios where different callback functions in
+a dialog would require to communicate with each other. <em>session</em> provides a way
+for inter callback communication. It is an <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> which can be
+treated as dictionary. It is also required if the same statement matched more
+than once during an interaction and the callback function is expected to
+behave differently in both the entries. We will have an example for this later.</p>
+<p>Whenever a dialog processing begins, a blank <code class="docutils literal notranslate"><span class="pre">session</span></code> dict is
+initialized. Any callback function can add or access any value to it. Since it
+is a dictionary, hence all the rules for handling <em>dict*s are
+applicable. It is strongly recommended to check for the presence of a key before
+accessing it. Becuase it can always happen that statement callback function
+which was supposed to *set the value</em> has not been invoked yet. This precaution
+will help avoiding <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p>
+<p>To be able to use the session dict we need to mention it in the callback
+signature, else it will not be injected.</p>
+<p>We will use these concepts in the later part of the document to make things
+clear.</p>
+</section>
+<section id="dialogs-revisited">
+<h2>Dialogs Revisited<a class="headerlink" href="#dialogs-revisited" title="Link to this heading">¶</a></h2>
+<p>In this section we will cover two different ways the dialogs can be created.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="c1"># as said, dialog is a list of statements</span>
+<span class="linenos"> 2</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos"> 3</span>     <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^pat1&#39;</span><span class="p">,</span>
+<span class="linenos"> 4</span>               <span class="n">action</span><span class="o">=</span><span class="n">first_callback</span><span class="p">,</span>
+<span class="linenos"> 5</span>               <span class="n">args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="linenos"> 6</span>               <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos"> 7</span>               <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="linenos"> 8</span>     <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^pat2&#39;</span><span class="p">,</span>
+<span class="linenos"> 9</span>               <span class="n">action</span><span class="o">=</span><span class="n">second_callback</span><span class="p">,</span>
+<span class="linenos">10</span>               <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">11</span>               <span class="n">loop_continue</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">12</span>               <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="linenos">13</span>    <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^pat3&#39;</span><span class="p">,</span>
+<span class="linenos">14</span>              <span class="n">action</span><span class="o">=</span><span class="n">third_callback</span><span class="p">,</span>
+<span class="linenos">15</span>              <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">16</span>              <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">17</span>              <span class="n">continue_timer</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="linenos">18</span> <span class="p">])</span>
+</pre></div>
+</div>
+<p>As we can see there is a lot of typing involved. We can also use a shorthand
+notation. Same dialog can also be represented as follows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">2</span>     <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;^pat1&#39;</span><span class="p">,</span> <span class="n">first_callback</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">3</span>     <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;^pat2&#39;</span><span class="p">,</span> <span class="n">second_callback</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">4</span>     <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;^pat3&#39;</span><span class="p">,</span> <span class="n">third_callback</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">5</span> <span class="p">])</span>
+</pre></div>
+</div>
+<p>Above style is a lot compact. Here we only need to provide arguments required
+by the <code class="docutils literal notranslate"><span class="pre">Statement</span></code> class as a list. But while using above notation please
+make sure to provide all the default arguments in case any of the default
+values are changed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please make sure to have at least one statement in the dialog having its
+<code class="docutils literal notranslate"><span class="pre">loop_continue</span></code> value as False, else the dialog will run into infinite
+loop, till it times out. We can’t call it a bug becuase sometimes it is a
+desired feature. But almost always you will not want an infinite loop.</p>
+</div>
+</section>
+<section id="dialog-shorthand-notation">
+<h2>Dialog Shorthand Notation<a class="headerlink" href="#dialog-shorthand-notation" title="Link to this heading">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
+<p>As you can see above, we are required to write callback function even for
+very trivial operations like sending a character <code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">yes</span></code>. Sometimes
+writting even little lambda functions also cause a lot of clutter.</p>
+<p>It is good to know how callback functions work but for very trivial operations
+you can use special string notation to get the the job done. For example if you
+need to send a “yes” followed by a new line character. You can do it like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dialog</span><span class="p">([</span>
+    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;pattern&#39;</span><span class="p">,</span> <span class="s1">&#39;sendline(yes)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+<p>As you can see in the above example, you don’t need to define <code class="xref py py-obj docutils literal notranslate"><span class="pre">sendline</span></code>
+function. We have more such <em>string based callbacks</em>. You can send any
+string by changing the <em>string</em> inside the parenthesis. For example to
+send <code class="xref py py-obj docutils literal notranslate"><span class="pre">xx</span></code> you can write it as <code class="xref py py-obj docutils literal notranslate"><span class="pre">sendline(xx)</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please make sure you don’t use any quotations line <code class="xref py py-obj docutils literal notranslate"><span class="pre">''</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>
+inside the parenthesis.</p>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>String Callbacks</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sendline(x)</p></td>
+<td><p>sends the <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code> followed by a new line character</p></td>
+</tr>
+<tr class="row-odd"><td><p>send(x)</p></td>
+<td><p>sends the <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code> without a new line character</p></td>
+</tr>
+<tr class="row-even"><td><p>send_ctx(x)</p></td>
+<td><p>sends the value in the context dict with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, without a new line character.</p></td>
+</tr>
+<tr class="row-odd"><td><p>sendline_ctx(x)</p></td>
+<td><p>sends the value in the context dict with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, follwed by a new line character</p></td>
+</tr>
+<tr class="row-even"><td><p>send_session(x)</p></td>
+<td><p>sends the value in the session dict with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, without a new line character.</p></td>
+</tr>
+<tr class="row-odd"><td><p>sendline_session(x)</p></td>
+<td><p>sends the value in the session dict with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, followed by a new line character.</p></td>
+</tr>
+<tr class="row-even"><td><p>sendline_cred_user(x)</p></td>
+<td><p>sends the username for credential with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, followed by a new line character.</p></td>
+</tr>
+<tr class="row-odd"><td><p>sendline_cred_pass(x)</p></td>
+<td><p>sends the password for credential with key <code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>, followed by a new line character.</p></td>
+</tr>
+</tbody>
+</table>
+<p>In the next section we would see how to use this in practice.</p>
+</section>
+<section id="putting-it-all-together">
+<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Link to this heading">¶</a></h2>
+<p>Let us now try to put all the above concepts to work. First we will try the
+following assigenment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">login</span> <span class="n">to</span> <span class="n">the</span> <span class="n">router</span> <span class="n">to</span> <span class="n">reach</span> <span class="n">the</span> <span class="n">disable</span> <span class="n">prompt</span>
+</pre></div>
+</div>
+<p>The program to handle this could look like this. We will call it our
+<strong>version 1</strong>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="hll"><span class="linenos">10</span><span class="c1"># callback to send password</span>
+</span><span class="hll"><span class="linenos">11</span><span class="k">def</span> <span class="nf">send_password</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;lab&#39;</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">12</span>    <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">13</span>
+</span><span class="hll"><span class="linenos">14</span><span class="c1"># callback to send username</span>
+</span><span class="hll"><span class="linenos">15</span><span class="k">def</span> <span class="nf">send_username</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">16</span>    <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">17</span>
+</span><span class="hll"><span class="linenos">18</span><span class="c1"># callback to send new line</span>
+</span><span class="hll"><span class="linenos">19</span><span class="k">def</span> <span class="nf">send_new_line</span><span class="p">(</span><span class="n">spawn</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">20</span>    <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">()</span>
+</span><span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1"># construct the dialog</span>
+<span class="linenos">23</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">24</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="n">send_new_line</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">25</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="n">send_username</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">26</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="n">send_password</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">27</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">28</span><span class="p">])</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">33</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">34</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>One thing we can quickly notice here, is that all the callback functions look a
+like. In the first glance we can say that there is scope for some optimization.
+Rather that writting three callback functions, all of which look alike, we can
+improve it by using only one callaback function.</p>
+<p>Let’s see our <strong>version 2</strong>, this is more <a class="reference external" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a> than the previous.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># callback to send any command or a new line character</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">send_command</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">12</span>    <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">13</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+<span class="linenos">14</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">15</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">()</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="c1"># construct the dialog</span>
+<span class="linenos">18</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">19</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="n">send_command</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">20</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="n">send_command</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span><span class="p">},</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">21</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="n">send_command</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;lab&#39;</span><span class="p">},</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">22</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">23</span><span class="p">])</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">28</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>But there is still room for improvement. In fact, our lone callback function
+is essentially performing a very trivial task, i.e sending a command. We can
+actually write it <em>inline</em> using <em>lambda functions</em>. Our <strong>version 3</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># construct the dialog</span>
+<span class="linenos">11</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">12</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">13</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">14</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&quot;lab&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">15</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">16</span><span class="p">])</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">21</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">22</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now let’s use the <em>shorthand</em> notation which we learnt in the last section.
+This can make the overall composition look even more compact and lucid. Here
+is <strong>version 4</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># construct the dialog</span>
+<span class="linenos">11</span><span class="c1"># we can see how shorthand notation makes the code look even more leaner.</span>
+<span class="linenos">12</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">13</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="s1">&#39;sendline()&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">14</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="s1">&#39;sendline(admin)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">15</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="s1">&#39;sendline(lab)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">16</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">17</span><span class="p">])</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">22</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">23</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Based on your preference you can use either of version 2 or 3 or 4. But we
+will strongly recommed to use version <em>4</em>, i.e. the one which follows shorthand
+notation, whenever and whereever possible. It reduces the chances or including
+an erroneous callback function and also avoids code duplication.</p>
+</section>
+<section id="using-session">
+<h2>Using Session<a class="headerlink" href="#using-session" title="Link to this heading">¶</a></h2>
+<p>Now lets extend the problem a bit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">What</span> <span class="k">if</span> <span class="n">we</span> <span class="n">have</span> <span class="n">to</span> <span class="n">take</span> <span class="n">the</span> <span class="n">router</span> <span class="n">till</span> <span class="n">enable</span> <span class="n">mode</span><span class="p">,</span> <span class="n">unlike</span> <span class="n">the</span> <span class="n">previous</span>
+<span class="n">example</span> <span class="n">where</span> <span class="n">we</span> <span class="n">are</span> <span class="n">only</span> <span class="n">going</span> <span class="n">till</span> <span class="n">disable</span> <span class="n">mode</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>In the first glance it may just look like a linear extension to the previous
+problem, but it is not. It may tempt us to solve it by just adding one more
+<em>statement</em> in the <em>dialog</em>. But notice the fact that <em>login password prompt</em>
+and <em>enable password prompt</em> look the same. Hence the following statement will
+trigger twice:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="n">send_command</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;lab&#39;</span><span class="p">},</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>But on the second occassion it has to send the enable password. We can’t have
+two statements having the same pattern in a dialog. We need to solve this by
+doing something at the callaback level. Our callback must have a way to
+understand whether it has been called for the first time or the second time, in
+order to decide which password to send. Here we can use <code class="docutils literal notranslate"><span class="pre">session</span></code> to our
+rescue.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># callback to send password</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">send_passwd</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">enablepw</span><span class="p">,</span> <span class="n">loginpw</span><span class="p">):</span>
+<span class="linenos">12</span>    <span class="k">if</span> <span class="s1">&#39;flag&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+<span class="linenos">13</span>        <span class="c1"># this is first entry hence we need to send login password.</span>
+<span class="linenos">14</span>        <span class="n">session</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">15</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">loginpw</span><span class="p">)</span>
+<span class="linenos">16</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">17</span>        <span class="c1"># if we come here that means it is second entry and here.</span>
+<span class="linenos">18</span>        <span class="c1"># we need to send the enable password.</span>
+<span class="linenos">19</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">enablepw</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="c1"># construct the dialog</span>
+<span class="linenos">22</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">23</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">24</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">25</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="n">send_passwd</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;enablepw&#39;</span><span class="p">:</span> <span class="s1">&#39;lablab&#39;</span><span class="p">,</span> <span class="s1">&#39;loginpw&#39;</span><span class="p">:</span> <span class="s1">&#39;lab&#39;</span><span class="p">},</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">26</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span> <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&quot;enable&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">27</span>    <span class="p">[</span><span class="n">enable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">28</span><span class="p">])</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">33</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Similar approch can be taken to solve situations where two callaback in two
+different callabacks have to communicate with each other. <code class="docutils literal notranslate"><span class="pre">session</span></code> is unique
+to the whole dialog context.</p>
+<p>The same code can be also we re-written using shorthand notation as follows. We
+would recommed you to use this version over the one which was just illustrated.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">unicon.eal.expect</span> <span class="kn">import</span> <span class="n">Spawn</span><span class="p">,</span> <span class="ne">TimeoutError</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">Dialog</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">router_command</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;router.sh&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">prompt</span> <span class="o">=</span> <span class="s1">&#39;sim-router&#39;</span>
+<span class="linenos"> 7</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+<span class="linenos"> 8</span><span class="n">disable_prompt</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># callback to send password, we still need this callback </span>
+<span class="linenos">11</span><span class="c1"># because shorthand notation is for handling trivial payloads.</span>
+<span class="linenos">12</span><span class="c1"># this function does little more than that.</span>
+<span class="linenos">13</span><span class="k">def</span> <span class="nf">send_passwd</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">enablepw</span><span class="p">,</span> <span class="n">loginpw</span><span class="p">):</span>
+<span class="linenos">14</span>    <span class="k">if</span> <span class="s1">&#39;flag&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+<span class="linenos">15</span>        <span class="c1"># this is first entry hence we need to send login password.</span>
+<span class="linenos">16</span>        <span class="n">session</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">17</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">loginpw</span><span class="p">)</span>
+<span class="linenos">18</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">19</span>        <span class="c1"># if we come here that means it is second entry and here.</span>
+<span class="linenos">20</span>        <span class="c1"># we need to send the enable password.</span>
+<span class="linenos">21</span>        <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">enablepw</span><span class="p">)</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="c1"># construct the dialog.</span>
+<span class="linenos">24</span><span class="c1"># here we see how shorthand notation can make the code look leaner.</span>
+<span class="linenos">25</span><span class="n">d</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+<span class="linenos">26</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;enter to continue \.\.\.&#39;</span><span class="p">,</span> <span class="s1">&#39;sendline()&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">27</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;username:\s?$&#39;</span><span class="p">,</span> <span class="s2">&quot;sendline(admin)&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">28</span>    <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;password:\s?$&#39;</span><span class="p">,</span> <span class="n">send_passwd</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;enablepw&#39;</span><span class="p">:</span> <span class="s1">&#39;lablab&#39;</span><span class="p">,</span> <span class="s1">&#39;loginpw&#39;</span><span class="p">:</span> <span class="s1">&#39;lab&#39;</span><span class="p">},</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">29</span>    <span class="p">[</span><span class="n">disable_prompt</span><span class="p">,</span> <span class="s1">&#39;sendline(enable)&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">30</span>    <span class="p">[</span><span class="n">enable_prompt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="linenos">31</span><span class="p">])</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="n">s</span> <span class="o">=</span> <span class="n">Spawn</span><span class="p">(</span><span class="n">router_command</span><span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="c1"># at this stage we are anticipating the program to wait for a new line</span>
+<span class="linenos">36</span><span class="n">d</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="prompt-recovery-feature">
+<span id="prompt-recovery-label"></span><h2>Prompt Recovery Feature<a class="headerlink" href="#prompt-recovery-feature" title="Link to this heading">¶</a></h2>
+<p>Prompt recovery feature will try to recover device after normal dialog timeout occurs. This is just an attempt to bring device to stable state and this does not guarantee to bring device to stable state in every scenario.</p>
+<p>Use case: Once device booted up with image, console messages displayed over terminal, because of these console log messages over terminal unicon is unable to match the device prompt. Sending a enter key to device bring the device prompt at front and unicon matches device prompt. After reload, console messages can interfere with prompt matching, especially during reload and configuration operations</p>
+<p>This feature is available for Dialog, Connect and Services.</p>
+<p><strong>Usage</strong></p>
+<p>By default this feature is disabled. To enable it, use it in this way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Dialog</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spawn</span><span class="p">,</span> <span class="n">prompt_recovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># In Unicon</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;R1&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;telnet x.x.x.x&#39;</span><span class="p">],</span> <span class="n">prompt_recovery</span><span class="o">=</span><span class="kc">True</span><span class="p">]</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="c1"># In pyATS</span>
+<span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">prompt_recovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">device</span><span class="o">.</span><span class="n">service</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">prompt_recovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Prompt recovery configurations</strong></p>
+<p>prompt_recovery can be configure using below 3 settings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>PROMPT_RECOVERY_COMMANDS : List of prompt recovery commands.
+Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">['\r',</span> <span class="pre">'\025',</span> <span class="pre">'\032',</span> <span class="pre">'\r',</span> <span class="pre">'\x1E']</span></code>. ‘\025’ is Ctrl-U, ‘\032’ is Ctrl-Z and ‘\x1E’ is Ctrl-^
+For Linux connection type default command list is: <code class="xref py py-obj docutils literal notranslate"><span class="pre">['\r',</span> <span class="pre">'\x03',</span> <span class="pre">'\r']</span></code>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">\x03</span></code> is Ctrl-C.</p></li>
+<li><p>PROMPT_RECOVERY_INTERVAL : Timeout period after sending each prompt recovery command, in secs.
+Default value: 10 secs</p></li>
+<li><p>PROMPT_RECOVERY_RETRIES  : Number of prompt recovery retires to perform.
+Default value: 1</p></li>
+</ul>
+</div></blockquote>
+<p>Users can also alter these values at run time by setting these values as dialog context.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.utils</span> <span class="kn">import</span> <span class="n">AttributeDict</span>
+<span class="n">ctx</span> <span class="o">=</span> <span class="n">AttributeDict</span><span class="p">()</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">prompt_recovery_interval</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">dialog</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span> <span class="n">context</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dialog</span></code> is Dialog object.
+<code class="docutils literal notranslate"><span class="pre">dev</span></code> is device connection object.</p>
+<p><strong>Working of prompt recovery feature</strong></p>
+<p>When prompt_recovery is enable, below steps followed:</p>
+<ol class="arabic simple">
+<li><p>After normal Dialog Timeout occurs. Unicon will not return Timeout exception at that moment,
+it will try to recover it to known state. Here known state means, try to match all the patterns
+in dialog again after sending <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> to device.</p></li>
+<li><p>List of command which are set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> are send to device, one at a time
+and new timeout period is set, value of this new timeout period is <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_INTERVAL</span></code>.</p></li>
+<li><p>After sending each <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> command, unicon waits if device comes to any known
+stable state. If device comes to any of known stable state, Dialog processing is complete and
+dialog process is considered as successful.</p></li>
+<li><p>After sending all <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> commands to device, one at a time, if device does
+not comes to known stable state then Timeout exception will be raised.</p></li>
+<li><p>Step 2 will get repeated <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_RETRIES</span></code> times. Example, Value of 1 to <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_RETRIES</span></code>
+means, all commands set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> will be sent to device once. If its set as 2,
+then all commands will be send two times and the sequence of commands will be like below</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PROMPT_RECOVERY_COMMANDS = [cmd1, cmd2, cmd3]
+PROMPT_RECOVERY_RETRIES = 2
+</pre></div>
+</div>
+<p>Commands to device will be send in below sequence to device</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cmd1, cmd2, cmd3, cmd1, cmd2, cmd3
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="service_framework.html" class="btn btn-neutral float-left" title="How to write a new Service" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="statemachine.html" class="btn btn-neutral float-right" title="State Machine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

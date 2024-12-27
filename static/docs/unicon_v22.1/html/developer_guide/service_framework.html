@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to write a new Service &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Expect Abstraction Library" href="eal.html" />
+    <link rel="prev" title="Plugin Implementation" href="plugins.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/passwords.html">Password Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/proxy.html">Connection Through Proxies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin Implementation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to write  a new Service</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#steps-involved-in-service-implementation">Steps involved in service implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-a-sample-service">Writing a sample service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-attach-a-service-to-connection-object">How to attach a service to connection object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementing-prompt-recovery-feature-in-service">Implementing prompt_recovery feature in service</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="eal.html">Expect Abstraction Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statemachine.html">State Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unittests.html">Develop &amp; Run Unittests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">How to write  a new Service</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-write-a-new-service">
+<span id="new-service-creation"></span><h1>How to write  a new Service<a class="headerlink" href="#how-to-write-a-new-service" title="Link to this heading">¶</a></h1>
+<p>Let us divide this task into 3 topics.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Steps involved in service implementation.</p></li>
+<li><p>Writing a sample service.</p></li>
+<li><p>How to attach a service to connection object.</p></li>
+</ol>
+</div></blockquote>
+<section id="steps-involved-in-service-implementation">
+<h2>Steps involved in service implementation<a class="headerlink" href="#steps-involved-in-service-implementation" title="Link to this heading">¶</a></h2>
+<p>We shall divide this implementation into 4 steps steps, which includes.</p>
+<p>1. What are pre-requisites I need to take care before running the service.
+we call it as <strong>‘pre_service’</strong>. One of them will be if connection is established,
+before try to execute a service on the connection. Change the state of the device
+to initial state for the service to be in.</p>
+<dl class="simple">
+<dt>Before start coding pre_service, let us go through __init__ of BaseService Class.</dt><dd><ul class="simple">
+<li><p><em>connection</em> : Device connection object</p></li>
+<li><p><em>context</em> : Context info from user (more details we can get it from connection class)</p></li>
+<li><p><em>timeout_pattern</em> : Will have list of timeout patterns, I would like to match in device response after service execution.</p></li>
+<li><p><em>error_pattern</em>  : Will have list of error patterns, I would like to match in device response after service execution.</p></li>
+<li><p><em>start_state</em> : Which state, device should be in before executing the service.</p></li>
+<li><p><em>end_state</em> : Which state, device should be after executing the service.</p></li>
+<li><p><em>result</em> : result attribute will have return response from device after service execution. Which will be used to evaluate the service result.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">connection</span><span class="p">,</span>  <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">timeout_pattern</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Timeout occurred&#39;</span><span class="p">,</span> <span class="p">]</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">error_pattern</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;my command error&quot;</span><span class="p">]</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">start_state</span> <span class="o">=</span> <span class="s1">&#39;enable&#39;</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">end_state</span> <span class="o">=</span> <span class="s1">&#39;enable&#39;</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pre_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="c1"># Check if connection is established. If reconnect option is enabled</span>
+  <span class="c1"># then reconnect and execute the command, or raise error.</span>
+
+  <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">is_connected</span><span class="p">:</span>
+      <span class="k">return</span>
+  <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">reconnect</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+  <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">&quot;Connection is not established to device&quot;</span><span class="p">)</span>
+
+  <span class="c1"># Bring the device to required state to issue a command.</span>
+
+  <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_state</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+                                      <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Actual service implementation goes here, we call it <strong>‘call_service’</strong>.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">call_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">dialog</span><span class="o">=</span><span class="n">Dialog</span><span class="p">([])</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+     <span class="c1"># Command to issue on device is `command`</span>
+     <span class="n">con</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+     <span class="n">con</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;+++ run_command +++ &quot;</span><span class="p">)</span>
+     <span class="n">con</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+     <span class="c1"># self.result attribute will be used at result validation.</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="o">.*</span><span class="c1">#?)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Any input object sent by the user calling your service, if not passed
+directly to the <code class="docutils literal notranslate"><span class="pre">send</span></code> or <code class="docutils literal notranslate"><span class="pre">sendline</span></code> spawn method, must be properly
+converted to a string form.  Users are allowed to specify non-string
+objects as input.</p>
+<p>Also, if your service accepts lists of objects, make sure you also
+accept list-like objects that are instances of collections.Sequence.</p>
+</div>
+<p>3. <strong>‘post_service’</strong>  includes reverting the device to earlier state. One of
+them will be bringing the device to end state of that service after service execution.
+for example after reload service device must be in enable state.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">post_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="c1"># Bring the device back to end state.</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_state</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+                                      <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>4. Final step will be <strong>‘get_service_result’</strong> will verify the self.result (response of each service)
+with service error_pattern and timeout_pattern. If self.result doesn’t match
+any of the above pattern, service result will be considered pass or it
+raises SubCommandFailure exception.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_service_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="c1">#  return True is self.result has &lt;xyz&gt; string in it or raise exception.</span>
+
+  <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;xvy&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span>
+  <span class="k">else</span> <span class="p">:</span>
+      <span class="k">raise</span> <span class="n">SubcommandFailure</span><span class="p">(</span><span class="s2">&quot;xyz is not found in device response&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="writing-a-sample-service">
+<h2>Writing a sample service<a class="headerlink" href="#writing-a-sample-service" title="Link to this heading">¶</a></h2>
+<p>For example I wanted to implement a service which issue given command  in
+<em>enable</em> mode and device and get the return response from device. Then return
+the device back in <em>disable</em> mode.</p>
+<p>Also, if the command we are trying to run will prompt a dialog/take additional
+input, Use <strong>‘Dialog’</strong> (list of Statements) which are expected to prompt.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import BaseService</span>
+
+  <span class="kn">from</span> <span class="nn">unicon.bases.routers.services</span> <span class="kn">import</span> <span class="n">BaseService</span>
+  <span class="kn">from</span> <span class="nn">unicon.eal.dialogs</span> <span class="kn">import</span> <span class="n">Dialog</span>
+
+
+  <span class="k">class</span> <span class="nc">RunCommand</span><span class="p">(</span><span class="n">BaseService</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">connection</span><span class="p">,</span>  <span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout_pattern</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Timeout&#39;</span><span class="p">,</span> <span class="s2">&quot;Timed Out&quot;</span> <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_pattern</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;abort&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_state</span> <span class="o">=</span> <span class="s1">&#39;enable&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_state</span> <span class="o">=</span> <span class="s1">&#39;disable&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pre_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Check if connection is established</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">is_connected</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">reconnect</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">&quot;Connection is not established to device&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Bring the device to required state to issue a command.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_state</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+                                            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span>
+                     <span class="n">dialog</span><span class="o">=</span><span class="n">Dialog</span><span class="p">([]),</span>
+                     <span class="n">timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                     <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Command to issue on device is `command`</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">con</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;+++ run_command +++ &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="c1"># Run command</span>
+          <span class="n">con</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+          <span class="c1"># self.result attribute will be used at result validation.</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="o">.*</span><span class="c1">#?)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">con</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">post_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Bring the device back to end state which is disable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_state</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+                                            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_service_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Base class get_service will verify error and timeout pattern and return</span>
+        <span class="c1"># self.result content if no error found.</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-attach-a-service-to-connection-object">
+<h2>How to attach a service to connection object<a class="headerlink" href="#how-to-attach-a-service-to-connection-object" title="Link to this heading">¶</a></h2>
+<p>Make an entry in the service list and pass on the service list to Connection class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.plugins.generic.services</span> <span class="kn">import</span> <span class="n">ServiceList</span><span class="p">,</span> <span class="n">HAServiceList</span>
+ <span class="kn">from</span> <span class="nn">.</span><span class="o">*.</span> <span class="kn">import</span> <span class="nn">implementation</span> <span class="n">RunCommand</span>
+
+<span class="k">class</span> <span class="nc">NxosServiceList</span><span class="p">(</span><span class="n">ServiceList</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+      <span class="c1"># Add the command defined to existing service list</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">run_command</span> <span class="o">=</span> <span class="n">RunCommand</span>
+
+<span class="k">class</span> <span class="nc">NXOSConnection</span><span class="p">(</span><span class="n">BaseDualRpConnection</span><span class="p">):</span>
+      <span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;nxos&#39;</span>
+      <span class="n">platform</span> <span class="o">=</span> <span class="kc">None</span>
+      <span class="n">chassis_type</span> <span class="o">=</span> <span class="s1">&#39;dual_rp</span>
+      <span class="n">state_machine_class</span> <span class="o">=</span> <span class="n">IosDualRpStateMachine</span>
+      <span class="n">connection_provider_class</span> <span class="o">=</span> <span class="n">IosDualRpConnectionProvider</span>
+      <span class="n">subcommand_list</span> <span class="o">=</span> <span class="n">NxosServiceList</span> <span class="p">;</span> <span class="o">&lt;</span> <span class="n">update</span> <span class="n">subcommand_list</span> <span class="k">with</span> <span class="n">new</span> <span class="nb">list</span> <span class="n">defined</span>
+      <span class="n">settings</span> <span class="o">=</span> <span class="n">IosConnectionSettings</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="implementing-prompt-recovery-feature-in-service">
+<h2>Implementing prompt_recovery feature in service<a class="headerlink" href="#implementing-prompt-recovery-feature-in-service" title="Link to this heading">¶</a></h2>
+<p>To add prompt_recovery feature in plugin service, plugin developers can use prompt_recovery argument with <code class="xref py py-obj docutils literal notranslate"><span class="pre">Dialog.process()</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">go_to()</span></code>.
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">prompt_recovery</span></code> attribute for the service is set at the time of <code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_service</span></code> function.
+If <code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_service</span></code> is implemented as part of service implementation then <code class="xref py py-obj docutils literal notranslate"><span class="pre">super()</span></code> need to use in <code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_service</span></code>.</p>
+<p><strong>Prompt recovery configuration</strong></p>
+<p>Prompt recovery can configure using below three settings:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>PROMPT_RECOVERY_COMMANDS : List of command which need to send after normal dialog timeout. It should be a list. Plugin developers can set or append values. New commands can be appended to <code class="xref py py-obj docutils literal notranslate"><span class="pre">PROMPT_RECOVERY_COMMANDS</span></code> or can be overwritten with new value.</p></li>
+<li><p>PROMPT_RECOVERY_INTERVAL : Timeout period after sending each prompt recovery command, in secs. Type is int. Default value: 10 secs</p></li>
+<li><p>PROMPT_RECOVERY_RETRIES  : Number of prompt recovery retires to perform. Type is int. Default value: 1</p></li>
+</ul>
+</div></blockquote>
+<p>These settings should go in plugin settings file, so that platform specific values utilize.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plugins.html" class="btn btn-neutral float-left" title="Plugin Implementation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eal.html" class="btn btn-neutral float-right" title="Expect Abstraction Library" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,842 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connection Through Proxies &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API/Services" href="services/index.html" />
+    <link rel="prev" title="Password Handling" href="passwords.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="passwords.html">Password Handling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Connection Through Proxies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cli-proxy">CLI Proxy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli-proxy-with-pyats-topology-integration">CLI proxy with pyATS topology integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli-proxy-topology-schema">CLI Proxy topology schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli-proxy-with-unicon-standalone-connections">CLI proxy with Unicon standalone Connections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli-proxy-examples">CLI Proxy examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ssh-tunnel">SSH Tunnel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-tunnel-with-pyats-topology-integration">SSH tunnel with pyATS topology integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-tunnel-topology-schema">SSH Tunnel topology schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-tunnel-with-standalone-unicon-connections">SSH Tunnel with standalone Unicon Connections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/plugins.html">Plugin Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/service_framework.html">How to write  a new Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/eal.html">Expect Abstraction Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/statemachine.html">State Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/unittests.html">Develop &amp; Run Unittests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Connection Through Proxies</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="connection-through-proxies">
+<h1>Connection Through Proxies<a class="headerlink" href="#connection-through-proxies" title="Link to this heading">¶</a></h1>
+<p>There are several ways to connect to a device via a ‘proxied’ connection, i.e.
+connecting to a device through another system. Unicon supports CLI proxy and
+SSH tunnel features. CLI proxy allows a device to connect via another
+(Unicon supported) device, SSH tunnel uses the SSH client to create TCP
+tunnels to connect to another device via a SSH connection.</p>
+<section id="cli-proxy">
+<span id="unicon-cli-proxy"></span><h2>CLI Proxy<a class="headerlink" href="#cli-proxy" title="Link to this heading">¶</a></h2>
+<p>The CLI proxy works by connecting via one or more proxy devices and executing
+a command to start the connection to the next device. The command can be
+specified explicitly as part of the proxy definition or it can be determined
+based on the connection details (i.e. <code class="xref py py-obj docutils literal notranslate"><span class="pre">protocol</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ip</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">port</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">command</span></code>).</p>
+<p>Multiple intermediate devices are supported, you can specify as many proxy
+hosts and commands as needed to connect to the target device. Proxy devices
+must be defined as a device in the topology file including the relevant
+connection details and credentials. Device connection details are used for the
+first proxy device only, connection details of intermediate devices are ignored,
+you need to explicitly specify a command to connect to an intermediate device.</p>
+<p>When the <strong>CLI proxy</strong> feature is when used as part of pyATS the proxy needs to be
+specified in the topology YAML file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the proxy device has more than one connection defined, you must
+specify the ‘via’ settings under the connection defaults of the proxy device.</p>
+</div>
+<section id="cli-proxy-with-pyats-topology-integration">
+<h3>CLI proxy with pyATS topology integration<a class="headerlink" href="#cli-proxy-with-pyats-topology-integration" title="Link to this heading">¶</a></h3>
+<p>Example topology file with a <code class="docutils literal notranslate"><span class="pre">proxy</span></code> configuration for the <code class="docutils literal notranslate"><span class="pre">cli</span></code> connection.
+Please note that credentials have been left out of this example.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jumphost</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2222</span>
+<span class="w">  </span><span class="nt">Router</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">      </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64001</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jumphost</span>
+</pre></div>
+</div>
+<p>Connection log (abbreviated) for above example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>%UNICON-INFO: ssh 127.0.0.1 -p 2222
+Last login: Wed Jan 24 08:02:24 2018 from 10.0.2.2
+admin@host:~$
+%UNICON-INFO: +++ initializing handle +++
+stty cols 200
+admin@host:~$ stty rows 200
+admin@host:~$
+%UNICON-INFO: +++ connection to spawn_command: ssh 127.0.0.1 -p 2222, id: 4394786888 +++
+telnet 127.0.0.1 64001
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is &#39;^]&#39;.
+
+Router#
+%UNICON-INFO: +++ initializing handle +++
+</pre></div>
+</div>
+<p>In the above log, you can see the command <code class="docutils literal notranslate"><span class="pre">telnet</span> <span class="pre">127.0.0.1</span> <span class="pre">64001</span></code> is
+executed to connect to the target device. This command is derived
+automatically from the connection details of the target device.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for <em>hierarchical</em> proxy configurations. If you need
+to pass multiple devices to get to the target device, you need to specify
+a list of proxy devices for that device. If a proxy device has a proxy
+specified for its connection, it is ignored.</p>
+</div>
+</section>
+<section id="cli-proxy-topology-schema">
+<h3>CLI Proxy topology schema<a class="headerlink" href="#cli-proxy-topology-schema" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">devices</span><span class="p">:</span>
+
+<span class="w">  </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+
+<span class="w">      </span><span class="c1"># proxy device only, command is derived from connection details</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+
+<span class="w">      </span><span class="c1"># proxy with specific command</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+<span class="w">          </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span><span class="w"> </span><span class="c1"># command to connect to target device</span>
+
+<span class="w">      </span><span class="c1"># proxy with lists of commands</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+<span class="w">            </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">&lt;cmd&gt;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">&lt;cmd&gt;</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># list of commands,</span>
+<span class="w">                                      </span><span class="c1"># the last command connects</span>
+<span class="w">                                      </span><span class="c1"># to the next proxy device</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># list of commands using different syntax</span>
+<span class="w">            </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span>
+
+<span class="w">      </span><span class="c1"># multiple proxy devices, last device without specific command</span>
+<span class="w">      </span><span class="c1"># derives the command from the connection details</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+<span class="w">            </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span><span class="w"> </span><span class="c1"># command to connect to next proxy device</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span>
+
+<span class="w">      </span><span class="c1"># multiple proxy devices with a list of commands for one of the hosts</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+<span class="w">            </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;name&gt;</span><span class="w"> </span><span class="c1"># proxy device name</span>
+<span class="w">            </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;cmd&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="cli-proxy-with-unicon-standalone-connections">
+<h3>CLI proxy with Unicon standalone Connections<a class="headerlink" href="#cli-proxy-with-unicon-standalone-connections" title="Link to this heading">¶</a></h3>
+<p>The <em>CLI Proxy</em> feature can also be used when using Unicon in standalone mode.
+Proxy connections can be specified via the <code class="xref py py-obj docutils literal notranslate"><span class="pre">proxy_connections</span></code> argument of the
+Connection class.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">proxy_connections</span></code> argument expects a list of <code class="docutils literal notranslate"><span class="pre">Connection</span></code> objects with the
+start parameter containing the command to be executed to connect to the
+next device. If multiple commands should be executed, a list of lists should be
+passed, e.g. <code class="docutils literal notranslate"><span class="pre">start=[['cmd1','cmd2','cmd3']]</span></code></p>
+<p>Below example shows a single proxy connection used to reach the IOS router <code class="xref py py-obj docutils literal notranslate"><span class="pre">R01</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">proxy_conn</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;lnx2&#39;</span><span class="p">,</span>
+               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ssh -p 2222 localhost&#39;</span><span class="p">],</span>
+               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;linux&#39;</span><span class="p">,</span>
+               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}})</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;R01&#39;</span><span class="p">,</span>
+               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;telnet 10.3.3.1&#39;</span><span class="p">],</span>
+               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;ios&#39;</span><span class="p">,</span>
+               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}},</span>
+               <span class="n">proxy_connections</span><span class="o">=</span><span class="p">[</span><span class="n">proxy_conn</span><span class="p">])</span>
+<span class="n">c</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="cli-proxy-examples">
+<h3>CLI Proxy examples<a class="headerlink" href="#cli-proxy-examples" title="Link to this heading">¶</a></h3>
+<p><strong>Connecting to ConfD/NSO CLI via a linux server</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lnx</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">            </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">      </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2222</span>
+<span class="w">  </span><span class="nt">nso</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">confd</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nso</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">            </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">      </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs_cli -u admin -C</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lnx</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+<span class="n">tb</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;nso.yaml&#39;</span><span class="p">)</span>
+
+<span class="c1"># Connect to target device, proxy connection is done automatically</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">nso</span>
+<span class="n">n</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">via</span><span class="o">=</span><span class="s1">&#39;cli&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Connecting to a VNF console via Cloud Services Platform (CSP)</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example with IOS VNF on CSP</span>
+
+<span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">Router</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">        </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">                </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">        </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">            </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet 7005</span>
+<span class="w">                </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csp</span>
+<span class="w">    </span><span class="nt">csp</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nfvi</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">confd</span>
+<span class="w">        </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csp</span>
+<span class="w">        </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">                </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">        </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">            </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">                </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.27.132.75</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+<span class="n">tb</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;csp.yaml&#39;</span><span class="p">)</span>
+
+<span class="c1"># Connect to target device, proxy connection is done automatically</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">Router</span>
+<span class="n">r</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">via</span><span class="o">=</span><span class="s1">&#39;cli&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Connecting via multiple proxy devices</strong></p>
+<p>Topology file with target device <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sw03</span></code> and three intermediate devices, <code class="xref py py-obj docutils literal notranslate"><span class="pre">lnx</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">R01</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">R02</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">testbed</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">            </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">lnx</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2222</span>
+
+<span class="w">    </span><span class="nt">R01</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64001</span>
+
+<span class="w">    </span><span class="nt">R02</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64002</span>
+
+<span class="w">    </span><span class="nt">Sw03</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">switch</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.2.3.3</span>
+<span class="w">          </span><span class="nt">proxy</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lnx</span>
+<span class="w">              </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet 10.3.3.1</span><span class="w">  </span><span class="c1"># Command specifies how to connect to R01</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">R01</span>
+<span class="w">              </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet 2.2.2.2</span><span class="w">   </span><span class="c1"># Command specifies how to connect to R02</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">R02</span><span class="w">  </span><span class="c1"># no command, use the connection details of Sw03</span>
+</pre></div>
+</div>
+<p>Example script and abbreviated connection log.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;cliproxy.yaml&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;Sw03&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">connect</span><span class="p">())</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: +++ initializing context +++</span>
+
+<span class="go">...</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection via proxy lnx</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection to lnx</span>
+
+<span class="go">Linux$</span>
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: +++ initializing handle +++</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection via proxy R01</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection to R01</span>
+<span class="go">telnet 10.3.3.1</span>
+<span class="go">Trying 10.3.3.1...</span>
+<span class="go">Connected to 10.3.3.1.</span>
+<span class="go">Escape character is &#39;^]&#39;.</span>
+
+
+<span class="go">User Access Verification</span>
+
+<span class="go">Password:</span>
+<span class="go">R01&gt;</span>
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: +++ initializing handle +++</span>
+<span class="go">enable</span>
+<span class="go">Password:</span>
+<span class="go">R01#</span>
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection via proxy R02</span>
+
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection to R02</span>
+<span class="go">telnet 2.2.2.2</span>
+<span class="go">Trying 2.2.2.2...</span>
+<span class="go">Connected to 2.2.2.2.</span>
+<span class="go">Escape character is &#39;^]&#39;.</span>
+
+
+<span class="go">User Access Verification</span>
+
+<span class="go">Password:</span>
+<span class="go">R02&gt;</span>
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: +++ initializing handle +++</span>
+<span class="go">enable</span>
+<span class="go">Password:</span>
+<span class="go">R02#</span>
+<span class="go">2018-02-13T12:20:53: %UNICON-INFO: connection to Sw03</span>
+<span class="go">telnet 10.2.3.3</span>
+<span class="go">Trying 10.2.3.3 ... Open</span>
+
+<span class="go">User Access Verification</span>
+
+<span class="go">Password:</span>
+<span class="go">Sw03&gt;</span>
+</pre></div>
+</div>
+<p><strong>CLI proxy with standalone Unicon Connections</strong></p>
+<p>Below example code and abbreviated execution log shows how to instantiate the
+Connection objects to create a proxied connection.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">unicon</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxy_conn</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;lnx2&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ssh lnx2&#39;</span><span class="p">],</span>
+<span class="gp">... </span>               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;linux&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}})</span>
+
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;R01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;telnet 10.3.3.1&#39;</span><span class="p">],</span>
+<span class="gp">... </span>               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;ios&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}})</span>
+<span class="gp">... </span>               <span class="n">proxy_connections</span><span class="o">=</span><span class="p">[</span><span class="n">proxy_conn</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="go">2018-02-13T12:56:30: %UNICON-INFO: connection via proxy lnx2</span>
+
+<span class="go">2018-02-13T12:56:30: %UNICON-INFO: connection to lnx2</span>
+
+<span class="go">Linux$</span>
+<span class="go">2018-02-13T12:56:31: %UNICON-INFO: +++ initializing handle +++</span>
+
+<span class="go">2018-02-13T12:56:31: %UNICON-INFO: connection to R01</span>
+<span class="go">telnet 10.3.3.1</span>
+<span class="go">Trying 10.3.3.1...</span>
+<span class="go">Connected to 10.3.3.1.</span>
+<span class="go">Escape character is &#39;^]&#39;.</span>
+
+
+<span class="go">User Access Verification</span>
+
+<span class="go">Password:</span>
+<span class="go">R01&gt;</span>
+<span class="go">2018-02-13T12:56:31: %UNICON-INFO: +++ initializing handle +++</span>
+</pre></div>
+</div>
+<p><strong>CLI proxy with Dual RP device</strong></p>
+<p>Below example code shows how to use CLI proxy for dual rp device.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example with IOSXE Ha device - testbed.yaml</span>
+
+<span class="nt">devices</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Router</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uut</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iosxe</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">        </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">      </span><span class="nt">enable</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">      </span><span class="nt">a</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.1.1</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2001</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jump_host</span>
+<span class="w">      </span><span class="nt">b</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telnet</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.27.114.25</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2002</span>
+<span class="w">        </span><span class="nt">proxy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jump_host</span>
+
+<span class="w">  </span><span class="nt">jump_host</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jh</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cli</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.2.2.2</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyats</span>
+<span class="w">        </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">virl</span>
+<span class="w">    </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># pyats shell --testbed-file testbed.yaml</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">genie.testbed</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testbed</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s1">&#39;testbed.yaml&#39;</span><span class="p">)</span>
+<span class="go">-------------------------------------------------------------------------------</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">testbed</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;uut&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="go">2020-08-14 14:08:15,959: %UNICON-INFO: +++ Router logfile /tmp/Router-cli-20200814T140815956.log +++</span>
+
+<span class="go">2020-08-14 14:08:15,960: %UNICON-INFO: +++ Unicon plugin iosxe +++</span>
+
+<span class="go">2020-08-14 14:08:15,995: %UNICON-INFO: +++ Router logfile /tmp/Router-cli-20200814T140815956.log +++</span>
+
+<span class="go">2020-08-14 14:08:15,996: %UNICON-INFO: +++ Unicon plugin iosxe +++</span>
+
+<span class="go">2020-08-14 14:08:16,033: %UNICON-INFO: +++ Router logfile /tmp/Router-cli-20200814T140815956.log +++</span>
+
+<span class="go">2020-08-14 14:08:16,036: %UNICON-INFO: +++ Unicon plugin iosxe +++</span>
+
+<span class="go">2020-08-14 14:08:16,039: %UNICON-INFO: connection via proxy jump_host</span>
+
+<span class="go">2020-08-14 14:08:16,053: %UNICON-INFO: +++ connection to spawn: ssh -l virl 2.2.2.2 -p 22, id: 139774725172192 +++</span>
+
+<span class="go">2020-08-14 14:08:16,054: %UNICON-INFO: connection to jump_host</span>
+<span class="go">virl@2.2.2.2&#39;s password:</span>
+<span class="go">Welcome to Ubuntu 16.04.5 LTS (GNU/Linux 4.4.0-139-generic x86_64)</span>
+
+<span class="go">Last login: Fri Aug 14 18:06:18 2020 from 10.0.10.1</span>
+<span class="go">virl@cisco.com:~$</span>
+
+<span class="go">2020-08-14 14:08:19,351: %UNICON-INFO: +++ initializing handle +++</span>
+
+
+<span class="go">2020-08-14 14:08:19,351: %UNICON-INFO: connection via proxy jump_host</span>
+
+<span class="go">2020-08-14 14:08:19,362: %UNICON-INFO: +++ connection to spawn: ssh -l virl 2.2.2.2 -p 22, id: 139774725151152 +++</span>
+
+<span class="go">2020-08-14 14:08:19,363: %UNICON-INFO: connection to jump_host</span>
+<span class="go">virl@2.2.2.2&#39;s password:</span>
+<span class="go">Welcome to Ubuntu 16.04.5 LTS (GNU/Linux 4.4.0-139-generic x86_64)</span>
+
+<span class="go">Last login: Fri Aug 14 18:08:19 2020 from 10.0.10.1</span>
+<span class="go">virl@cisco.com:~$</span>
+
+<span class="go">2020-08-14 14:08:22,638: %UNICON-INFO: +++ initializing handle +++</span>
+
+<span class="go">2020-08-14 14:08:22,640: %UNICON-INFO: +++ connection to spawn: ssh -l virl 2.2.2.2 -p 22, id: 139774725172192 +++</span>
+
+<span class="go">2020-08-14 14:08:22,641: %UNICON-INFO: +++ connection to spawn: ssh -l virl 2.2.2.2 -p 22, id: 139774725151152 +++</span>
+<span class="go">telnet 1.1.1.1 2001</span>
+<span class="go">Trying 1.1.1.1...</span>
+<span class="go">Connected to 1.1.1.1.</span>
+<span class="go">Escape character is &#39;^]&#39;.</span>
+
+<span class="go">Router-stby#</span>
+<span class="go">Router-stby#</span>
+
+<span class="go">telnet 1.1.1.1 2002</span>
+<span class="go">Trying 1.1.1.1...</span>
+<span class="go">Connected to 1.1.1.1.</span>
+<span class="go">Escape character is &#39;^]&#39;.</span>
+
+<span class="go">Router#</span>
+<span class="go">Router#</span>
+<span class="go">Router-stby#</span>
+<span class="gp">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ssh-tunnel">
+<span id="unicon-ssh-tunnel"></span><h2>SSH Tunnel<a class="headerlink" href="#ssh-tunnel" title="Link to this heading">¶</a></h2>
+<p>The SSH tunnel feature uses the escape sequence feature of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">ssh</span></code> command
+line client to create TCP tunnel connections via a (linux) server. This server
+acts as a ‘jumphost’ or proxy device to connect to devices that are
+reachable only through this server and not directly.</p>
+<p>Connections via the SSH tunnel feature make a TCP connection to the device via
+the SSH connection.</p>
+<p>The current implementation supports connections from the SSH client host (i.e.
+where the pyATS script runs) to devices behind the (linux) server in the lab.</p>
+<p>You can find more information on the escape sequence of the OpenSSH client here:
+<a href="https://www.freebsd.org/cgi/man.cgi?query=ssh&sektion=1#ESCAPE_CHARACTERS" target="_blank">SSH escape characters</a>.</p>
+<p>To configure a connection to use the SSH tunnel feature, configure <code class="docutils literal notranslate"><span class="pre">sshtunnel</span></code> key under
+the connection and add the <code class="docutils literal notranslate"><span class="pre">host</span></code> key with the device name or server name as the value.</p>
+<p>The SSH tunnel host can be a testbed server or can be another device from the testbed.</p>
+<section id="ssh-tunnel-with-pyats-topology-integration">
+<h3>SSH tunnel with pyATS topology integration<a class="headerlink" href="#ssh-tunnel-with-pyats-topology-integration" title="Link to this heading">¶</a></h3>
+<p>Example topology file with a <code class="docutils literal notranslate"><span class="pre">sshtunnel</span></code> configuration for the <code class="docutils literal notranslate"><span class="pre">a</span></code> connection of device R2.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">testbed</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">servers</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">js</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.1</span>
+<span class="w">      </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">ssh</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">              </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">      </span><span class="nt">custom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2222</span>
+<span class="w">        </span><span class="nt">ssh_options</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</span>
+
+<span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">R2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">      </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">a</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span>
+<span class="w">          </span><span class="nt">sshtunnel</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">js</span>
+</pre></div>
+</div>
+<p>Example script and abbreviated connection log.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyats.topology</span> <span class="kn">import</span> <span class="n">loader</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;sshtunnel.yaml&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s1">&#39;R2&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="o">.</span><span class="n">connect</span><span class="p">())</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: Connecting proxy host js</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: connection to js</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ connection to spawn_command: ssh -l cisco -p 2222 127.0.0.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null, id: 4440916152 +++</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: ssh -l cisco -p 2222 127.0.0.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</span>
+<span class="go">Warning: Permanently added &#39;[127.0.0.1]:2222&#39; (RSA) to the list of known hosts.</span>
+<span class="go">Password:</span>
+
+<span class="go">Linux$</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ initializing handle +++</span>
+<span class="go">stty cols 200</span>
+<span class="go">Linux$ stty rows 200</span>
+<span class="go">Linux$</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: Attaching  all Subcommands</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: Adding tunnel 127.0.0.1:20001 for 10.0.0.1:22</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: Device &#39;R2&#39; connection &#39;a&#39; via new SSH tunnel 127.0.0.1:20001</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: connection to R2</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ connection to spawn_command: ssh -l cisco 127.0.0.1 -p 20001 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null, id: 4442821240 +++</span>
+
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: ssh -l cisco 127.0.0.1 -p 20001 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</span>
+<span class="go">Warning: Permanently added &#39;[127.0.0.1]:20001&#39; (RSA) to the list of known hosts.</span>
+<span class="go">Password:</span>
+<span class="go">Username: cisco</span>
+<span class="go">Password: cisco</span>
+<span class="go">R2&gt;</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ initializing handle +++</span>
+<span class="go">enable</span>
+<span class="go">Password: cisco</span>
+<span class="go">R2#</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ execute  +++</span>
+<span class="go">term length 0</span>
+<span class="go">R2#</span>
+<span class="go">2018-03-29T18:19:26: %UNICON-INFO: +++ execute  +++</span>
+<span class="go">term width 0</span>
+<span class="go">R2#</span>
+</pre></div>
+</div>
+<p><strong>SSH tunnel with IPv6 target device</strong></p>
+<p>Below example topology file shows a router device that is reachable via IPv6 via the IPv4 jump host.</p>
+<p>Unicon will create a SSH connection to the jump host and create the IPv4 tunnel that connects to the IPv6 target device from the jump host.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">js</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linux</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">server</span>
+<span class="w">      </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">ssh</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.1</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span>
+<span class="w">          </span><span class="nt">ssh_options</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</span>
+
+<span class="w">    </span><span class="nt">R1</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ios</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<span class="w">      </span><span class="nt">credentials</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cisco</span>
+<span class="w">      </span><span class="nt">connections</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unicon.Unicon</span>
+<span class="w">        </span><span class="nt">vty</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssh</span>
+<span class="w">          </span><span class="nt">ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2001:abcd::1</span>
+<span class="w">          </span><span class="nt">sshtunnel</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">js</span>
+</pre></div>
+</div>
+</section>
+<section id="ssh-tunnel-topology-schema">
+<h3>SSH Tunnel topology schema<a class="headerlink" href="#ssh-tunnel-topology-schema" title="Link to this heading">¶</a></h3>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">devices</span><span class="p">:</span>
+
+<span class="w">  </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">connections</span><span class="p">:</span>
+
+<span class="w">      </span><span class="nt">&lt;name&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">sshtunnel</span><span class="p">:</span>
+<span class="w">          </span><span class="c1"># tunnel device name is required</span>
+<span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;device name&gt;</span>
+<span class="w">          </span><span class="c1"># optional settings</span>
+<span class="w">          </span><span class="nt">tunnel_ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;ip&gt;</span><span class="w"> </span><span class="c1"># default: 127.0.0.1</span>
+<span class="w">          </span><span class="nt">tunnel_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;port&gt;</span><span class="w"> </span><span class="c1"># default: automatic from port 20000 and up</span>
+</pre></div>
+</div>
+</section>
+<section id="ssh-tunnel-with-standalone-unicon-connections">
+<h3>SSH Tunnel with standalone Unicon Connections<a class="headerlink" href="#ssh-tunnel-with-standalone-unicon-connections" title="Link to this heading">¶</a></h3>
+<p>Below example code shows how to instantiate the
+Connection objects to create a tunneled connection.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon</span> <span class="kn">import</span> <span class="n">Connection</span>
+
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;linux&#39;</span><span class="p">,</span>
+               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ssh jumphost&#39;</span><span class="p">],</span>
+               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;linux&#39;</span><span class="p">,</span>
+               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}})</span>
+<span class="n">proxy</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">unicon.sshutil</span> <span class="kn">import</span> <span class="n">sshtunnel</span>
+
+<span class="n">tunnel_port</span> <span class="o">=</span> <span class="n">sshtunnel</span><span class="o">.</span><span class="n">add_tunnel</span><span class="p">(</span>
+            <span class="n">proxy_conn</span><span class="o">=</span><span class="n">proxy</span><span class="p">,</span>
+            <span class="n">target_address</span><span class="o">=</span><span class="s1">&#39;1.1.1.1&#39;</span><span class="p">,</span>
+            <span class="n">target_port</span><span class="o">=</span><span class="mi">23</span>
+            <span class="p">)</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;R1&#39;</span><span class="p">,</span>
+               <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;telnet 127.0.0.1 </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tunnel_port</span><span class="p">)],</span>
+               <span class="n">os</span><span class="o">=</span><span class="s1">&#39;ios&#39;</span><span class="p">,</span>
+               <span class="n">credentials</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;cisco&#39;</span><span class="p">}})</span>
+<span class="n">c</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>UDP tunnels are currently not supported.</p></li>
+</ul>
+<p><em>Section author: Dave Wapstra &lt;<a class="reference external" href="mailto:dwapstra&#37;&#52;&#48;cisco&#46;com">dwapstra<span>&#64;</span>cisco<span>&#46;</span>com</a>&gt;</em></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="passwords.html" class="btn btn-neutral float-left" title="Password Handling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="services/index.html" class="btn btn-neutral float-right" title="API/Services" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>State Machine &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Develop &amp; Run Unittests" href="unittests.html" />
+    <link rel="prev" title="Expect Abstraction Library" href="eal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/passwords.html">Password Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/proxy.html">Connection Through Proxies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service_framework.html">How to write  a new Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eal.html">Expect Abstraction Library</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">State Machine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#state">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-guide-for-state">API Guide For State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#path">Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statemachine">Statemachine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-statemachine">Using The StateMachine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-hostname-feature-support-requirements"><code class="docutils literal notranslate"><span class="pre">learn_hostname</span></code> feature support requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-guide-for-statemachine">API Guide For StateMachine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="unittests.html">Develop &amp; Run Unittests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">State Machine</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="state-machine">
+<h1>State Machine<a class="headerlink" href="#state-machine" title="Link to this heading">¶</a></h1>
+<p>Statemachine is a major building block of a connection object. It enables the
+connection handle to smoothly traverse across different <em>router states</em>.
+This is how it fits into overall scheme of things.</p>
+<img alt="../_images/connection.jpeg" src="../_images/connection.jpeg" />
+<p>We define <em>router states</em> as different <em>router modes</em>, e.g. enable, disable,
+config, rommon etc. Hence statemachine provides a software abstraction of all
+the router modes, and it keeps the connection library always in sync with the
+actual device mode.</p>
+<p>We need to implement the statemachine for all the platform implementations and
+if this step is done correctly, we can safely assume that at least half of the
+platform implementation is over.</p>
+<p>In this chapter we will go through the important APIs and using an example
+device we will try to implement a working statemachine.</p>
+<p>Before you go further, please make sure you have gone through
+<span class="xref std std-doc">Expect Abstraction Library</span></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not mandatory that states must be a router mode. In dual
+rp connections, we even treat <em>standby locked</em> also as one of the states.
+It all depends on how do we want to abstract to the device in software.</p>
+</div>
+<section id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Link to this heading">¶</a></h2>
+<p>The <em>statemachine</em> consists of following two things:</p>
+<ul class="simple">
+<li><p><strong>States</strong>: Individual states representing one of the router modes.</p></li>
+<li><p><strong>Paths</strong>: Migration paths between the states.</p></li>
+</ul>
+<p>Following is the block diagram for the same.</p>
+<img alt="../_images/statemachine.jpeg" src="../_images/statemachine.jpeg" />
+</section>
+<section id="state">
+<h2>State<a class="headerlink" href="#state" title="Link to this heading">¶</a></h2>
+<p>As said in the previous section, it depicts one of the router modes. We identify
+a router mode using the prompt pattern. For example this is how we can define
+the enable state and disable state.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span> <span class="nn">unicon.statemachine</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="linenos">2</span><span class="c1"># enable state</span>
+<span class="linenos">3</span><span class="n">enable</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.*(%N-standby|%N-sdby|%N)*#\s?#&#39;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="c1"># disable state</span>
+<span class="linenos">5</span><span class="n">disable</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;disable&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.*(%N-standby|%N-sdby|%N)*#\s?&gt;&#39;</span><span class="p">)</span>
+<span class="linenos">6</span><span class="c1"># config state</span>
+<span class="linenos">7</span><span class="n">config</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.(%N\(config\))#\s?&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>What is <code class="docutils literal notranslate"><span class="pre">%N</span></code> ? Since the hostname of the device is not known at the point of
+creating states, hence it is a just a markup indicating hostname. All the <code class="docutils literal notranslate"><span class="pre">%N</span></code>
+would be replaced by the actual hostname of the device during runtime.</p>
+</section>
+<section id="api-guide-for-state">
+<h2>API Guide For State<a class="headerlink" href="#api-guide-for-state" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">unicon.statemachine.statemachine.</span></span><span class="sig-name descname"><span class="pre">State</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Defines a device state</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">enable_state</span> <span class="o">=</span>  <span class="n">State</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^.*Router|%N#&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Initializes the state</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initializes the state</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">add_state_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern_list</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Appends state patterns to the existing list</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">state</span><span class="o">.</span><span class="n">add_state_pattern</span><span class="p">(</span><span class="s1">&#39;.*new pattern&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">restore_state_pattern</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Restore state pattern back to default one.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">state</span><span class="o">.</span><span class="n">restore_state_pattern</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="path">
+<h2>Path<a class="headerlink" href="#path" title="Link to this heading">¶</a></h2>
+<p><em>Path</em> objects contain all the information for migrating from one state to
+another. It requires the following arguments.</p>
+<ul class="simple">
+<li><p><strong>from_state</strong>: state object from which migration will start. (mandatory)</p></li>
+<li><p><strong>to_state</strong>: state object to which migration will end. (mandatory)</p></li>
+<li><p><strong>command</strong>: command required to initiate the migration. (mandatory)</p></li>
+<li><p><strong>dialog</strong>: dialog object for negotiating any interaction because of <em>command</em> (optional)</p></li>
+</ul>
+<p>Continuing from the previous example, lets add a few <code class="docutils literal notranslate"><span class="pre">Path</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span> <span class="nn">unicon.statemachine</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="linenos">2</span><span class="n">disable_to_enable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">disable</span><span class="p">,</span> <span class="n">enable</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="linenos">3</span><span class="n">enable_to_disable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">enable</span><span class="p">,</span> <span class="n">disable</span><span class="p">,</span> <span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">())</span>
+<span class="linenos">4</span><span class="n">enable_to_config</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">enable</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;config term&quot;</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">())</span>
+<span class="linenos">5</span><span class="n">config_to_enable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">enable</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Please note that <code class="docutils literal notranslate"><span class="pre">Dialog</span></code> in above example will be different in all the lines,
+based on the nature of interaction caused by the <code class="docutils literal notranslate"><span class="pre">command</span></code>, a blank <code class="docutils literal notranslate"><span class="pre">Dialog</span></code>
+has been used just for example.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">command</span></code> option can also be a callable function. This can be used in case
+a single command sent with <code class="xref py py-obj docutils literal notranslate"><span class="pre">sendline()</span></code> is not sufficient. Below example
+sends an escape character and quits a telnet session as part of a state transition.</p>
+<p>The arguments, <code class="xref py py-obj docutils literal notranslate"><span class="pre">statemachine</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">spawn</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">context</span></code> are mandatory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="k">def</span> <span class="nf">escape_telnet</span><span class="p">(</span><span class="n">statemachine</span><span class="p">,</span> <span class="n">spawn</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="linenos">2</span>     <span class="n">spawn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span>
+<span class="linenos">3</span>     <span class="n">spawn</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;telnet&gt;\s?$&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">4</span>     <span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">)</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span> <span class="n">module_console_to_chassis</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">module_console</span><span class="p">,</span> <span class="n">chassis</span><span class="p">,</span> <span class="n">escape_telnet</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="statemachine">
+<h2>Statemachine<a class="headerlink" href="#statemachine" title="Link to this heading">¶</a></h2>
+<p>To create a <em>statemachine</em> class, we need to subclass from <code class="docutils literal notranslate"><span class="pre">StateMachine</span></code>,
+which is the base class. This base class has all the relevant instrumentation
+required for creating shortest paths between any two given states. It uses all
+the <code class="docutils literal notranslate"><span class="pre">Path</span></code> instances to make way from any given state to any state. It
+provides APIs required for state migration, which we shall see shortly.</p>
+<p>Let’s create a sample <em>statemachine</em> class. All the <code class="docutils literal notranslate"><span class="pre">State</span></code> and the <code class="docutils literal notranslate"><span class="pre">Path</span></code>
+instances, which we created above are eventually fed into the custom
+statemachine class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">unicon.statemachine</span> <span class="kn">import</span> <span class="n">StateMachine</span>
+<span class="linenos"> 2</span> <span class="kn">from</span> <span class="nn">unicon.statemachine</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="linenos"> 3</span> <span class="kn">from</span> <span class="nn">unicon.statemachine</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="linenos"> 4</span> <span class="k">class</span> <span class="nc">MyStateMachine</span><span class="p">(</span><span class="n">StateMachine</span><span class="p">):</span>
+<span class="linenos"> 5</span>     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="linenos"> 6</span>         <span class="c1"># enable state</span>
+<span class="linenos"> 7</span>         <span class="n">enable</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.*(%N-standby|%N-sdby|%N)*#\s?#&#39;</span><span class="p">)</span>
+<span class="linenos"> 8</span>         <span class="c1"># disable state</span>
+<span class="linenos"> 9</span>         <span class="n">disable</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;disable&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.*(%N-standby|%N-sdby|%N)*#\s?&gt;&#39;</span><span class="p">)</span>
+<span class="linenos">10</span>         <span class="c1"># config state</span>
+<span class="linenos">11</span>         <span class="n">config</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;^.(%N\(config\))#\s?&#39;</span><span class="p">)</span>
+<span class="linenos">12</span>         <span class="c1"># create all the paths</span>
+<span class="linenos">13</span>         <span class="n">disable_to_enable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">disable</span><span class="p">,</span> <span class="n">enable</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="linenos">14</span>         <span class="n">enable_to_disable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">enable</span><span class="p">,</span> <span class="n">disable</span><span class="p">,</span> <span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">())</span>
+<span class="linenos">15</span>         <span class="n">enable_to_config</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">enable</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;config term&quot;</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">())</span>
+<span class="linenos">16</span>         <span class="n">config_to_enable</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">enable</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="linenos">17</span>         <span class="c1"># add all the states to statemachine</span>
+<span class="linenos">18</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">enable</span><span class="p">)</span>
+<span class="linenos">19</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">disable</span><span class="p">)</span>
+<span class="linenos">20</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="linenos">21</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">enable</span><span class="p">)</span>
+<span class="linenos">22</span>         <span class="c1"># add all the paths to statemachine</span>
+<span class="linenos">23</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">disable_to_enable</span><span class="p">)</span>
+<span class="linenos">24</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">enable_to_disable</span><span class="p">)</span>
+<span class="linenos">25</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">enable_to_config</span><span class="p">)</span>
+<span class="linenos">26</span>         <span class="bp">self</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">config_to_enable</span><span class="p">)</span>
+<span class="linenos">27</span> <span class="c1"># at the time of creating statemachine instance you should be aware of the</span>
+<span class="linenos">28</span> <span class="c1"># hostname of the device.</span>
+<span class="linenos">29</span> <span class="n">sm</span> <span class="o">=</span> <span class="n">MyStateMachine</span><span class="p">(</span><span class="s2">&quot;&lt;hostname&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that we don’t want same <code class="docutils literal notranslate"><span class="pre">State</span></code> and <code class="docutils literal notranslate"><span class="pre">Path</span></code> instances to be
+reused by different <em>statemachine</em> classes. Hence we create <code class="docutils literal notranslate"><span class="pre">State</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Path</span></code> instances inside the scope of <em>statemachine</em> class.</p>
+</div>
+</section>
+<section id="using-the-statemachine">
+<h2>Using The StateMachine<a class="headerlink" href="#using-the-statemachine" title="Link to this heading">¶</a></h2>
+<p>Now that the <em>statemachine</em> instance is created, let’s take it for a spin.
+However, before we do so please ensure that you have already connected to the
+device (statemachine doesn’t know how to connect) and you have a <code class="docutils literal notranslate"><span class="pre">spawn</span></code>
+instance. It can be used against any <code class="docutils literal notranslate"><span class="pre">spawn</span></code> instance which is already
+connected to the device.</p>
+<p>Here is a sample run from the statemachine of a <code class="docutils literal notranslate"><span class="pre">connection</span></code> instance,
+connected to a single rp IOS device.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">sm</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">sm</span> <span class="c1"># con is the connection handle</span>
+<span class="linenos"> 2</span> <span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">s</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">spawn</span>
+<span class="linenos"> 3</span> <span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="c1"># getting the current state</span>
+<span class="linenos"> 4</span> <span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">current_state</span>
+<span class="linenos"> 5</span> <span class="n">Out</span><span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="s1">&#39;enable&#39;</span>
+<span class="linenos"> 6</span> <span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="c1"># to list all the states in statemachine</span>
+<span class="linenos"> 7</span> <span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">states</span>
+<span class="linenos"> 8</span> <span class="n">Out</span><span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="p">[</span><span class="n">enable</span><span class="p">,</span> <span class="n">disable</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">rommon</span><span class="p">]</span>
+<span class="linenos"> 9</span> <span class="n">In</span> <span class="p">[</span><span class="mi">10</span><span class="p">]:</span> <span class="c1"># to list all the paths, __str__ of paths have to tweaked for better legibility</span>
+<span class="linenos">10</span> <span class="n">In</span> <span class="p">[</span><span class="mi">11</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">paths</span>
+<span class="linenos">11</span> <span class="n">Out</span><span class="p">[</span><span class="mi">11</span><span class="p">]:</span>
+<span class="linenos">12</span> <span class="p">[</span><span class="n">enable</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">,</span>
+<span class="linenos">13</span>  <span class="n">enable</span><span class="o">-&gt;</span><span class="n">config</span><span class="p">,</span>
+<span class="linenos">14</span>  <span class="n">enable</span><span class="o">-&gt;</span><span class="n">rommon</span><span class="p">,</span>
+<span class="linenos">15</span>  <span class="n">disable</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">,</span>
+<span class="linenos">16</span>  <span class="n">config</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">,</span>
+<span class="linenos">17</span>  <span class="n">rommon</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">]</span>
+<span class="linenos">18</span> <span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="c1"># to get a state object by name.</span>
+<span class="linenos">19</span> <span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">state</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">get_state</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">)</span>
+<span class="linenos">20</span> <span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="nb">type</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<span class="linenos">21</span> <span class="n">Out</span><span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">unicon</span><span class="o">.</span><span class="n">statemachine</span><span class="o">.</span><span class="n">statemachine</span><span class="o">.</span><span class="n">State</span>
+<span class="linenos">22</span> <span class="n">In</span> <span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="n">state</span>
+<span class="linenos">23</span> <span class="n">Out</span><span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="n">enable</span>
+<span class="linenos">24</span> <span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="c1"># to get a path by name</span>
+<span class="linenos">25</span> <span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="n">path</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;disable&#39;</span><span class="p">)</span>
+<span class="linenos">26</span> <span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="linenos">27</span> <span class="n">Out</span><span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">unicon</span><span class="o">.</span><span class="n">statemachine</span><span class="o">.</span><span class="n">statemachine</span><span class="o">.</span><span class="n">Path</span>
+<span class="linenos">28</span> <span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">path</span>
+<span class="linenos">29</span> <span class="n">Out</span><span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">enable</span><span class="o">-&gt;</span><span class="n">disable</span>
+<span class="linenos">30</span> <span class="n">In</span> <span class="p">[</span><span class="mi">28</span><span class="p">]:</span> <span class="c1"># to move to any given state</span>
+<span class="linenos">31</span> <span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="linenos">32</span> <span class="n">config</span> <span class="n">term</span>
+<span class="linenos">33</span> <span class="n">Enter</span> <span class="n">configuration</span> <span class="n">commands</span><span class="p">,</span> <span class="n">one</span> <span class="n">per</span> <span class="n">line</span><span class="o">.</span>  <span class="n">End</span> <span class="k">with</span> <span class="n">CNTL</span><span class="o">/</span><span class="n">Z</span><span class="o">.</span>
+<span class="linenos">34</span> <span class="n">si</span><span class="o">-</span><span class="n">tvt</span><span class="o">-</span><span class="mi">7200</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">41</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="c1">#</span>
+<span class="linenos">35</span> <span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="linenos">36</span> <span class="n">end</span>
+<span class="linenos">37</span> <span class="n">si</span><span class="o">-</span><span class="n">tvt</span><span class="o">-</span><span class="mi">7200</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">41</span><span class="c1">#</span>
+<span class="linenos">38</span> <span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span>
+<span class="linenos">39</span> <span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="c1"># go to any valid state in the state machine.</span>
+<span class="linenos">40</span> <span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="linenos">41</span>  <span class="s1">&#39;&#39;</span>
+<span class="linenos">42</span> <span class="n">si</span><span class="o">-</span><span class="n">tvt</span><span class="o">-</span><span class="mi">7200</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">41</span><span class="c1">#</span>
+<span class="linenos">43</span> <span class="n">si</span><span class="o">-</span><span class="n">tvt</span><span class="o">-</span><span class="mi">7200</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">41</span><span class="c1">#</span>
+<span class="linenos">44</span> <span class="n">In</span> <span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="n">sm</span><span class="o">.</span><span class="n">current_state</span>
+<span class="linenos">45</span> <span class="n">Out</span><span class="p">[</span><span class="mi">33</span><span class="p">]:</span> <span class="s1">&#39;enable&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="learn-hostname-feature-support-requirements">
+<span id="learn-hostname-feature"></span><h2><code class="docutils literal notranslate"><span class="pre">learn_hostname</span></code> feature support requirements<a class="headerlink" href="#learn-hostname-feature-support-requirements" title="Link to this heading">¶</a></h2>
+<p>Hostname pattern substitution using the <code class="docutils literal notranslate"><span class="pre">%N</span></code> markup is typically required
+for routing and switching platforms that expect the hostname passed into the
+unicon Connection object (or the pyATS device name being connected to)
+to be already configured on the device in order for the state patterns
+containing <code class="docutils literal notranslate"><span class="pre">%N</span></code> to match.</p>
+<p>This feature enables connection to a device with an unknown hostname
+configured.  It does so by analyzing the device prompt, learning a potentially
+different hostname and then using that hostname for all subsequent
+<code class="docutils literal notranslate"><span class="pre">%N</span></code> markup substitutions.</p>
+<p>All state patterns containing a chain of <code class="docutils literal notranslate"><span class="pre">%N</span></code> hostname variants must
+specify them in a most-to-least-specific manner in order for this feature
+to work correctly.  A hostname cannot be learned if none of the device’s
+state patterns contain the <code class="docutils literal notranslate"><span class="pre">%N</span></code> hostname markup.</p>
+<p>Here’s a simplified example from the generic plugin patterns illustrating this.
+Note the final pattern in the chain is simply <code class="docutils literal notranslate"><span class="pre">%N</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">enable_prompt</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^(.*?)(%N-standby|%N-stby|%N)(\(boot\))*#\s?$&#39;</span>
+</pre></div>
+</div>
+<p>The connection provider object’s <code class="docutils literal notranslate"><span class="pre">establish_connection</span></code> method is responsible
+for driving this feature.</p>
+<p>If for some reason, <code class="docutils literal notranslate"><span class="pre">learn_hostname</span></code> is unable to detect hostname then unicon
+compares unicon buffer with default hostname pattern set to <code class="docutils literal notranslate"><span class="pre">Settings</span></code>
+Attribute <code class="docutils literal notranslate"><span class="pre">DEFAULT_HOSTNAME_PATTERN</span></code>. Default value is
+<code class="docutils literal notranslate"><span class="pre">r'RouterRP|Router|[Ss]witch|Controller|ios'</span></code></p>
+</section>
+<section id="api-guide-for-statemachine">
+<h2>API Guide For StateMachine<a class="headerlink" href="#api-guide-for-statemachine" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">unicon.statemachine.</span></span><span class="sig-name descname"><span class="pre">StateMachine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>StateMachine for connection</p>
+<p>StateMachine class has the detail of all supported
+device state for any particular platform and
+the connection between each of this state,
+and also provide mechanism to change the device
+state</p>
+<p>This class performs the following</p>
+<ol class="arabic simple">
+<li><p>Collects and Validates supported device state</p></li>
+<li><p>Collects path between any two defined state</p></li>
+<li><p>Computes the transition path from one state
+to any end state</p></li>
+<li><p>Keeps in track of the current device state</p></li>
+<li><p>constructs the Dialog for changing device state on
+runtime</p></li>
+<li><p>Enables hostname substitution</p></li>
+<li><p>Provides methods to change a device state</p></li>
+</ol>
+<p>Each state created outside statemachine has to be
+add to it</p>
+<p>Initializes the state machine</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initializes the state machine</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">add_default_statements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statements</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Adds default Statements</p>
+<p>This statement will be appended to all
+state transitions</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stmt1</span> <span class="o">=</span>  <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;.*[confirm]&#39;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span><span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">()</span>
+                   <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">stmt2</span> <span class="o">=</span>  <span class="n">Statement</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;.*[yes/no]&#39;</span><span class="p">,</span>
+                   <span class="n">action</span><span class="o">=</span><span class="k">lambda</span> <span class="n">spawn</span><span class="p">:</span><span class="n">spawn</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;yes&#39;</span><span class="p">)</span>
+                   <span class="n">loop_continue</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Adding default statements</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">add_default_statements</span><span class="p">(</span><span class="n">stm1</span><span class="p">)</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">add_default_statements</span><span class="p">(</span><span class="n">stm2</span><span class="p">)</span>
+
+<span class="c1"># Adding a list of statements</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">add_default_statements</span><span class="p">([</span><span class="n">stm1</span><span class="p">,</span> <span class="n">stmt2</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">add_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add path to the list of available paths</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a path instance first</span>
+<span class="n">path1</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span>
+             <span class="n">command</span><span class="o">=</span><span class="s1">&#39;config terminal&#39;</span><span class="p">,</span>
+             <span class="n">dialog</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># Now add it to SM</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">path1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">add_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Appends a given state to the state machine</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">state_name</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="kc">None</span><span class="s1">&#39;)</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Create the statemachine</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">create_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Creates a Path and add it to the state machine</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">create_path</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span>
+             <span class="n">command</span><span class="o">=</span><span class="s1">&#39;config terminal&#39;</span><span class="p">,</span>
+             <span class="n">dialog</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">create_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Creates a state and add it to State Machines</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span><span class="n">state_name</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="kc">None</span><span class="s1">&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_state</span></span></dt>
+<dd><p>Current device state property getter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">find_all_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return all possible paths from any given state to any state</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">find_all_paths</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;disable&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Get the path object for the given from and to state</p>
+<p>This API is used for getting paths between directly linked
+states</p>
+<dl>
+<dt>Usage:</dt><dd><p>sm.get_path(&lt;from_state&gt;, &lt;to_state&gt;)</p>
+</dd>
+<dt>Example::</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;disable&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_shortest_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Finds the shortest path from the list of possible paths</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">get_shortest_path</span><span class="p">(</span><span class="s1">&#39;rommon&#39;</span><span class="p">,</span> <span class="s1">&#39;enable&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_name</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Returns the state object for the given the name</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">get_state</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">go_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spawn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_wise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt_recovery</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Performs device state change</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_state</strong> – Destination state, or a list of state or a keyword ‘any’</p></li>
+<li><p><strong>spawn</strong> – Device handle where the state change has to be performed</p></li>
+<li><p><strong>dialog</strong> – Additional dialogs which has to be appended to the SM path</p></li>
+<li><p><strong>prompt_recovery</strong> – Enable/Disable prompt_recovery feature</p></li>
+<li><p><strong>timeout</strong> – timeout for this goto operation</p></li>
+<li><p><strong>hop_wise</strong> – If enabled each path is processed separately
+Default: False</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Changing to a particular state from the current state</span>
+<span class="c1"># Here sm is the state machine instance</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="n">to_state</span><span class="o">=</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span>
+        <span class="n">spawn</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+<span class="c1"># Changing state to anyone state from the given list of states</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="n">to_state</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;disable&#39;</span><span class="p">],</span>
+        <span class="n">spawn</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+<span class="c1"># Bring device to &#39;any&#39; valid available state in state machine</span>
+<span class="c1"># ( Usually used for reading the device state)</span>
+
+<span class="n">sm</span><span class="o">.</span><span class="n">go_to</span><span class="p">(</span><span class="n">to_state</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">,</span>
+        <span class="n">spawn</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">spawn</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="n">dev</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">remove_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Removes a particular path from SM</p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>sm.remove_path(&lt;from_state&gt;, &lt;to_state&gt;)</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">remove_path</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;disable&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">remove_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Removes a state from SM, given the string name</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span><span class="o">.</span><span class="n">remove_state</span><span class="p">(</span><span class="s1">&#39;disable&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eal.html" class="btn btn-neutral float-left" title="Expect Abstraction Library" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unittests.html" class="btn btn-neutral float-right" title="Develop &amp; Run Unittests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

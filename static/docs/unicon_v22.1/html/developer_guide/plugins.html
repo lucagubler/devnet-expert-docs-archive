@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plugin Implementation &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How to write a new Service" href="service_framework.html" />
+    <link rel="prev" title="Playback" href="../playback/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/passwords.html">Password Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/proxy.html">Connection Through Proxies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin Implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-your-own-plugin">Writing Your own Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementing-a-new-platform">Implementing a New Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connection-class">Connection class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connection-provider">Connection Provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pattern">Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statemachine">StateMachine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-new-services">Creating New Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#settings">Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="service_framework.html">How to write  a new Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eal.html">Expect Abstraction Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statemachine.html">State Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unittests.html">Develop &amp; Run Unittests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Plugin Implementation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plugin-implementation">
+<h1>Plugin Implementation<a class="headerlink" href="#plugin-implementation" title="Link to this heading">¶</a></h1>
+<p>Unicon plugins are the actual implementation, which defines the connections
+class, services and state machine for the platform it is implementing.
+Unicon provides a Connection factory class which will load these plugin
+based on the input parameters</p>
+<p>There are two methods of writing plugins for Unicon.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>by contributing directly to <code class="docutils literal notranslate"><span class="pre">unicon.plugins</span></code> source code under
+<code class="docutils literal notranslate"><span class="pre">unicon.plugins</span> <span class="pre">repository</span></code>, and following the folder structure and
+examples there.</p></li>
+<li><p>by writing your own package, which installs using <code class="docutils literal notranslate"><span class="pre">pip</span></code> and extends
+Unicon functionality without having to modify the core Unicon code.</p></li>
+</ol>
+</div></blockquote>
+<p>Both methods have their pros &amp; cons. See below for details.</p>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Link to this heading">¶</a></h2>
+<p>Any plugins contributed to Unicon code under the <code class="docutils literal notranslate"><span class="pre">unicon.plugins</span></code> repository,
+becomes part of Unicon. This is a great method to use if your plugin
+is generic, since it is installed automatically as part of every Unicon installation.</p>
+<p>Doing so requires you to follow Unicon development and unittest guidelines, and
+ultimately submit a pull-request to the Unicon source code repository. Once
+verified by its developers, the next version of Unicon release will incorporate
+your plugin.</p>
+<p>Under this repository, Unicon follows a hierarchical directory structure for writing
+plugins, which is distributed based on the OS, platform, model of the platform
+which the plugin implements. Any new OS implementations will contribute to a
+new sub-directory under <code class="docutils literal notranslate"><span class="pre">unicon.plugins/plugins</span></code> and its platform/model will go under that.</p>
+<img alt="../_images/plugins.jpg" src="../_images/plugins.jpg" />
+<p>Unicon also has a generic plugin which implements the common behaviour seen across
+various platform. For any unknown or not implemented os, unicon loads
+generic plugin and uses its <code class="xref py py-obj docutils literal notranslate"><span class="pre">Connection</span></code>, also generic platform will be used as
+a reference/starting point for new platform implementation.</p>
+<p><strong>Recommendations</strong> :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>We strictly recommend to follow generic plugins file and class structure
+while implementing your new platforms.</p></li>
+<li><p>Also it is highly recommended to use the generic plugins Statemachine and services
+as the base class for your implementations statemachine and services.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="writing-your-own-plugin">
+<h2>Writing Your own Plugin<a class="headerlink" href="#writing-your-own-plugin" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>If all you are looking for is to write plugins that support your own
+platforms without modifying the original Unicon code</p></li>
+<li><p>If you wish to own and support your own Unicon plugin that’s installable via
+<code class="docutils literal notranslate"><span class="pre">pip</span></code></p></li>
+</ul>
+<p>You should look into creating your own Unicon plugin package. Note that by
+following this route, your new plugin will not be installed by default when
+other developers perform <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Unicon</span></code>, and will have to install your
+plugin separately.</p>
+<p>There are few major steps involved in creating your own plugin package:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>create the plugin module content following the instructions on this page
+on how to create a plugin.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>make sure the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> of your top-level package imports
+and/or contains the implemented <code class="docutils literal notranslate"><span class="pre">Connection</span></code> plugin class.</p>
+</div>
+</li>
+<li><p>create the plugin package by writing a <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> setup script. There
+are lots of online resources on this topic, eg <a class="reference external" href="https://docs.python.org/3/distutils/setupscript.html">Writing a Setup Script</a>.</p></li>
+<li><p>inside your new <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>, make sure to declare the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
+    <span class="c1">#...</span>
+    <span class="n">entry_points</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unicon.plugins&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&lt;platform_name&gt; = &lt;module_name&gt;&#39;</span><span class="p">]},</span>
+    <span class="c1">#...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>and replace <code class="docutils literal notranslate"><span class="pre">&lt;platform_name&gt;</span></code> with your platform’s string name, and
+<code class="docutils literal notranslate"><span class="pre">&lt;module_name&gt;</span></code> being the name of plugin module you developed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>valid plugin platform names: <code class="docutils literal notranslate"><span class="pre">[A-Za-z_0-9]+</span></code></p>
+</div>
+<p>this will ensure the plugin gets discovered by Unicon upon import. If you
+are including multiple plugins within the same plugin package, simply
+further populate the list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
+    <span class="c1">#...</span>
+    <span class="n">entry_points</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unicon.plugins&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="s1">&#39;&lt;platform_name_1&gt; = &lt;module_name_1&gt;&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;&lt;platform_name_2&gt; = &lt;module_name_2&gt;&#39;</span><span class="p">,</span>
+                            <span class="c1"># ... etc</span>
+                    <span class="p">]},</span>
+    <span class="c1">#...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+<p>And voila! Once your plugin is installed (either via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> or
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> for development mode), it will be loaded
+automatically by Unicon.</p>
+<p>For more details, follow the detailed Unicon plugin example
+presented at <a class="reference external" href="https://github.com/CiscoDevNet/pyats-plugin-examples">https://github.com/CiscoDevNet/pyats-plugin-examples</a>.</p>
+</section>
+<section id="implementing-a-new-platform">
+<h2>Implementing a New Platform<a class="headerlink" href="#implementing-a-new-platform" title="Link to this heading">¶</a></h2>
+<p>Creating a Unicon plugin for a new platform can be sub divided into four
+main steps,</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Creating a Connection Class:</dt><dd><ul>
+<li><p>Defines all the attributes required for this connection.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Writing Connection Provider:</dt><dd><ul>
+<li><p>Provides methods to connect and disconnect this platform</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Creating State Machine:</dt><dd><ul>
+<li><p>Defines all the supported states for this platform and handles state transitions</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Creating all required Services:</dt><dd><ul>
+<li><p>Defines all the supported services for this platform</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="connection-class">
+<h2>Connection class<a class="headerlink" href="#connection-class" title="Link to this heading">¶</a></h2>
+<p>Connection class serves as the starting point for the device connection.
+Unicon PluginManager is based on the platform to create the right connection class,
+which in turn initializes all its required components,
+such as connection provider, state machine, supported services and etc.</p>
+<p>Users implementing a new platform have to define a <code class="docutils literal notranslate"><span class="pre">Connection</span> <span class="pre">class</span></code>, with the required
+parameters which are listed below in this section. The new <code class="docutils literal notranslate"><span class="pre">Connection</span></code> class
+should satisfy the following conditions</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>It should be subclass (direct or indirect) of <code class="docutils literal notranslate"><span class="pre">Connection</span></code>, <code class="docutils literal notranslate"><span class="pre">BaseSingleRpConnection</span></code> or <code class="docutils literal notranslate"><span class="pre">BaseDualRpConnection</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Connection</span></code> follows class hierarchy which is aligned/derived according to the os, platform and model</p></li>
+<li><p>Based the chassis type, there should be a separate definition of the class</p></li>
+</ul>
+</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">Connection</span></code> class takes the following mandatory parameters</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>os</p></td>
+<td><p>OS for which the implementation is intended</p></td>
+</tr>
+<tr class="row-odd"><td><p>platform</p></td>
+<td><p>Platform of this implementation</p></td>
+</tr>
+<tr class="row-even"><td><p>model</p></td>
+<td><p>Model which this implementation supports</p></td>
+</tr>
+<tr class="row-odd"><td><p>chassis_type</p></td>
+<td><p>Hardware chassis type single_rp, dual_rp or stack</p></td>
+</tr>
+<tr class="row-even"><td><p>connection_provider_class</p></td>
+<td><p>Class which implements actual step for connecting to a device</p></td>
+</tr>
+<tr class="row-odd"><td><p>state_machine_class</p></td>
+<td><p>State machine to be used</p></td>
+</tr>
+<tr class="row-even"><td><p>subcommand_list</p></td>
+<td><p>List of subcommand supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>settings</p></td>
+<td><p>Settings to be used for this connection</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">os</span></code> and <code class="docutils literal notranslate"><span class="pre">chassis_type</span></code> of the implementation has to be mentioned in the connection.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example Connection class Nxos single Rp connection</span>
+<span class="k">class</span> <span class="nc">NxosSingleRpConnection</span><span class="p">(</span><span class="n">BaseSingleRpConnection</span><span class="p">):</span>
+  <span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;nxos&#39;</span>
+  <span class="n">platform</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">chassis_type</span> <span class="o">=</span> <span class="s1">&#39;single_rp&#39;</span>
+  <span class="n">state_machine_class</span> <span class="o">=</span> <span class="n">NxosSingleRpStateMachine</span>
+  <span class="n">connection_provider_class</span> <span class="o">=</span> <span class="n">NxosSingleRpConnectionProvider</span>
+  <span class="n">subcommand_list</span> <span class="o">=</span> <span class="n">NxosServiceList</span>
+  <span class="n">settings</span> <span class="o">=</span> <span class="n">NxosSettings</span><span class="p">()</span>
+
+<span class="c1"># Example Connection class Nxos Dual Rp connection</span>
+<span class="k">class</span> <span class="nc">NxosDualRPConnection</span><span class="p">(</span><span class="n">BaseDualRpConnection</span><span class="p">):</span>
+  <span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;nxos&#39;</span>
+  <span class="n">platform</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">chassis_type</span> <span class="o">=</span> <span class="s1">&#39;dual_rp&#39;</span>
+  <span class="n">state_machine_class</span> <span class="o">=</span> <span class="n">NxosDualRpStateMachine</span>
+  <span class="n">connection_provider_class</span> <span class="o">=</span> <span class="n">NxosDualRpConnectionProvider</span>
+  <span class="n">subcommand_list</span> <span class="o">=</span> <span class="n">HANxosServiceList</span>
+  <span class="n">settings</span> <span class="o">=</span> <span class="n">NxosSettings</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Base Connection (e.g <a class="reference internal" href="../api/unicon.bases.routers.html#unicon.bases.routers.connection.BaseSingleRpConnection" title="unicon.bases.routers.connection.BaseSingleRpConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSingleRpConnection</span></code></a>
+and <a class="reference internal" href="../api/unicon.bases.routers.html#unicon.bases.routers.connection.BaseDualRpConnection" title="unicon.bases.routers.connection.BaseDualRpConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseDualRpConnection</span></code></a>) classes of
+unicon defines the workflow of <code class="docutils literal notranslate"><span class="pre">Connection</span></code> and it satisfies all common needs of
+router connection, the user may not need to override any of the methods unless there is
+specific scenario to handle.</p>
+</section>
+<section id="connection-provider">
+<h2>Connection Provider<a class="headerlink" href="#connection-provider" title="Link to this heading">¶</a></h2>
+<p>The connection class for any platform depends on the connection provider for initiating a
+connection. As the name suggests, their role is to provide a method to let the
+application connect and disconnect to the device.</p>
+<p>This class provides two essential methods, namely <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">connect</span></code> method defines all the steps involved in the connection process, which are
+defined as separate methods. These steps vary
+depending on the chassis type and the device, changing the behaviour of these
+can be achieved by overriding the method corresponding to each step.</p>
+<dl>
+<dt>In the case of singleRP the steps involved in the connection process are:</dt><dd><ol class="arabic simple">
+<li><p>get_connection_dialog</p></li>
+<li><p>establish_connection</p></li>
+<li><p>init_handle</p></li>
+</ol>
+<p>This is handled by the <a class="reference internal" href="../api/unicon.bases.routers.html#unicon.bases.routers.connection_provider.BaseSingleRpConnectionProvider" title="unicon.bases.routers.connection_provider.BaseSingleRpConnectionProvider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSingleRpConnectionProvider</span></code></a> class.</p>
+</dd>
+</dl>
+<p>Whereas DualRp does a few additional steps like designate handles, initialize/unlock
+standby, and assign ha mode.</p>
+<blockquote>
+<div><p>This is handled by the <a class="reference internal" href="../api/unicon.bases.routers.html#unicon.bases.routers.connection_provider.BaseDualRpConnectionProvider" title="unicon.bases.routers.connection_provider.BaseDualRpConnectionProvider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseDualRpConnectionProvider</span></code></a> class.</p>
+</div></blockquote>
+</section>
+<section id="pattern">
+<h2>Pattern<a class="headerlink" href="#pattern" title="Link to this heading">¶</a></h2>
+<p>For all patterns used by <code class="docutils literal notranslate"><span class="pre">match_buffer</span></code>, eg. dialog, statemachine, expect,
+by default, pty_backend match_buffer will detect the match mode.
+It can be turned off by passing match_mode_detect=False to spawn or by changing settings.</p>
+<p>Rules:</p>
+<ol class="arabic simple">
+<li><p>search the whole buffer with re.DOTALL if:</p>
+<ul class="simple">
+<li><p>pattern contains any of: r’n’, r’r’, .</p></li>
+<li><p>pattern equals to any of: r’.*’, r’^.*$’, r’.*$’, r’^.*’, r’.+’, r’^.+$’, r’.+$’, r’^.+’</p></li>
+</ul>
+</li>
+<li><p>If the pattern ends with ‘$’ but not r’\$’, match_buffer will only match the last line</p></li>
+<li><p>In other situations, search the whole buffer with re.DOTALL</p></li>
+</ol>
+</section>
+<section id="statemachine">
+<h2>StateMachine<a class="headerlink" href="#statemachine" title="Link to this heading">¶</a></h2>
+<p>The State Machine class holds the details of all supported states for a platform
+and handles the transition of the device to different states.
+Each platform has their own state machine class. The State Machine class provides
+a <code class="docutils literal notranslate"><span class="pre">create</span></code> method where all the device states have to be created.
+The State Machine should be sub class of <code class="docutils literal notranslate"><span class="pre">StateMachine</span></code> class from
+<code class="docutils literal notranslate"><span class="pre">unicon.statemachine</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># State Machine for Nxos singleRP</span>
+<span class="k">class</span> <span class="nc">NxosSingleRpStateMachine</span><span class="p">(</span><span class="n">StateMachine</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">State</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="s1">&#39;^.*%N#&#39;</span><span class="p">));</span> <span class="c1">#%N here refers to hostname of device</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_state</span><span class="p">(</span><span class="n">State</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;^.*%N(config)#&#39;</span><span class="p">))</span>
+
+      <span class="c1"># Create a path</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">create_path</span><span class="p">(</span><span class="n">enable</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;config term&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">create_path</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">enable</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-new-services">
+<h2>Creating New Services<a class="headerlink" href="#creating-new-services" title="Link to this heading">¶</a></h2>
+<p>Refer detailed document <a class="reference internal" href="service_framework.html#new-service-creation"><span class="std std-ref">How to write  a new Service</span></a></p>
+</section>
+<section id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
+<p>Unicon Connection behavior can be changed by modifying its settings. The default
+settings for unicon is ‘unicon.setting.Settings’, users can inherit and
+change these settings if they wish to provide any platform or plugin level
+setting. Unicon <code class="docutils literal notranslate"><span class="pre">Connection</span></code> class takes additional input settings, which
+can be used to provide plugin/platform level settings.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.settings</span> <span class="kn">import</span> <span class="n">Settings</span>
+<span class="k">class</span> <span class="nc">NxosSettings</span><span class="p">(</span><span class="n">Settings</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Modify settings here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">EXEC_TIMEOUT</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p><strong>Recommendations</strong> :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>We strictly recommend to follow the generic plugins file and class structure
+while implementing your new platforms.</p></li>
+<li><p>It is also highly recommended to use the generic plugins Statemachine and services
+as the base class for your implementation’s statemachine and services.</p></li>
+</ul>
+</div></blockquote>
+<p>Consider adding the <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_HOSTNAME_PATTERN</span></code> attribute to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Settings</span></code> object for the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">learn_hostname</span></code> feature to work. Refer <a class="reference internal" href="statemachine.html#learn-hostname-feature"><span class="std std-ref">learn_hostname feature support requirements</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../playback/index.html" class="btn btn-neutral float-left" title="Playback" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="service_framework.html" class="btn btn-neutral float-right" title="How to write a new Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

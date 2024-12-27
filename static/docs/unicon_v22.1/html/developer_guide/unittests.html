@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Develop &amp; Run Unittests &mdash; Unicon Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=1045b1b5" />
+
+  
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unicon API Reference" href="../api/modules.html" />
+    <link rel="prev" title="State Machine" href="statemachine.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Unicon Plugins
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/connection.html">Connection Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/passwords.html">Password Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/proxy.html">Connection Through Proxies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/index.html">API/Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/services/service_dialogs.html">Dialog Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot/index.html">RobotFramework Support</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../playback/index.html">Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugin Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service_framework.html">How to write  a new Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eal.html">Expect Abstraction Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statemachine.html">State Machine</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Develop &amp; Run Unittests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-mock-device">Creating Mock Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-using-mock-device">Example: using mock device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-using-ha-mock-device">Example: using HA mock device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-limitations">Known Limitations</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">Unicon API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog_plugins/index.html">Plugins Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Unicon Plugins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Develop &amp; Run Unittests</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="develop-run-unittests">
+<span id="mock"></span><h1>Develop &amp; Run Unittests<a class="headerlink" href="#develop-run-unittests" title="Link to this heading">¶</a></h1>
+<p>It is strongly recommended to write unittest for plugins to ensure proper test coverage.</p>
+<p><strong>asyncssh is required for running unittest.</strong></p>
+<p>run the following command on the shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">asyncssh</span>
+</pre></div>
+</div>
+<p>A mock device framework is available that uses YAML files as its primary source of ‘mocked data’.
+You can also create python methods as part of the mock data class to create specific device behavior.
+For more information on YAML syntax, see <a class="reference external" href="http://yaml.org/">yaml.org</a>.</p>
+<p>The mock device class is part of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">unicon.mock.mock_device</span></code> module. The YAML files are located under the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">unicon.plugins.tests.mock_data</span></code> directory. Each OS type has its own sub-directory for mock data.</p>
+<section id="creating-mock-device">
+<h2>Creating Mock Device<a class="headerlink" href="#creating-mock-device" title="Link to this heading">¶</a></h2>
+<p>A new mock device can be created by executing the <code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_device_cli</span></code> command with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--os</span></code>
+and <code class="xref py py-obj docutils literal notranslate"><span class="pre">--state</span></code> options or by creating a new module with the name
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_device_&lt;os_type&gt;.py</span></code> and sub classing the mock device class MockDevice.
+Mock data needs to be available in YAML files before the mock device can be executed.</p>
+<p>Example mock device sub class for IOS:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># mock_device_ios.py</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="kn">from</span> <span class="nn">unicon.mock.mock_device</span> <span class="kn">import</span> <span class="n">MockDevice</span>
+
+<span class="k">class</span> <span class="nc">MockDeviceIOS</span><span class="p">(</span><span class="n">MockDevice</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--state&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;initial state&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ha&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;HA mode&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--hostname&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Device hostname (default: Router&#39;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">state</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">state</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s1">&#39;exec,exec_standby&#39;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hostname</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="s1">&#39;Router&#39;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ha</span><span class="p">:</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">MockDeviceTcpWrapperIOS</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">md</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">MockDeviceIOS</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">md</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Running the mock device:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using device specific mock_device:</span>
+
+<span class="n">mock_device_cli</span> <span class="o">--</span><span class="n">os</span> <span class="n">ios</span> <span class="o">--</span><span class="n">state</span> <span class="n">exec</span>
+<span class="n">Router</span><span class="o">&gt;</span> <span class="n">enable</span>
+<span class="n">Router</span><span class="c1">#</span>
+
+
+<span class="c1"># Using the generic mock_device:</span>
+
+<span class="n">mock_device_cli</span> <span class="o">--</span><span class="n">os</span> <span class="n">ios</span> <span class="o">--</span><span class="n">state</span> <span class="n">exec</span> <span class="o">-</span><span class="n">generic_main</span>
+<span class="n">Router</span><span class="o">&gt;</span> <span class="n">enable</span>
+<span class="n">Router</span><span class="c1">#</span>
+</pre></div>
+</div>
+<p><strong>High Availability (HA) mock device</strong></p>
+<p>To create a High Availability (HA) mock device that simulates multiple RPs
+or a stack of devices, you need to specify the ‘–ha’ option with multiple
+states specified using the ‘–state’ option, separated by a comma, for
+example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mock_device_cli --os iosxr --state login,console_standby --ha
+2017-08-31 09:41:39,886 [    INFO]:  Server 0 listening on port 8266
+2017-08-31 09:41:39,888 [    INFO]:  Server 1 listening on port 8267
+</pre></div>
+</div>
+<p>This will start the mock device that listens on TCP ports, one port for each RP.</p>
+<p>By default, the HA option creates TCP listeners. To use SSH instead of TCP,
+you can use the ‘–ssh’ option instead of ‘–ha’.  To run the SSH service,
+the file <code class="docutils literal notranslate"><span class="pre">ssh_host_key</span></code> must exist with an SSH  private key in it to use
+as a server host key. You can generate the file using the command
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">ssh-keygen</span> <span class="pre">-f</span> <span class="pre">ssh_host_key</span></code>.</p>
+<p><strong>Mock Device with vty</strong></p>
+<p>To create a vty type mock device, use <code class="xref py py-obj docutils literal notranslate"><span class="pre">--vty</span></code> option.
+Currently, this is available for simplex mock device.
+Supported only for TCP mock device and not require on SSH type mock device.</p>
+<p>With <code class="xref py py-obj docutils literal notranslate"><span class="pre">--vty</span></code> option, when we telnet to vty mock device, no need to press enter key to get the prompt.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mock_device_cli --os ios --state login --vty
+2019-02-05 12:55:19,954 [    INFO]:  Server 0 listening on port 8266
+
+$ telnet 127.0.0.1 8266
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is &#39;^]&#39;.
+Username:
+</pre></div>
+</div>
+<p><strong>Mock data</strong></p>
+<p>The state and response data is captured in YAML files. The syntax for the mock
+data YAML file is shown below. If the prompt changes with the state, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">prompt</span></code>
+can be specified as part of the YAML data. If the prompt is shown after another
+output (e.g. banner), <code class="xref py py-obj docutils literal notranslate"><span class="pre">preface</span></code> data can be specified as a string or text block.</p>
+<p>The filename of the YAML data is not important, all .yaml files that are part
+of the os sub directory are loaded.</p>
+<p>To make sure that block text is correctly parsed, a block indentation indicator
+may be necessary. This indicator is specified with <code class="xref py py-obj docutils literal notranslate"><span class="pre">|n</span></code> after the node name
+where <code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code> is the number of indentation spaces used.</p>
+<p>In case you want to emulate delay in responses, you can use the <code class="xref py py-obj docutils literal notranslate"><span class="pre">timing</span></code> option
+to specify how quickly the data should be returned. Time is specified in
+seconds and can be specified as 0.01 for 10ms.</p>
+<p>There are three timing variables that can be specified:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>start delay</p></li>
+<li><p>line interval (optional)</p></li>
+<li><p>char interval (optional)</p></li>
+</ul>
+</div></blockquote>
+<p>The start delay specifies the amount of time to wait before the output is
+printed to the terminal. The line interval specifies the delay between each
+line that is printed. The char interval specifies the time between characters
+of a line. The line and char interval timings are optional and can be omitted.</p>
+<p><strong>Mock device data schema</strong></p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;state&gt;</span><span class="p">:</span>
+
+<span class="w">  </span><span class="c1"># (optional)</span>
+<span class="w">  </span><span class="nt">preface</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|2</span>
+<span class="w">    </span><span class="no">&lt;text before prompt&gt;</span>
+
+<span class="w">  </span><span class="c1"># (optional)</span>
+<span class="w">  </span><span class="c1"># preface with timing</span>
+<span class="w">  </span><span class="nt">preface</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">response</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|2</span>
+<span class="w">      </span><span class="no">&lt;text before prompt&gt;</span>
+<span class="w">    </span><span class="nt">timing</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># line range uses python &#39;slice&#39; syntax</span>
+<span class="w">      </span><span class="c1"># &lt;start line&gt;:&lt;end line&gt;</span>
+<span class="w">      </span><span class="c1"># e.g. &quot;0:&quot;  for all lines</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;line</span><span class="nv"> </span><span class="s">range&gt;,&lt;start</span><span class="nv"> </span><span class="s">delay&gt;,&lt;line</span><span class="nv"> </span><span class="s">interval&gt;,&lt;char</span><span class="nv"> </span><span class="s">interval&gt;&quot;</span>
+
+<span class="w">  </span><span class="c1"># (optional)</span>
+<span class="w">  </span><span class="c1"># prompt may contain %N which will be replaced by the device hostname,</span>
+<span class="w">  </span><span class="c1"># by default the hostname is &#39;Router&#39;</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;prompt text&gt;</span>
+
+<span class="w">  </span><span class="nt">commands</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># simple response string</span>
+<span class="w">    </span><span class="s">&quot;&lt;cmd&gt;&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">    </span><span class="c1"># the response can be loaded from file</span>
+<span class="w">    </span><span class="c1"># by using the `file|` prefix</span>
+<span class="w">    </span><span class="s">&quot;&lt;cmd&gt;&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file|&lt;relative/path/to/file&gt;</span>
+
+<span class="w">    </span><span class="c1"># Multi-line response (block text)</span>
+<span class="w">    </span><span class="s">&quot;&lt;cmd&gt;&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|2</span>
+<span class="w">      </span><span class="no">&lt;response data&gt;</span>
+
+<span class="w">    </span><span class="c1"># response with additional options</span>
+<span class="w">    </span><span class="s">&quot;&lt;cmd&gt;&quot;</span><span class="p p-Indicator">:</span>
+
+<span class="w">      </span><span class="c1"># (optional) state transition</span>
+<span class="w">      </span><span class="nt">new_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;state&gt;</span>
+
+<span class="w">      </span><span class="c1"># (optional) block text response</span>
+<span class="w">      </span><span class="nt">response</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|2</span>
+<span class="w">        </span><span class="no">&lt;response text&gt;</span>
+
+<span class="w">      </span><span class="c1"># (optional) list of responses</span>
+<span class="w">      </span><span class="c1"># The default behavior is to walk the list and stick to</span>
+<span class="w">      </span><span class="c1"># the last entry when reached.</span>
+<span class="w">      </span><span class="nt">response</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;abc&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;def&quot;</span>
+
+<span class="w">      </span><span class="c1"># (optional)</span>
+<span class="w">      </span><span class="c1"># For list responses, you can specify response type &#39;circular&#39;.</span>
+<span class="w">      </span><span class="c1"># When circular type is enabled, the command response will</span>
+<span class="w">      </span><span class="c1"># start again from the first entry after reaching the end of the list.</span>
+<span class="w">      </span><span class="nt">response_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">circular</span>
+
+<span class="w">      </span><span class="c1"># (optional)</span>
+<span class="w">      </span><span class="nt">timing</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># line range uses python &#39;slice&#39; syntax</span>
+<span class="w">        </span><span class="c1"># &lt;start line&gt;:&lt;end line&gt;</span>
+<span class="w">        </span><span class="c1"># e.g. &quot;0:&quot;  for all lines</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;line</span><span class="nv"> </span><span class="s">range&gt;,&lt;start</span><span class="nv"> </span><span class="s">delay&gt;,&lt;line</span><span class="nv"> </span><span class="s">interval&gt;,&lt;char</span><span class="nv"> </span><span class="s">interval&gt;&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&lt;line</span><span class="nv"> </span><span class="s">range&gt;,&lt;start</span><span class="nv"> </span><span class="s">delay&gt;,&lt;line</span><span class="nv"> </span><span class="s">interval&gt;,&lt;char</span><span class="nv"> </span><span class="s">interval&gt;&quot;</span>
+
+<span class="w">  </span><span class="nt">keys</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># same kind of response structure as commands</span>
+<span class="w">    </span><span class="s">&quot;&lt;key&gt;&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="s">&quot;&lt;key&gt;&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">|2</span>
+<span class="w">       </span><span class="no">&lt;response data&gt;</span>
+
+<span class="w">    </span><span class="c1"># response with additional options</span>
+<span class="w">    </span><span class="s">&quot;&lt;cmd&gt;&quot;</span><span class="p p-Indicator">:</span>
+
+<span class="w">      </span><span class="c1"># (optional) state transition</span>
+<span class="w">      </span><span class="nt">new_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;state&gt;</span>
+
+<span class="w">    </span><span class="c1"># ... etc, see above</span>
+
+<span class="w">    </span><span class="c1"># special keys: Control-X where X is one of 0ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_</span>
+<span class="w">    </span><span class="c1"># example: ctrl-y</span>
+<span class="w">    </span><span class="s">&quot;ctrl-y&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Control</span><span class="nv"> </span><span class="s">Y</span><span class="nv"> </span><span class="s">pressed&quot;</span>
+</pre></div>
+</div>
+<p>Example data:</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">--</span>
+<span class="l l-Scalar l-Scalar-Plain">exec</span><span class="p p-Indicator">:</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Router&gt;</span><span class="nv"> </span><span class="s">&quot;</span>
+<span class="w">  </span><span class="nt">commands</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;enable&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">new_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable</span>
+</pre></div>
+</div>
+</section>
+<section id="example-using-mock-device">
+<h2>Example: using mock device<a class="headerlink" href="#example-using-mock-device" title="Link to this heading">¶</a></h2>
+<p>Create YAML data with the state, prompt and command(s) that you want to match.</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">--</span>
+<span class="l l-Scalar l-Scalar-Plain">login</span><span class="p p-Indicator">:</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Username:</span><span class="nv"> </span><span class="s">&quot;</span>
+<span class="w">  </span><span class="nt">commands</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;cisco&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">new_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
+
+<span class="nt">password</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Password:</span><span class="nv"> </span><span class="s">&quot;</span>
+<span class="w">  </span><span class="nt">commands</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;cisco&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">new_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
+
+<span class="nt">exec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Router&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Note: the above example data is incomplete, see
+<a class="reference download internal" download="" href="../_downloads/78b51ea4d0ff926bc9aef1f367cb03bf/ios_mock_data.yaml"><code class="xref download docutils literal notranslate"><span class="pre">ios_mock_data.yaml</span></code></a>
+for a more complete example.</p>
+<p>Create a unittest that executes the mock device with the state that you created.
+Execute the commands or service and verify the response data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unicon</span> <span class="kn">import</span> <span class="n">Connection</span>
+
+<span class="k">class</span> <span class="nc">TestIosPluginConnect</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_login_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;Router&#39;</span><span class="p">,</span>
+                            <span class="n">start</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mock_device_cli --os ios --state login&#39;</span><span class="p">],</span>
+                            <span class="n">os</span><span class="o">=</span><span class="s1">&#39;ios&#39;</span><span class="p">,</span>
+                            <span class="n">username</span><span class="o">=</span><span class="s1">&#39;cisco&#39;</span><span class="p">,</span>
+                            <span class="n">tacacs_password</span><span class="o">=</span><span class="s1">&#39;cisco&#39;</span><span class="p">,</span>
+                            <span class="n">enable_password</span><span class="o">=</span><span class="s1">&#39;cisco&#39;</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">c</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">match_output</span> <span class="o">==</span> <span class="s1">&#39;end</span><span class="se">\r\n</span><span class="s1">Router#&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="example-using-ha-mock-device">
+<h2>Example: using HA mock device<a class="headerlink" href="#example-using-ha-mock-device" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unicon.plugins.tests.mock.mock_device_ios</span> <span class="kn">import</span> <span class="n">MockDeviceTcpWrapperIOS</span>
+
+
+<span class="k">class</span> <span class="nc">TestIosPluginHAConnect</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="n">MockDeviceTcpWrapperIOS</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;login,exec_standby&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">testbed</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        devices:</span>
+<span class="s2">          Router:</span>
+<span class="s2">            os: ios</span>
+<span class="s2">            type: router</span>
+<span class="s2">            tacacs:</span>
+<span class="s2">                username: cisco</span>
+<span class="s2">            passwords:</span>
+<span class="s2">                tacacs: cisco</span>
+<span class="s2">            connections:</span>
+<span class="s2">              defaults:</span>
+<span class="s2">                class: unicon.Unicon</span>
+<span class="s2">              a:</span>
+<span class="s2">                protocol: telnet</span>
+<span class="s2">                ip: localhost</span>
+<span class="s2">                port: </span><span class="si">{}</span>
+<span class="s2">              b:</span>
+<span class="s2">                protocol: telnet</span>
+<span class="s2">                ip: localhost</span>
+<span class="s2">                port: </span><span class="si">{}</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">test_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testbed</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">Router</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span>
+
+    <span class="k">def</span> <span class="nf">test_switchover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_connect</span><span class="p">()</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">switchover</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="known-limitations">
+<h2>Known Limitations<a class="headerlink" href="#known-limitations" title="Link to this heading">¶</a></h2>
+<p>The current mock device has a number of limitations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>no support for time mocking</p></li>
+<li><p>no support for random variation of response time</p></li>
+<li><p>no command completion</p></li>
+</ul>
+</div></blockquote>
+<p><em>Section author: Dave Wapstra &lt;<a class="reference external" href="mailto:dwapstra&#37;&#52;&#48;cisco&#46;com">dwapstra<span>&#64;</span>cisco<span>&#46;</span>com</a>&gt;</em></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="statemachine.html" class="btn btn-neutral float-left" title="State Machine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/modules.html" class="btn btn-neutral float-right" title="Unicon API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2020, Cisco Systems Inc..
+      <span class="lastupdated">Last updated on Dec 27, 2024.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
