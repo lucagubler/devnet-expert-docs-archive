@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Windows Console Notes &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Python 3 Support" href="python3.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="python3.html" title="Python 3 Support"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Windows Console Notes</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="windows-console-notes">
+<h1>Windows Console Notes<a class="headerlink" href="#windows-console-notes" title="Link to this heading">¶</a></h1>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 6.0.</span></p>
+</div>
+</details><p>Until Click 6.0 there are various bugs and limitations with using Click on
+a Windows console.  Most notably the decoding of command line arguments
+was performed with the wrong encoding on Python 2 and on all versions of
+Python output of unicode characters was impossible.  Starting with Click
+6.0 we now emulate output streams on Windows to support unicode to the
+Windows console through separate APIs and we perform different decoding of
+parameters.</p>
+<p>Here is a brief overview of how this works and what it means to you.</p>
+<section id="unicode-arguments">
+<h2>Unicode Arguments<a class="headerlink" href="#unicode-arguments" title="Link to this heading">¶</a></h2>
+<p>Click internally is generally based on the concept that any argument can
+come in as either byte string or unicode string and conversion is
+performed to the type expected value as late as possible.  This has some
+advantages as it allows us to accept the data in the most appropriate form
+for the operating system and Python version.</p>
+<p>For instance paths are left as bytes on Python 2 unless you explicitly
+tell it otherwise.</p>
+<p>This caused some problems on Windows where initially the wrong encoding
+was used and garbage ended up in your input data.  We not only fixed the
+encoding part, but we also now extract unicode parameters from <cite>sys.argv</cite>.</p>
+<p>This means that on Python 2 under Windows, the arguments processed will
+<em>most likely</em> be of unicode nature and not bytes.  This was something that
+previously did not really happen unless you explicitly passed in unicode
+parameters so your custom types need to be aware of this.</p>
+<p>There is also another limitation with this: if <cite>sys.argv</cite> was modified
+prior to invoking a click handler, we have to fall back to the regular
+byte input in which case not all unicode values are available but only a
+subset of the codepage used for parameters.</p>
+</section>
+<section id="unicode-output-and-input">
+<h2>Unicode Output and Input<a class="headerlink" href="#unicode-output-and-input" title="Link to this heading">¶</a></h2>
+<p>Unicode output and input on Windows is implemented through the concept of
+a dispatching text stream.  What this means is that when click first needs
+a text output (or input) stream on windows it goes through a few checks to
+figure out of a windows console is connected or not.  If no Windows
+console is present then the text output stream is returned as such and the
+encoding for that stream is set to <code class="docutils literal notranslate"><span class="pre">utf-8</span></code> like on all platforms.</p>
+<p>However if a console is connected the stream will instead be emulated and
+use the cmd.exe unicode APIs to output text information.  In this case the
+stream will also use <code class="docutils literal notranslate"><span class="pre">utf-16-le</span></code> as internal encoding.  However there is
+some hackery going on that the underlying raw IO buffer is still bypassing
+the unicode APIs and byte output through an indirection is still possible.</p>
+<p>This hackery is used on both Python 2 and Python 3 as neither version of
+Python has native support for cmd.exe with unicode characters.  There are
+some limitations you need to be aware of:</p>
+<ul class="simple">
+<li><p>This unicode support is limited to <code class="docutils literal notranslate"><span class="pre">click.echo</span></code>, <code class="docutils literal notranslate"><span class="pre">click.prompt</span></code> as
+well as <code class="docutils literal notranslate"><span class="pre">click.get_text_stream</span></code>.</p></li>
+<li><p>Depending on if unicode values or byte strings are passed the control
+flow goes completely different places internally which can have some
+odd artifacts if data partially ends up being buffered.  Click
+attempts to protect against that by manually always flushing but if
+you are mixing and matching different string types to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> or
+<code class="docutils literal notranslate"><span class="pre">stderr</span></code> you will need to manually flush.</p></li>
+<li><p>The raw output stream is set to binary mode, which is a global
+operation on Windows, so <code class="docutils literal notranslate"><span class="pre">print</span></code> calls will be affected. Prefer
+<code class="docutils literal notranslate"><span class="pre">click.echo</span></code> over <code class="docutils literal notranslate"><span class="pre">print</span></code>.</p></li>
+<li><p>On Windows 7 and below, there is a limitation where at most 64k
+characters can be written in one call in binary mode. In this
+situation, <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> and <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> are replaced with
+wrappers that work around the limitation.</p></li>
+</ul>
+<p>Another important thing to note is that the Windows console’s default
+fonts do not support a lot of characters which means that you are mostly
+limited to international letters but no emojis or special characters.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Windows Console Notes</a><ul>
+<li><a class="reference internal" href="#unicode-arguments">Unicode Arguments</a></li>
+<li><a class="reference internal" href="#unicode-output-and-input">Unicode Output and Input</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="python3.html" title="previous chapter">Python 3 Support</a>
+          <li>Next: <a href="api.html" title="next chapter">API</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

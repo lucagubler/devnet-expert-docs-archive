@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upgrading To Newer Releases &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BSD-3-Clause License" href="license.html" />
+    <link rel="prev" title="Changes" href="changelog.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="BSD-3-Clause License"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="changelog.html" title="Changes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Upgrading To Newer Releases</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="upgrading-to-newer-releases">
+<h1>Upgrading To Newer Releases<a class="headerlink" href="#upgrading-to-newer-releases" title="Link to this heading">¶</a></h1>
+<p>Click attempts the highest level of backwards compatibility but sometimes
+this is not entirely possible.  In case we need to break backwards
+compatibility this document gives you information about how to upgrade or
+handle backwards compatibility properly.</p>
+<section id="upgrading-to-7-0">
+<span id="upgrade-to-7-0"></span><h2>Upgrading to 7.0<a class="headerlink" href="#upgrading-to-7-0" title="Link to this heading">¶</a></h2>
+<p>Commands that take their name from the decorated function now replace
+underscores with dashes. For example, the Python function <code class="docutils literal notranslate"><span class="pre">run_server</span></code>
+will get the command name <code class="docutils literal notranslate"><span class="pre">run-server</span></code> now. There are a few options
+to address this:</p>
+<ul>
+<li><p>To continue with the new behavior, pin your dependency to
+<code class="docutils literal notranslate"><span class="pre">Click&gt;=7</span></code> and update any documentation to use dashes.</p></li>
+<li><p>To keep existing behavior, add an explicit command name with
+underscores, like <code class="docutils literal notranslate"><span class="pre">&#64;click.command(&quot;run_server&quot;)</span></code>.</p></li>
+<li><p>To try a name with dashes if the name with underscores was not
+found, pass a <code class="docutils literal notranslate"><span class="pre">token_normalize_func</span></code> to the context:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;token_normalize_func&quot;</span><span class="p">:</span> <span class="n">normalize</span><span class="p">})</span>
+<span class="k">def</span> <span class="nf">group</span><span class="p">():</span>
+    <span class="o">...</span>
+
+<span class="nd">@group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">run_server</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="upgrading-to-3-2">
+<span id="upgrade-to-3-2"></span><h2>Upgrading to 3.2<a class="headerlink" href="#upgrading-to-3-2" title="Link to this heading">¶</a></h2>
+<p>Click 3.2 had to perform two changes to multi commands which were
+triggered by a change between Click 2 and Click 3 that had bigger
+consequences than anticipated.</p>
+<section id="context-invokes">
+<h3>Context Invokes<a class="headerlink" href="#context-invokes" title="Link to this heading">¶</a></h3>
+<p>Click 3.2 contains a fix for the <code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.invoke()</span></code> function when used
+with other commands.  The original intention of this function was to
+invoke the other command as as if it came from the command line when it
+was passed a context object instead of a function.  This use was only
+documented in a single place in the documentation before and there was no
+proper explanation for the method in the API documentation.</p>
+<p>The core issue is that before 3.2 this call worked against intentions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ctx</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">other_command</span><span class="p">,</span> <span class="s1">&#39;arg1&#39;</span><span class="p">,</span> <span class="s1">&#39;arg2&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This was never intended to work as it does not allow Click to operate on
+the parameters.  Given that this pattern was never documented and ill
+intended the decision was made to change this behavior in a bugfix release
+before it spreads by accident and developers depend on it.</p>
+<p>The correct invocation for the above command is the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ctx</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">other_command</span><span class="p">,</span> <span class="n">name_of_arg1</span><span class="o">=</span><span class="s1">&#39;arg1&#39;</span><span class="p">,</span> <span class="n">name_of_arg2</span><span class="o">=</span><span class="s1">&#39;arg2&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This also allowed us to fix the issue that defaults were not handled
+properly by this function.</p>
+</section>
+<section id="multicommand-chaining-api">
+<h3>Multicommand Chaining API<a class="headerlink" href="#multicommand-chaining-api" title="Link to this heading">¶</a></h3>
+<p>Click 3 introduced multicommand chaining.  This required a change in how
+Click internally dispatches.  Unfortunately this change was not correctly
+implemented and it appeared that it was possible to provide an API that
+can inform the super command about all the subcommands that will be
+invoked.</p>
+<p>This assumption however does not work with one of the API guarantees that
+have been given in the past.  As such this functionality has been removed
+in 3.2 as it was already broken.  Instead the accidentally broken
+functionality of the <code class="xref py py-attr docutils literal notranslate"><span class="pre">Context.invoked_subcommand</span></code> attribute was
+restored.</p>
+<p>If you do require the know which exact commands will be invoked there are
+different ways to cope with this.  The first one is to let the subcommands
+all return functions and then to invoke the functions in a
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.resultcallback()</span></code>.</p>
+</section>
+</section>
+<section id="upgrading-to-2-0">
+<span id="upgrade-to-2-0"></span><h2>Upgrading to 2.0<a class="headerlink" href="#upgrading-to-2-0" title="Link to this heading">¶</a></h2>
+<p>Click 2.0 has one breaking change which is the signature for parameter
+callbacks.  Before 2.0, the callback was invoked with <code class="docutils literal notranslate"><span class="pre">(ctx,</span> <span class="pre">value)</span></code>
+whereas now it’s <code class="docutils literal notranslate"><span class="pre">(ctx,</span> <span class="pre">param,</span> <span class="pre">value)</span></code>.  This change was necessary as it
+otherwise made reusing callbacks too complicated.</p>
+<p>To ease the transition Click will still accept old callbacks.  Starting
+with Click 3.0 it will start to issue a warning to stderr to encourage you
+to upgrade.</p>
+<p>In case you want to support both Click 1.0 and Click 2.0, you can make a
+simple decorator that adjusts the signatures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">update_wrapper</span>
+
+<span class="k">def</span> <span class="nf">compatcallback</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="c1"># Click 1.0 does not have a version string stored, so we need to</span>
+    <span class="c1"># use getattr here to be safe.</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">click</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">,</span> <span class="s1">&#39;0.0&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="s1">&#39;2.0&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span>
+    <span class="k">return</span> <span class="n">update_wrapper</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With that helper you can then write something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@compatcallback</span>
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that because Click 1.0 did not pass a parameter, the <cite>param</cite> argument
+here would be <cite>None</cite>, so a compatibility callback could not use that
+argument.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Upgrading To Newer Releases</a><ul>
+<li><a class="reference internal" href="#upgrading-to-7-0">Upgrading to 7.0</a></li>
+<li><a class="reference internal" href="#upgrading-to-3-2">Upgrading to 3.2</a><ul>
+<li><a class="reference internal" href="#context-invokes">Context Invokes</a></li>
+<li><a class="reference internal" href="#multicommand-chaining-api">Multicommand Chaining API</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#upgrading-to-2-0">Upgrading to 2.0</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="changelog.html" title="previous chapter">Changes</a>
+          <li>Next: <a href="license.html" title="next chapter">BSD-3-Clause License</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

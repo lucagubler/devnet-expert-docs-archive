@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shell Completion &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exception Handling" href="exceptions.html" />
+    <link rel="prev" title="Utilities" href="utils.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="exceptions.html" title="Exception Handling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Utilities"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Shell Completion</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="shell-completion">
+<h1>Shell Completion<a class="headerlink" href="#shell-completion" title="Link to this heading">¶</a></h1>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Click can provide tab completion for commands, options, and choice
+values. Bash, Zsh, and Fish are supported</p>
+<p>Completion is only available if a script is installed and invoked
+through an entry point, not through the <code class="docutils literal notranslate"><span class="pre">python</span></code> command. See
+<a class="reference internal" href="setuptools.html#setuptools-integration"><span class="std std-ref">Setuptools Integration</span></a>.</p>
+<section id="what-it-completes">
+<h2>What it Completes<a class="headerlink" href="#what-it-completes" title="Link to this heading">¶</a></h2>
+<p>Generally, the shell completion support will complete commands,
+options, and any option or argument values where the type is
+<a class="reference internal" href="api.html#click.Choice" title="click.Choice"><code class="xref py py-class docutils literal notranslate"><span class="pre">click.Choice</span></code></a>. Options are only listed if at least a dash has
+been entered.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ repo &lt;TAB&gt;&lt;TAB&gt;
+clone    commit   copy     delete   setuser
+$ repo clone -&lt;TAB&gt;&lt;TAB&gt;
+--deep     --help     --rev      --shallow  -r
+</pre></div>
+</div>
+<p>Custom completions can be provided for argument and option values by
+providing an <code class="docutils literal notranslate"><span class="pre">autocompletion</span></code> function that returns a list of strings.
+This is useful when the suggestions need to be dynamically generated
+completion time. The callback function will be passed 3 keyword
+arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ctx</span></code> - The current command context.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">args</span></code> - The list of arguments passed in.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">incomplete</span></code> - The partial word that is being completed. May
+be an empty string if no characters have been entered yet.</p></li>
+</ul>
+<p>Here is an example of using a callback function to generate dynamic
+suggestions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">get_env_vars</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">incomplete</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">incomplete</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;envvar&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span> <span class="n">autocompletion</span><span class="o">=</span><span class="n">get_env_vars</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cmd1</span><span class="p">(</span><span class="n">envvar</span><span class="p">):</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Environment variable: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">envvar</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Value: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">envvar</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="completion-help-strings">
+<h2>Completion help strings<a class="headerlink" href="#completion-help-strings" title="Link to this heading">¶</a></h2>
+<p>ZSH and fish support showing documentation strings for completions.
+These are taken from the help parameters of options and subcommands. For
+dynamically generated completions a help string can be provided by
+returning a tuple instead of a string. The first element of the tuple is
+the completion and the second is the help string to display.</p>
+<p>Here is an example of using a callback function to generate dynamic
+suggestions with help strings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">get_colors</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">incomplete</span><span class="p">):</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;a warm color&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;a cool color&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;the other starter color&#39;</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">colors</span> <span class="k">if</span> <span class="n">incomplete</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span> <span class="n">autocompletion</span><span class="o">=</span><span class="n">get_colors</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cmd1</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Chosen color is </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">color</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="activation">
+<h2>Activation<a class="headerlink" href="#activation" title="Link to this heading">¶</a></h2>
+<p>In order to activate shell completion, you need to inform your shell
+that completion is available for your script. Any Click application
+automatically provides support for that. If the program is executed with
+a special <code class="docutils literal notranslate"><span class="pre">_&lt;PROG_NAME&gt;_COMPLETE</span></code> variable, the completion mechanism
+is triggered instead of the normal command. <code class="docutils literal notranslate"><span class="pre">&lt;PROG_NAME&gt;</span></code> is the
+executable name in uppercase with dashes replaced by underscores.</p>
+<p>If your tool is called <code class="docutils literal notranslate"><span class="pre">foo-bar</span></code>, then the variable is called
+<code class="docutils literal notranslate"><span class="pre">_FOO_BAR_COMPLETE</span></code>. By exporting it with the <code class="docutils literal notranslate"><span class="pre">source_{shell}</span></code>
+value it will output the activation script to evaluate.</p>
+<p>Here are examples for a <code class="docutils literal notranslate"><span class="pre">foo-bar</span></code> script.</p>
+<p>For Bash, add this to <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>eval &quot;$(_FOO_BAR_COMPLETE=source_bash foo-bar)&quot;
+</pre></div>
+</div>
+<p>For Zsh, add this to <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>eval &quot;$(_FOO_BAR_COMPLETE=source_zsh foo-bar)&quot;
+</pre></div>
+</div>
+<p>For Fish, add this to <code class="docutils literal notranslate"><span class="pre">~/.config/fish/completions/foo-bar.fish</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>eval (env _FOO_BAR_COMPLETE=source_fish foo-bar)
+</pre></div>
+</div>
+<p>Open a new shell to enable completion. Or run the <code class="docutils literal notranslate"><span class="pre">eval</span></code> command
+directly in your current shell to enable it temporarily.</p>
+</section>
+<section id="activation-script">
+<h2>Activation Script<a class="headerlink" href="#activation-script" title="Link to this heading">¶</a></h2>
+<p>The above <code class="docutils literal notranslate"><span class="pre">eval</span></code> examples will invoke your application every time a
+shell is started. This may slow down shell startup time significantly.</p>
+<p>Alternatively, export the generated completion code as a static script
+to be executed. You can ship this file with your builds; tools like Git
+do this. At least Zsh will also cache the results of completion files,
+but not <code class="docutils literal notranslate"><span class="pre">eval</span></code> scripts.</p>
+<p>For Bash:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_FOO_BAR_COMPLETE=source_bash foo-bar &gt; foo-bar-complete.sh
+</pre></div>
+</div>
+<p>For Zsh:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_FOO_BAR_COMPLETE=source_zsh foo-bar &gt; foo-bar-complete.sh
+</pre></div>
+</div>
+<p>For Fish:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_FOO_BAR_COMPLETE=source_zsh foo-bar &gt; foo-bar-complete.sh
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> or <code class="docutils literal notranslate"><span class="pre">.zshrc</span></code>, source the script instead of the <code class="docutils literal notranslate"><span class="pre">eval</span></code>
+command:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>. /path/to/foo-bar-complete.sh
+</pre></div>
+</div>
+<p>For Fish, add the file to the completions directory:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>_FOO_BAR_COMPLETE=source_fish foo-bar &gt; ~/.config/fish/completions/foo-bar-complete.fish
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Shell Completion</a><ul>
+<li><a class="reference internal" href="#what-it-completes">What it Completes</a></li>
+<li><a class="reference internal" href="#completion-help-strings">Completion help strings</a></li>
+<li><a class="reference internal" href="#activation">Activation</a></li>
+<li><a class="reference internal" href="#activation-script">Activation Script</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="utils.html" title="previous chapter">Utilities</a>
+          <li>Next: <a href="exceptions.html" title="next chapter">Exception Handling</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

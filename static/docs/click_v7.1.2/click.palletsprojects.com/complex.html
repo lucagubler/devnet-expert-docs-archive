@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Complex Applications &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Patterns" href="advanced.html" />
+    <link rel="prev" title="Documenting Scripts" href="documentation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced Patterns"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="documentation.html" title="Documenting Scripts"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Complex Applications</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="complex-applications">
+<span id="complex-guide"></span><h1>Complex Applications<a class="headerlink" href="#complex-applications" title="Link to this heading">¶</a></h1>
+<p>Click is designed to assist with the creation of complex and simple CLI tools
+alike.  However, the power of its design is the ability to arbitrarily nest
+systems together.  For instance, if you have ever used Django, you will
+have realized that it provides a command line utility, but so does Celery.
+When using Celery with Django, there are two tools that need to interact with
+each other and be cross-configured.</p>
+<p>In a theoretical world of two separate Click command line utilities, they
+could solve this problem by nesting one inside the other.  For instance, the
+web framework could also load the commands for the message queue framework.</p>
+<section id="basic-concepts">
+<h2>Basic Concepts<a class="headerlink" href="#basic-concepts" title="Link to this heading">¶</a></h2>
+<p>To understand how this works, you need to understand two concepts: contexts
+and the calling convention.</p>
+<section id="contexts">
+<h3>Contexts<a class="headerlink" href="#contexts" title="Link to this heading">¶</a></h3>
+<p>Whenever a Click command is executed, a <a class="reference internal" href="api.html#click.Context" title="click.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> object is created
+which holds state for this particular invocation.  It remembers parsed
+parameters, what command created it, which resources need to be cleaned up
+at the end of the function, and so forth.  It can also optionally hold an
+application-defined object.</p>
+<p>Context objects build a linked list until they hit the top one.  Each context
+is linked to a parent context.  This allows a command to work below
+another command and store its own information there without having to be
+afraid of altering up the state of the parent command.</p>
+<p>Because the parent data is available, however, it is possible to navigate to
+it if needed.</p>
+<p>Most of the time, you do not see the context object, but when writing more
+complex applications it comes in handy.  This brings us to the next point.</p>
+</section>
+<section id="calling-convention">
+<h3>Calling Convention<a class="headerlink" href="#calling-convention" title="Link to this heading">¶</a></h3>
+<p>When a Click command callback is executed, it’s passed all the non-hidden
+parameters as keyword arguments.  Notably absent is the context.  However,
+a callback can opt into being passed to the context object by marking itself
+with <a class="reference internal" href="api.html#click.pass_context" title="click.pass_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">pass_context()</span></code></a>.</p>
+<p>So how do you invoke a command callback if you don’t know if it should
+receive the context or not?  The answer is that the context itself
+provides a helper function (<a class="reference internal" href="api.html#click.Context.invoke" title="click.Context.invoke"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.invoke()</span></code></a>) which can do this for
+you.  It accepts the callback as first argument and then invokes the
+function correctly.</p>
+</section>
+</section>
+<section id="building-a-git-clone">
+<h2>Building a Git Clone<a class="headerlink" href="#building-a-git-clone" title="Link to this heading">¶</a></h2>
+<p>In this example, we want to build a command line tool that resembles a
+version control system.  Systems like Git usually provide one
+over-arching command that already accepts some parameters and
+configuration, and then have extra subcommands that do other things.</p>
+<section id="the-root-command">
+<h3>The Root Command<a class="headerlink" href="#the-root-command" title="Link to this heading">¶</a></h3>
+<p>At the top level, we need a group that can hold all our commands.  In this
+case, we use the basic <a class="reference internal" href="api.html#click.group" title="click.group"><code class="xref py py-func docutils literal notranslate"><span class="pre">click.group()</span></code></a> which allows us to register
+other Click commands below it.</p>
+<p>For this command, we also want to accept some parameters that configure the
+state of our tool:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">click</span>
+
+
+<span class="k">class</span> <span class="nc">Repo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">home</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--repo-home&#39;</span><span class="p">,</span> <span class="n">envvar</span><span class="o">=</span><span class="s1">&#39;REPO_HOME&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;.repo&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--debug/--no-debug&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">envvar</span><span class="o">=</span><span class="s1">&#39;REPO_DEBUG&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">repo_home</span><span class="p">,</span> <span class="n">debug</span><span class="p">):</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">Repo</span><span class="p">(</span><span class="n">repo_home</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let’s understand what this does.  We create a group command which can
+have subcommands.  When it is invoked, it will create an instance of a
+<code class="docutils literal notranslate"><span class="pre">Repo</span></code> class.  This holds the state for our command line tool.  In this
+case, it just remembers some parameters, but at this point it could also
+start loading configuration files and so on.</p>
+<p>This state object is then remembered by the context as <a class="reference internal" href="api.html#click.Context.obj" title="click.Context.obj"><code class="xref py py-attr docutils literal notranslate"><span class="pre">obj</span></code></a>.
+This is a special attribute where commands are supposed to remember what
+they need to pass on to their children.</p>
+<p>In order for this to work, we need to mark our function with
+<a class="reference internal" href="api.html#click.pass_context" title="click.pass_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">pass_context()</span></code></a>, because otherwise, the context object would be
+entirely hidden from us.</p>
+</section>
+<section id="the-first-child-command">
+<h3>The First Child Command<a class="headerlink" href="#the-first-child-command" title="Link to this heading">¶</a></h3>
+<p>Let’s add our first child command to it, the clone command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;dest&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>So now we have a clone command, but how do we get access to the repo?  As
+you can imagine, one way is to use the <a class="reference internal" href="api.html#click.pass_context" title="click.pass_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">pass_context()</span></code></a> function which
+again will make our callback also get the context passed on which we
+memorized the repo.  However, there is a second version of this decorator
+called <a class="reference internal" href="api.html#click.pass_obj" title="click.pass_obj"><code class="xref py py-func docutils literal notranslate"><span class="pre">pass_obj()</span></code></a> which will just pass the stored object, (in our case
+the repo):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;dest&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_obj</span>
+<span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="interleaved-commands">
+<h3>Interleaved Commands<a class="headerlink" href="#interleaved-commands" title="Link to this heading">¶</a></h3>
+<p>While not relevant for the particular program we want to build, there is
+also quite good support for interleaving systems.  Imagine for instance that
+there was a super cool plugin for our version control system that needed a
+lot of configuration and wanted to store its own configuration as
+<a class="reference internal" href="api.html#click.Context.obj" title="click.Context.obj"><code class="xref py py-attr docutils literal notranslate"><span class="pre">obj</span></code></a>.  If we would then attach another command below that,
+we would all of a sudden get the plugin configuration instead of our repo
+object.</p>
+<p>One obvious way to remedy this is to store a reference to the repo in the
+plugin, but then a command needs to be aware that it’s attached below such a
+plugin.</p>
+<p>There is a much better system that can be built by taking advantage of the
+linked nature of contexts.  We know that the plugin context is linked to the
+context that created our repo.  Because of that, we can start a search for
+the last level where the object stored by the context was a repo.</p>
+<p>Built-in support for this is provided by the <a class="reference internal" href="api.html#click.make_pass_decorator" title="click.make_pass_decorator"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pass_decorator()</span></code></a>
+factory, which will create decorators for us that find objects (it
+internally calls into <a class="reference internal" href="api.html#click.Context.find_object" title="click.Context.find_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.find_object()</span></code></a>).  In our case, we
+know that we want to find the closest <code class="docutils literal notranslate"><span class="pre">Repo</span></code> object, so let’s make a
+decorator for this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pass_repo</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">make_pass_decorator</span><span class="p">(</span><span class="n">Repo</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we now use <code class="docutils literal notranslate"><span class="pre">pass_repo</span></code> instead of <code class="docutils literal notranslate"><span class="pre">pass_obj</span></code>, we will always get a
+repo instead of something else:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;dest&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nd">@pass_repo</span>
+<span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="ensuring-object-creation">
+<h3>Ensuring Object Creation<a class="headerlink" href="#ensuring-object-creation" title="Link to this heading">¶</a></h3>
+<p>The above example only works if there was an outer command that created a
+<code class="docutils literal notranslate"><span class="pre">Repo</span></code> object and stored it in the context.  For some more advanced use
+cases, this might become a problem.  The default behavior of
+<a class="reference internal" href="api.html#click.make_pass_decorator" title="click.make_pass_decorator"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pass_decorator()</span></code></a> is to call <a class="reference internal" href="api.html#click.Context.find_object" title="click.Context.find_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.find_object()</span></code></a>
+which will find the object.  If it can’t find the object,
+<a class="reference internal" href="api.html#click.make_pass_decorator" title="click.make_pass_decorator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">make_pass_decorator()</span></code></a> will raise an error.
+The alternative behavior is to use <a class="reference internal" href="api.html#click.Context.ensure_object" title="click.Context.ensure_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context.ensure_object()</span></code></a>
+which will find the object, and if it cannot find it, will create one and
+store it in the innermost context.  This behavior can also be enabled for
+<a class="reference internal" href="api.html#click.make_pass_decorator" title="click.make_pass_decorator"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_pass_decorator()</span></code></a> by passing <code class="docutils literal notranslate"><span class="pre">ensure=True</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pass_repo</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">make_pass_decorator</span><span class="p">(</span><span class="n">Repo</span><span class="p">,</span> <span class="n">ensure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case, the innermost context gets an object created if it is
+missing.  This might replace objects being placed there earlier.  In this
+case, the command stays executable, even if the outer command does not run.
+For this to work, the object type needs to have a constructor that accepts
+no arguments.</p>
+<p>As such it runs standalone:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@pass_repo</span>
+<span class="k">def</span> <span class="nf">cp</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">Repo</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>As you can see:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cp
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Complex Applications</a><ul>
+<li><a class="reference internal" href="#basic-concepts">Basic Concepts</a><ul>
+<li><a class="reference internal" href="#contexts">Contexts</a></li>
+<li><a class="reference internal" href="#calling-convention">Calling Convention</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#building-a-git-clone">Building a Git Clone</a><ul>
+<li><a class="reference internal" href="#the-root-command">The Root Command</a></li>
+<li><a class="reference internal" href="#the-first-child-command">The First Child Command</a></li>
+<li><a class="reference internal" href="#interleaved-commands">Interleaved Commands</a></li>
+<li><a class="reference internal" href="#ensuring-object-creation">Ensuring Object Creation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="documentation.html" title="previous chapter">Documenting Scripts</a>
+          <li>Next: <a href="advanced.html" title="next chapter">Advanced Patterns</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

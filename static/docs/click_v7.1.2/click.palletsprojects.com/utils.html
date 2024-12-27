@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Utilities &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Shell Completion" href="bashcomplete.html" />
+    <link rel="prev" title="Testing Click Applications" href="testing.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bashcomplete.html" title="Shell Completion"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="testing.html" title="Testing Click Applications"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utilities</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">¶</a></h1>
+<p>Besides the functionality that Click provides to interface with argument
+parsing and handling, it also provides a bunch of addon functionality that
+is useful for writing command line utilities.</p>
+<section id="printing-to-stdout">
+<h2>Printing to Stdout<a class="headerlink" href="#printing-to-stdout" title="Link to this heading">¶</a></h2>
+<p>The most obvious helper is the <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> function, which in many ways
+works like the Python <code class="docutils literal notranslate"><span class="pre">print</span></code> statement or function.  The main difference is
+that it works the same in Python 2 and 3, it intelligently detects
+misconfigured output streams, and it will never fail (except in Python 3; for
+more information see <a class="reference internal" href="python3.html#python3-limitations"><span class="std std-ref">Python 3 Limitations</span></a>).</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Most importantly, it can print both Unicode and binary data, unlike the
+built-in <code class="docutils literal notranslate"><span class="pre">print</span></code> function in Python 3, which cannot output any bytes.  It
+will, however, emit a trailing newline by default, which needs to be
+suppressed by passing <code class="docutils literal notranslate"><span class="pre">nl=False</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xe2\x98\x83</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Last but not least <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> uses click’s intelligent internal output
+streams to stdout and stderr which support unicode output on the Windows
+console.  This means for as long as you are using <cite>click.echo</cite> you can
+output unicode characters (there are some limitations on the default font
+with regards to which characters can be displayed).  This functionality is
+new in Click 6.0.</p>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 6.0.</span></p>
+</div>
+</details><p>Click now emulates output streams on Windows to support unicode to the
+Windows console through separate APIs.  For more information see
+<a class="reference internal" href="wincmd.html"><span class="doc">Windows Console Notes</span></a>.</p>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 3.0.</span></p>
+</div>
+</details><p>Starting with Click 3.0 you can also easily print to standard error by
+passing <code class="docutils literal notranslate"><span class="pre">err=True</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ansi-colors">
+<span id="id1"></span><h2>ANSI Colors<a class="headerlink" href="#ansi-colors" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Starting with Click 2.0, the <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> function gained extra
+functionality to deal with ANSI colors and styles.  Note that on Windows,
+this functionality is only available if <a class="reference external" href="https://pypi.org/project/colorama/">colorama</a> is installed.  If it
+is installed, then ANSI codes are intelligently handled. Note that in Python
+2, the echo function doesn’t parse color code information from bytearrays.</p>
+<p>Primarily this means that:</p>
+<ul class="simple">
+<li><p>Click’s <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> function will automatically strip ANSI color codes
+if the stream is not connected to a terminal.</p></li>
+<li><p>the <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> function will transparently connect to the terminal on
+Windows and translate ANSI codes to terminal API calls.  This means
+that colors will work on Windows the same way they do on other
+operating systems.</p></li>
+</ul>
+<p>Note for <cite>colorama</cite> support: Click will automatically detect when <cite>colorama</cite>
+is available and use it.  Do <em>not</em> call <code class="docutils literal notranslate"><span class="pre">colorama.init()</span></code>!</p>
+<p>To install <cite>colorama</cite>, run this command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install colorama
+</pre></div>
+</div>
+<p>For styling a string, the <a class="reference internal" href="api.html#click.style" title="click.style"><code class="xref py py-func docutils literal notranslate"><span class="pre">style()</span></code></a> function can be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">style</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">))</span>
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">style</span><span class="p">(</span><span class="s1">&#39;Some more text&#39;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">))</span>
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">style</span><span class="p">(</span><span class="s1">&#39;ATTENTION&#39;</span><span class="p">,</span> <span class="n">blink</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The combination of <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a> and <a class="reference internal" href="api.html#click.style" title="click.style"><code class="xref py py-func docutils literal notranslate"><span class="pre">style()</span></code></a> is also available in
+a single function called <a class="reference internal" href="api.html#click.secho" title="click.secho"><code class="xref py py-func docutils literal notranslate"><span class="pre">secho()</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="s1">&#39;Some more text&#39;</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="s1">&#39;ATTENTION&#39;</span><span class="p">,</span> <span class="n">blink</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="pager-support">
+<h2>Pager Support<a class="headerlink" href="#pager-support" title="Link to this heading">¶</a></h2>
+<p>In some situations, you might want to show long texts on the terminal and
+let a user scroll through it.  This can be achieved by using the
+<a class="reference internal" href="api.html#click.echo_via_pager" title="click.echo_via_pager"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo_via_pager()</span></code></a> function which works similarly to the <a class="reference internal" href="api.html#click.echo" title="click.echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">echo()</span></code></a>
+function, but always writes to stdout and, if possible, through a pager.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">less</span><span class="p">():</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo_via_pager</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;Line </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">idx</span>
+                                   <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>If you want to use the pager for a lot of text, especially if generating everything in advance would take a lot of time, you can pass a generator (or generator function) instead of a string:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_generate_output</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50000</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="s2">&quot;Line </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">idx</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">less</span><span class="p">():</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo_via_pager</span><span class="p">(</span><span class="n">_generate_output</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="screen-clearing">
+<h2>Screen Clearing<a class="headerlink" href="#screen-clearing" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>To clear the terminal screen, you can use the <a class="reference internal" href="api.html#click.clear" title="click.clear"><code class="xref py py-func docutils literal notranslate"><span class="pre">clear()</span></code></a> function that
+is provided starting with Click 2.0.  It does what the name suggests: it
+clears the entire visible screen in a platform-agnostic way:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+<span class="n">click</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-characters-from-terminal">
+<h2>Getting Characters from Terminal<a class="headerlink" href="#getting-characters-from-terminal" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Normally, when reading input from the terminal, you would read from
+standard input.  However, this is buffered input and will not show up until
+the line has been terminated.  In certain circumstances, you might not want
+to do that and instead read individual characters as they are being written.</p>
+<p>For this, Click provides the <a class="reference internal" href="api.html#click.getchar" title="click.getchar"><code class="xref py py-func docutils literal notranslate"><span class="pre">getchar()</span></code></a> function which reads a single
+character from the terminal buffer and returns it as a Unicode character.</p>
+<p>Note that this function will always read from the terminal, even if stdin
+is instead a pipe.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Continue? [yn] &#39;</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">getchar</span><span class="p">()</span>
+<span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;We will go on&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Abort!&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Invalid input :(&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this reads raw input, which means that things like arrow keys
+will show up in the platform’s native escape format.  The only characters
+translated are <code class="docutils literal notranslate"><span class="pre">^C</span></code> and <code class="docutils literal notranslate"><span class="pre">^D</span></code> which are converted into keyboard
+interrupts and end of file exceptions respectively.  This is done because
+otherwise, it’s too easy to forget about that and to create scripts that
+cannot be properly exited.</p>
+</section>
+<section id="waiting-for-key-press">
+<h2>Waiting for Key Press<a class="headerlink" href="#waiting-for-key-press" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Sometimes, it’s useful to pause until the user presses any key on the
+keyboard.  This is especially useful on Windows where <code class="docutils literal notranslate"><span class="pre">cmd.exe</span></code> will
+close the window at the end of the command execution by default, instead
+of waiting.</p>
+<p>In click, this can be accomplished with the <a class="reference internal" href="api.html#click.pause" title="click.pause"><code class="xref py py-func docutils literal notranslate"><span class="pre">pause()</span></code></a> function.  This
+function will print a quick message to the terminal (which can be
+customized) and wait for the user to press a key.  In addition to that,
+it will also become a NOP (no operation instruction) if the script is not
+run interactively.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+<span class="n">click</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="launching-editors">
+<h2>Launching Editors<a class="headerlink" href="#launching-editors" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Click supports launching editors automatically through <a class="reference internal" href="api.html#click.edit" title="click.edit"><code class="xref py py-func docutils literal notranslate"><span class="pre">edit()</span></code></a>.  This
+is very useful for asking users for multi-line input.  It will
+automatically open the user’s defined editor or fall back to a sensible
+default.  If the user closes the editor without saving, the return value
+will be <code class="docutils literal notranslate"><span class="pre">None</span></code>, otherwise the entered text.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="k">def</span> <span class="nf">get_commit_message</span><span class="p">():</span>
+    <span class="n">MARKER</span> <span class="o">=</span> <span class="s1">&#39;# Everything below is ignored</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">MARKER</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">MARKER</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, the function can also be used to launch editors for files by
+a specific filename.  In this case, the return value is always <cite>None</cite>.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+<span class="n">click</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;/etc/passwd&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="launching-applications">
+<h2>Launching Applications<a class="headerlink" href="#launching-applications" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Click supports launching applications through <a class="reference internal" href="api.html#click.launch" title="click.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a>.  This can be
+used to open the default application associated with a URL or filetype.
+This can be used to launch web browsers or picture viewers, for instance.
+In addition to this, it can also launch the file manager and automatically
+select the provided file.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="s2">&quot;https://click.palletsprojects.com/&quot;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="s2">&quot;/my/downloaded/file.txt&quot;</span><span class="p">,</span> <span class="n">locate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="printing-filenames">
+<h2>Printing Filenames<a class="headerlink" href="#printing-filenames" title="Link to this heading">¶</a></h2>
+<p>Because filenames might not be Unicode, formatting them can be a bit
+tricky.  Generally, this is easier in Python 2 than on 3, as you can just
+write the bytes to stdout with the <code class="docutils literal notranslate"><span class="pre">print</span></code> function, but in Python 3, you
+will always need to operate in Unicode.</p>
+<p>The way this works with click is through the <a class="reference internal" href="api.html#click.format_filename" title="click.format_filename"><code class="xref py py-func docutils literal notranslate"><span class="pre">format_filename()</span></code></a>
+function.  It does a best-effort conversion of the filename to Unicode and
+will never fail.  This makes it possible to use these filenames in the
+context of a full Unicode string.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Path: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">click</span><span class="o">.</span><span class="n">format_filename</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;foo.txt&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="standard-streams">
+<h2>Standard Streams<a class="headerlink" href="#standard-streams" title="Link to this heading">¶</a></h2>
+<p>For command line utilities, it’s very important to get access to input and
+output streams reliably.  Python generally provides access to these
+streams through <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> and friends, but unfortunately, there are
+API differences between 2.x and 3.x, especially with regards to how these
+streams respond to Unicode and binary data.</p>
+<p>Because of this, click provides the <a class="reference internal" href="api.html#click.get_binary_stream" title="click.get_binary_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_binary_stream()</span></code></a> and
+<a class="reference internal" href="api.html#click.get_text_stream" title="click.get_text_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_text_stream()</span></code></a> functions, which produce consistent results with
+different Python versions and for a wide variety of terminal configurations.</p>
+<p>The end result is that these functions will always return a functional
+stream object (except in very odd cases in Python 3; see
+<a class="reference internal" href="python3.html#python3-limitations"><span class="std std-ref">Python 3 Limitations</span></a>).</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">stdin_text</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">get_text_stream</span><span class="p">(</span><span class="s1">&#39;stdin&#39;</span><span class="p">)</span>
+<span class="n">stdout_binary</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">get_binary_stream</span><span class="p">(</span><span class="s1">&#39;stdout&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 6.0.</span></p>
+</div>
+</details><p>Click now emulates output streams on Windows to support unicode to the
+Windows console through separate APIs.  For more information see
+<a class="reference internal" href="wincmd.html"><span class="doc">Windows Console Notes</span></a>.</p>
+</section>
+<section id="intelligent-file-opening">
+<h2>Intelligent File Opening<a class="headerlink" href="#intelligent-file-opening" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 3.0.</span></p>
+</div>
+</details><p>Starting with Click 3.0 the logic for opening files from the <a class="reference internal" href="api.html#click.File" title="click.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a>
+type is exposed through the <a class="reference internal" href="api.html#click.open_file" title="click.open_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">open_file()</span></code></a> function.  It can
+intelligently open stdin/stdout as well as any other file.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">stdout</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">test_file</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="s1">&#39;test.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If stdin or stdout are returned, the return value is wrapped in a special
+file where the context manager will prevent the closing of the file.  This
+makes the handling of standard streams transparent and you can always use
+it like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Hello World!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="finding-application-folders">
+<h2>Finding Application Folders<a class="headerlink" href="#finding-application-folders" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Very often, you want to open a configuration file that belongs to your
+application.  However, different operating systems store these configuration
+files in different locations depending on their standards.  Click provides
+a <a class="reference internal" href="api.html#click.get_app_dir" title="click.get_app_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_app_dir()</span></code></a> function which returns the most appropriate location
+for per-user config files for your application depending on the OS.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span> <span class="nn">ConfigParser</span>
+
+<span class="n">APP_NAME</span> <span class="o">=</span> <span class="s1">&#39;My Application&#39;</span>
+
+<span class="k">def</span> <span class="nf">read_config</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">get_app_dir</span><span class="p">(</span><span class="n">APP_NAME</span><span class="p">),</span> <span class="s1">&#39;config.ini&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">RawConfigParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">([</span><span class="n">cfg</span><span class="p">])</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+            <span class="n">rv</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">rv</span>
+</pre></div>
+</div>
+</section>
+<section id="showing-progress-bars">
+<h2>Showing Progress Bars<a class="headerlink" href="#showing-progress-bars" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>Sometimes, you have command line scripts that need to process a lot of data,
+but you want to quickly show the user some progress about how long that
+will take.  Click supports simple progress bar rendering for that through
+the <a class="reference internal" href="api.html#click.progressbar" title="click.progressbar"><code class="xref py py-func docutils literal notranslate"><span class="pre">progressbar()</span></code></a> function.</p>
+<p>The basic usage is very simple: the idea is that you have an iterable that
+you want to operate on.  For each item in the iterable it might take some
+time to do processing.  So say you have a loop like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">all_the_users_to_process</span><span class="p">:</span>
+    <span class="n">modify_the_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To hook this up with an automatically updating progress bar, all you need
+to do is to change the code to this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">click</span>
+
+<span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span><span class="n">all_the_users_to_process</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="n">modify_the_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Click will then automatically print a progress bar to the terminal and
+calculate the remaining time for you.  The calculation of remaining time
+requires that the iterable has a length.  If it does not have a length
+but you know the length, you can explicitly provide it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span><span class="n">all_the_users_to_process</span><span class="p">,</span>
+                       <span class="n">length</span><span class="o">=</span><span class="n">number_of_users</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="n">modify_the_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that <a class="reference internal" href="api.html#click.progressbar" title="click.progressbar"><code class="xref py py-func docutils literal notranslate"><span class="pre">progressbar()</span></code></a> updates the bar <em>after</em> each iteration of the
+loop. So code like this will render correctly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;sleep(</span><span class="si">{}</span><span class="s1">)...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Another useful feature is to associate a label with the progress bar which
+will be shown preceding the progress bar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span><span class="n">all_the_users_to_process</span><span class="p">,</span>
+                       <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Modifying user accounts&#39;</span><span class="p">,</span>
+                       <span class="n">length</span><span class="o">=</span><span class="n">number_of_users</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="n">modify_the_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sometimes, one may need to iterate over an external iterator, and advance the
+progress bar irregularly. To do so, you need to specify the length (and no
+iterable), and use the update method on the context return value instead of
+iterating directly over it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">click</span><span class="o">.</span><span class="n">progressbar</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">total_size</span><span class="p">,</span>
+                       <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Unzipping archive&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">archive</span> <span class="ow">in</span> <span class="n">zip_file</span><span class="p">:</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#printing-to-stdout">Printing to Stdout</a></li>
+<li><a class="reference internal" href="#ansi-colors">ANSI Colors</a></li>
+<li><a class="reference internal" href="#pager-support">Pager Support</a></li>
+<li><a class="reference internal" href="#screen-clearing">Screen Clearing</a></li>
+<li><a class="reference internal" href="#getting-characters-from-terminal">Getting Characters from Terminal</a></li>
+<li><a class="reference internal" href="#waiting-for-key-press">Waiting for Key Press</a></li>
+<li><a class="reference internal" href="#launching-editors">Launching Editors</a></li>
+<li><a class="reference internal" href="#launching-applications">Launching Applications</a></li>
+<li><a class="reference internal" href="#printing-filenames">Printing Filenames</a></li>
+<li><a class="reference internal" href="#standard-streams">Standard Streams</a></li>
+<li><a class="reference internal" href="#intelligent-file-opening">Intelligent File Opening</a></li>
+<li><a class="reference internal" href="#finding-application-folders">Finding Application Folders</a></li>
+<li><a class="reference internal" href="#showing-progress-bars">Showing Progress Bars</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="testing.html" title="previous chapter">Testing Click Applications</a>
+          <li>Next: <a href="bashcomplete.html" title="next chapter">Shell Completion</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

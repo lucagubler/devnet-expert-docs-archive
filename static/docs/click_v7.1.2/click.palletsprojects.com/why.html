@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Why Click? &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="Welcome to Click" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Click"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Why Click?</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="why-click">
+<h1>Why Click?<a class="headerlink" href="#why-click" title="Link to this heading">¶</a></h1>
+<p>There are so many libraries out there for writing command line utilities;
+why does Click exist?</p>
+<p>This question is easy to answer: because there is not a single command
+line utility for Python out there which ticks the following boxes:</p>
+<ul class="simple">
+<li><p>is lazily composable without restrictions</p></li>
+<li><p>supports implementation of Unix/POSIX command line conventions</p></li>
+<li><p>supports loading values from environment variables out of the box</p></li>
+<li><p>support for prompting of custom values</p></li>
+<li><p>is fully nestable and composable</p></li>
+<li><p>works the same in Python 2 and 3</p></li>
+<li><p>supports file handling out of the box</p></li>
+<li><p>comes with useful common helpers (getting terminal dimensions,
+ANSI colors, fetching direct keyboard input, screen clearing,
+finding config paths, launching apps and editors, etc.)</p></li>
+</ul>
+<p>There are many alternatives to Click; the obvious ones are <code class="docutils literal notranslate"><span class="pre">optparse</span></code>
+and <code class="docutils literal notranslate"><span class="pre">argparse</span></code> from the standard library. Have a look to see if something
+else resonates with you.</p>
+<p>Click actually implements its own parsing of arguments and does not use
+<code class="docutils literal notranslate"><span class="pre">optparse</span></code> or <code class="docutils literal notranslate"><span class="pre">argparse</span></code> following the <code class="docutils literal notranslate"><span class="pre">optparse</span></code> parsing behavior.
+The reason it’s not based on <code class="docutils literal notranslate"><span class="pre">argparse</span></code> is that <code class="docutils literal notranslate"><span class="pre">argparse</span></code> does not
+allow proper nesting of commands by design and has some deficiencies when
+it comes to POSIX compliant argument handling.</p>
+<p>Click is designed to be fun and customizable but not overly flexible.
+For instance, the customizability of help pages is constrained. This
+constraint is intentional because Click promises multiple Click instances
+will continue to function as intended when strung together.</p>
+<p>Too much customizability would break this promise.</p>
+<p>Click was written to support the <a class="reference external" href="https://palletsprojects.com/p/flask/">Flask</a>
+microframework ecosystem because no tool could provide it with the
+functionality it needed.</p>
+<p>To get an understanding of what Click is all about, I strongly recommend
+looking at the <a class="reference internal" href="complex.html#complex-guide"><span class="std std-ref">Complex Applications</span></a> chapter.</p>
+<section id="why-not-argparse">
+<h2>Why not Argparse?<a class="headerlink" href="#why-not-argparse" title="Link to this heading">¶</a></h2>
+<p>Click is internally based on <code class="docutils literal notranslate"><span class="pre">optparse</span></code> instead of <code class="docutils literal notranslate"><span class="pre">argparse</span></code>. This
+is an implementation detail that a user does not have to be concerned
+with. Click is not based on argparse because it has some behaviors that
+make handling arbitrary command line interfaces hard:</p>
+<ul class="simple">
+<li><p>argparse has built-in behavior to guess if something is an
+argument or an option. This becomes a problem when dealing with
+incomplete command lines; the behaviour becomes unpredictable
+without full knowledge of a command line. This goes against Click’s
+ambitions of dispatching to subparsers.</p></li>
+<li><p>argparse does not support disabling interspersed arguments. Without
+this feature, it’s not possible to safely implement Click’s nested
+parsing.</p></li>
+</ul>
+</section>
+<section id="why-not-docopt-etc">
+<h2>Why not Docopt etc.?<a class="headerlink" href="#why-not-docopt-etc" title="Link to this heading">¶</a></h2>
+<p>Docopt, and many tools like it, are cool in how they work, but very few of
+these tools deal with nesting of commands and composability in a way like
+Click.  To the best of the developer’s knowledge, Click is the first
+Python library that aims to create a level of composability of applications
+that goes beyond what the system itself supports.</p>
+<p>Docopt, for instance, acts by parsing your help pages and then parsing
+according to those rules.  The side effect of this is that docopt is quite
+rigid in how it handles the command line interface.  The upside of docopt
+is that it gives you strong control over your help page; the downside is
+that due to this it cannot rewrap your output for the current terminal
+width, and it makes translations hard.  On top of that, docopt is restricted
+to basic parsing.  It does not handle argument dispatching and callback
+invocation or types.  This means there is a lot of code that needs to be
+written in addition to the basic help page to handle the parsing results.</p>
+<p>Most of all, however, it makes composability hard.  While docopt does
+support dispatching to subcommands, it, for instance, does not directly
+support any kind of automatic subcommand enumeration based on what’s
+available or it does not enforce subcommands to work in a consistent way.</p>
+<p>This is fine, but it’s different from how Click wants to work.  Click aims
+to support fully composable command line user interfaces by doing the
+following:</p>
+<ul class="simple">
+<li><p>Click does not just parse, it also dispatches to the appropriate code.</p></li>
+<li><p>Click has a strong concept of an invocation context that allows
+subcommands to respond to data from the parent command.</p></li>
+<li><p>Click has strong information available for all parameters and commands,
+so it can generate unified help pages for the full CLI and
+assist the user in converting the input data as necessary.</p></li>
+<li><p>Click has a strong understanding of what types are, and it can give the user
+consistent error messages if something goes wrong.  A subcommand
+written by a different developer will not suddenly die with a
+different error message because it’s manually handled.</p></li>
+<li><p>Click has enough meta information available for its whole program
+to evolve over time and improve the user experience without
+forcing developers to adjust their programs.  For instance, if Click
+decides to change how help pages are formatted, all Click programs
+will automatically benefit from this.</p></li>
+</ul>
+<p>The aim of Click is to make composable systems. Whereas, the aim of docopt
+is to build the most beautiful and hand-crafted command line interfaces.
+These two goals conflict with one another in subtle ways.  Click
+actively prevents people from implementing certain patterns in order to
+achieve unified command line interfaces.  For instance, as a developer, you
+are given very little choice in formatting your help pages.</p>
+</section>
+<section id="why-hardcoded-behaviors">
+<h2>Why Hardcoded Behaviors?<a class="headerlink" href="#why-hardcoded-behaviors" title="Link to this heading">¶</a></h2>
+<p>The other question is why Click goes away from optparse and hardcodes
+certain behaviors instead of staying configurable.  There are multiple
+reasons for this.  The biggest one is that too much configurability makes
+it hard to achieve a consistent command line experience.</p>
+<p>The best example for this is optparse’s <code class="docutils literal notranslate"><span class="pre">callback</span></code> functionality for
+accepting an arbitrary number of arguments.  Due to syntactical ambiguities
+on the command line, there is no way to implement fully variadic arguments.
+There are always tradeoffs that need to be made and in case of
+<code class="docutils literal notranslate"><span class="pre">argparse</span></code> these tradeoffs have been critical enough, that a system like
+Click cannot even be implemented on top of it.</p>
+<p>In this particular case, Click attempts to stay with a handful of accepted
+paradigms for building command line interfaces that can be well documented
+and tested.</p>
+</section>
+<section id="why-no-auto-correction">
+<h2>Why No Auto Correction?<a class="headerlink" href="#why-no-auto-correction" title="Link to this heading">¶</a></h2>
+<p>The question came up why Click does not auto correct parameters given that
+even optparse and argparse support automatic expansion of long arguments.
+The reason for this is that it’s a liability for backwards compatibility.
+If people start relying on automatically modified parameters and someone
+adds a new parameter in the future, the script might stop working.  These
+kinds of problems are hard to find, so Click does not attempt to be magical
+about this.</p>
+<p>This sort of behavior however can be implemented on a higher level to
+support things such as explicit aliases.  For more information see
+<a class="reference internal" href="advanced.html#aliases"><span class="std std-ref">Command Aliases</span></a>.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Why Click?</a><ul>
+<li><a class="reference internal" href="#why-not-argparse">Why not Argparse?</a></li>
+<li><a class="reference internal" href="#why-not-docopt-etc">Why not Docopt etc.?</a></li>
+<li><a class="reference internal" href="#why-hardcoded-behaviors">Why Hardcoded Behaviors?</a></li>
+<li><a class="reference internal" href="#why-no-auto-correction">Why No Auto Correction?</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="index.html" title="previous chapter">Welcome to Click</a>
+          <li>Next: <a href="quickstart.html" title="next chapter">Quickstart</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

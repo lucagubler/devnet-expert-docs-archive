@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documenting Scripts &#8212; Click Documentation (7.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/click.css?v=f02213d0" />
+    <script src="_static/documentation_options.js?v=0db0fa45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-project="click" data-version="7.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/click-icon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Complex Applications" href="complex.html" />
+    <link rel="prev" title="User Input Prompts" href="prompts.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="complex.html" title="Complex Applications"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prompts.html" title="User Input Prompts"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Click Documentation (7.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Documenting Scripts</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="documenting-scripts">
+<h1>Documenting Scripts<a class="headerlink" href="#documenting-scripts" title="Link to this heading">¶</a></h1>
+<p>Click makes it very easy to document your command line tools.  First of
+all, it automatically generates help pages for you.  While these are
+currently not customizable in terms of their layout, all of the text
+can be changed.</p>
+<section id="help-texts">
+<h2>Help Texts<a class="headerlink" href="#help-texts" title="Link to this heading">¶</a></h2>
+<p>Commands and options accept help arguments.  In the case of commands, the
+docstring of the function is automatically used if provided.</p>
+<p>Simple example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--count&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;number of greetings&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This script prints hello NAME COUNT times.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Hello </span><span class="si">%s</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hello<span class="w"> </span>--help
+<span class="go">Usage: hello [OPTIONS] NAME</span>
+
+<span class="go">  This script prints hello NAME COUNT times.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --count INTEGER  number of greetings</span>
+<span class="go">  --help           Show this message and exit.</span>
+</pre></div>
+</div>
+<section id="documenting-arguments">
+<span id="id1"></span><h3>Documenting Arguments<a class="headerlink" href="#documenting-arguments" title="Link to this heading">¶</a></h3>
+<p><a class="reference internal" href="api.html#click.argument" title="click.argument"><code class="xref py py-func docutils literal notranslate"><span class="pre">click.argument()</span></code></a> does not take a <code class="docutils literal notranslate"><span class="pre">help</span></code> parameter. This is to
+follow the general convention of Unix tools of using arguments for only
+the most necessary things, and to document them in the command help text
+by referring to them by name.</p>
+<p>You might prefer to reference the argument in the description:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">touch</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print FILENAME.&quot;&quot;&quot;</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>touch<span class="w"> </span>--help
+<span class="go">Usage: touch [OPTIONS] FILENAME</span>
+
+<span class="go">  Print FILENAME.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --help  Show this message and exit.</span>
+</pre></div>
+</div>
+<p>Or you might prefer to explicitly provide a description of the argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">touch</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print FILENAME.</span>
+
+<span class="sd">    FILENAME is the name of the file to check.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>touch<span class="w"> </span>--help
+<span class="go">Usage: touch [OPTIONS] FILENAME</span>
+
+<span class="go">  Print FILENAME.</span>
+
+<span class="go">  FILENAME is the name of the file to check.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --help  Show this message and exit.</span>
+</pre></div>
+</div>
+<p>For more examples, see the examples in <a class="reference internal" href="arguments.html"><span class="doc">Arguments</span></a>.</p>
+</section>
+</section>
+<section id="preventing-rewrapping">
+<h2>Preventing Rewrapping<a class="headerlink" href="#preventing-rewrapping" title="Link to this heading">¶</a></h2>
+<p>The default behavior of Click is to rewrap text based on the width of the
+terminal.  In some circumstances, this can become a problem. The main issue
+is when showing code examples, where newlines are significant.</p>
+<p>Rewrapping can be disabled on a per-paragraph basis by adding a line with
+solely the <code class="docutils literal notranslate"><span class="pre">\b</span></code> escape marker in it.  This line will be removed from the
+help text and rewrapping will be disabled.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;First paragraph.</span>
+
+<span class="sd">    This is a very long second paragraph and as you</span>
+<span class="sd">    can see wrapped very early in the source text</span>
+<span class="sd">    but will be rewrapped to the terminal width in</span>
+<span class="sd">    the final output.</span>
+
+<span class="sd">    \b</span>
+<span class="sd">    This is</span>
+<span class="sd">    a paragraph</span>
+<span class="sd">    without rewrapping.</span>
+
+<span class="sd">    And this is a paragraph</span>
+<span class="sd">    that will be rewrapped again.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cli<span class="w"> </span>--help
+<span class="go">Usage: cli [OPTIONS]</span>
+
+<span class="go">  First paragraph.</span>
+
+<span class="go">  This is a very long second paragraph and as you can see wrapped very early</span>
+<span class="go">  in the source text but will be rewrapped to the terminal width in the final</span>
+<span class="go">  output.</span>
+
+<span class="go">  This is</span>
+<span class="go">  a paragraph</span>
+<span class="go">  without rewrapping.</span>
+
+<span class="go">  And this is a paragraph that will be rewrapped again.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --help  Show this message and exit.</span>
+</pre></div>
+</div>
+</section>
+<section id="truncating-help-texts">
+<span id="doc-meta-variables"></span><h2>Truncating Help Texts<a class="headerlink" href="#truncating-help-texts" title="Link to this heading">¶</a></h2>
+<p>Click gets command help text from function docstrings.  However if you
+already use docstrings to document function arguments you may not want
+to see :param: and :return: lines in your help text.</p>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">\f</span></code> escape marker to have Click truncate the help text
+after the marker.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;First paragraph.</span>
+
+<span class="sd">    This is a very long second</span>
+<span class="sd">    paragraph and not correctly</span>
+<span class="sd">    wrapped but it will be rewrapped.</span>
+<span class="sd">    \f</span>
+
+<span class="sd">    :param click.core.Context ctx: Click context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cli<span class="w"> </span>--help
+<span class="go">Usage: cli [OPTIONS]</span>
+
+<span class="go">  First paragraph.</span>
+
+<span class="go">  This is a very long second paragraph and not correctly wrapped but it will</span>
+<span class="go">  be rewrapped.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --help  Show this message and exit.</span>
+</pre></div>
+</div>
+</section>
+<section id="meta-variables">
+<h2>Meta Variables<a class="headerlink" href="#meta-variables" title="Link to this heading">¶</a></h2>
+<p>Options and parameters accept a <code class="docutils literal notranslate"><span class="pre">metavar</span></code> argument that can change the
+meta variable in the help page.  The default version is the parameter name
+in uppercase with underscores, but can be annotated differently if
+desired.  This can be customized at all levels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">options_metavar</span><span class="o">=</span><span class="s1">&#39;&lt;options&gt;&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--count&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;number of greetings&#39;</span><span class="p">,</span>
+              <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&lt;int&gt;&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&lt;name&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This script prints hello &lt;name&gt; &lt;int&gt; times.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s1">&#39;Hello </span><span class="si">%s</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hello<span class="w"> </span>--help
+<span class="go">Usage: hello &lt;options&gt; &lt;name&gt;</span>
+
+<span class="go">  This script prints hello &lt;name&gt; &lt;int&gt; times.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --count &lt;int&gt;  number of greetings</span>
+<span class="go">  --help         Show this message and exit.</span>
+</pre></div>
+</div>
+</section>
+<section id="command-short-help">
+<h2>Command Short Help<a class="headerlink" href="#command-short-help" title="Link to this heading">¶</a></h2>
+<p>For commands, a short help snippet is generated.  By default, it’s the first
+sentence of the help message of the command, unless it’s too long.  This can
+also be overridden:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple command line tool.&quot;&quot;&quot;</span>
+
+<span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">short_help</span><span class="o">=</span><span class="s1">&#39;init the repo&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initializes the repository.&quot;&quot;&quot;</span>
+
+<span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="n">short_help</span><span class="o">=</span><span class="s1">&#39;delete the repo&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">delete</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deletes the repository.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>repo.py
+<span class="go">Usage: repo.py [OPTIONS] COMMAND [ARGS]...</span>
+
+<span class="go">  A simple command line tool.</span>
+
+<span class="go">Options:</span>
+<span class="go">  --help  Show this message and exit.</span>
+
+<span class="go">Commands:</span>
+<span class="go">  delete  delete the repo</span>
+<span class="go">  init    init the repo</span>
+</pre></div>
+</div>
+</section>
+<section id="help-parameter-customization">
+<h2>Help Parameter Customization<a class="headerlink" href="#help-parameter-customization" title="Link to this heading">¶</a></h2>
+<details class="changelog">
+<summary>Changelog</summary><div class="versionadded">
+<p><span class="versionmodified added">Added in version 2.0.</span></p>
+</div>
+</details><p>The help parameter is implemented in Click in a very special manner.
+Unlike regular parameters it’s automatically added by Click for any
+command and it performs automatic conflict resolution.  By default it’s
+called <code class="docutils literal notranslate"><span class="pre">--help</span></code>, but this can be changed.  If a command itself implements
+a parameter with the same name, the default help parameter stops accepting
+it.  There is a context setting that can be used to override the names of
+the help parameters called <a class="reference internal" href="api.html#click.Context.help_option_names" title="click.Context.help_option_names"><code class="xref py py-attr docutils literal notranslate"><span class="pre">help_option_names</span></code></a>.</p>
+<p>This example changes the default parameters to <code class="docutils literal notranslate"><span class="pre">-h</span></code> and <code class="docutils literal notranslate"><span class="pre">--help</span></code>
+instead of just <code class="docutils literal notranslate"><span class="pre">--help</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CONTEXT_SETTINGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help_option_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">])</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">context_settings</span><span class="o">=</span><span class="n">CONTEXT_SETTINGS</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>And what it looks like:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cli<span class="w"> </span>-h
+<span class="go">Usage: cli [OPTIONS]</span>
+
+<span class="go">Options:</span>
+<span class="go">  -h, --help  Show this message and exit.</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/click-logo-sidebar.png" alt="Logo of Click"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Documenting Scripts</a><ul>
+<li><a class="reference internal" href="#help-texts">Help Texts</a><ul>
+<li><a class="reference internal" href="#documenting-arguments">Documenting Arguments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#preventing-rewrapping">Preventing Rewrapping</a></li>
+<li><a class="reference internal" href="#truncating-help-texts">Truncating Help Texts</a></li>
+<li><a class="reference internal" href="#meta-variables">Meta Variables</a></li>
+<li><a class="reference internal" href="#command-short-help">Command Short Help</a></li>
+<li><a class="reference internal" href="#help-parameter-customization">Help Parameter Customization</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="prompts.html" title="previous chapter">User Input Prompts</a>
+          <li>Next: <a href="complex.html" title="next chapter">Complex Applications</a>
+    </ul>
+  </li>
+</ul>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2014 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>
