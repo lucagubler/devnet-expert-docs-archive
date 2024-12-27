@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Frequently Asked Questions &#8212; Jinja Documentation (3.1.x)</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=bb251e69" />
+    <link rel="stylesheet" type="text/css" href="_static/jinja.css?v=85659ec6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a7614d5a"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script data-project="jinja" data-version="3.1.x" src="_static/describe_version.js?v=fa7f30d0"></script>
+    <link rel="icon" href="_static/jinja-logo-sidebar.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Tips and Tricks" href="tricks.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="changelog.html" title="Changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tricks.html" title="Tips and Tricks"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Jinja Documentation (3.1.x)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Frequently Asked Questions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="frequently-asked-questions">
+<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">¶</a></h1>
+<p>This page answers some of the often asked questions about Jinja.</p>
+<section id="why-is-it-called-jinja">
+<h2>Why is it called Jinja?<a class="headerlink" href="#why-is-it-called-jinja" title="Permalink to this heading">¶</a></h2>
+<p>The name Jinja was chosen because it’s the name of a Japanese temple and
+temple and template share a similar pronunciation.  It is not named after
+the city in Uganda.</p>
+</section>
+<section id="how-fast-is-it">
+<h2>How fast is it?<a class="headerlink" href="#how-fast-is-it" title="Permalink to this heading">¶</a></h2>
+<p>We really hate benchmarks especially since they don’t reflect much.  The
+performance of a template depends on many factors and you would have to
+benchmark different engines in different situations.  The benchmarks from the
+testsuite show that Jinja has a similar performance to <a class="reference external" href="https://www.makotemplates.org/">Mako</a> and is between
+10 and 20 times faster than Django’s template engine or Genshi.  These numbers
+should be taken with tons of salt as the benchmarks that took these numbers
+only test a few performance related situations such as looping.  Generally
+speaking the performance of a template engine doesn’t matter much as the
+usual bottleneck in a web application is either the database or the application
+code.</p>
+</section>
+<section id="how-compatible-is-jinja-with-django">
+<h2>How Compatible is Jinja with Django?<a class="headerlink" href="#how-compatible-is-jinja-with-django" title="Permalink to this heading">¶</a></h2>
+<p>The default syntax of Jinja matches Django syntax in many ways.  However
+this similarity doesn’t mean that you can use a Django template unmodified
+in Jinja.  For example filter arguments use a function call syntax rather
+than a colon to separate filter name and arguments.  Additionally the
+extension interface in Jinja is fundamentally different from the Django one
+which means that your custom tags won’t work any longer.</p>
+<p>Generally speaking you will use much less custom extensions as the Jinja
+template system allows you to use a certain subset of Python expressions
+which can replace most Django extensions.  For example instead of using
+something like this:</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">comments</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">get_latest_comments</span> <span class="m">10</span> <span class="k">as</span> <span class="nv">latest_comments</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">for</span> <span class="nv">comment</span> <span class="k">in</span> <span class="nv">latest_comments</span> <span class="cp">%}</span>
+    ...
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>You will most likely provide an object with attributes to retrieve
+comments from the database:</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">for</span> <span class="nv">comment</span> <span class="k">in</span> <span class="nv">models.comments.latest</span><span class="o">(</span><span class="m">10</span><span class="o">)</span> <span class="cp">%}</span>
+    ...
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>Or directly provide the model for quick testing:</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">for</span> <span class="nv">comment</span> <span class="k">in</span> <span class="nv">Comment.objects.order_by</span><span class="o">(</span><span class="s1">&#39;-pub_date&#39;</span><span class="o">)[:</span><span class="m">10</span><span class="o">]</span> <span class="cp">%}</span>
+    ...
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>Please keep in mind that even though you may put such things into templates
+it still isn’t a good idea.  Queries should go into the view code and not
+the template!</p>
+</section>
+<section id="isn-t-it-a-terrible-idea-to-put-logic-into-templates">
+<h2>Isn’t it a terrible idea to put Logic into Templates?<a class="headerlink" href="#isn-t-it-a-terrible-idea-to-put-logic-into-templates" title="Permalink to this heading">¶</a></h2>
+<p>Without a doubt you should try to remove as much logic from templates as
+possible.  But templates without any logic mean that you have to do all
+the processing in the code which is boring and stupid.  A template engine
+that does that is shipped with Python and called <cite>string.Template</cite>.  Comes
+without loops and if conditions and is by far the fastest template engine
+you can get for Python.</p>
+<p>So some amount of logic is required in templates to keep everyone happy.
+And Jinja leaves it pretty much to you how much logic you want to put into
+templates.  There are some restrictions in what you can do and what not.</p>
+<p>Jinja neither allows you to put arbitrary Python code into templates nor
+does it allow all Python expressions.  The operators are limited to the
+most common ones and more advanced expressions such as list comprehensions
+and generator expressions are not supported.  This keeps the template engine
+easier to maintain and templates more readable.</p>
+</section>
+<section id="why-is-autoescaping-not-the-default">
+<h2>Why is Autoescaping not the Default?<a class="headerlink" href="#why-is-autoescaping-not-the-default" title="Permalink to this heading">¶</a></h2>
+<p>There are multiple reasons why automatic escaping is not the default mode
+and also not the recommended one.  While automatic escaping of variables
+means that you will less likely have an XSS problem it also causes a huge
+amount of extra processing in the template engine which can cause serious
+performance problems.  As Python doesn’t provide a way to mark strings as
+unsafe Jinja has to hack around that limitation by providing a custom
+string class (the <code class="xref py py-class docutils literal notranslate"><span class="pre">Markup</span></code> string) that safely interacts with safe
+and unsafe strings.</p>
+<p>With explicit escaping however the template engine doesn’t have to perform
+any safety checks on variables.  Also a human knows not to escape integers
+or strings that may never contain characters one has to escape or already
+HTML markup.  For example when iterating over a list over a table of
+integers and floats for a table of statistics the template designer can
+omit the escaping because he knows that integers or floats don’t contain
+any unsafe parameters.</p>
+<p>Additionally Jinja is a general purpose template engine and not only used
+for HTML/XML generation.  For example you may generate LaTeX, emails,
+CSS, JavaScript, or configuration files.</p>
+</section>
+<section id="why-is-the-context-immutable">
+<h2>Why is the Context immutable?<a class="headerlink" href="#why-is-the-context-immutable" title="Permalink to this heading">¶</a></h2>
+<p>When writing a <code class="xref py py-func docutils literal notranslate"><span class="pre">contextfunction()</span></code> or something similar you may have
+noticed that the context tries to stop you from modifying it.  If you have
+managed to modify the context by using an internal context API you may
+have noticed that changes in the context don’t seem to be visible in the
+template.  The reason for this is that Jinja uses the context only as
+primary data source for template variables for performance reasons.</p>
+<p>If you want to modify the context write a function that returns a variable
+instead that one can assign to a variable by using set:</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">set</span> <span class="nv">comments</span> <span class="o">=</span> <span class="nv">get_latest_comments</span><span class="o">()</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+</section>
+<section id="my-tracebacks-look-weird-what-s-happening">
+<h2>My tracebacks look weird.  What’s happening?<a class="headerlink" href="#my-tracebacks-look-weird-what-s-happening" title="Permalink to this heading">¶</a></h2>
+<p>If the debugsupport module is not compiled and you are using a Python
+installation without ctypes (Python 2.4 without ctypes, Jython or Google’s
+AppEngine) Jinja is unable to provide correct debugging information and
+the traceback may be incomplete.  There is currently no good workaround
+for Jython or the AppEngine as ctypes is unavailable there and it’s not
+possible to use the debugsupport extension.</p>
+<p>If you are working in the Google AppEngine development server you can
+whitelist the ctypes module to restore the tracebacks.  This however won’t
+work in production environments:</p>
+<div class="highlight-html+jinja notranslate"><div class="highlight"><pre><span></span>import os
+if os.environ.get(&#39;SERVER_SOFTWARE&#39;, &#39;&#39;).startswith(&#39;Dev&#39;):
+    from google.appengine.tools.devappserver2.python import sandbox
+    sandbox._WHITE_LIST_C_MODULES += [&#39;_ctypes&#39;, &#39;gestalt&#39;]
+</pre></div>
+</div>
+<p>Credit for this snippet goes to <a class="reference external" href="https://stackoverflow.com/questions/3086091/debug-jinja2-in-google-app-engine/3694434#3694434">Thomas Johansson</a></p>
+</section>
+<section id="why-is-there-no-python-2-3-2-4-2-5-2-6-3-1-3-2-3-3-support">
+<h2>Why is there no Python 2.3/2.4/2.5/2.6/3.1/3.2/3.3 support?<a class="headerlink" href="#why-is-there-no-python-2-3-2-4-2-5-2-6-3-1-3-2-3-3-support" title="Permalink to this heading">¶</a></h2>
+<p>Python 2.3 is missing a lot of features that are used heavily in Jinja.  This
+decision was made as with the upcoming Python 2.6 and 3.0 versions it becomes
+harder to maintain the code for older Python versions.  If you really need
+Python 2.3 support you either have to use Jinja 1 or other templating
+engines that still support 2.3.</p>
+<p>Python 2.4/2.5/3.1/3.2 support was removed when we switched to supporting
+Python 2 and 3 by the same sourcecode (without using 2to3). It was required to
+drop support because only Python 2.6/2.7 and &gt;=3.3 support byte and unicode
+literals in a way compatible to each other version. If you really need support
+for older Python 2 (or 3) versions, you can just use Jinja 2.6.</p>
+<p>Python 2.6/3.3 support was dropped because it got dropped in various upstream
+projects (such as wheel or pytest), which would make it difficult to continue
+supporting it. Jinja 2.10 was the last version supporting Python 2.6/3.3.</p>
+</section>
+<section id="my-macros-are-overridden-by-something">
+<h2>My Macros are overridden by something<a class="headerlink" href="#my-macros-are-overridden-by-something" title="Permalink to this heading">¶</a></h2>
+<p>In some situations the Jinja scoping appears arbitrary:</p>
+<p>layout.tmpl:</p>
+<div class="highlight-jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">macro</span> <span class="nv">foo</span><span class="o">()</span> <span class="cp">%}</span><span class="x">LAYOUT</span><span class="cp">{%</span> <span class="k">endmacro</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">body</span> <span class="cp">%}{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>child.tmpl:</p>
+<div class="highlight-jinja notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">extends</span> <span class="s1">&#39;layout.tmpl&#39;</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">macro</span> <span class="nv">foo</span><span class="o">()</span> <span class="cp">%}</span><span class="x">CHILD</span><span class="cp">{%</span> <span class="k">endmacro</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">body</span> <span class="cp">%}{{</span> <span class="nv">foo</span><span class="o">()</span> <span class="cp">}}{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>This will print <code class="docutils literal notranslate"><span class="pre">LAYOUT</span></code> in Jinja.  This is a side effect of having
+the parent template evaluated after the child one.  This allows child
+templates passing information to the parent template.  To avoid this
+issue rename the macro or variable in the parent template to have an
+uncommon prefix.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/jinja-logo-sidebar.png" alt="Logo"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">Frequently Asked Questions</a><ul>
+<li><a class="reference internal" href="#why-is-it-called-jinja">Why is it called Jinja?</a></li>
+<li><a class="reference internal" href="#how-fast-is-it">How fast is it?</a></li>
+<li><a class="reference internal" href="#how-compatible-is-jinja-with-django">How Compatible is Jinja with Django?</a></li>
+<li><a class="reference internal" href="#isn-t-it-a-terrible-idea-to-put-logic-into-templates">Isn’t it a terrible idea to put Logic into Templates?</a></li>
+<li><a class="reference internal" href="#why-is-autoescaping-not-the-default">Why is Autoescaping not the Default?</a></li>
+<li><a class="reference internal" href="#why-is-the-context-immutable">Why is the Context immutable?</a></li>
+<li><a class="reference internal" href="#my-tracebacks-look-weird-what-s-happening">My tracebacks look weird.  What’s happening?</a></li>
+<li><a class="reference internal" href="#why-is-there-no-python-2-3-2-4-2-5-2-6-3-1-3-2-3-3-support">Why is there no Python 2.3/2.4/2.5/2.6/3.1/3.2/3.3 support?</a></li>
+<li><a class="reference internal" href="#my-macros-are-overridden-by-something">My Macros are overridden by something</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="tricks.html" title="previous chapter">Tips and Tricks</a>
+          <li>Next: <a href="changelog.html" title="next chapter">Changelog</a>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2007 Pallets.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    </div>
+  </body>
+</html>
