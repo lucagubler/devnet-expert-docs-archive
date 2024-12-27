@@ -1,0 +1,908 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Roles &mdash; Ansible Documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"/>
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/ansible.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/ansible.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Variables" href="playbooks_variables.html" />
+    <link rel="prev" title="Including and Importing" href="playbooks_reuse_includes.html" /> <!---- extra head elements for Ansible beyond RTD Sphinx Theme --->
+<script type="text/javascript" src="//www.redhat.com/dtm.js"></script>
+<!-- <meta class="swiftype" name="published_at" data-type="date" content="2017-12-13" /> -->
+<meta class="swiftype" name="version" data-type="string" content="2.9">
+
+<!-- Google Tag Manager Data Layer -->
+<script>
+ dataLayer = [];
+</script>
+<!-- End Google Tag Manager Data Layer -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script> 
+</head>
+
+<body class="wy-body-for-nav">
+   <!---- extra body elements for Ansible beyond RTD Sphinx Theme --->
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PSB293" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-PSB293');</script>
+<!-- End Google Tag Manager -->
+
+  <div class="DocSite-globalNav ansibleNav">
+      <ul>
+          <li><a href="https://www.ansible.com/ansiblefest" target="_blank">AnsibleFest</a></li>
+          <li><a href="https://www.ansible.com/tower" target="_blank">Products</a></li>
+          <li><a href="https://www.ansible.com/community" target="_blank">Community</a></li>
+          <li><a href="https://www.ansible.com/webinars-training" target="_blank">Webinars & Training</a></li>
+          <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+      </ul>
+  </div>
+
+<a class="DocSite-nav" href="/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/logo_invert.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">
+    Documentation
+  </div>
+</a> 
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Ansible
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.9
+              </div>
+            
+          
+
+          <!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    <div class="version-dropdown">
+      <select class="version-list" id="version-list" onchange="javascript:location.href = this.value;">
+        <script> x = document.getElementById("version-list"); </script>
+        
+          <script>
+            current_url = window.location.href;
+            option = document.createElement("option");
+            option.text = "latest";
+            if ( "latest" == "2.9" ) {
+              option.selected = true;
+            }
+            if (current_url.search("2.9") > -1) {
+              option.value = current_url.replace("2.9","latest");
+            } else {
+              option.value = current_url.replace("latest","latest");
+            }
+            x.add(option);
+          </script>
+        
+          <script>
+            current_url = window.location.href;
+            option = document.createElement("option");
+            option.text = "2.9";
+            if ( "2.9" == "2.9" ) {
+              option.selected = true;
+            }
+            if (current_url.search("2.9") > -1) {
+              option.value = current_url.replace("2.9","2.9");
+            } else {
+              option.value = current_url.replace("latest","2.9");
+            }
+            x.add(option);
+          </script>
+        
+          <script>
+            current_url = window.location.href;
+            option = document.createElement("option");
+            option.text = "devel";
+            if ( "devel" == "2.9" ) {
+              option.selected = true;
+            }
+            if (current_url.search("2.9") > -1) {
+              option.value = current_url.replace("2.9","devel");
+            } else {
+              option.value = current_url.replace("latest","devel");
+            }
+            x.add(option);
+          </script>
+        
+      </select>
+    </div>
+  
+</div>
+          
+<div role="search">
+<!--  <form id="rtd-search-form" class="wy-form" action="../search.html" -->
+  <form id="rtd-search-form" class="wy-form"  method="get">
+    <input type="text" class="st-default-search-input" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Installation, Upgrade &amp; Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation_guide/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../porting_guides/porting_guides.html">Ansible Porting Guides</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using Ansible</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Ansible Quickstart Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_concepts.html">Ansible concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_inventory.html">How to build your inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_dynamic_inventory.html">Working with dynamic inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_patterns.html">Patterns: targeting hosts and groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_adhoc.html">Introduction to ad-hoc commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connection_details.html">Connection methods and details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="command_line_tools.html">Working with command line tools</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="playbooks.html">Working With Playbooks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="playbooks_intro.html">Intro to Playbooks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="playbooks_reuse.html">Creating Reusable Playbooks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="playbooks_reuse_includes.html">Including and Importing</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Roles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="playbooks_reuse.html#dynamic-vs-static">Dynamic vs. Static</a></li>
+<li class="toctree-l4"><a class="reference internal" href="playbooks_reuse.html#differences-between-dynamic-and-static">Differences Between Dynamic and Static</a></li>
+<li class="toctree-l4"><a class="reference internal" href="playbooks_reuse.html#tradeoffs-and-pitfalls-between-includes-and-imports">Tradeoffs and Pitfalls Between Includes and Imports</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_variables.html">Using Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_templating.html">Templating (Jinja2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_conditionals.html">Conditionals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_loops.html">Loops</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_blocks.html">Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_special_topics.html">Advanced Playbooks Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_strategies.html">Controlling playbook execution: strategies and more</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playbooks_best_practices.html">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="guide_rolling_upgrade.html">Playbook Example: Continuous Delivery and Rolling Upgrades</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="become.html">Understanding privilege escalation: become</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Ansible Vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html">Working With Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/plugins.html">Working With Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro_bsd.html">Ansible and BSD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html">Windows Guides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections_using.html">Using collections</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing to Ansible</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community/index.html">Ansible Community Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Extending Ansible</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/index.html">Developer Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Common Ansible Scenarios</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scenario_guides/cloud_guides.html">Public Cloud Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scenario_guides/network_guides.html">Network Technology Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scenario_guides/virt_guides.html">Virtualization and Containerization Guides</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Ansible for Network Automation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../network/index.html">Ansible for Network Automation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Ansible Galaxy</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../galaxy/user_guide.html">Galaxy User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../galaxy/dev_guide.html">Galaxy Developer Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference &amp; Appendices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/modules_by_category.html">Module Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/playbooks_keywords.html">Playbook Keywords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/common_return_values.html">Return Values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/config.html">Ansible Configuration Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/general_precedence.html">Controlling how Ansible behaves: precedence rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/YAMLSyntax.html">YAML Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/python_3_support.html">Python 3 Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/interpreter_discovery.html">Interpreter Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/release_and_maintenance.html">Release and maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/test_strategies.html">Testing Strategies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide/testing/sanity/index.html">Sanity Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/module_utils.html">Ansible Reference: Module Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/special_variables.html">Special Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/tower.html">Red Hat Ansible Tower</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_appendices/logging.html">Logging Ansible output</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Roadmaps</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap/index.html">Ansible Roadmap</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+         <!-- extra nav elements for Ansible beyond RTD Sphinx Theme --->
+<!-- changeable widget links to tower - do not change as image controlled by Ansible-->
+<div id="sideBanner">
+  <br/>
+  <a href="https://www.ansible.com/docs-left?utm_source=docs">
+    <img style="border-width:0px;" src="https://cdn2.hubspot.net/hubfs/330046/docs-graphics/ASB-docs-left-rail.png" />
+  </a>
+  <br/><br/><br/>
+</div>
+      </div>
+    </nav>
+  </div>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Ansible</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+          <li><a href="playbooks.html">Working With Playbooks</a> &raquo;</li>
+        
+          <li><a href="playbooks_reuse.html">Creating Reusable Playbooks</a> &raquo;</li>
+        
+      <li>Roles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- Ansible-specific additions for modules etc -->
+                
+                  <a href="https://github.com/ansible/ansible/edit/devel/docs/docsite/rst/user_guide/playbooks_reuse_roles.rst?description=%23%23%23%23%23%20SUMMARY%0A%3C!---%20Your%20description%20here%20--%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
+                
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <!--- Based on sphinx versionwarning extension. Extension currently only works on READTHEDOCS -->
+  <script>
+    startsWith = function(str, needle) {
+      return str.slice(0, needle.length) == needle
+    }
+    // Create a banner if we're not on the official docs site
+    if (location.host == "docs.testing.ansible.com") {
+      document.write('<div id="testing_banner_id" class="admonition important">');
+      document.write('<p>This is the testing site for Ansible Documentation. Unless you are reviewing pre-production changes, please visit the <a href="https://docs.ansible.com/ansible/latest/">official documentation website</a>.</p> <p></p>');
+      document.write('</div>');
+    }
+    
+      // Create a banner if we're not the latest version
+      current_url_path = window.location.pathname;
+      if (startsWith(current_url_path, "/ansible/latest/") || startsWith(current_url_path, "/ansible/3/")) {
+        document.write('<div id="banner_id" class="admonition caution">');
+        document.write('<p>You are reading the latest community version of the Ansible documentation. Red Hat subscribers, select <b>2.9</b> in the version selection to the left for the most recent Red Hat release.</p>');
+        document.write('</div>');
+
+        /* temp banner to advertise AnsibleFest
+        document.write('<div id="banner_id" class="admonition important">');
+        document.write('<p><a href="https://www.ansible.com/ansiblefest?sc_cid=7013a000002gyPxAAI">AnsibleFest</a> is going virtual with two days of expert speakers, live demos and hands-on labs Oct 13-14!</p>');
+        document.write('</div>'); */
+      } else if (startsWith(current_url_path, "/ansible/2.9/")) {
+        document.write('<div id="banner_id" class="admonition caution">');
+        document.write('<p>You are reading the latest Red Hat released version of the Ansible documentation. Community users can use this, or select any version in version selection to the left, including <b>latest</b> for the most recent community version.</p>');
+        document.write('</div>');
+      } else if (startsWith(current_url_path, "/ansible/devel/")) {
+        document.write('<div id="banner_id" class="admonition caution">');
+        document.write('<p>You are reading the <b>devel</b> version of the Ansible documentation - this version is not guaranteed stable. Use the version selection to the left if you want the latest stable released version.</p>');
+        document.write('</div>');
+      } else {
+        document.write('<div id="banner_id" class="admonition caution">');
+        document.write('<p>You are reading an older version of the Ansible documentation. Use the version selection to the left if you want the latest stable released version.</p>');
+        document.write('</div>');
+      }
+    
+  </script>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="roles">
+<span id="playbooks-reuse-roles"></span><h1><a class="toc-backref" href="#id4">Roles</a><a class="headerlink" href="#roles" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="topics">
+<p class="topic-title">Topics</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#roles" id="id4">Roles</a></p>
+<ul>
+<li><p><a class="reference internal" href="#role-directory-structure" id="id5">Role Directory Structure</a></p></li>
+<li><p><a class="reference internal" href="#using-roles" id="id6">Using Roles</a></p></li>
+<li><p><a class="reference internal" href="#role-duplication-and-execution" id="id7">Role Duplication and Execution</a></p></li>
+<li><p><a class="reference internal" href="#role-default-variables" id="id8">Role Default Variables</a></p></li>
+<li><p><a class="reference internal" href="#role-dependencies" id="id9">Role Dependencies</a></p></li>
+<li><p><a class="reference internal" href="#embedding-modules-and-plugins-in-roles" id="id10">Embedding Modules and Plugins In Roles</a></p></li>
+<li><p><a class="reference internal" href="#role-search-path" id="id11">Role Search Path</a></p></li>
+<li><p><a class="reference internal" href="#ansible-galaxy" id="id12">Ansible Galaxy</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.2.</span></p>
+</div>
+<p>Roles are ways of automatically loading certain vars_files, tasks, and handlers based on a known file structure.  Grouping content by roles also allows easy sharing of roles with other users.</p>
+<div class="section" id="role-directory-structure">
+<h2><a class="toc-backref" href="#id5">Role Directory Structure</a><a class="headerlink" href="#role-directory-structure" title="Permalink to this headline">¶</a></h2>
+<p>Example project structure:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">site.yml</span>
+<span class="l l-Scalar l-Scalar-Plain">webservers.yml</span>
+<span class="l l-Scalar l-Scalar-Plain">fooservers.yml</span>
+<span class="l l-Scalar l-Scalar-Plain">roles/</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">common/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">tasks/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">handlers/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">files/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">templates/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">vars/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">defaults/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">meta/</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">webservers/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">tasks/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">defaults/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">meta/</span>
+</pre></div>
+</div>
+<p>Roles expect files to be in certain directory names. Roles must include at least one of these directories, however it is perfectly fine to exclude any which are not being used. When in use, each directory must contain a <code class="docutils literal notranslate"><span class="pre">main.yml</span></code> file, which contains the relevant content:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tasks</span></code> - contains the main list of tasks to be executed by the role.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">handlers</span></code> - contains handlers, which may be used by this role or even anywhere outside this role.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaults</span></code> - default variables for the role (see <a class="reference internal" href="playbooks_variables.html#playbooks-variables"><span class="std std-ref">Using Variables</span></a> for more information).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vars</span></code> - other variables for the role (see <a class="reference internal" href="playbooks_variables.html#playbooks-variables"><span class="std std-ref">Using Variables</span></a> for more information).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files</span></code> - contains files which can be deployed via this role.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">templates</span></code> - contains templates which can be deployed via this role.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">meta</span></code> - defines some meta data for this role. See below for more details.</p></li>
+</ul>
+<p>Other YAML files may be included in certain directories. For example, it is common practice to have platform-specific tasks included from the <code class="docutils literal notranslate"><span class="pre">tasks/main.yml</span></code> file:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># roles/example/tasks/main.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">added in 2.4, previously you used &#39;include&#39;</span>
+<span class="w">  </span><span class="nt">import_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat.yml</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ansible_facts[&#39;os_family&#39;]|lower == &#39;redhat&#39;</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">import_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debian.yml</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ansible_facts[&#39;os_family&#39;]|lower == &#39;debian&#39;</span>
+
+<span class="c1"># roles/example/tasks/redhat.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">yum</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;httpd&quot;</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+
+<span class="c1"># roles/example/tasks/debian.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apt</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;apache2&quot;</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+</pre></div>
+</div>
+<p>Roles may also include modules and other plugin types. For more information, please refer to the <a class="reference internal" href="#embedding-modules-and-plugins-in-roles"><span class="std std-ref">Embedding Modules and Plugins In Roles</span></a> section below.</p>
+</div>
+<div class="section" id="using-roles">
+<h2><a class="toc-backref" href="#id6">Using Roles</a><a class="headerlink" href="#using-roles" title="Permalink to this headline">¶</a></h2>
+<p>The classic (original) way to use roles is via the <code class="docutils literal notranslate"><span class="pre">roles:</span></code> option for a given play:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">common</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+</pre></div>
+</div>
+<p>This designates the following behaviors, for each role ‘x’:</p>
+<ul class="simple">
+<li><p>If roles/x/tasks/main.yml exists, tasks listed therein will be added to the play.</p></li>
+<li><p>If roles/x/handlers/main.yml exists, handlers listed therein will be added to the play.</p></li>
+<li><p>If roles/x/vars/main.yml exists, variables listed therein will be added to the play.</p></li>
+<li><p>If roles/x/defaults/main.yml exists, variables listed therein will be added to the play.</p></li>
+<li><p>If roles/x/meta/main.yml exists, any role dependencies listed therein will be added to the list of roles (1.3 and later).</p></li>
+<li><p>Any copy, script, template or include tasks (in the role) can reference files in roles/x/{files,templates,tasks}/ (dir depends on task) without having to path them relatively or absolutely.</p></li>
+</ul>
+<p>When used in this manner, the order of execution for your playbook is as follows:</p>
+<ul class="simple">
+<li><p>Any <code class="docutils literal notranslate"><span class="pre">pre_tasks</span></code> defined in the play.</p></li>
+<li><p>Any handlers triggered so far will be run.</p></li>
+<li><p>Each role listed in <code class="docutils literal notranslate"><span class="pre">roles</span></code> will execute in turn. Any role dependencies defined in the roles <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code> will be run first, subject to tag filtering and conditionals.</p></li>
+<li><p>Any <code class="docutils literal notranslate"><span class="pre">tasks</span></code> defined in the play.</p></li>
+<li><p>Any handlers triggered so far will be run.</p></li>
+<li><p>Any <code class="docutils literal notranslate"><span class="pre">post_tasks</span></code> defined in the play.</p></li>
+<li><p>Any handlers triggered so far will be run.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See below for more information regarding role dependencies.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If using tags with tasks (described later as a means of only running part of a playbook), be sure to also tag your pre_tasks, post_tasks, and role dependencies and pass those along as well, especially if the pre/post tasks and role dependencies are used for monitoring outage window control or load balancing.</p>
+</div>
+<p>As of Ansible 2.4, you can now use roles inline with any other tasks using <code class="docutils literal notranslate"><span class="pre">import_role</span></code> or <code class="docutils literal notranslate"><span class="pre">include_role</span></code>:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;before</span><span class="nv"> </span><span class="s">we</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">our</span><span class="nv"> </span><span class="s">role&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">import_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">include_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;after</span><span class="nv"> </span><span class="s">we</span><span class="nv"> </span><span class="s">ran</span><span class="nv"> </span><span class="s">our</span><span class="nv"> </span><span class="s">role&quot;</span>
+</pre></div>
+</div>
+<p>When roles are defined in the classic manner, they are treated as static imports and processed during playbook parsing.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">include_role</span></code> option was introduced in Ansible 2.3. The usage has changed slightly as of Ansible 2.4 to match the include (dynamic) vs. import (static) usage. See <a class="reference internal" href="playbooks_reuse.html#dynamic-vs-static"><span class="std std-ref">Dynamic vs. Static</span></a> for more details.</p>
+</div>
+<p>The name used for the role can be a simple name (see <a class="reference internal" href="#role-search-path"><span class="std std-ref">Role Search Path</span></a> below), or it can be a fully qualified path:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/path/to/my/roles/common&#39;</span>
+</pre></div>
+</div>
+<p>Roles can accept other keywords:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">common</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo_app_instance</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/opt/a&#39;</span>
+<span class="w">        </span><span class="nt">app_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo_app_instance</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/opt/b&#39;</span>
+<span class="w">        </span><span class="nt">app_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5001</span>
+</pre></div>
+</div>
+<p>Or, using the newer syntax:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">include_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo_app_instance</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/opt/a&#39;</span>
+<span class="w">        </span><span class="nt">app_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+<p>You can conditionally import a role and execute its tasks:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">include_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_role</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ansible_facts[&#39;os_family&#39;]</span><span class="nv"> </span><span class="s">==</span><span class="nv"> </span><span class="s">&#39;RedHat&#39;&quot;</span>
+</pre></div>
+</div>
+<p>Finally, you may wish to assign tags to the tasks inside the roles you specify. You can do:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">baz</span>
+<span class="w">    </span><span class="c1"># using YAML shorthand, this is equivalent to the above:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> role</span><span class="p">:</span><span class="w"> </span><span class="nv">foo</span><span class="p p-Indicator">,</span><span class="nt"> tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;bar&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;baz&quot;</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p>Or, again, using the newer syntax:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">import_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">baz</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This <em>tags all of the tasks in that role with the tags specified</em>, appending to any tags that are specified inside the role.</p>
+</div>
+<p>On the other hand you might just want to tag the import of the role itself:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">include_role</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The tags in this example will <em>not</em> be added to tasks inside an <code class="docutils literal notranslate"><span class="pre">include_role</span></code>, you can use a surrounding <code class="docutils literal notranslate"><span class="pre">block</span></code> directive to do both.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no facility to import a role while specifying a subset of tags to execute. If you find yourself building a role with lots of tags and you want to call subsets of the role at different times, you should consider just splitting that role into multiple roles.</p>
+</div>
+</div>
+<div class="section" id="role-duplication-and-execution">
+<h2><a class="toc-backref" href="#id7">Role Duplication and Execution</a><a class="headerlink" href="#role-duplication-and-execution" title="Permalink to this headline">¶</a></h2>
+<p>Ansible will only allow a role to execute once, even if defined multiple times, if the parameters defined on the role are not different for each definition. For example:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+</pre></div>
+</div>
+<p>Given the above, the role <code class="docutils literal notranslate"><span class="pre">foo</span></code> will only be run once.</p>
+<p>To make roles run more than once, there are two options:</p>
+<ol class="arabic simple">
+<li><p>Pass different parameters in each role definition.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">allow_duplicates:</span> <span class="pre">true</span></code> to the <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code> file for the role.</p></li>
+</ol>
+<p>Example 1 - passing different parameters:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;first&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> role</span><span class="p">:</span><span class="w"> </span><span class="nv">foo</span><span class="p p-Indicator">,</span><span class="nt"> vars</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;second&quot;</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p>In this example, because each role definition has different parameters, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will run twice.</p>
+<p>Example 2 - using <code class="docutils literal notranslate"><span class="pre">allow_duplicates:</span> <span class="pre">true</span></code>:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># playbook.yml</span>
+<span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo</span>
+
+<span class="c1"># roles/foo/meta/main.yml</span>
+<span class="nn">---</span>
+<span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>In this example, <code class="docutils literal notranslate"><span class="pre">foo</span></code> will run twice because we have explicitly enabled it to do so.</p>
+</div>
+<div class="section" id="role-default-variables">
+<h2><a class="toc-backref" href="#id8">Role Default Variables</a><a class="headerlink" href="#role-default-variables" title="Permalink to this headline">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.</span></p>
+</div>
+<p>Role default variables allow you to set default variables for included or dependent roles (see below). To create
+defaults, simply add a <code class="docutils literal notranslate"><span class="pre">defaults/main.yml</span></code> file in your role directory. These variables will have the lowest priority
+of any variables available, and can be easily overridden by any other variable, including inventory variables.</p>
+</div>
+<div class="section" id="role-dependencies">
+<h2><a class="toc-backref" href="#id9">Role Dependencies</a><a class="headerlink" href="#role-dependencies" title="Permalink to this headline">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.</span></p>
+</div>
+<p>Role dependencies allow you to automatically pull in other roles when using a role. Role dependencies are stored in the <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code> file contained within the role directory, as noted above. This file should contain a list of roles and parameters to insert before the specified role, such as the following in an example <code class="docutils literal notranslate"><span class="pre">roles/myapp/meta/main.yml</span></code>:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">common</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">some_parameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apache</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">apache_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">dbname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blarg</span>
+<span class="w">      </span><span class="nt">other_parameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Role dependencies must use the classic role definition style.</p>
+</div>
+<p>Role dependencies are always executed before the role that includes them, and may be recursive. Dependencies also follow the duplication rules specified above. If another role also lists it as a dependency, it will not be run again based on the same rules given above. See <a class="reference internal" href="../galaxy/user_guide.html#galaxy-dependencies"><span class="std std-ref">Galaxy role dependencies</span></a> for more details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Always remember that when using <code class="docutils literal notranslate"><span class="pre">allow_duplicates:</span> <span class="pre">true</span></code>, it needs to be in the dependent role’s <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code>, not the parent.</p>
+</div>
+<p>For example, a role named <code class="docutils literal notranslate"><span class="pre">car</span></code> depends on a role named <code class="docutils literal notranslate"><span class="pre">wheel</span></code> as follows:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wheel</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">n</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wheel</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">n</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wheel</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">n</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wheel</span>
+<span class="w">    </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">n</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+</pre></div>
+</div>
+<p>And the <code class="docutils literal notranslate"><span class="pre">wheel</span></code> role depends on two roles: <code class="docutils literal notranslate"><span class="pre">tire</span></code> and <code class="docutils literal notranslate"><span class="pre">brake</span></code>. The <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code> for wheel would then contain the following:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tire</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">brake</span>
+</pre></div>
+</div>
+<p>And the <code class="docutils literal notranslate"><span class="pre">meta/main.yml</span></code> for <code class="docutils literal notranslate"><span class="pre">tire</span></code> and <code class="docutils literal notranslate"><span class="pre">brake</span></code> would contain the following:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">allow_duplicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>The resulting order of execution would be as follows:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">tire(n=1)</span>
+<span class="l l-Scalar l-Scalar-Plain">brake(n=1)</span>
+<span class="l l-Scalar l-Scalar-Plain">wheel(n=1)</span>
+<span class="l l-Scalar l-Scalar-Plain">tire(n=2)</span>
+<span class="l l-Scalar l-Scalar-Plain">brake(n=2)</span>
+<span class="l l-Scalar l-Scalar-Plain">wheel(n=2)</span>
+<span class="nn">...</span>
+<span class="l l-Scalar l-Scalar-Plain">car</span>
+</pre></div>
+</div>
+<p>Note that we did not have to use <code class="docutils literal notranslate"><span class="pre">allow_duplicates:</span> <span class="pre">true</span></code> for <code class="docutils literal notranslate"><span class="pre">wheel</span></code>, because each instance defined by <code class="docutils literal notranslate"><span class="pre">car</span></code> uses different parameter values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Variable inheritance and scope are detailed in the <a class="reference internal" href="playbooks_variables.html#playbooks-variables"><span class="std std-ref">Using Variables</span></a>.</p>
+</div>
+</div>
+<div class="section" id="embedding-modules-and-plugins-in-roles">
+<span id="id1"></span><h2><a class="toc-backref" href="#id10">Embedding Modules and Plugins In Roles</a><a class="headerlink" href="#embedding-modules-and-plugins-in-roles" title="Permalink to this headline">¶</a></h2>
+<p>This is an advanced topic that should not be relevant for most users.</p>
+<p>If you write a custom module (see <a class="reference internal" href="../dev_guide/developing_modules.html#developing-modules"><span class="std std-ref">Should you develop a module?</span></a>) or a plugin (see <a class="reference internal" href="../dev_guide/developing_plugins.html#developing-plugins"><span class="std std-ref">Developing plugins</span></a>), you may wish to distribute it as part of a role.
+Generally speaking, Ansible as a project is very interested in taking high-quality modules into ansible core for inclusion, so this shouldn’t be the norm, but it’s quite easy to do.</p>
+<p>A good example for this is if you worked at a company called AcmeWidgets, and wrote an internal module that helped configure your internal software, and you wanted other
+people in your organization to easily use this module – but you didn’t want to tell everyone how to configure their Ansible library path.</p>
+<p>Alongside the ‘tasks’ and ‘handlers’ structure of a role, add a directory named ‘library’.  In this ‘library’ directory, then include the module directly inside of it.</p>
+<p>Assuming you had this:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">roles/</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">my_custom_modules/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">library/</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">module1</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">module2</span>
+</pre></div>
+</div>
+<p>The module will be usable in the role itself, as well as any roles that are called <em>after</em> this role, as follows:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_custom_modules</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">some_other_role_using_my_custom_modules</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yet_another_role_using_my_custom_modules</span>
+</pre></div>
+</div>
+<p>This can also be used, with some limitations, to modify modules in Ansible’s core distribution, such as to use development versions of modules before they are released in production releases.  This is not always advisable as API signatures may change in core components, however, and is not always guaranteed to work.  It can be a handy way of carrying a patch against a core module, however, should you have good reason for this.  Naturally the project prefers that contributions be directed back to github whenever possible via a pull request.</p>
+<p>The same mechanism can be used to embed and distribute plugins in a role, using the same schema. For example, for a filter plugin:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">roles/</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">my_custom_filter/</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">filter_plugins</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">filter1</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">filter2</span>
+</pre></div>
+</div>
+<p>They can then be used in a template or a jinja template in any role called after ‘my_custom_filter’</p>
+</div>
+<div class="section" id="role-search-path">
+<span id="id2"></span><h2><a class="toc-backref" href="#id11">Role Search Path</a><a class="headerlink" href="#role-search-path" title="Permalink to this headline">¶</a></h2>
+<p>Ansible will search for roles in the following way:</p>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">roles/</span></code> directory, relative to the playbook file.</p></li>
+<li><p>By default, in <code class="docutils literal notranslate"><span class="pre">/etc/ansible/roles</span></code></p></li>
+</ul>
+<p>In Ansible 1.4 and later you can configure an additional roles_path to search for roles.  Use this to check all of your common roles out to one location, and share them easily between multiple playbook projects.  See <a class="reference internal" href="../installation_guide/intro_configuration.html#intro-configuration"><span class="std std-ref">Configuring Ansible</span></a> for details about how to set this up in ansible.cfg.</p>
+</div>
+<div class="section" id="ansible-galaxy">
+<h2><a class="toc-backref" href="#id12">Ansible Galaxy</a><a class="headerlink" href="#ansible-galaxy" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://galaxy.ansible.com">Ansible Galaxy</a> is a free site for finding, downloading, rating, and reviewing all kinds of community developed Ansible roles and can be a great way to get a jumpstart on your automation projects.</p>
+<p>The client <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span></code> is included in Ansible. The Galaxy client allows you to download roles from Ansible Galaxy, and also provides an excellent default framework for creating your own roles.</p>
+<p>Read the <a class="reference external" href="https://galaxy.ansible.com/docs/">Ansible Galaxy documentation</a> page for more information</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../galaxy/user_guide.html#ansible-galaxy"><span class="std std-ref">Galaxy User Guide</span></a></dt><dd><p>How to create new roles, share roles on Galaxy, role management</p>
+</dd>
+<dt><a class="reference internal" href="../reference_appendices/YAMLSyntax.html#yaml-syntax"><span class="std std-ref">YAML Syntax</span></a></dt><dd><p>Learn about YAML syntax</p>
+</dd>
+<dt><a class="reference internal" href="playbooks.html#working-with-playbooks"><span class="std std-ref">Working With Playbooks</span></a></dt><dd><p>Review the basic Playbook language features</p>
+</dd>
+<dt><a class="reference internal" href="playbooks_best_practices.html#playbooks-best-practices"><span class="std std-ref">Best Practices</span></a></dt><dd><p>Various tips about managing playbooks in the real world</p>
+</dd>
+<dt><a class="reference internal" href="playbooks_variables.html#playbooks-variables"><span class="std std-ref">Using Variables</span></a></dt><dd><p>All about variables in playbooks</p>
+</dd>
+<dt><a class="reference internal" href="playbooks_conditionals.html#playbooks-conditionals"><span class="std std-ref">Conditionals</span></a></dt><dd><p>Conditionals in playbooks</p>
+</dd>
+<dt><a class="reference internal" href="playbooks_loops.html#playbooks-loops"><span class="std std-ref">Loops</span></a></dt><dd><p>Loops in playbooks</p>
+</dd>
+<dt><a class="reference internal" href="../modules/list_of_all_modules.html#all-modules"><span class="std std-ref">All modules</span></a></dt><dd><p>Learn about available modules</p>
+</dd>
+<dt><a class="reference internal" href="../dev_guide/developing_modules.html#developing-modules"><span class="std std-ref">Should you develop a module?</span></a></dt><dd><p>Learn how to extend Ansible by writing your own modules</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/ansible/ansible-examples">GitHub Ansible examples</a></dt><dd><p>Complete playbook files from the GitHub project source</p>
+</dd>
+<dt><a class="reference external" href="https://groups.google.com/group/ansible-project">Mailing List</a></dt><dd><p>Questions? Help? Ideas?  Stop by the list on Google Groups</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+        <a href="playbooks_variables.html" class="btn btn-neutral float-right" title="Using Variables"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="playbooks_reuse_includes.html" class="btn btn-neutral" title="Including and Importing"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','yABGvz2N8PwcwBxyfzUc','2.0.0');
+</script>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Red Hat, Inc.
+      <span class="lastupdated">
+        Last updated on Dec 26, 2024.
+      </span>
+
+    </p>
+  </div> 
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script>
+
+  
+  
+    
+   <!-- extra footer elements for Ansible beyond RTD Sphinx Theme --->
+<!-- begin analytics -->
+<script type="text/javascript">
+var _hsq = _hsq || [];
+_hsq.push(["setContentType", "standard-page"]);
+      (function(d,s,i,r) {
+      if (d.getElementById(i)){return;}
+      var n = d.createElement(s),e = document.getElementsByTagName(s)[0];
+      n.id=i;n.src = '//js.hs-analytics.net/analytics/'+(Math.ceil(new Date()/r)*r)+'/330046.js';
+      e.parentNode.insertBefore(n, e);
+      })(document, "script", "hs-analytics",300000);
+</script>
+<!-- end analytics -->
+<script type="text/javascript">
+if (("undefined" !== typeof _satellite) && ("function" === typeof _satellite.pageBottom)) {
+  _satellite.pageBottom();
+}
+</script> 
+
+</body>
+</html>
