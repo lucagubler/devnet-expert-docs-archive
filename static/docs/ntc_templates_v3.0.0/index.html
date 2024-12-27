@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p><a href="https://travis-ci.org/networktocode/ntc-templates"><img src="https://travis-ci.org/networktocode/ntc-templates.svg?branch=master" alt="Build Status"></a><br>
+<a href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black"></a></p>
+<h1 id="ntc-templates">NTC TEMPLATES</h1>
+<p>Repository of TextFSM Templates for Network Devices, and Python wrapper for TextFSM’s CliTable.</p>
+<p><a href="https://github.com/google/textfsm/wiki">TextFSM</a> is a project built by Google that takes CLI string output and passes each line through a series of regular expressions until it finds a match. The regular expressions use named capture groups to build a text table out of the significant text. The names of the capture groups are used as column headers, and the captured values are stored as rows in the table.</p>
+<p>This project provides a large collection of TextFSM Templates (text parsers) for a variety of Networking Vendors. In addition to the templates, there is a function that will convert the CLI output into a CliTable object; the resulting text table is converted into a list of dictionaries mapping the column headers with each row in the table.</p>
+<blockquote>
+<p>As of v2.0.0, this project uses <a href="https://python-poetry.org/">Poetry</a> for packaging and distribution. In order to use poetry, the <code>templates</code> directory has been moved to <code>ntc_templates/templates</code></p>
+</blockquote>
+<h2 id="installation-and-usage">Installation and Usage</h2>
+<p>The project can be installed using either Git + Poetry or PyPI.</p>
+<h4 id="git">Git</h4>
+<pre class=" language-shell"><code class="prism  language-shell">$ git clone git@github.com:networktocode/ntc-templates.git
+$ 
+# Optional steps to install ntc-templates as a python package
+$ poetry install
+$ 
+</code></pre>
+<h4 id="pypi">PyPI</h4>
+<pre class=" language-shell"><code class="prism  language-shell">$ pip install ntc_templates
+$ 
+</code></pre>
+<h4 id="usage">Usage</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> <span class="token keyword">from</span> ntc_templates<span class="token punctuation">.</span>parse <span class="token keyword">import</span> parse_output
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_output <span class="token operator">=</span> <span class="token punctuation">(</span>
+        <span class="token string">"VLAN Name                             Status    Ports\n"</span>
+        <span class="token string">"---- -------------------------------- --------- -------------------------------\n"</span>
+        <span class="token string">"1    default                          active    Gi0/1\n"</span>
+        <span class="token string">"10   Management                       active    \n"</span>
+        <span class="token string">"50   VLan50                           active    Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5,\n"</span>
+        <span class="token string">"                                                Fa0/6, Fa0/7, Fa0/8\n"</span>
+    <span class="token punctuation">)</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_parsed <span class="token operator">=</span> parse_output<span class="token punctuation">(</span>platform<span class="token operator">=</span><span class="token string">"cisco_ios"</span><span class="token punctuation">,</span> command<span class="token operator">=</span><span class="token string">"show vlan"</span><span class="token punctuation">,</span> data<span class="token operator">=</span>vlan_output<span class="token punctuation">)</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> vlan_parsed
+<span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'default'</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'Gi0/1'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'10'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'Management'</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">'vlan_id'</span><span class="token punctuation">:</span> <span class="token string">'50'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span><span class="token punctuation">:</span> <span class="token string">'VLan50'</span><span class="token punctuation">,</span> <span class="token string">'status'</span><span class="token punctuation">:</span> <span class="token string">'active'</span><span class="token punctuation">,</span>
+        <span class="token string">'interfaces'</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">'Fa0/1'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/2'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/3'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/4'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/5'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/6'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/7'</span><span class="token punctuation">,</span> <span class="token string">'Fa0/8'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> 
+</code></pre>
+<h3 id="define-custom-templates-directory">Define Custom Templates Directory</h3>
+<p>To use a custom templates directory set the environmental variable <code>NTC_TEMPLATES_DIR</code>.</p>
+<p><strong>Requirements</strong></p>
+<ol>
+<li><code>index</code> file needs to be defined with standard structure. <a href="#Index-File">See</a></li>
+<li>Each custom template should be defined.</li>
+</ol>
+<p>To manaully set variable:</p>
+<pre class=" language-shell"><code class="prism  language-shell">export NTC_TEMPLATES_DIR=/path/to/new/location/templates
+</code></pre>
+<p>To set within your program:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> os
+os<span class="token punctuation">.</span>environ<span class="token punctuation">[</span><span class="token string">"NTC_TEMPLATES_DIR"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/path/to/new/templates/location/templates"</span>
+</code></pre>
+<h2 id="contributing">Contributing</h2>
+<p>Pull requests are welcomed and automatically built and tested through TravisCI.</p>
+<h3 id="new-templates">New Templates</h3>
+<p>To contribute new templates, each new pull request must include the following:</p>
+<ul>
+<li>TextFSM template</li>
+<li>Modified version of the <strong>index</strong> file</li>
+<li>Tests
+<ul>
+<li>Raw version of text to be parsed</li>
+<li>YAML file containing the expected parsed dictionary</li>
+</ul>
+</li>
+</ul>
+<h4 id="textfsm-template">TextFSM Template</h4>
+<p>TextFSM templates should be placed in the <code>./templates</code> directory and should adhere to the following NTC-Templates style.<br>
+The TextFSM template name should be in the following format:</p>
+<h5 id="naming">Naming</h5>
+<p>The template should be named using: <code>{{ vendor_os }}_{{ command_with_underscores }}.textfsm</code></p>
+<blockquote>
+<p>Ex: cisco_ios_show_cdp_neighbors.textfsm</p>
+</blockquote>
+<p>Note: The vendor name must be valid from the <a href="https://github.com/networktocode/ntc-templates/blob/master/tests/test_index_order.py#L59">os_choices</a> tests, which is primarily based on <a href="https://github.com/ktbyers/netmiko/tree/master/netmiko">Netmiko</a> list of supported vendors. New vendors added should adhere to <strong>vendor_os</strong>.</p>
+<blockquote>
+<p>Ex: vmware_nsx</p>
+</blockquote>
+<h5 id="values">Values</h5>
+<p>The capture group names should be in UPPERCASE.</p>
+<p>An example of the proper format is shown below.</p>
+<pre><code>Value TIME (\d+:\d+:\d+)
+Value TIMEZONE (\S+)
+Value DAYWEEK (\w+)
+Value MONTH (\d+)
+Value DAY (\d+)
+Value YEAR (\d+)
+
+Start
+  ^${TIME}\s+${TIMEZONE}\s+${DAYWEEK}\s+${DAY}/${MONTH}/${YEAR} -&gt; Record
+  ^. -&gt; Error
+</code></pre>
+<h5 id="states">States</h5>
+<p>If the raw output has a heading, the <code>Start</code> state should match on the column headings and then transition to another state that will match the device’s output table with the capture groups. This helps ensure the regex patterns for the capture groups are attempting to match the correct information, and allows templates to easily add additional States for tables that have different headings.<br>
+Example:</p>
+<p><em>Raw Output</em></p>
+<pre><code>... omitted
+Network Next Hop Metric LocPrf Weight Path
+*&gt; 111.111.111.111/32 112.112.112.112 4294967295 4294967295 65535 1000 1000 1000 i
+</code></pre>
+<p><em>Sample Template</em></p>
+<pre><code>Start
+# Checking for header
+^\s*Network\s+Next(?:\s+|-)[Hh]op\s+Metric\s+LocPrf\s+Weight\s+Path\s*$$ -&gt; BGPTable
+
+BGPTable
+ ... omitted
+</code></pre>
+<p>Each <strong>state</strong> should end with <code>^. -&gt; Error</code>. This helps to ensure we’re accounting for every line within the raw output for the command. This doesn’t mean we have to capture all the data as a <strong>Value</strong>, but we do have to account for it. In addition, it is also good to provide an expression to match blank lines, <code>^\s*$$</code></p>
+<p>An example would be the following raw output:</p>
+<pre><code>NAME: "3640 chassis", DESCR: "3640 chassis"
+PID: , VID: 0xFF, SN: FF1045C5
+</code></pre>
+<p>The template would be the following:</p>
+<pre><code>Value NAME (.*)
+Value DESCRIPTION (.*)
+
+Start
+  ^NAME:\s+"${NAME}",\s*DESCR:\s+"${DESCRIPTION}"
+  ^PID:\s*,\s*VID:\s*\S+,\s*SN:\s*\S+
+  ^\s*$$
+  ^. -&gt; Error
+</code></pre>
+<p>Taking a look at the example template above, you notice that we’re using <strong>\s</strong>* and <strong>\s+</strong>. These are the preferred way to match space characters, and should be used over the literal space character. For example, <code>This\s+is\s+preferred\s*$$</code> vs <code>This is not preferred$$</code></p>
+<ul>
+<li><strong>\s</strong>* accounts for zero or more spaces (use when the output may or may not have a space between characters)</li>
+<li><strong>\s+</strong> accounts for one or more spaces (use when output will have a space, but could have more than one space)</li>
+</ul>
+<h4 id="index-file">Index File</h4>
+<p>The Index file binds the templates to the commands being run. Special care has been taken on ordering, as there is potential for issues. e.g. <code>show ip route</code> picking up for <code>show ip router vrf &lt;vrf-name&gt;</code>. We have used a combination of ordering, as defined:</p>
+<ul>
+<li>OS in alphabetical order</li>
+<li>Template name in length order</li>
+<li>When length is the same, use alphabetical order of command name</li>
+<li>Keep space between OS’s</li>
+</ul>
+<p>Example:</p>
+<pre><code>Template, Hostname, Platform, Command
+
+# same os, same length, used alphabetical order of command name
+arista_eos_show_mlag.textfsm, .*, arista_eos, sh[[ow]] ml[[ag]]
+arista_eos_show_vlan.textfsm, .*, arista_eos, sh[[ow]] vl[[an]]
+
+# os in alphabetical order and space between cisco_asa and arista_eos
+cisco_asa_dir.textfsm,  .*, cisco_asa, dir
+
+# same os, template name length different and space between cisco_asa and cisco_ios
+cisco_ios_show_capability_feature_routing.textfsm,  .*, cisco_ios, sh[[ow]] cap[[ability]] f[[eature]] r[[outing]]
+cisco_ios_show_interface_transceiver.textfsm, .*, cisco_ios, sh[[ow]] int[[erface]] trans[[ceiver]]
+cisco_ios_show_cdp_neighbors_detail.textfsm, .*, cisco_ios, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
+</code></pre>
+<h4 id="tests">Tests</h4>
+<p>Tests will be located in <code>./tests</code> with the following hierarchy:</p>
+<ul>
+<li><code>./tests/{{ vendor_os }}/{{ command_name }}/</code></li>
+</ul>
+<p>The <code>{{ command_name }}</code> directory should include the <code>.raw</code> file that includes the raw output of the command to be parsed, and the <code>.yml</code> file of the returned structured data.</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">ls</span> tests/cisco_ios/show_clock/
+cisco_ios_show_clock.yml
+cisco_ios_show_clock.raw
+$ 
+</code></pre>
+<h5 id="raw-version-of-input-text">Raw version of input text</h5>
+<p>The raw text file should contain <strong>only</strong> the output of the CLI command to be parsed. It should <strong>not</strong> contain the CLI command itself.</p>
+<p>An example of the proper format is shown below:</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">cat</span> tests/cisco_ios/show_clock/cisco_ios_show_clock.raw
+*18:57:38.347 UTC Mon Oct 19 2015
+$ 
+</code></pre>
+<h5 id="yaml-file-containing-expected-parsed-dictionary">YAML file containing expected parsed dictionary</h5>
+<p>The parsed file should match the data that is returned from the <code>parse_output</code> function discussed in the beginning. Dictionary keys should be in lowercase.</p>
+<p>The parsed text file should be placed in a directory in the <code>./tests</code> directory with the same name as the template file but replace <code>.textfsm</code> file extension with <code>.yml</code>. The raw text file and the parsed text file should be in the same directory.<br>
+<strong>ex. ./tests/cisco_ios/show_clock/</strong></p>
+<p>There are available helpers to create the parsed file in the correct format (See <em>Development Helper Scripts</em> below).</p>
+<p>An example of the proper format is shown below:</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ <span class="token function">cat</span> ./tests/cisco_ios/show_clock/cisco_ios_show_clock.yml
+---
+parsed_sample:
+  - time: <span class="token string">"18:57:38.347"</span>
+    timezone: <span class="token string">"UTC"</span>
+    dayweek: <span class="token string">"Mon"</span>
+    month: <span class="token string">"Oct"</span>
+    day: <span class="token string">"19"</span>
+    year: <span class="token string">"2015"</span>
+$ 
+</code></pre>
+<p>Multiple <code>raw</code> and <code>parsed</code> files are supported per directory, and are encouraged, as there are differences depending on version, length, etc. Additional test files and more real life data helps ensure backwards compatibility is maintained as each template is updated and merged into the repo.</p>
+<p>All YAML files must adhere to the YAML standards defined in the <code>.yamllint</code> file in the root directory. Yamllint provides thorough documentation of their configuration settings <a href="https://yamllint.readthedocs.io/en/stable/rules.html">here</a>.</p>
+<h5 id="development-helper-scripts">Development Helper Scripts</h5>
+<p>A cli utility is provided to assist with properly building the parsed files. This utility depends on some packages listed in the dev install requirements; see <em>Install and Usage</em> for directions on installing the dev requirements. All arguments that can be passed to the script are mutually exclusive (i.e. you can only pass one argument). The file can be made executable with the <code>chmod +x development_scripts.py</code> command. The arguments are:</p>
+<ul>
+<li><code>-y</code>: Takes the path to a YAML file and ensures that the file adheres to the .yamllint settings</li>
+<li><code>-yd</code>: Takes a glob path to a directory or directories that will ensure all files ending in <code>.yml</code> adhere to the .yamllint settings</li>
+<li><code>-c</code>: Takes the path to a <code>.raw</code> file, and generates the parsed data and saves the results adjacent to the <code>.raw</code> file following the defined standards in .yamllint.</li>
+<li><code>-cd</code>: Takes a glob path to a directory or directories containing <code>.raw</code> files, and creates the appropriate parsed files in the appropriate directory.</li>
+</ul>
+<p>The <code>-y</code> and <code>-yd</code> arguments are designed to allow developers to generate the expected parsed file how they want, and ensure that the formatting adheres to the defined standard for this project.</p>
+<p>The <code>-c</code> and <code>-cd</code> arguments use <code>ntc_templates.parse.parse_output()</code> to generate the parsed data; this means that you can use these arguments to auto-generate the test <code>.yml</code> file(s) for new templates; just be sure that the template’s parsing behavior meets expectations. In order for the data to be parsed, the template must be placed in <code>ntc_templates/templates/</code> and the <code>ntc_templates/templates/index</code> file must be updated to correctly point to the template file(s).</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ ./development_scripts.py -yd tests/cisco_ios/show_mac-address-table
+tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table2.yml
+tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table3.yml
+tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table5.yml
+tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table4.yml
+tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table.yml
+$
+$ <span class="token function">ls</span> tests/arista_eos/show_version/
+arista_eos_show_version.raw
+$
+$ ./development_scripts.py -c tests/arista_eos/show_version/arista_eos_show_version.txt
+$ <span class="token function">ls</span> tests/arista_eos/show_version/
+arista_eos_show_version.raw   arista_eos_show_version.yml
+$
+</code></pre>
+<h3 id="updatingfixing-existing-templates">Updating/Fixing Existing Templates</h3>
+<p>When either fixing a bug within a template or adding additional <strong>Values</strong> to be captured, additional test files should be added to ensure backwards compatibility and that the new data is being parsed correctly.</p>
+<p>To add additional raw/parsed tests for a command:</p>
+<ul>
+<li>Navigate to <code>./tests/{{ vendor_os }}/{{ command_name }}/</code></li>
+<li>Create new <code>.raw</code> and <code>.yml</code> files within the directory, preferrably with a name identifying why the data is unique:
+<ul>
+<li>Existing raw: <code>./tests/cisco_ios/show_version/cisco_ios_show_version.raw</code></li>
+<li>New raw: <code>./tests/cisco_ios/show_version/cisco_ios_show_version_stack_platforms.raw</code></li>
+<li>Existing parsed: <code>./tests/cisco_ios/show_version/cisco_ios_show_version.yml</code></li>
+<li>New parsed: <code>./tests/cisco_ios/show_version/cisco_ios_show_version_stack_platforms.yml</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="testing">Testing</h4>
+<p>You can test your changes locally within your Git branch before submitting a PR. If you do not have <strong>tox</strong> already installed, you can do that using pip or your systems package manager. Tox should be ran inside the <strong>ntc-templates</strong> root directory. The tox file is configured to run against python3.6,python3.7, and python3.8, if none/some of those python versions are unavailable <strong>tox</strong> will skip them. The tox.ini file can be updated with an available Python version.</p>
+<pre class=" language-bash"><code class="prism  language-bash">$ tox
+GLOB sdist-make: /home/travis/build/networktocode/ntc-templates/setup.py
+py36 create: /home/travis/build/networktocode/ntc-templates/.tox/py36
+py36 inst: /home/travis/build/networktocode/ntc-templates/.tox/.tmp/package/1/ntc_templates-1.6.0.zip
+py36 installed: appdirs<span class="token operator">==</span>1.4.4,attrs<span class="token operator">==</span>20.3.0,black<span class="token operator">==</span>20.8b1,click<span class="token operator">==</span>7.1.2,dataclasses<span class="token operator">==</span>0.8,future<span class="token operator">==</span>0.18.2,importlib-metadata<span class="token operator">==</span>3.7.0,iniconfig<span class="token operator">==</span>1.1.1,mypy-extensions<span class="token operator">==</span>0.4.3,ntc-templates<span class="token operator">==</span>1.6.0,packaging<span class="token operator">==</span>20.9,pathspec<span class="token operator">==</span>0.8.1,pluggy<span class="token operator">==</span>0.13.1,py<span class="token operator">==</span>1.10.0,pyparsing<span class="token operator">==</span>2.4.7,pytest<span class="token operator">==</span>6.2.2,PyYAML<span class="token operator">==</span>5.4.1,regex<span class="token operator">==</span>2020.11.13,ruamel.yaml<span class="token operator">==</span>0.16.12,ruamel.yaml.clib<span class="token operator">==</span>0.2.2,six<span class="token operator">==</span>1.15.0,textfsm<span class="token operator">==</span>1.1.0,toml<span class="token operator">==</span>0.10.2,typed-ast<span class="token operator">==</span>1.4.2,typing-extensions<span class="token operator">==</span>3.7.4.3,yamllint<span class="token operator">==</span>1.26.0,zipp<span class="token operator">==</span>3.4.0
+py36 run-test-pre: PYTHONHASHSEED<span class="token operator">=</span><span class="token string">'4147443973'</span>
+py36 run-test: commands<span class="token punctuation">[</span>0<span class="token punctuation">]</span> <span class="token operator">|</span> black ./ --diff --check
+All done<span class="token operator">!</span> ✨ 🍰 ✨
+9 files would be left unchanged.
+py36 run-test: commands<span class="token punctuation">[</span>1<span class="token punctuation">]</span> <span class="token operator">|</span> yamllint tests/
+py36 run-test: commands<span class="token punctuation">[</span>2<span class="token punctuation">]</span> <span class="token operator">|</span> pytest -vv
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span> <span class="token function">test</span> session starts <span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+platform linux -- Python 3.6.7, pytest-6.2.2, py-1.10.0, pluggy-0.13.1 -- /home/travis/build/networktocode/ntc-templates/.tox/py36/bin/python
+cachedir: .tox/py36/.pytest_cache
+rootdir: /home/travis/build/networktocode/ntc-templates
+collected 1065 items                                                           
+
+tests/test_development_scripts.py::test_ensure_spacing_for_multiline_comment PASSED <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_development_scripts.py::test_ensure_space_after_octothorpe PASSED <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_development_scripts.py::test_ensure_space_comments PASSED     <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_development_scripts.py::test_update_yaml_comments PASSED      <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_development_scripts.py::test_transform_file PASSED            <span class="token punctuation">[</span>  0%<span class="token punctuation">]</span>
+tests/test_testcases_exists.py::test_verify_parsed_and_reference_data_exists<span class="token punctuation">[</span>tests/yamaha/show_environment<span class="token punctuation">]</span> PASSED <span class="token punctuation">[</span> 99%<span class="token punctuation">]</span>
+tests/test_testcases_exists.py::test_verify_parsed_and_reference_data_exists<span class="token punctuation">[</span>tests/yamaha/show_ip_route<span class="token punctuation">]</span> PASSED <span class="token punctuation">[</span>100%<span class="token punctuation">]</span>
+
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span> 1065 passed <span class="token keyword">in</span> 22.59s <span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+py37 create: /home/travis/build/networktocode/ntc-templates/.tox/py37
+SKIPPED: InterpreterNotFound: python3.7
+py38 create: /home/travis/build/networktocode/ntc-templates/.tox/py38
+SKIPPED: InterpreterNotFound: python3.8
+___________________________________ summary ____________________________________
+  py36: commands succeeded
+SKIPPED:  py37: InterpreterNotFound: python3.7
+SKIPPED:  py38: InterpreterNotFound: python3.8
+  congratulations :<span class="token punctuation">)</span>
+The <span class="token function">command</span> <span class="token string">"tox"</span> exited with 0.
+
+
+Done. Your build exited with 0.
+$
+</code></pre>
+<h2 id="questions">Questions</h2>
+<p>For any questions or comments, please feel free to swing by the <a href="https://networktocode.slack.com">networktocode slack channel</a>.</p>
+<p>Sign up <a href="http://slack.networktocode.com/">here</a></p>
+<h2 id="changelog">CHANGELOG</h2>
+<p>Changelog should be generated using <a href="https://github.com/github-changelog-generator/github-changelog-generator">github_changelog_generator</a></p>
+<h2 id="faq">FAQ</h2>
+<p>From an outsiders view, some design choices, requirements, and testing procedures can seem arbitrary. The following list of FAQ is intended to<br>
+help provide context and better guide users and contributors of ntc-templates.</p>
+<p><em>Why is there a requirement to use <code>Error</code> in every template?</em></p>
+<p>Ensuring that the textfsm template can account for every line is the only method to ensure that data was not accidentally missed. Take the following example. Initially we account for status to be:</p>
+<p><code>Value STATUS (up|down)</code></p>
+<p>Given the result of:</p>
+<pre><code>Interface                      Status         Protocol Description
+Gi0/0/1                        admin down     down
+Gi0/0/2                        up             up       ISP Connection
+Gi0/0/3                        down           down
+</code></pre>
+<p>The output would miss the G0/0/1 interface, since the <code>STATUS</code> of <code>admin down</code> not known. If this was a low percentage use case, it can go<br>
+undetected, and result in incorrect information being returned. Instead, by ensuring that we fail fast, an <code>Error</code> is raised and hopefully<br>
+GitHub Issue is put in.</p>
+<p><em>Then why isn’t <code>Error</code> used in all templates?</em></p>
+<p>Initially the controls were not as strong, so many templates were put in until issues like the previous became an issue.</p>
+<p><em>Does the project support requests for additional templates or additional data in an existing template?</em></p>
+<p>We are no longer considering additional template requests at this time. The project has existed for over 5 years (initially within ntc-ansible)<br>
+and nearly 200 template at this point any additional requests are essentially edge use cases. Meaning, for five years of usage, no one else<br>
+has asked for this feature. There is a limited maintainers who primarily use their free time to maintain the project.</p>
+<p><em>Are you open to adding maintainers to the project?</em></p>
+<p>Yes, we would consider giving a proven member of the project and community maintainer rights. Please inquiry emailing <a href="mailto:info@networktocode.com">info@networktocode.com</a>.</p>
+<p><em>I simply want to add my template to the project, I do not want to add all of these tests and controls, can I just do so?</em></p>
+<p>Short answer no, from an outsiders point of view the contributor requirements may seem overly complex, however features added by engineers<br>
+rarely come back to support them. The burden of support is on the maintainers and a certain level of quality assurance is required for that to<br>
+happen. That includes updating the index file appropriately and adding proper raw and expected value files.</p>
+<p><em>Why don’t you grab all of the data in the template?</em></p>
+<p>There is no intention for ntc-templates to become feature complete, some of the data is less interesting, or can be better understood from<br>
+other commands. This is actually an area where the project chose to be loose, as we do not want to over-burden the contributor. If you feel<br>
+that the additional data should be added, you are welcome to add the feature, but it would not be considered a bug, and thus not supported by<br>
+the maintainers of the this project.</p>
+<p><em>Why does the index order matter?</em></p>
+<p>The “greediness” of the template match ensures that there longest matches first. For example, if <code>show ip ospf</code> was above <code>show ip ospf database</code>, the <code>show ip ospf</code> template would be used in both cases. The additional steps are because of general programmatic hygiene.</p>
+<p><em>Will you accept my template if I create it?</em></p>
+<p>In most cases, yes. However, there are a few edge cases. For example if requesting to add a <code>show cdp neighbors</code> when there is already a <code>show cdp neighbors details</code> template created. That is additional complexity added to the project with little value.</p>
+<p><em>Why was my issue closed?</em></p>
+<p>The most likely reasons are:</p>
+<ul>
+<li>Did not follow the Issue creation template.</li>
+<li>Did not provide the data required to act upon the request.</li>
+<li>A prolonged time with no response.</li>
+</ul>
+<p><em>What is meant that this is a parsing project, not a data modeling project?</em></p>
+<p>The project intends to parse, meaning post processing is assumed in order to normalize the data. This project does not intend to solve that<br>
+problem set. This is often noted in keys being different between the same command on multiple OS’s. This was not intentional as at first there was not strict enforcement. That being said, there is no intention to retrofit this use case for the above stated reasons. This use case is<br>
+best handled in post processing.</p>
+<p><em>I have never submitted a Pull Request before, how do I do so?</em></p>
+<p>This is outside the scope of this project, but this <a href="https://www.youtube.com/watch?v=rgbCcBNZcdQ">video</a> should provide the instructions on<br>
+how to do so.</p>
+<p><em>Does this work on windows?</em></p>
+<p>Based on this <a href="https://github.com/networktocode/ntc-templates/pull/672">PR</a> it should, however this is not a supported option. We are willing<br>
+to take in qualified Pull Requests to have the feature, but have no intention of actively supporting.</p>
+<p><em>Can you provide general guidance?</em></p>
+<p>This is best handled via real time communication. Feel free to join our slack community (sign up information above) and reach out on the #networktocode channel. Please be aware of timezones, downtimes, and help is performed based on goodwill and timing, and not guaranteed.</p>
+<h3 id="known-issues">Known Issues</h3>
+<h4 id="cannot-import-name-clitable-from-textfsm">Cannot import name clitable from textfsm</h4>
+<p><strong>ntc-templates</strong> depends on <strong>textfsm</strong>, which hasn’t published a source distribution to pypi in a while. See <a href="https://github.com/google/textfsm/issues/65">https://github.com/google/textfsm/issues/65</a>.</p>
+<p>This means that for users with a build chain that depends on source distributions only (i.e. no wheels), ntc-templates appears to have a bug:</p>
+<pre><code>File "/usr/local/Cellar/foo/version/libexec/lib/python3.7/site-packages/ntc_templates/parse.py", line 3, in &lt;module&gt;
+    from textfsm import clitable
+ImportError: cannot import name 'clitable' from 'textfsm' 
+</code></pre>
+<p>What’s actually happening here is that textfsm provides a source distribution only up to version 0.4.1 (2018-04-09) but the ntc-templates code relies on the interface from version 1.1.0 (2019-07-24) which is only available as a wheel. So the way for users to fix this problem if they encounter it is to install textfsm 1.1.0.</p>
+<p><code>pip install textfsm==1.1.0</code></p>
+<blockquote>
+<p>This was taken from <a href="https://github.com/networktocode/ntc-templates/issues/731">https://github.com/networktocode/ntc-templates/issues/731</a></p>
+</blockquote>
+</div>
+</body>
+
+</html>
