@@ -1,9 +1,13 @@
 import os
 import json
+import logging
 from flask import Flask, render_template, send_from_directory, abort, Response, url_for
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+
+# Configure logging for debugging
+logging.basicConfig(level=logging.DEBUG)
 
 CONFIG_FILE = os.path.join(app.root_path, 'docs_config.json')
 
@@ -24,7 +28,7 @@ def load_config():
             config = json.load(f)
         return config
     except Exception as e:
-        print(f"Error loading configuration: {e}")
+        logging.error(f"Error loading configuration: {e}")
         return {}
 
 COLUMN_ASSIGNMENTS = {
@@ -50,7 +54,7 @@ for column, categories in COLUMN_ASSIGNMENTS.items():
 @app.route('/')
 def home():
     """
-    Renders the homepage with links to all available documentation sets.
+    Renders the homepage with links to all available documentations.
     """
     return render_template('home.html', grouped_docs=grouped_docs)
 
@@ -59,7 +63,7 @@ def home():
 def serve_docs(doc_name, filename=None):
     """
     Serves the requested documentation files based on the configuration
-    and disables external links.
+    and injects the banner into HTML files.
     """
     doc = None
     for category in docs_config.values():
@@ -71,33 +75,60 @@ def serve_docs(doc_name, filename=None):
             break
 
     if not doc:
+        logging.warning(f"Documentation set '{doc_name}' not found.")
         abort(404, description="Documentation set not found.")
 
     docs_base_path = os.path.join(app.static_folder, 'docs')
 
-    if filename is None:
-        filename = 'index.html'
+    if filename is None or filename == 'index.html':
+        file_path = os.path.join(docs_base_path, doc['index_path'])
+        logging.debug(f"Serving main index.html for '{doc_name}': {file_path}")
+    else:
+        index_dir = os.path.dirname(doc['index_path'])
+        file_path = os.path.join(docs_base_path, index_dir, filename)
 
-    file_path = os.path.join(docs_base_path, doc['index_path'])
+        logging.debug(f"Serving documentation for: {doc_name}")
+        logging.debug(f"Requested file: {filename}")
+        logging.debug(f"Resolved file path: {file_path}")
 
-    if filename != 'index.html':
-        index_dir = os.path.dirname(file_path)
-        file_path = os.path.join(index_dir, filename)
+        file_path = os.path.normpath(file_path)
 
-    file_path = os.path.normpath(file_path)
+        if not file_path.startswith(os.path.normpath(docs_base_path)) or not os.path.exists(file_path):
+            logging.warning(f"File path '{file_path}' is invalid or does not exist.")
+            abort(404, description="File not found.")
 
-    if not file_path.startswith(docs_base_path) or not os.path.exists(file_path):
-        abort(404, description="File not found.")
+        if os.path.isdir(file_path):
+            file_path = os.path.join(file_path, 'index.html')
+            logging.debug(f"Requested path is a directory. Serving index.html: {file_path}")
 
-    if not filename.endswith('.html'):
+            if not os.path.exists(file_path):
+                logging.warning(f"Index file '{file_path}' not found in the directory.")
+                abort(404, description="File not found.")
+
+        is_html = file_path.endswith('.html')
+
+        if not is_html:
+            logging.debug(f"Serving non-HTML file: {file_path}")
+            serve_dir = os.path.dirname(file_path)
+            serve_file = os.path.basename(file_path)
+            return send_from_directory(serve_dir, serve_file)
+    
+    if not file_path.endswith('.html'):
         serve_dir = os.path.dirname(file_path)
         serve_file = os.path.basename(file_path)
-        return send_from_directory(serve_dir, serve_file)
+        if os.path.exists(file_path):
+            logging.debug(f"Serving non-HTML file as fallback: {file_path}")
+            return send_from_directory(serve_dir, serve_file)
+        else:
+            logging.warning(f"File '{file_path}' not found.")
+            abort(404, description="File not found.")
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'html.parser')
+        logging.debug(f"Opened HTML file: {file_path}")
     except Exception as e:
+        logging.error(f"Error reading file '{file_path}': {e}")
         abort(500, description=f"Error reading file: {e}")
 
     body = soup.body
@@ -106,8 +137,9 @@ def serve_docs(doc_name, filename=None):
         if not existing_banner:
             banner = BeautifulSoup(BANNER_HTML, 'html.parser')
             body.insert(0, banner)
+            logging.debug("Inserted banner into HTML.")
 
-        # Disable external links
+        # Disable external links except
         for link in soup.find_all('a', href=True):
             href = link['href']
             if href.startswith('https://www.devnet-academy.com'):
@@ -115,9 +147,12 @@ def serve_docs(doc_name, filename=None):
             if href.startswith('http://') or href.startswith('https://'):
                 link['href'] = '#'
                 link['onclick'] = "alert('External links are disabled during the exam.'); return false;"
+                logging.debug(f"Disabled external link: {href}")
             elif href.startswith('/'):
+                # Fix internal absolute paths by prepending the documentation route
                 relative_path = href.lstrip('/')
                 link['href'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
+                logging.debug(f"Fixed internal link: {href} -> {link['href']}")
 
         # Fix 'link' tags for CSS and 'script' tags for JS
         for tag in soup.find_all(['link', 'script', 'img']):
@@ -126,20 +161,24 @@ def serve_docs(doc_name, filename=None):
                 if href.startswith('/'):
                     relative_path = href.lstrip('/')
                     tag['href'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
+                    logging.debug(f"Fixed CSS link: {href} -> {tag['href']}")
             if tag.name in ['script', 'img'] and tag.has_attr('src'):
                 src = tag['src']
                 if src.startswith('/'):
                     relative_path = src.lstrip('/')
                     tag['src'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
+                    logging.debug(f"Fixed JS/img source: {src} -> {tag['src']}")
 
     return Response(str(soup), mimetype='text/html')
 
 @app.errorhandler(404)
 def page_not_found(e):
+    logging.warning(f"404 Error: {e}")
     return render_template('404.html', error=e), 404
 
 @app.errorhandler(500)
 def internal_error(e):
+    logging.error(f"500 Error: {e}")
     return render_template('500.html', error=e), 500
 
 if __name__ == '__main__':
