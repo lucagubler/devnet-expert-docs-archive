@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from flask import Flask, render_template, send_from_directory, abort, Response, url_for
+from flask import Flask, render_template, send_from_directory, abort, Response, url_for, redirect
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
@@ -58,6 +58,25 @@ def home():
     """
     return render_template('home.html', grouped_docs=grouped_docs)
 
+@app.route('/docs/vault_v1.8.x/', defaults={'path': 'index.html'})
+@app.route('/docs/vault_v1.8.x/<path:path>')
+def serve_vault(path):
+    """
+    Serves the Vault documentation without modifying the HTML files.
+    """
+    # Define the path to the exported Vault static files
+    vault_dir = os.path.join(app.static_folder, 'docs', 'vault_v1.8.x')  # Adjust if necessary
+
+    # If the path is a directory, append 'index.html'
+    if os.path.isdir(os.path.join(vault_dir, path)):
+        path = os.path.join(path, 'index.html')
+
+    try:
+        return send_from_directory(vault_dir, path)
+    except Exception as e:
+        logging.error(f"Error serving Vault file '{path}': {e}")
+        abort(404, description="Vault documentation not found.")
+
 @app.route('/docs/<doc_name>/')
 @app.route('/docs/<doc_name>/<path:filename>')
 def serve_docs(doc_name, filename=None):
@@ -77,6 +96,10 @@ def serve_docs(doc_name, filename=None):
     if not doc:
         logging.warning(f"Documentation set '{doc_name}' not found.")
         abort(404, description="Documentation set not found.")
+
+    # If the documentation set is Vault, redirect to the separate Vault route
+    if 'vault' in doc_name.lower():
+        return redirect('/docs/vault_v1.8.x/docs')
 
     docs_base_path = os.path.join(app.static_folder, 'docs')
 
@@ -139,7 +162,6 @@ def serve_docs(doc_name, filename=None):
             body.insert(0, banner)
             logging.debug("Inserted banner into HTML.")
 
-        # Disable external links except
         for link in soup.find_all('a', href=True):
             href = link['href']
             if href.startswith('https://www.devnet-academy.com'):
