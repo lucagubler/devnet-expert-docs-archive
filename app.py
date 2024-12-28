@@ -71,11 +71,65 @@ def serve_vault(path):
     if os.path.isdir(os.path.join(vault_dir, path)):
         path = os.path.join(path, 'index.html')
 
+    if not path.endswith('.html'):
+        # Serve non-HTML files directly
+        serve_dir = vault_dir
+        serve_file = path
+        if os.path.exists(os.path.join(serve_dir, serve_file)):
+            return send_from_directory(serve_dir, serve_file)
+        else:
+            logging.warning(f"File '{serve_file}' not found in Vault documentation.")
+            abort(404, description="File not found.")
+
     try:
-        return send_from_directory(vault_dir, path)
+        with open(os.path.join(vault_dir, path), 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f, 'html.parser')
+        logging.debug(f"Opened Vault HTML file: {path}")
     except Exception as e:
-        logging.error(f"Error serving Vault file '{path}': {e}")
-        abort(404, description="Vault documentation not found.")
+        logging.error(f"Error reading Vault file '{path}': {e}")
+        abort(500, description=f"Error reading file: {e}")
+
+    body = soup.body
+    if body:
+        # Inject the banner
+        existing_banner = body.find('div', style=lambda value: value and 'background-color: #335afb' in value)
+        if not existing_banner:
+            banner = BeautifulSoup(BANNER_HTML, 'html.parser')
+            body.insert(0, banner)
+            logging.debug("Inserted banner into Vault HTML.")
+
+        # Disable external links except specified ones
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            if href.startswith('https://www.devnet-academy.com'):
+                continue
+            if href.startswith('http://') or href.startswith('https://'):
+                link['href'] = '#'
+                link['onclick'] = "alert('External links are disabled during the exam.'); return false;"
+                logging.debug(f"Disabled external link in Vault: {href}")
+            elif href.startswith('/'):
+                # Fix internal absolute paths by prepending the documentation route
+                relative_path = href.lstrip('/')
+                # Since we're in the Vault route, adjust the URL accordingly
+                link['href'] = f"/docs/vault_v1.8.x/{relative_path}"
+                logging.debug(f"Fixed internal link in Vault: {href} -> {link['href']}")
+
+        # Fix 'link' tags for CSS and 'script' tags for JS
+        for tag in soup.find_all(['link', 'script', 'img']):
+            if tag.name == 'link' and tag.has_attr('href'):
+                href = tag['href']
+                if href.startswith('/'):
+                    relative_path = href.lstrip('/')
+                    tag['href'] = f"/docs/vault_v1.8.x/{relative_path}"
+                    logging.debug(f"Fixed CSS link in Vault: {href} -> {tag['href']}")
+            if tag.name in ['script', 'img'] and tag.has_attr('src'):
+                src = tag['src']
+                if src.startswith('/'):
+                    relative_path = src.lstrip('/')
+                    tag['src'] = f"/docs/vault_v1.8.x/{relative_path}"
+                    logging.debug(f"Fixed JS/img source in Vault: {src} -> {tag['src']}")
+
+    return Response(str(soup), mimetype='text/html')
 
 @app.route('/docs/<doc_name>/')
 @app.route('/docs/<doc_name>/<path:filename>')
