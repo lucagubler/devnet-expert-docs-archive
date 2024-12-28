@@ -1,0 +1,2856 @@
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/zh/docs/tasks/debug-application-cluster/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tasks/debug-application-cluster/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tasks/debug-application-cluster/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/tasks/debug-application-cluster/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tasks/debug-application-cluster/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/tasks/debug-application-cluster/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/ja/docs/tasks/debug-application-cluster/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>監視、ログ、デバッグ | Kubernetes</title><meta property="og:title" content="監視、ログ、デバッグ" />
+<meta property="og:description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/ja/docs/tasks/debug-application-cluster/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="監視、ログ、デバッグ">
+<meta itemprop="description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="監視、ログ、デバッグ"/>
+<meta name="twitter:description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。">
+<meta property="og:description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。">
+<meta name="twitter:description" content="クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。">
+<meta property="og:url" content="http://localhost:1313/ja/docs/tasks/debug-application-cluster/">
+<meta property="og:title" content="監視、ログ、デバッグ">
+<meta name="twitter:title" content="監視、ログ、デバッグ">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/ja/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/ja/docs/" >ドキュメント</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ja/blog/" >Blogs</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ja/training/" >トレーニング</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ja/partners/" >パートナー</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ja/community/" >コミュニティ</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ja/case-studies/" >ケーススタディ</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	バージョン
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/ja/docs/tasks/debug-application-cluster/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/ja/docs/tasks/debug-application-cluster/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/ja/docs/tasks/debug-application-cluster/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/ja/docs/tasks/debug-application-cluster/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/ja/docs/tasks/debug-application-cluster/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	日本語 Japanese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/zh/docs/tasks/debug-application-cluster/">中文 Chinese</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tasks/debug-application-cluster/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tasks/debug-application-cluster/">Français</a>
+	
+	<a class="dropdown-item" href="/de/docs/tasks/debug-application-cluster/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/es/docs/tasks/debug-application-cluster/">Español</a>
+	
+	<a class="dropdown-item" href="/id/docs/tasks/debug-application-cluster/">Bahasa Indonesia</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+これは、このセクションの複数ページの印刷可能なビューです。
+<a href="#" onclick="print();return false;">印刷するには、ここをクリックしてください</a>.
+</p><p>
+<a href="/ja/docs/tasks/debug-application-cluster/">このページの通常のビューに戻る</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">監視、ログ、デバッグ</h1>
+<div class="lead">クラスターのトラブルシューティングや、コンテナ化したアプリケーションのデバッグのために、監視とログをセットアップします。</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-5e4a82f171ec2c11da7360a67efb4abf">crictlによるKubernetesノードのデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-06bb252f25983de12f635c806d180d30">Initコンテナのデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-858517cd46a1b5a1fd2e650edd785cea">PodとReplicationControllerのデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-ef360b1f8e65236251826db478cfcab3">Pod障害の原因を特定する</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-f79645981e310858111bd5673614cab6">Serviceのデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>6: <a href="#pg-a070b1250ee142402d492b505a56ca83">StatefulSetのデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>7: <a href="#pg-3556c4dbd027b9e90a5b3d72649003fb">アプリケーションのトラブルシューティング</a></li>
+
+
+    
+  
+    
+    
+	
+<li>8: <a href="#pg-731bb8b338c16aebfb9590ba2bd3fdd1">アプリケーションの自己観察とデバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>9: <a href="#pg-47290c80fb8b00accec6729f3da49734">クラスターのトラブルシューティング</a></li>
+
+
+    
+  
+    
+    
+	
+<li>10: <a href="#pg-96b25d30e732385047272b84d3c4188f">リソースメトリクスパイプライン</a></li>
+
+
+    
+  
+    
+    
+	
+<li>11: <a href="#pg-9e6e1b706f11386fe2c4b4ffda1409e4">リソース監視のためのツール</a></li>
+
+
+    
+  
+    
+    
+	
+<li>12: <a href="#pg-d25a16285195bd17d9055b1eb7bc605c">ローカルでのサービス開発・デバッグ</a></li>
+
+
+    
+  
+    
+    
+	
+<li>13: <a href="#pg-9713ac27b6d9e3034033200d968221f2">実行中のコンテナへのシェルを取得する</a></li>
+
+
+    
+  
+    
+    
+	
+<li>14: <a href="#pg-cbd33a50cc4779f855318a0dd00d7b06">監査</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-5e4a82f171ec2c11da7360a67efb4abf">1 - crictlによるKubernetesノードのデバッグ</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.11 [stable]</code>
+</div>
+
+
+<p><code>crictl</code>はCRI互換のコンテナランタイム用のコマンドラインインターフェイスです。</p>
+<p>これを使って、Kubernetesノード上のコンテナランタイムやアプリケーションの検査やデバッグを行うことができます。
+<code>crictl</code>とそのソースコードは<a href="https://github.com/kubernetes-sigs/cri-tools">cri-tools</a>リポジトリにホストされています。</p>
+<h2 id="始める前に">始める前に</h2>
+<p><code>crictl</code>にはCRIランタイムを搭載したLinuxが必要です。</p>
+<!-- steps -->
+<h2 id="crictlのインストール">crictlのインストール</h2>
+<p>cri-toolsの<a href="https://github.com/kubernetes-sigs/cri-tools/releases">リリースページ</a>から、いくつかの異なるアーキテクチャ用の圧縮アーカイブ<code>crictl</code>をダウンロードできます。</p>
+<p>お使いのKubernetesのバージョンに対応するバージョンをダウンロードしてください。
+それを解凍してシステムパス上の<code>/usr/local/bin/</code>などの場所に移動します。</p>
+<h2 id="一般的な使い方">一般的な使い方</h2>
+<p><code>crictl</code>コマンドにはいくつかのサブコマンドとランタイムフラグがあります。
+詳細は<code>crictl help</code>または<code>crictl &lt;subcommand&gt; help</code>を参照してください。
+<code>crictl</code>はデフォルトでは<code>unix:///var/run/dockershim.sock</code>に接続します。</p>
+<p>他のランタイムの場合は、複数の異なる方法でエンドポイントを設定することができます:</p>
+<ul>
+<li>フラグ<code>--runtime-endpoint</code>と<code>--image-endpoint</code>の設定により</li>
+<li>環境変数<code>CONTAINER_RUNTIME_ENDPOINT</code>と<code>IMAGE_SERVICE_ENDPOINT</code>の設定により</li>
+<li>設定ファイル<code>--config=/etc/crictl.yaml</code>でエンドポイントの設定により</li>
+</ul>
+<p>また、サーバーに接続する際のタイムアウト値を指定したり、デバッグを有効／無効にしたりすることもできます。
+これには、設定ファイルで<code>timeout</code>や<code>debug</code>を指定するか、<code>--timeout</code>や<code>--debug</code>のコマンドラインフラグを使用します。</p>
+<p>現在の設定を表示または編集するには、<code>/etc/crictl.yaml</code>の内容を表示または編集します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cat /etc/crictl.yaml
+runtime-endpoint: unix:///var/run/dockershim.sock
+image-endpoint: unix:///var/run/dockershim.sock
+timeout: <span style="color:#666">10</span>
+debug: <span style="color:#a2f">true</span>
+</code></pre></div><h2 id="crictlコマンドの例">crictlコマンドの例</h2>
+<p>以下の例では、いくつかの<code>crictl</code>コマンドとその出力例を示しています。</p>
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>警告:</strong> 実行中のKubernetesクラスターに<code>crictl</code>を使ってポッドのサンドボックスやコンテナを作成しても、Kubeletは最終的にそれらを削除します。<code>crictl</code> は汎用のワークフローツールではなく、デバッグに便利なツールです。
+</div>
+
+
+<h3 id="podsの一覧">podsの一覧</h3>
+<p>すべてのポッドをリストアップ:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl pods
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>POD ID              CREATED              STATE               NAME                         NAMESPACE           ATTEMPT
+926f1b5a1d33a       About a minute ago   Ready               sh-84d7dcf559-4r2gq          default             0
+4dccb216c4adb       About a minute ago   Ready               nginx-65899c769f-wv2gp       default             0
+a86316e96fa89       17 hours ago         Ready               kube-proxy-gblk4             kube-system         0
+919630b8f81f1       17 hours ago         Ready               nvidia-device-plugin-zgbbv   kube-system         0
+</code></pre><p>Podを名前でリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl pods --name nginx-65899c769f-wv2gp
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>POD ID              CREATED             STATE               NAME                     NAMESPACE           ATTEMPT
+4dccb216c4adb       2 minutes ago       Ready               nginx-65899c769f-wv2gp   default             0
+</code></pre><p>Podをラベルでリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl pods --label <span style="color:#b8860b">run</span><span style="color:#666">=</span>nginx
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>POD ID              CREATED             STATE               NAME                     NAMESPACE           ATTEMPT
+4dccb216c4adb       2 minutes ago       Ready               nginx-65899c769f-wv2gp   default             0
+</code></pre><h3 id="イメージの一覧">イメージの一覧</h3>
+<p>すべてのイメージをリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl images
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>IMAGE                                     TAG                 IMAGE ID            SIZE
+busybox                                   latest              8c811b4aec35f       1.15MB
+k8s-gcrio.azureedge.net/hyperkube-amd64   v1.10.3             e179bbfe5d238       665MB
+k8s-gcrio.azureedge.net/pause-amd64       3.1                 da86e6ba6ca19       742kB
+nginx                                     latest              cd5239a0906a6       109MB
+</code></pre><p>イメージをリポジトリでリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl images nginx
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>IMAGE               TAG                 IMAGE ID            SIZE
+nginx               latest              cd5239a0906a6       109MB
+</code></pre><p>イメージのIDのみをリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl images -q
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>sha256:8c811b4aec35f259572d0f79207bc0678df4c736eeec50bc9fec37ed936a472a
+sha256:e179bbfe5d238de6069f3b03fccbecc3fb4f2019af741bfff1233c4d7b2970c5
+sha256:da86e6ba6ca197bf6bc5e9d900febd906b133eaa4750e6bed647b0fbe50ed43e
+sha256:cd5239a0906a6ccf0562354852fae04bc5b52d72a2aff9a871ddb6bd57553569
+</code></pre><h3 id="list-containers">List containers</h3>
+<p>すべてのコンテナをリストアップします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl ps -a
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>CONTAINER ID        IMAGE                                                                                                             CREATED             STATE               NAME                       ATTEMPT
+1f73f2d81bf98       busybox@sha256:141c253bc4c3fd0a201d32dc1f493bcf3fff003b6df416dea4f41046e0f37d47                                   7 minutes ago       Running             sh                         1
+9c5951df22c78       busybox@sha256:141c253bc4c3fd0a201d32dc1f493bcf3fff003b6df416dea4f41046e0f37d47                                   8 minutes ago       Exited              sh                         0
+87d3992f84f74       nginx@sha256:d0a8828cccb73397acb0073bf34f4d7d8aa315263f1e7806bf8c55d8ac139d5f                                     8 minutes ago       Running             nginx                      0
+1941fb4da154f       k8s-gcrio.azureedge.net/hyperkube-amd64@sha256:00d814b1f7763f4ab5be80c58e98140dfc69df107f253d7fdd714b30a714260a   18 hours ago        Running             kube-proxy                 0
+</code></pre><p>ランニングコンテナをリストアップします:</p>
+<pre><code>crictl ps
+</code></pre><p>出力はこのようになります:</p>
+<pre><code>CONTAINER ID        IMAGE                                                                                                             CREATED             STATE               NAME                       ATTEMPT
+1f73f2d81bf98       busybox@sha256:141c253bc4c3fd0a201d32dc1f493bcf3fff003b6df416dea4f41046e0f37d47                                   6 minutes ago       Running             sh                         1
+87d3992f84f74       nginx@sha256:d0a8828cccb73397acb0073bf34f4d7d8aa315263f1e7806bf8c55d8ac139d5f                                     7 minutes ago       Running             nginx                      0
+1941fb4da154f       k8s-gcrio.azureedge.net/hyperkube-amd64@sha256:00d814b1f7763f4ab5be80c58e98140dfc69df107f253d7fdd714b30a714260a   17 hours ago        Running             kube-proxy                 0
+</code></pre><h3 id="実行中のコンテナでコマンドの実行">実行中のコンテナでコマンドの実行</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl <span style="color:#a2f">exec</span> -i -t 1f73f2d81bf98 ls
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>bin   dev   etc   home  proc  root  sys   tmp   usr   var
+</code></pre><h3 id="コンテナログの取得">コンテナログの取得</h3>
+<p>すべてのコンテナログを取得します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl logs 87d3992f84f74
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>10.240.0.96 - - [06/Jun/2018:02:45:49 +0000] &quot;GET / HTTP/1.1&quot; 200 612 &quot;-&quot; &quot;curl/7.47.0&quot; &quot;-&quot;
+10.240.0.96 - - [06/Jun/2018:02:45:50 +0000] &quot;GET / HTTP/1.1&quot; 200 612 &quot;-&quot; &quot;curl/7.47.0&quot; &quot;-&quot;
+10.240.0.96 - - [06/Jun/2018:02:45:51 +0000] &quot;GET / HTTP/1.1&quot; 200 612 &quot;-&quot; &quot;curl/7.47.0&quot; &quot;-&quot;
+</code></pre><p>最新の<code>N</code>行のログのみを取得します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl logs --tail<span style="color:#666">=</span><span style="color:#666">1</span> 87d3992f84f74
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>10.240.0.96 - - [06/Jun/2018:02:45:51 +0000] &quot;GET / HTTP/1.1&quot; 200 612 &quot;-&quot; &quot;curl/7.47.0&quot; &quot;-&quot;
+</code></pre><h3 id="podサンドボックスの実行">Podサンドボックスの実行</h3>
+<p><code>crictl</code>を使ってPodサンドボックスを実行することは、コンテナのランタイムをデバッグするのに便利です。
+稼働中のKubernetesクラスタでは、サンドボックスは最終的にKubeletによって停止され、削除されます。</p>
+<ol>
+<li>
+<p>以下のようなJSONファイルを作成します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#008000;font-weight:bold">&#34;metadata&#34;</span>: {
+        <span style="color:#008000;font-weight:bold">&#34;name&#34;</span>: <span style="color:#b44">&#34;nginx-sandbox&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;namespace&#34;</span>: <span style="color:#b44">&#34;default&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;attempt&#34;</span>: <span style="color:#666">1</span>,
+        <span style="color:#008000;font-weight:bold">&#34;uid&#34;</span>: <span style="color:#b44">&#34;hdishd83djaidwnduwk28bcsb&#34;</span>
+    },
+    <span style="color:#008000;font-weight:bold">&#34;logDirectory&#34;</span>: <span style="color:#b44">&#34;/tmp&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;linux&#34;</span>: {
+    }
+}
+</code></pre></div></li>
+<li>
+<p>JSONを適用してサンドボックスを実行するには、<code>crictl runp</code>コマンドを使用します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl runp pod-config.json
+</code></pre></div><p>サンドボックスのIDが返されます。</p>
+</li>
+</ol>
+<h3 id="コンテナの作成">コンテナの作成</h3>
+<p>コンテナの作成に<code>crictl</code>を使うと、コンテナのランタイムをデバッグするのに便利です。
+稼働中のKubernetesクラスタでは、サンドボックスは最終的にKubeletによって停止され、削除されます。</p>
+<ol>
+<li>
+<p>busyboxイメージをプルします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl pull busybox
+Image is up to date <span style="color:#a2f;font-weight:bold">for</span> busybox@sha256:141c253bc4c3fd0a201d32dc1f493bcf3fff003b6df416dea4f41046e0f37d47
+</code></pre></div></li>
+<li>
+<p>Podとコンテナのコンフィグを作成します:</p>
+<p><strong>Pod config</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">&#34;metadata&#34;: </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">&#34;name&#34;: </span><span style="color:#b44">&#34;nginx-sandbox&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">&#34;namespace&#34;: </span><span style="color:#b44">&#34;default&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">&#34;attempt&#34;: </span><span style="color:#666">1</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">&#34;uid&#34;: </span><span style="color:#b44">&#34;hdishd83djaidwnduwk28bcsb&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>},<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">&#34;log_directory&#34;: </span><span style="color:#b44">&#34;/tmp&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">&#34;linux&#34;: </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div><p><strong>Container config</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">&#34;metadata&#34;: </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">&#34;name&#34;: </span><span style="color:#b44">&#34;busybox&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>},<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#b44">&#34;image&#34;</span>:{<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">&#34;image&#34;: </span><span style="color:#b44">&#34;busybox&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>},<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">&#34;command&#34;: </span>[<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#b44">&#34;top&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>],<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#b44">&#34;log_path&#34;</span>:<span style="color:#b44">&#34;busybox.log&#34;</span>,<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">&#34;linux&#34;: </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div></li>
+<li>
+<p>先に作成されたPodのID、コンテナの設定ファイル、Podの設定ファイルを渡して、コンテナを作成します。コンテナのIDが返されます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl create f84dd361f8dc51518ed291fbadd6db537b0496536c1d2d6c05ff943ce8c9a54f container-config.json pod-config.json
+</code></pre></div></li>
+<li>
+<p>すべてのコンテナをリストアップし、新しく作成されたコンテナの状態が<code>Created</code>に設定されていることを確認します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl ps -a
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>CONTAINER ID        IMAGE               CREATED             STATE               NAME                ATTEMPT
+3e025dd50a72d       busybox             32 seconds ago      Created             busybox             0
+</code></pre></li>
+</ol>
+<h3 id="コンテナの起動">コンテナの起動</h3>
+<p>コンテナを起動するには、そのコンテナのIDを<code>crictl start</code>に渡します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl start 3e025dd50a72d956c4f14881fbb5b1080c9275674e95fb67f965f6478a957d60
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>3e025dd50a72d956c4f14881fbb5b1080c9275674e95fb67f965f6478a957d60
+</code></pre><p>コンテナの状態が「Running」に設定されていることを確認します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">crictl ps
+</code></pre></div><p>出力はこのようになります:</p>
+<pre><code>CONTAINER ID        IMAGE               CREATED              STATE               NAME                ATTEMPT
+3e025dd50a72d       busybox             About a minute ago   Running             busybox             0
+</code></pre><!-- discussion -->
+<p>詳しくは<a href="https://github.com/kubernetes-sigs/cri-tools">kubernetes-sigs/cri-tools</a>をご覧ください。</p>
+<h2 id="docker-cliからcrictlへのマッピング">docker cliからcrictlへのマッピング</h2>
+<p>以下のマッピング表の正確なバージョンは、<code>docker cli v1.40</code>と<code>crictl v1.19.0</code>のものです。
+この一覧はすべてを網羅しているわけではないことに注意してください。
+たとえば、<code>docker cli</code>の実験的なコマンドは含まれていません。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> CRICTLの出力形式はDocker CLIと似ていますが、いくつかのCLIでは列が欠けています。
+</div>
+<h3 id="デバッグ情報の取得">デバッグ情報の取得</h3>
+
+
+
+
+
+<table><caption style="display: none;">mapping from docker cli to crictl - retrieve debugging information</caption>
+<thead>
+<tr>
+<th>docker cli</th>
+<th>crictl</th>
+<th>説明</th>
+<th>サポートされていない機能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attach</code></td>
+<td><code>attach</code></td>
+<td>実行中のコンテナにアタッチ</td>
+<td><code>--detach-keys</code>, <code>--sig-proxy</code></td>
+</tr>
+<tr>
+<td><code>exec</code></td>
+<td><code>exec</code></td>
+<td>実行中のコンテナでコマンドの実行</td>
+<td><code>--privileged</code>, <code>--user</code>, <code>--detach-keys</code></td>
+</tr>
+<tr>
+<td><code>images</code></td>
+<td><code>images</code></td>
+<td>イメージのリストアップ</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td><code>info</code></td>
+<td>システム全体の情報の表示</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>inspect</code></td>
+<td><code>inspect</code>, <code>inspecti</code></td>
+<td>コンテナ、イメージ、タスクの低レベルの情報を返します</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>logs</code></td>
+<td><code>logs</code></td>
+<td>コンテナのログを取得します</td>
+<td><code>--details</code></td>
+</tr>
+<tr>
+<td><code>ps</code></td>
+<td><code>ps</code></td>
+<td>コンテナのリストアップ</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>stats</code></td>
+<td><code>stats</code></td>
+<td>コンテナのリソース使用状況をライブで表示</td>
+<td>Column: NET/BLOCK I/O, PIDs</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>version</code></td>
+<td>ランタイム(Docker、ContainerD、その他)のバージョン情報を表示します</td>
+<td> </td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="変更を行います">変更を行います</h3>
+
+
+
+
+
+<table><caption style="display: none;">mapping from docker cli to crictl - perform changes</caption>
+<thead>
+<tr>
+<th>docker cli</th>
+<th>crictl</th>
+<th>説明</th>
+<th>サポートされていない機能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create</code></td>
+<td><code>create</code></td>
+<td>新しいコンテナを作成します</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>kill</code></td>
+<td><code>stop</code> (timeout = 0)</td>
+<td>1つ以上の実行中のコンテナを停止します</td>
+<td><code>--signal</code></td>
+</tr>
+<tr>
+<td><code>pull</code></td>
+<td><code>pull</code></td>
+<td>レジストリーからイメージやリポジトリをプルします</td>
+<td><code>--all-tags</code>, <code>--disable-content-trust</code></td>
+</tr>
+<tr>
+<td><code>rm</code></td>
+<td><code>rm</code></td>
+<td>1つまたは複数のコンテナを削除します</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>rmi</code></td>
+<td><code>rmi</code></td>
+<td>1つまたは複数のイメージを削除します</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td><code>run</code></td>
+<td>新しいコンテナでコマンドを実行</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td><code>start</code></td>
+<td>停止した1つまたは複数のコンテナを起動</td>
+<td><code>--detach-keys</code></td>
+</tr>
+<tr>
+<td><code>stop</code></td>
+<td><code>stop</code></td>
+<td>実行中の1つまたは複数のコンテナの停止</td>
+<td> </td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td><code>update</code></td>
+<td>1つまたは複数のコンテナの構成を更新</td>
+<td><code>--restart</code>、<code>--blkio-weight</code>とその他</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="crictlでのみ対応">crictlでのみ対応</h3>
+
+
+
+
+
+<table><caption style="display: none;">mapping from docker cli to crictl - supported only in crictl</caption>
+<thead>
+<tr>
+<th>crictl</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>imagefsinfo</code></td>
+<td>イメージファイルシステムの情報を返します</td>
+</tr>
+<tr>
+<td><code>inspectp</code></td>
+<td>1つまたは複数のPodの状態を表示します</td>
+</tr>
+<tr>
+<td><code>port-forward</code></td>
+<td>ローカルポートをPodに転送します</td>
+</tr>
+<tr>
+<td><code>runp</code></td>
+<td>新しいPodを実行します</td>
+</tr>
+<tr>
+<td><code>rmp</code></td>
+<td>1つまたは複数のPodを削除します</td>
+</tr>
+<tr>
+<td><code>stopp</code></td>
+<td>稼働中の1つまたは複数のPodを停止します</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-06bb252f25983de12f635c806d180d30">2 - Initコンテナのデバッグ</h1>
+    
+	<!-- overview -->
+<p>このページでは、Initコンテナの実行に関連する問題を調査する方法を説明します。以下のコマンドラインの例では、Podを<code>&lt;pod-name&gt;</code>、Initコンテナを<code>&lt;init-container-1&gt;</code>および<code>&lt;init-container-2&gt;</code>として参照しています。</p>
+<h2 id="始める前に">始める前に</h2>
+<p><p>Kubernetesクラスターが必要、かつそのクラスターと通信するためにkubectlコマンドラインツールが設定されている必要があります。
+このチュートリアルは、コントロールプレーンのホストとして動作していない少なくとも2つのノードを持つクラスターで実行することをおすすめします。
+まだクラスターがない場合、<a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">minikube</a>を使って作成するか、
+以下のいずれかのKubernetesプレイグラウンドも使用できます:</p>
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">Play with Kubernetes</a></li>
+</ul>
+ 
+ バージョンを確認するには次のコマンドを実行してください: <code>kubectl version</code>.
+</p>
+<ul>
+<li><a href="/ja/docs/concepts/workloads/pods/init-containers/">Initコンテナ</a>の基本を理解しておきましょう。</li>
+<li><a href="/docs/tasks/configure-pod-container/configure-pod-initialization/#creating-a-pod-that-has-an-init-container/">Initコンテナを設定</a>しておきましょう。</li>
+</ul>
+<!-- steps -->
+<h2 id="initコンテナのステータスを確認する">Initコンテナのステータスを確認する</h2>
+<p>Podのステータスを表示します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod &lt;pod-name&gt;
+</code></pre></div><p>たとえば、<code>Init：1/2</code>というステータスは、2つのInitコンテナのうちの1つが正常に完了したことを示します。</p>
+<pre><code>NAME         READY     STATUS     RESTARTS   AGE
+&lt;pod-name&gt;   0/1       Init:1/2   0          7s
+</code></pre><p>ステータス値とその意味の例については、<a href="#understanding-pod-status">Podのステータスを理解する</a>を参照してください。</p>
+<h2 id="initコンテナの詳細を取得する">Initコンテナの詳細を取得する</h2>
+<p>Initコンテナの実行に関する詳細情報を表示します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe pod &lt;pod-name&gt;
+</code></pre></div><p>たとえば、2つのInitコンテナを持つPodでは、次のように表示されます:</p>
+<pre><code>Init Containers:
+  &lt;init-container-1&gt;:
+    Container ID:    ...
+    ...
+    State:           Terminated
+      Reason:        Completed
+      Exit Code:     0
+      Started:       ...
+      Finished:      ...
+    Ready:           True
+    Restart Count:   0
+    ...
+  &lt;init-container-2&gt;:
+    Container ID:    ...
+    ...
+    State:           Waiting
+      Reason:        CrashLoopBackOff
+    Last State:      Terminated
+      Reason:        Error
+      Exit Code:     1
+      Started:       ...
+      Finished:      ...
+    Ready:           False
+    Restart Count:   3
+    ...
+</code></pre><p>また、Pod Specの<code>status.initContainerStatuses</code>フィールドを読むことでプログラムでInitコンテナのステータスにアクセスすることもできます。:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod nginx --template <span style="color:#b44">&#39;{{.status.initContainerStatuses}}&#39;</span>
+</code></pre></div><p>このコマンドは生のJSONで上記と同じ情報を返します。</p>
+<h2 id="initコンテナのログにアクセスする">Initコンテナのログにアクセスする</h2>
+<p>ログにアクセスするには、Initコンテナ名とPod名を渡します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl logs &lt;pod-name&gt; -c &lt;init-container-2&gt;
+</code></pre></div><p>シェルスクリプトを実行するInitコンテナは、実行時にコマンドを出力します。たとえば、スクリプトの始めに<code>set -x</code>を実行することでBashで同じことができます。</p>
+<!-- discussion -->
+<h2 id="understanding-pod-status">Podのステータスを理解する</h2>
+<p><code>Init：</code>で始まるPodステータスはInitコンテナの実行ステータスを要約します。以下の表は、Initコンテナのデバッグ中に表示される可能性のあるステータス値の例をいくつか示しています。</p>
+<table>
+<thead>
+<tr>
+<th>ステータス</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Init:N/M</code></td>
+<td>Podは<code>M</code>個のInitコンテナを持ち、これまでに<code>N</code>個完了しました。</td>
+</tr>
+<tr>
+<td><code>Init:Error</code></td>
+<td>Initコンテナが実行に失敗しました。</td>
+</tr>
+<tr>
+<td><code>Init:CrashLoopBackOff</code></td>
+<td>Initコンテナが繰り返し失敗しました。</td>
+</tr>
+<tr>
+<td><code>Pending</code></td>
+<td>PodはまだInitコンテナの実行を開始していません。</td>
+</tr>
+<tr>
+<td><code>PodInitializing</code> or <code>Running</code></td>
+<td>PodはすでにInitコンテナの実行を終了しています。</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-858517cd46a1b5a1fd2e650edd785cea">3 - PodとReplicationControllerのデバッグ</h1>
+    
+	<!-- overview -->
+<p>このページでは、PodとReplicationControllerをデバッグする方法を説明します。</p>
+<h2 id="始める前に">始める前に</h2>
+<p><p>Kubernetesクラスターが必要、かつそのクラスターと通信するためにkubectlコマンドラインツールが設定されている必要があります。
+このチュートリアルは、コントロールプレーンのホストとして動作していない少なくとも2つのノードを持つクラスターで実行することをおすすめします。
+まだクラスターがない場合、<a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">minikube</a>を使って作成するか、
+以下のいずれかのKubernetesプレイグラウンドも使用できます:</p>
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">Play with Kubernetes</a></li>
+</ul>
+ 
+ バージョンを確認するには次のコマンドを実行してください: <code>kubectl version</code>.
+</p>
+<ul>
+<li><a href="/ja/docs/concepts/workloads/pods/pod/">Pod</a>と<a href="/ja/docs/concepts/workloads/pods/pod-lifecycle/">Podのライフサイクル</a>の基本を理解している必要があります。</li>
+</ul>
+<!-- steps -->
+<h2 id="podのデバッグ">Podのデバッグ</h2>
+<p>Podのデバッグの最初のステップは、Podを調べることです。
+次のコマンドで、Podの現在の状態と最近のイベントを確認して下さい。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe pods <span style="color:#b68;font-weight:bold">${</span><span style="color:#b8860b">POD_NAME</span><span style="color:#b68;font-weight:bold">}</span>
+</code></pre></div><p>Pod内のコンテナの状態を確認します。
+コンテナはすべて<code>Running</code>状態ですか？最近再起動はしましたか？</p>
+<p>Podの状態に応じてデバッグを続けます。</p>
+<h3 id="podがpending状態にとどまっている">PodがPending状態にとどまっている</h3>
+<p>Podが<code>Pending</code>状態でスタックしている場合、ノードにスケジュールできていないことを意味します。
+一般的に、これは、何らかのタイプのリソースが不足しており、それによってスケジューリングを妨げられているためです。
+上述の<code>kubectl describe...</code>コマンドの出力を確認してください。
+Podをスケジュールできない理由に関するスケジューラーからのメッセージがあるはずです。
+理由としては以下のようなものがあります。</p>
+<h4 id="リソースが不十分">リソースが不十分</h4>
+<p>クラスター内のCPUまたはメモリーの供給を使い果たした可能性があります。
+この場合、いくつかのことを試すことができます。</p>
+<ul>
+<li>
+<p>クラスターにノードを追加します。</p>
+</li>
+<li>
+<p><a href="/docs/concepts/workloads/pods/#pod-termination">不要なPodを終了</a>して、
+<code>Pending</code>状態のPodのための空きリソースを作ります。</p>
+</li>
+<li>
+<p>Podがノードよりも大きくないことを確認します。
+例えば、すべてのノードのキャパシティーが<code>cpu: 1</code>の場合、<code>cpu: 1.1</code>を要求するPodは決してスケジュールされません。</p>
+<p><code>kubectl get nodes -o &lt;format&gt;</code>コマンドでノードのキャパシティーを確認できます。
+必要な情報を抽出するコマンドラインの例を以下に示します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get nodes -o yaml | egrep <span style="color:#b44">&#39;\sname:|cpu:|memory:&#39;</span>
+kubectl get nodes -o json | jq <span style="color:#b44">&#39;.items[] | {name: .metadata.name, cap: .status.capacity}&#39;</span>
+</code></pre></div><p><a href="/docs/concepts/policy/resource-quotas/">リソースクォータ</a>機能では、
+消費できるリソースの合計量を制限するように構成できます。
+Namespaceと組み合わせて使用すると、1つのチームがすべてのリソースを占有することを防ぐことができます。</p>
+</li>
+</ul>
+<h4 id="hostportの使用">hostPortの使用</h4>
+<p>Podを<code>hostPort</code>にバインドすると、Podをスケジュールできる場所の数が制限されます。
+ほとんどの場合、<code>hostPort</code>は不要です。Serviceオブジェクトを使用してPodを公開してください。
+どうしても<code>hostPort</code>が必要な場合は、コンテナクラスター内のノードと同じ数のPodのみをスケジュールできます。</p>
+<h3 id="podがwaiting状態にとどまっている">PodがWaiting状態にとどまっている</h3>
+<p>Podが<code>Waiting</code>状態でスタックしている場合、Podはワーカーノードにスケジュールされていますが、そのマシンでは実行できない状態です。
+この場合も、<code>kubectl describe ...</code>の情報が参考になるはずです。
+Podが<code>Waiting</code>状態となる最も一般的な原因は、イメージをプルできないことです。
+確認すべき事項が3つあります。</p>
+<ul>
+<li>イメージの名前が正しいことを確認して下さい。</li>
+<li>イメージはリポジトリーにプッシュしましたか？</li>
+<li>マシンで手動で<code>docker pull &lt;image&gt;</code>を実行し、イメージをプルできるかどうかを確認して下さい。</li>
+</ul>
+<h3 id="podがクラッシュする-あるいはunhealthy状態">Podがクラッシュする、あるいはUnhealthy状態</h3>
+<p>Podがスケジュールされると、<a href="/docs/tasks/debug-application-cluster/debug-running-pod/">動作中のPodをデバッグする</a>に説明されている方法がデバッグに使用可能です。</p>
+<h2 id="replicationcontrollerのデバッグ">ReplicationControllerのデバッグ</h2>
+<p>ReplicationControllerはかなり明快です。Podを作成できるか、できないかのどちらかです。
+Podを作成できない場合は、<a href="#Pod%E3%81%AE%E3%83%87%E3%83%90%E3%83%83%E3%82%B0">上述の手順</a>を参照してPodをデバッグしてください。</p>
+<p><code>kubectl describe rc ${CONTROLLER_NAME}</code>を使用して、レプリケーションコントローラーに関連するイベントを調べることもできます。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-ef360b1f8e65236251826db478cfcab3">4 - Pod障害の原因を特定する</h1>
+    
+	<!-- overview -->
+<p>このページでは、コンテナ終了メッセージの読み書き方法を説明します。</p>
+<p>終了メッセージは、致命的なイベントに関する情報を、ダッシュボードや監視ソフトウェアなどのツールで簡単に取得して表示できる場所にコンテナが書き込むための手段を提供します。 ほとんどの場合、終了メッセージに入力した情報も一般的な<a href="/docs/concepts/cluster-administration/logging/">Kubernetesログ</a>に書き込まれるはずです。</p>
+<h2 id="始める前に">始める前に</h2>
+<p><p>Kubernetesクラスターが必要、かつそのクラスターと通信するためにkubectlコマンドラインツールが設定されている必要があります。
+このチュートリアルは、コントロールプレーンのホストとして動作していない少なくとも2つのノードを持つクラスターで実行することをおすすめします。
+まだクラスターがない場合、<a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">minikube</a>を使って作成するか、
+以下のいずれかのKubernetesプレイグラウンドも使用できます:</p>
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">Play with Kubernetes</a></li>
+</ul>
+ 
+ バージョンを確認するには次のコマンドを実行してください: <code>kubectl version</code>.
+</p>
+<!-- steps -->
+<h2 id="終了メッセージの書き込みと読み取り">終了メッセージの書き込みと読み取り</h2>
+<p>この課題では、1つのコンテナを実行するPodを作成します。
+設定ファイルには、コンテナの開始時に実行されるコマンドを指定します。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ja/examples/debug/termination.yaml" download="debug/termination.yaml"><code>debug/termination.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('debug-termination-yaml')" title="Copy debug/termination.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="debug-termination-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>termination-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>termination-demo-container<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>debian<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">command</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;/bin/sh&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">args</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;-c&#34;</span>,<span style="color:#bbb"> </span><span style="color:#b44">&#34;sleep 10 &amp;&amp; echo Sleep expired &gt; /dev/termination-log&#34;</span>]<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<ol>
+<li>
+<p>YAML設定ファイルに基づいてPodを作成します:</p>
+<pre><code> kubectl apply -f https://k8s.io/examples/debug/termination.yaml
+</code></pre>
+<p>YAMLファイルの<code>command</code>フィールドと<code>args</code>フィールドで、コンテナが10秒間スリープしてから<code>/dev/termination-log</code>ファイルに「Sleep expired」と書いているのがわかります。コンテナが「Sleep expired」メッセージを書き込んだ後、コンテナは終了します。</p>
+</li>
+<li>
+<p>Podに関する情報を表示します:</p>
+<pre><code> kubectl get pod termination-demo
+</code></pre>
+<p>Podが実行されなくなるまで、上記のコマンドを繰り返します。</p>
+</li>
+<li>
+<p>Podに関する詳細情報を表示します:</p>
+<pre><code> kubectl get pod termination-demo --output=yaml
+</code></pre>
+<p>出力には「Sleep expired」メッセージが含まれています:</p>
+<pre><code> apiVersion: v1
+ kind: Pod
+ ...
+     lastState:
+       terminated:
+         containerID: ...
+         exitCode: 0
+         finishedAt: ...
+         message: |
+           Sleep expired
+         ...
+</code></pre>
+</li>
+<li>
+<p>Goテンプレートを使用して、終了メッセージのみが含まれるように出力をフィルタリングします:</p>
+<pre><code> kubectl get pod termination-demo -o go-template=&quot;{{range .status.containerStatuses}}{{.lastState.terminated.message}}{{end}}&quot;
+</code></pre>
+</li>
+</ol>
+<h2 id="終了メッセージのカスタマイズ">終了メッセージのカスタマイズ</h2>
+<p>Kubernetesは、コンテナの<code>terminationMessagePath</code>フィールドで指定されている終了メッセージファイルから終了メッセージを取得します。デフォルト値は<code>/dev/termination-log</code>です。このフィールドをカスタマイズすることで、Kubernetesに別のファイルを使うように指示できます。Kubernetesは指定されたファイルの内容を使用して、成功と失敗の両方についてコンテナのステータスメッセージを入力します。</p>
+<p>終了メッセージはアサーションエラーメッセージのように、最終状態を簡潔に示します。kubeletは4096バイトより長いメッセージは切り詰めます。全コンテナの合計メッセージの長さの上限は12キビバイトです。デフォルトの終了メッセージのパスは<code>/dev/termination-log</code>です。Pod起動後に終了メッセージのパスを設定することはできません。</p>
+<p>次の例では、コンテナはKubernetesが取得するために終了メッセージを<code>/tmp/my-log</code>に書き込みます:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>msg-path-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>msg-path-demo-container<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>debian<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">terminationMessagePath</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;/tmp/my-log&#34;</span><span style="color:#bbb">
+</span></code></pre></div><p>さらに、ユーザーは追加のカスタマイズをするためにContainerの<code>terminationMessagePolicy</code>フィールドを設定できます。このフィールドのデフォルト値は<code>File</code>です。これは、終了メッセージが終了メッセージファイルからのみ取得されることを意味します。<code>terminationMessagePolicy</code>を<code>FallbackToLogsOnError</code>に設定することで、終了メッセージファイルが空でコンテナがエラーで終了した場合に、コンテナログ出力の最後のチャンクを使用するようにKubernetesに指示できます。ログ出力は、2048バイトまたは80行のどちらか小さい方に制限されています。</p>
+<h2 id="次の項目">次の項目</h2>
+<ul>
+<li><a href="/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core">コンテナ</a>の<code>terminationMessagePath</code>フィールド参照</li>
+<li><a href="/docs/concepts/cluster-administration/logging/">ログ取得</a>について</li>
+<li><a href="https://golang.org/pkg/text/template/">Goテンプレート</a>について</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-f79645981e310858111bd5673614cab6">5 - Serviceのデバッグ</h1>
+    
+	<!-- overview -->
+<p>新規にKubernetesをインストールした環境でかなり頻繁に発生する問題は、Serviceが適切に機能しないというものです。Deployment(または他のワークロードコントローラー)を通じてPodを実行し、サービスを作成したにもかかわらず、アクセスしようとしても応答がありません。何が問題になっているのかを理解するのに、このドキュメントがきっと役立つでしょう。</p>
+<!-- body -->
+<h2 id="pod内でコマンドを実行する">Pod内でコマンドを実行する</h2>
+<p>ここでの多くのステップでは、クラスターで実行されているPodが見ているものを確認する必要があります。これを行う最も簡単な方法は、インタラクティブなalpineのPodを実行することです。</p>
+<pre><code class="language-none" data-lang="none">kubectl run -it --rm --restart=Never alpine --image=alpine sh
+</code></pre><div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> コマンドプロンプトが表示されない場合は、Enterキーを押してみてください。
+</div>
+<p>使用したい実行中のPodがすでにある場合は、以下のようにしてそのPod内でコマンドを実行できます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">exec</span> &lt;POD-NAME&gt; -c &lt;CONTAINER-NAME&gt; -- &lt;COMMAND&gt;
+</code></pre></div><h2 id="セットアップ">セットアップ</h2>
+<p>このドキュメントのウォークスルーのために、いくつかのPodを実行しましょう。おそらくあなた自身のServiceをデバッグしているため、あなた自身の詳細に置き換えることもできますし、これに沿って2番目のデータポイントを取得することもできます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create deployment hostnames --image<span style="color:#666">=</span>k8s.gcr.io/serve_hostname
+</code></pre></div><pre><code class="language-none" data-lang="none">deployment.apps/hostnames created
+</code></pre><p><code>kubectl</code>コマンドは作成、変更されたリソースのタイプと名前を出力するため、この後のコマンドで使用することもできます。</p>
+<p>Deploymentを3つのレプリカにスケールさせてみましょう。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl scale deployment hostnames --replicas<span style="color:#666">=</span><span style="color:#666">3</span>
+</code></pre></div><pre><code class="language-none" data-lang="none">deployment.apps/hostnames scaled
+</code></pre><p>これは、次のYAMLでDeploymentを開始した場合と同じです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>k8s.gcr.io/serve_hostname<span style="color:#bbb">
+</span></code></pre></div><p>&quot;app&quot;ラベルは<code>kubectl create deployment</code>によって、Deploymentの名前に自動的にセットされます。</p>
+<p>Podが実行されていることを確認できます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME                        READY     STATUS    RESTARTS   AGE
+hostnames-632524106-bbpiw   1/1       Running   0          2m
+hostnames-632524106-ly40y   1/1       Running   0          2m
+hostnames-632524106-tlaok   1/1       Running   0          2m
+</code></pre><p>Podが機能していることも確認できます。Pod IP アドレスリストを取得し、直接テストできます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>hostnames <span style="color:#b62;font-weight:bold">\
+</span><span style="color:#b62;font-weight:bold"></span>    -o go-template<span style="color:#666">=</span><span style="color:#b44">&#39;{{range .items}}{{.status.podIP}}{{&#34;\n&#34;}}{{end}}&#39;</span>
+</code></pre></div><pre><code class="language-none" data-lang="none">10.244.0.5
+10.244.0.6
+10.244.0.7
+</code></pre><p>このウォークスルーに使用されるサンプルコンテナは、ポート9376でHTTPを介して独自のホスト名を提供するだけですが、独自のアプリをデバッグする場合は、Podがリッスンしているポート番号を使用する必要があります。</p>
+<p>Pod内から実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#a2f;font-weight:bold">for</span> ep in 10.244.0.5:9376 10.244.0.6:9376 10.244.0.7:9376; <span style="color:#a2f;font-weight:bold">do</span>
+    wget -qO- <span style="color:#b8860b">$ep</span>
+<span style="color:#a2f;font-weight:bold">done</span>
+</code></pre></div><p>次のように表示されます。</p>
+<pre><code>hostnames-632524106-bbpiw
+hostnames-632524106-ly40y
+hostnames-632524106-tlaok
+</code></pre><p>この時点で期待通りの応答が得られない場合、Podが正常でないか、想定しているポートでリッスンしていない可能性があります。なにが起きているかを確認するために<code>kubectl logs</code>が役立ちます。Podに直接に入りデバッグする場合は<code>kubectl exec</code>が必要になります。</p>
+<p>これまでにすべての計画が完了していると想定すると、Serviceが機能しない理由を調査することができます。</p>
+<h2 id="serviceは存在するか">Serviceは存在するか？</h2>
+<p>賢明な読者は、Serviceをまだ実際に作成していないことにお気付きかと思いますが、これは意図的です。これは時々忘れられるステップであり、最初に確認すべきことです。</p>
+<p>存在しないServiceにアクセスしようとするとどうなるでしょうか？このServiceを名前で利用する別のPodがあると仮定すると、次のような結果が得られます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">wget -O- hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">Resolving hostnames (hostnames)... failed: Name or service not known.
+wget: unable to resolve host address 'hostnames'
+</code></pre><p>最初に確認するのは、そのServiceが実際に存在するかどうかです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get svc hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">No resources found.
+Error from server (NotFound): services &quot;hostnames&quot; not found
+</code></pre><p>Serviceを作成しましょう。前と同様に、これはウォークスルー用です。ご自身のServiceの詳細を使用することもできます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl expose deployment hostnames --port<span style="color:#666">=</span><span style="color:#666">80</span> --target-port<span style="color:#666">=</span><span style="color:#666">9376</span>
+</code></pre></div><pre><code class="language-none" data-lang="none">service/hostnames exposed
+</code></pre><p>そして、念のため内容を確認します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get svc hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME        TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+hostnames   ClusterIP   10.0.1.175   &lt;none&gt;        80/TCP    5s
+</code></pre><p>これで、Serviceが存在することがわかりました。</p>
+<p>前と同様に、これは次のようなYAMLでServiceを開始した場合と同じです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Service<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>hostnames<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">protocol</span>:<span style="color:#bbb"> </span>TCP<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">port</span>:<span style="color:#bbb"> </span><span style="color:#666">80</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">targetPort</span>:<span style="color:#bbb"> </span><span style="color:#666">9376</span><span style="color:#bbb">
+</span></code></pre></div><p>構成の全範囲をハイライトするため、ここで作成したServiceはPodとは異なるポート番号を使用します。多くの実際のServiceでは、これらのポートは同じになる場合があります。</p>
+<h2 id="サービスはdns名によって機能しているか">サービスはDNS名によって機能しているか？</h2>
+<p>クライアントがサービスを使用する最も一般的な方法の1つは、DNS名を使用することです。同じNamespaceのPodから次のコマンドを実行してください。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nslookup hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      hostnames
+Address 1: 10.0.1.175 hostnames.default.svc.cluster.local
+</code></pre><p>これが失敗した場合、おそらくPodとServiceが異なるNamespaceにあるため、ネームスペースで修飾された名前を試してください。(Podの中からもう一度)</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nslookup hostnames.default
+</code></pre></div><pre><code class="language-none" data-lang="none">Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      hostnames.default
+Address 1: 10.0.1.175 hostnames.default.svc.cluster.local
+</code></pre><p>これが機能する場合、クロスネームスペース名を使用するようにアプリケーションを調整するか、同じNamespaceでアプリとServiceを実行する必要があります。これでも失敗する場合は、完全修飾名を試してください。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nslookup hostnames.default.svc.cluster.local
+</code></pre></div><pre><code class="language-none" data-lang="none">Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      hostnames.default.svc.cluster.local
+Address 1: 10.0.1.175 hostnames.default.svc.cluster.local
+</code></pre><p>ここでのサフィックス&quot;default.svc.cluster.local&quot;に注意してください。&quot;default&quot;は、操作しているNamespaceです。&quot;svc&quot;は、これがServiceであることを示します。&quot;cluster.local&quot;はクラスタードメインであり、あなたのクラスターでは異なる場合があります。</p>
+<p>クラスター内のノードからも試すこともできます。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> 10.0.0.10はクラスターのDNSサービスのIPであり、あなたのクラスターでは異なるかもしれません。
+</div>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nslookup hostnames.default.svc.cluster.local 10.0.0.10
+</code></pre></div><pre><code class="language-none" data-lang="none">Server:         10.0.0.10
+Address:        10.0.0.10#53
+
+Name:   hostnames.default.svc.cluster.local
+Address: 10.0.1.175
+</code></pre><p>完全修飾名では検索できるのに、相対名ではできない場合、Podの<code>/etc/resolv.conf</code>ファイルが正しいことを確認する必要があります。Pod内から実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cat /etc/resolv.conf
+</code></pre></div><p>次のように表示されます。</p>
+<pre><code>nameserver 10.0.0.10
+search default.svc.cluster.local svc.cluster.local cluster.local example.com
+options ndots:5
+</code></pre><p>nameserver行はクラスターのDNS Serviceを示さなければなりません。これは、<code>--cluster-dns</code>フラグで<code>kubelet</code>に渡されます。</p>
+<p><code>search</code>行には、<code>Service</code>名を見つけるための適切なサフィックスを含める必要があります。この場合、ローカルの<code>Namespace</code>で<code>Service</code>を見つけるためのサフィックス(<code>default.svc.cluster.local</code>)、すべての<code>Namespaces</code>で<code>Service</code>を見つけるためのサフィックス(<code>svc.cluster.local</code>)、およびクラスターのサフィックス(<code>cluster.local</code>)です。インストール方法によっては、その後に追加のレコードがある場合があります(合計6つまで)。クラスターのサフィックスは、<code>--cluster-domain</code>フラグを使用して<code>kubelet</code>に渡されます。このドキュメントではそれが&quot;cluster.local&quot;であると仮定していますが、あなたのクラスターでは異なる場合があります。その場合は、上記のすべてのコマンドでクラスターのサフィックスを変更する必要があります。</p>
+<p><code>options</code>行では、DNSクライアントライブラリーが検索パスをまったく考慮しないように<code>ndots</code>を十分に高く設定する必要があります。Kubernetesはデフォルトでこれを5に設定します。これは、生成されるすべてのDNS名をカバーするのに十分な大きさです。</p>
+<h3 id="does-any-service-exist-in-dns">DNS名で機能するServiceはあるか？</h3>
+<p>上記がまだ失敗する場合、DNSルックアップがServiceに対して機能していません。一歩離れて、他の何が機能していないかを確認しましょう。KubernetesマスターのServiceは常に機能するはずです。Pod内から実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">nslookup kubernetes.default
+</code></pre></div><pre><code class="language-none" data-lang="none">Server:    10.0.0.10
+Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      kubernetes.default
+Address 1: 10.0.0.1 kubernetes.default.svc.cluster.local
+</code></pre><p>これが失敗する場合は、このドキュメントの<a href="#is-the-kube-proxy-working">kube-proxy</a>セクションを参照するか、このドキュメントの先頭に戻って最初からやり直してください。ただし、あなた自身のServiceをデバッグするのではなく、DNSサービスをデバッグします。</p>
+<h2 id="serviceはipでは機能するか">ServiceはIPでは機能するか？</h2>
+<p>DNSサービスが正しく動作できると仮定すると、次にテストするのはIPによってServiceが動作しているかどうかです。上述の<code>kubectl get</code>で確認できるIPに、クラスター内のPodからアクセスします。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#a2f;font-weight:bold">for</span> i in <span style="color:#a2f;font-weight:bold">$(</span>seq <span style="color:#666">1</span> 3<span style="color:#a2f;font-weight:bold">)</span>; <span style="color:#a2f;font-weight:bold">do</span>
+    wget -qO- 10.0.1.175:80
+<span style="color:#a2f;font-weight:bold">done</span>
+</code></pre></div><p>次のように表示されます。</p>
+<pre><code>hostnames-0uton
+hostnames-bvc05
+hostnames-yp2kp
+</code></pre><p>Serviceが機能している場合は、正しい応答が得られるはずです。そうでない場合、おかしい可能性のあるものがいくつかあるため、続けましょう。</p>
+<h2 id="serviceは正しく定義されているか">Serviceは正しく定義されているか？</h2>
+<p>馬鹿げているように聞こえるかもしれませんが、Serviceが正しく定義されPodのポートとマッチすることを二度、三度と確認すべきです。Serviceを読み返して確認しましょう。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get service hostnames -o json
+</code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#008000;font-weight:bold">&#34;kind&#34;</span>: <span style="color:#b44">&#34;Service&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;apiVersion&#34;</span>: <span style="color:#b44">&#34;v1&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;metadata&#34;</span>: {
+        <span style="color:#008000;font-weight:bold">&#34;name&#34;</span>: <span style="color:#b44">&#34;hostnames&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;namespace&#34;</span>: <span style="color:#b44">&#34;default&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;uid&#34;</span>: <span style="color:#b44">&#34;428c8b6c-24bc-11e5-936d-42010af0a9bc&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;resourceVersion&#34;</span>: <span style="color:#b44">&#34;347189&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;creationTimestamp&#34;</span>: <span style="color:#b44">&#34;2015-07-07T15:24:29Z&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;labels&#34;</span>: {
+            <span style="color:#008000;font-weight:bold">&#34;app&#34;</span>: <span style="color:#b44">&#34;hostnames&#34;</span>
+        }
+    },
+    <span style="color:#008000;font-weight:bold">&#34;spec&#34;</span>: {
+        <span style="color:#008000;font-weight:bold">&#34;ports&#34;</span>: [
+            {
+                <span style="color:#008000;font-weight:bold">&#34;name&#34;</span>: <span style="color:#b44">&#34;default&#34;</span>,
+                <span style="color:#008000;font-weight:bold">&#34;protocol&#34;</span>: <span style="color:#b44">&#34;TCP&#34;</span>,
+                <span style="color:#008000;font-weight:bold">&#34;port&#34;</span>: <span style="color:#666">80</span>,
+                <span style="color:#008000;font-weight:bold">&#34;targetPort&#34;</span>: <span style="color:#666">9376</span>,
+                <span style="color:#008000;font-weight:bold">&#34;nodePort&#34;</span>: <span style="color:#666">0</span>
+            }
+        ],
+        <span style="color:#008000;font-weight:bold">&#34;selector&#34;</span>: {
+            <span style="color:#008000;font-weight:bold">&#34;app&#34;</span>: <span style="color:#b44">&#34;hostnames&#34;</span>
+        },
+        <span style="color:#008000;font-weight:bold">&#34;clusterIP&#34;</span>: <span style="color:#b44">&#34;10.0.1.175&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;type&#34;</span>: <span style="color:#b44">&#34;ClusterIP&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;sessionAffinity&#34;</span>: <span style="color:#b44">&#34;None&#34;</span>
+    },
+    <span style="color:#008000;font-weight:bold">&#34;status&#34;</span>: {
+        <span style="color:#008000;font-weight:bold">&#34;loadBalancer&#34;</span>: {}
+    }
+}
+</code></pre></div><ul>
+<li>アクセスしようとしているServiceポートは<code>spec.ports[]</code>のリストのなかに定義されていますか？</li>
+<li><code>targetPort</code>はPodに対して適切ですか(いくつかのPodはServiceとは異なるポートを使用します)？</li>
+<li><code>targetPort</code>を数値で定義しようとしている場合、それは数値(9376)、文字列&quot;9376&quot;のどちらですか？</li>
+<li><code>targetPort</code>を名前で定義しようとしている場合、Podは同じ名前でポートを公開していますか？</li>
+<li>ポートの<code>protocol</code>はPodに適切ですか？</li>
+</ul>
+<h2 id="serviceにendpointsがあるか">ServiceにEndpointsがあるか？</h2>
+<p>ここまで来たということは、Serviceは正しく定義され、DNSによって名前解決できることが確認できているでしょう。ここでは、実行したPodがServiceによって実際に選択されていることを確認しましょう。</p>
+<p>以前に、Podが実行されていることを確認しました。再確認しましょう。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME                        READY     STATUS    RESTARTS   AGE
+hostnames-632524106-bbpiw   1/1       Running   0          1h
+hostnames-632524106-ly40y   1/1       Running   0          1h
+hostnames-632524106-tlaok   1/1       Running   0          1h
+</code></pre><p><code>-l app=hostnames</code>引数はラベルセレクターで、ちょうど私たちの<code>Service</code>に定義されているものと同じです。</p>
+<p>&quot;AGE&quot;列は、これらのPodが約1時間前のものであることを示しており、それらが正常に実行され、クラッシュしていないことを意味します。</p>
+<p>&quot;RESTARTS&quot;列は、これらのポッドが頻繁にクラッシュしたり、再起動されていないことを示しています。頻繁に再起動すると、断続的な接続性の問題が発生する可能性があります。再起動回数が多い場合は、<a href="/ja/docs/tasks/debug-application-cluster/debug-pod-replication-controller/#pod%E3%81%AE%E3%83%87%E3%83%90%E3%83%83%E3%82%B0">ポッドをデバッグする</a>を参照してください。</p>
+<p>Kubernetesシステム内には、すべてのServiceのセレクターを評価し、結果をEndpointsオブジェクトに保存するコントロールループがあります。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get endpoints hostnames
+
+NAME        ENDPOINTS
+hostnames   10.244.0.5:9376,10.244.0.6:9376,10.244.0.7:9376
+</code></pre></div><p>これにより、EndpointsコントローラーがServiceの正しいPodを見つけていることを確認できます。<code>ENDPOINTS</code>列が<code>&lt;none&gt;</code>の場合、Serviceの<code>spec.selector</code>フィールドが実際にPodの<code>metadata.labels</code>値を選択していることを確認する必要があります。よくある間違いは、タイプミスやその他のエラー、たとえばDeployment作成にも<code>kubectl run</code>が使われた1.18以前のバージョンのように、Serviceが<code>app=hostnames</code>を選択しているのにDeploymentが<code>run=hostnames</code>を指定していることです。</p>
+<h2 id="podは機能しているか">Podは機能しているか？</h2>
+<p>この時点で、Serviceが存在し、Podを選択していることがわかります。このウォークスルーの最初に、Pod自体を確認しました。Podが実際に機能していることを確認しましょう。Serviceメカニズムをバイパスして、上記EndpointsにリストされているPodに直接アクセスすることができます。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> これらのコマンドは、Serviceポート(80)ではなく、Podポート(9376)を使用します。
+</div>
+<p>Pod内から実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#a2f;font-weight:bold">for</span> ep in 10.244.0.5:9376 10.244.0.6:9376 10.244.0.7:9376; <span style="color:#a2f;font-weight:bold">do</span>
+    wget -qO- <span style="color:#b8860b">$ep</span>
+<span style="color:#a2f;font-weight:bold">done</span>
+</code></pre></div><p>次のように表示されます。</p>
+<pre><code>hostnames-632524106-bbpiw
+hostnames-632524106-ly40y
+hostnames-632524106-tlaok
+</code></pre><p>Endpointsリスト内の各Podは、それぞれの自身のホスト名を返すはずです。そうならない(または、あなた自身のPodの正しい振る舞いにならない)場合は、そこで何が起こっているのかを調査する必要があります。</p>
+<h2 id="is-the-kube-proxy-working">kube-proxyは機能しているか？</h2>
+<p>ここに到達したのなら、Serviceは実行され、Endpointsがあり、Podが実際にサービスを提供しています。この時点で、Serviceのプロキシーメカニズム全体が疑わしいです。ひとつひとつ確認しましょう。</p>
+<p>Serviceのデフォルト実装、およびほとんどのクラスターで使用されるものは、kube-proxyです。kube-proxyはそれぞれのノードで実行され、Serviceの抽象化を提供するための小さなメカニズムセットの1つを構成するプログラムです。クラスターがkube-proxyを使用しない場合、以下のセクションは適用されず、使用しているServiceの実装を調査する必要があります。</p>
+<h3 id="kube-proxyは実行されているか">kube-proxyは実行されているか？</h3>
+<p><code>kube-proxy</code>がノード上で実行されていることを確認しましょう。ノードで実行されていれば、以下のような結果が得られるはずです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ps auxw | grep kube-proxy
+</code></pre></div><pre><code class="language-none" data-lang="none"> root  4194  0.4  0.1 101864 17696 ?    Sl Jul04  25:43 /usr/local/bin/kube-proxy --master=https://kubernetes-master --kubeconfig=/var/lib/kube-proxy/kubeconfig --v=2
+</code></pre><p>次に、マスターとの接続など、明らかな失敗をしていないことを確認します。これを行うには、ログを確認する必要があります。ログへのアクセス方法は、ノードのOSに依存します。一部のOSでは/var/log/kube-proxy.logのようなファイルですが、他のOSでは<code>journalctl</code>を使用してログにアクセスします。次のように表示されます。</p>
+<pre><code class="language-none" data-lang="none">I1027 22:14:53.995134    5063 server.go:200] Running in resource-only container &quot;/kube-proxy&quot;
+I1027 22:14:53.998163    5063 server.go:247] Using iptables Proxier.
+I1027 22:14:53.999055    5063 server.go:255] Tearing down userspace rules. Errors here are acceptable.
+I1027 22:14:54.038140    5063 proxier.go:352] Setting endpoints for &quot;kube-system/kube-dns:dns-tcp&quot; to [10.244.1.3:53]
+I1027 22:14:54.038164    5063 proxier.go:352] Setting endpoints for &quot;kube-system/kube-dns:dns&quot; to [10.244.1.3:53]
+I1027 22:14:54.038209    5063 proxier.go:352] Setting endpoints for &quot;default/kubernetes:https&quot; to [10.240.0.2:443]
+I1027 22:14:54.038238    5063 proxier.go:429] Not syncing iptables until Services and Endpoints have been received from master
+I1027 22:14:54.040048    5063 proxier.go:294] Adding new service &quot;default/kubernetes:https&quot; at 10.0.0.1:443/TCP
+I1027 22:14:54.040154    5063 proxier.go:294] Adding new service &quot;kube-system/kube-dns:dns&quot; at 10.0.0.10:53/UDP
+I1027 22:14:54.040223    5063 proxier.go:294] Adding new service &quot;kube-system/kube-dns:dns-tcp&quot; at 10.0.0.10:53/TCP
+</code></pre><p>マスターに接続できないことに関するエラーメッセージが表示された場合、ノードの設定とインストール手順をダブルチェックする必要があります。</p>
+<p><code>kube-proxy</code>が正しく実行できない理由の可能性の1つは、必須の<code>conntrack</code>バイナリが見つからないことです。これは、例えばKubernetesをスクラッチからインストールするなど、クラスターのインストール方法に依存して、一部のLinuxシステムで発生する場合があります。これが該当する場合は、<code>conntrack</code>パッケージを手動でインストール(例: Ubuntuでは<code>sudo apt install conntrack</code>)する必要があり、その後に再試行する必要があります。</p>
+<p>kube-proxyは、いくつかのモードのいずれかで実行できます。上記のログの<code>Using iptables Proxier</code>という行は、kube-proxyが「iptables」モードで実行されていることを示しています。最も一般的な他のモードは「ipvs」です。古い「ユーザースペース」モードは、主にこれらに置き換えられました。</p>
+<h4 id="iptables-mode">Iptables mode</h4>
+<p>「iptables」モードでは、ノードに次のようなものが表示されます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">iptables-save | grep hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">-A KUBE-SEP-57KPRZ3JQVENLNBR -s 10.244.3.6/32 -m comment --comment &quot;default/hostnames:&quot; -j MARK --set-xmark 0x00004000/0x00004000
+-A KUBE-SEP-57KPRZ3JQVENLNBR -p tcp -m comment --comment &quot;default/hostnames:&quot; -m tcp -j DNAT --to-destination 10.244.3.6:9376
+-A KUBE-SEP-WNBA2IHDGP2BOBGZ -s 10.244.1.7/32 -m comment --comment &quot;default/hostnames:&quot; -j MARK --set-xmark 0x00004000/0x00004000
+-A KUBE-SEP-WNBA2IHDGP2BOBGZ -p tcp -m comment --comment &quot;default/hostnames:&quot; -m tcp -j DNAT --to-destination 10.244.1.7:9376
+-A KUBE-SEP-X3P2623AGDH6CDF3 -s 10.244.2.3/32 -m comment --comment &quot;default/hostnames:&quot; -j MARK --set-xmark 0x00004000/0x00004000
+-A KUBE-SEP-X3P2623AGDH6CDF3 -p tcp -m comment --comment &quot;default/hostnames:&quot; -m tcp -j DNAT --to-destination 10.244.2.3:9376
+-A KUBE-SERVICES -d 10.0.1.175/32 -p tcp -m comment --comment &quot;default/hostnames: cluster IP&quot; -m tcp --dport 80 -j KUBE-SVC-NWV5X2332I4OT4T3
+-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default/hostnames:&quot; -m statistic --mode random --probability 0.33332999982 -j KUBE-SEP-WNBA2IHDGP2BOBGZ
+-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default/hostnames:&quot; -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-X3P2623AGDH6CDF3
+-A KUBE-SVC-NWV5X2332I4OT4T3 -m comment --comment &quot;default/hostnames:&quot; -j KUBE-SEP-57KPRZ3JQVENLNBR
+</code></pre><p>各サービスのポートごとに、<code>KUBE-SERVICES</code>に1つのルールと1つの<code>KUBE-SVC- &lt;hash&gt;</code>チェーンが必要です。Podエンドポイントごとに、その<code>KUBE-SVC- &lt;hash&gt;</code>に少数のルールがあり、少数のルールが含まれる1つの<code>KUBE-SEP- &lt;hash&gt;</code>チェーンがあるはずです。正確なルールは、正確な構成(NodePortとLoadBalancerを含む)に基づいて異なります。</p>
+<h4 id="ipvs-mode">IPVS mode</h4>
+<p>「ipvs」モードでは、ノードに次のようなものが表示されます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ipvsadm -ln
+</code></pre></div><pre><code class="language-none" data-lang="none">Prot LocalAddress:Port Scheduler Flags
+  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn
+...
+TCP  10.0.1.175:80 rr
+  -&gt; 10.244.0.5:9376               Masq    1      0          0
+  -&gt; 10.244.0.6:9376               Masq    1      0          0
+  -&gt; 10.244.0.7:9376               Masq    1      0          0
+...
+</code></pre><p>各Serviceの各ポートに加えて、NodePort、External IP、およびLoad Balancer IPに対して、kube-proxyは仮想サーバーを作成します。Pod endpointごとに、対応する実サーバーが作成されます。この例では、サービスhostnames(<code>10.0.1.175:80</code>)は3つのendpoints(<code>10.244.0.5:9376</code>、<code>10.244.0.6:9376</code>、<code>10.244.0.7:9376</code>)を持っています。</p>
+<p>IPVSプロキシーは、各Serviceアドレス(Cluster IP、External IP、NodePort IP、Load Balancer IPなど)毎の仮想サーバーと、Serviceのエンドポイントが存在する場合に対応する実サーバーを作成します。この例では、hostnames Service(<code>10.0.1.175:80</code>)は3つのエンドポイント(<code>10.244.0.5:9376</code>、<code>10.244.0.6:9376</code>、<code>10.244.0.7:9376</code>)を持ち、上と似た結果が得られるはずです。</p>
+<h4 id="userspace-mode">Userspace mode</h4>
+<p>まれに、「userspace」モードを使用している場合があります。</p>
+<p>ノードから実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">iptables-save | grep hostnames
+</code></pre></div><pre><code class="language-none" data-lang="none">-A KUBE-PORTALS-CONTAINER -d 10.0.1.175/32 -p tcp -m comment --comment &quot;default/hostnames:default&quot; -m tcp --dport 80 -j REDIRECT --to-ports 48577
+-A KUBE-PORTALS-HOST -d 10.0.1.175/32 -p tcp -m comment --comment &quot;default/hostnames:default&quot; -m tcp --dport 80 -j DNAT --to-destination 10.240.115.247:48577
+</code></pre><p>サービスの各ポートには2つのルールが必要です(この例では1つだけ)-「KUBE-PORTALS-CONTAINER」と「KUBE-PORTALS-HOST」です。</p>
+<p>「userspace」モードを使用する必要はほとんどないので、ここでこれ以上時間を費やすことはありません。</p>
+<h3 id="kube-proxyはプロキシしているか">kube-proxyはプロキシしているか？</h3>
+<p>上記のいずれかが発生したと想定して、いずれかのノードからIPでサービスにアクセスをしています。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl 10.0.1.175:80
+</code></pre></div><pre><code class="language-none" data-lang="none">hostnames-632524106-bbpiw
+</code></pre><p>もしこれが失敗し、あなたがuserspaceプロキシーを使用している場合、プロキシーへの直接アクセスを試してみてください。もしiptablesプロキシーを使用している場合、このセクションはスキップしてください。</p>
+<p>上記の<code>iptables-save</code>の出力を振り返り、<code>kube-proxy</code>がServiceに使用しているポート番号を抽出します。上記の例では&quot;48577&quot;です。このポートに接続してください。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl localhost:48577
+</code></pre></div><pre><code class="language-none" data-lang="none">hostnames-632524106-tlaok
+</code></pre><p>もしまだ失敗する場合は、<code>kube-proxy</code>ログで次のような特定の行を探してください。</p>
+<pre><code class="language-none" data-lang="none">Setting endpoints for default/hostnames:default to [10.244.0.5:9376 10.244.0.6:9376 10.244.0.7:9376]
+</code></pre><p>これらが表示されない場合は、<code>-v</code>フラグを4に設定して<code>kube-proxy</code>を再起動してから、再度ログを確認してください。</p>
+<h3 id="a-pod-fails-to-reach-itself-via-the-service-ip">エッジケース: PodがService IP経由で自身に到達できない</h3>
+<p>これはありそうに聞こえないかもしれませんが、実際には起こり、動作するはずです。これはネットワークが&quot;hairpin&quot;トラフィック用に適切に設定されていない場合、通常は<code>kube-proxy</code>が<code>iptables</code>モードで実行され、Podがブリッジネットワークに接続されている場合に発生します。<code>Kubelet</code>は<code>hairpin-mode</code><a href="/docs/reference/command-line-tools-reference/kubelet/">フラグ</a>を公開します。これにより、Serviceのエンドポイントが自身のServiceのVIPにアクセスしようとした場合に、自身への負荷分散を可能にします。<code>hairpin-mode</code>フラグは<code>hairpin-veth</code>または<code>promiscuous-bridge</code>に設定する必要があります。</p>
+<p>この問題をトラブルシューティングする一般的な手順は次のとおりです。</p>
+<ul>
+<li><code>hairpin-mode</code>が<code>hairpin-veth</code>または<code>promiscuous-bridge</code>に設定されていることを確認します。次のような表示がされるはずです。この例では、<code>hairpin-mode</code>は<code>promiscuous-bridge</code>に設定されています。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ps auxw | grep kubelet
+</code></pre></div><pre><code class="language-none" data-lang="none">root      3392  1.1  0.8 186804 65208 ?        Sl   00:51  11:11 /usr/local/bin/kubelet --enable-debugging-handlers=true --config=/etc/kubernetes/manifests --allow-privileged=True --v=4 --cluster-dns=10.0.0.10 --cluster-domain=cluster.local --configure-cbr0=true --cgroup-root=/ --system-cgroups=/system --hairpin-mode=promiscuous-bridge --runtime-cgroups=/docker-daemon --kubelet-cgroups=/kubelet --babysit-daemons=true --max-pods=110 --serialize-image-pulls=false --outofdisk-transition-frequency=0
+</code></pre><ul>
+<li>実際に使われている<code>hairpin-mode</code>を確認します。これを行うには、kubeletログを確認する必要があります。ログへのアクセス方法は、ノードのOSによって異なります。一部のOSでは/var/log/kubelet.logなどのファイルですが、他のOSでは<code>journalctl</code>を使用してログにアクセスします。互換性のために、実際に使われている<code>hairpin-mode</code>が<code>--hairpin-mode</code>フラグと一致しない場合があることに注意してください。kubelet.logにキーワード<code>hairpin</code>を含むログ行があるかどうかを確認してください。実際に使われている<code>hairpin-mode</code>を示す以下のようなログ行があるはずです。</li>
+</ul>
+<pre><code class="language-none" data-lang="none">I0629 00:51:43.648698    3252 kubelet.go:380] Hairpin mode set to &quot;promiscuous-bridge&quot;
+</code></pre><ul>
+<li>実際に使われている<code>hairpin-mode</code>が<code>hairpin-veth</code>の場合、<code>Kubelet</code>にノードの<code>/sys</code>で操作する権限があることを確認します。すべてが正常に機能している場合、次のようなものが表示されます。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#a2f;font-weight:bold">for</span> intf in /sys/devices/virtual/net/cbr0/brif/*; <span style="color:#a2f;font-weight:bold">do</span> cat <span style="color:#b8860b">$intf</span>/hairpin_mode; <span style="color:#a2f;font-weight:bold">done</span>
+</code></pre></div><pre><code class="language-none" data-lang="none">1
+1
+1
+1
+</code></pre><p>実際に使われている<code>hairpin-mode</code>が<code>promiscuous-bridge</code>の場合、<code>Kubelet</code>にノード上のLinuxブリッジを操作する権限があることを確認してください。<code>cbr0</code>ブリッジが使用され適切に構成されている場合、以下が表示されます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ifconfig cbr0 |grep PROMISC
+</code></pre></div><pre><code class="language-none" data-lang="none">UP BROADCAST RUNNING PROMISC MULTICAST  MTU:1460  Metric:1
+</code></pre><ul>
+<li>上記のいずれも解決しない場合、助けを求めてください。</li>
+</ul>
+<h2 id="助けを求める">助けを求める</h2>
+<p>ここまでたどり着いたということは、とてもおかしなことが起こっています。Serviceは実行中で、Endpointsがあり、Podは実際にサービスを提供しています。DNSは動作していて、<code>kube-proxy</code>も誤動作していないようです。それでも、あなたのServiceは機能していません。おそらく私たちにお知らせ頂いた方がよいでしょう。調査をお手伝いします！</p>
+<p><a href="/docs/tasks/debug-application-cluster/troubleshooting/#slack">Slack</a>、<a href="https://discuss.kubernetes.io">Forum</a>または<a href="https://github.com/kubernetes/kubernetes">GitHub</a>でお問い合わせください。</p>
+<h2 id="次の項目">次の項目</h2>
+<p>詳細については、<a href="/docs/tasks/debug-application-cluster/troubleshooting/">トラブルシューティングドキュメント</a>をご覧ください。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-a070b1250ee142402d492b505a56ca83">6 - StatefulSetのデバッグ</h1>
+    
+	<!-- overview -->
+<p>このタスクでは、StatefulSetをデバッグする方法を説明します。</p>
+<h2 id="始める前に">始める前に</h2>
+<ul>
+<li>Kubernetesクラスターが必要です。また、kubectlコマンドラインツールがクラスターと通信するように設定されている必要があります。</li>
+<li>調べたいStatefulSetを実行しておきましょう。</li>
+</ul>
+<!-- steps -->
+<h2 id="statefulsetのデバッグ">StatefulSetのデバッグ</h2>
+<p>StatefulSetに属し、ラベル<code>app=myapp</code>が設定されているすべてのPodを一覧表示するには、以下のコマンドを利用できます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>myapp
+</code></pre></div><p>Podが長期間<code>Unknown</code>または<code>Terminating</code>の状態になっていることがわかった場合は、それらを処理する方法について<a href="/ja/docs/tasks/run-application/delete-stateful-set/">StatefulSetの削除</a>タスクを参照してください。
+<a href="/ja/docs/tasks/debug-application-cluster/debug-pod-replication-controller/">Podのデバッグ</a>ガイドを使用して、StatefulSet内の個々のPodをデバッグできます。</p>
+<h2 id="次の項目">次の項目</h2>
+<p><a href="/ja/docs/tasks/debug-application-cluster/debug-init-containers/">Initコンテナのデバッグ</a>の詳細</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-3556c4dbd027b9e90a5b3d72649003fb">7 - アプリケーションのトラブルシューティング</h1>
+    
+	<!-- overview -->
+<p>このガイドは、Kubernetesにデプロイされ、正しく動作しないアプリケーションをユーザーがデバッグするためのものです。
+これは、自分のクラスターをデバッグしたい人のためのガイドでは <em>ありません</em>。
+そのためには、<a href="/docs/tasks/debug-application-cluster/debug-cluster">debug-cluster</a>を確認する必要があります。</p>
+<!-- body -->
+<h2 id="問題の診断">問題の診断</h2>
+<p>トラブルシューティングの最初のステップは切り分けです。何が問題なのでしょうか？
+Podなのか、レプリケーションコントローラーなのか、それともサービスなのか？</p>
+<ul>
+<li><a href="#debugging-pods">Debugging Pods</a></li>
+<li><a href="#debugging-replication-controllers">Debugging Replication Controllers</a></li>
+<li><a href="#debugging-services">Debugging Services</a></li>
+</ul>
+<h3 id="podのデバッグ">Podのデバッグ</h3>
+<p>デバッグの第一歩は、Podを見てみることです。
+以下のコマンドで、Podの現在の状態や最近のイベントを確認します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe pods <span style="color:#b68;font-weight:bold">${</span><span style="color:#b8860b">POD_NAME</span><span style="color:#b68;font-weight:bold">}</span>
+</code></pre></div><p>Pod内のコンテナの状態を見てください。
+すべて<code>Running</code>ですか？ 最近、再起動がありましたか？
+Podの状態に応じてデバッグを続けます。</p>
+<h4 id="podがpendingのまま">PodがPendingのまま</h4>
+<p>Podが<code>Pending</code>で止まっている場合、それはノードにスケジュールできないことを意味します。
+一般に、これはある種のリソースが不十分で、スケジューリングできないことが原因です。
+上の<code>kubectl describe ...</code>コマンドの出力を見てください。</p>
+<p>なぜあなたのPodをスケジュールできないのか、スケジューラーからのメッセージがあるはずです。
+理由は以下の通りです。</p>
+<ul>
+<li>
+<p><strong>リソースが不足しています。</strong> クラスターのCPUまたはメモリーを使い果たしている可能性があります。Podを削除するか、リソースの要求値を調整するか、クラスターに新しいノードを追加する必要があります。詳しくは<a href="/ja/docs/concepts/configuration/manage-resources-containers/">Compute Resources document</a>を参照してください。</p>
+</li>
+<li>
+<p>**あなたが使用しているのは<code>hostPort</code>**です。Podを<code>hostPort</code>にバインドすると、そのPodがスケジュールできる場所が限定されます。ほとんどの場合、<code>hostPort</code>は不要なので、Serviceオブジェクトを使ってPodを公開するようにしてください。もし<code>hostPort</code> が必要な場合は、Kubernetesクラスターのノード数だけPodをスケジュールすることができます。</p>
+</li>
+</ul>
+<h4 id="podがwaitingのまま">Podがwaitingのまま</h4>
+<p>Podが<code>Waiting</code>状態で止まっている場合、ワーカーノードにスケジュールされていますが、そのノード上で実行することができません。この場合も、<code>kubectl describe ...</code>の情報が参考になるはずです。<code>Waiting</code>状態のPodの最も一般的な原因は、コンテナイメージのプルに失敗することです。</p>
+<p>確認すべきことは3つあります。</p>
+<ul>
+<li>イメージの名前が正しいかどうか確認してください。</li>
+<li>イメージをレジストリにプッシュしましたか？</li>
+<li>あなたのマシンで手動で<code>docker pull &lt;image&gt;</code>を実行し、イメージをプルできるかどうか確認してください。</li>
+</ul>
+<h4 id="podがクラッシュするなどの不健全な状態">Podがクラッシュするなどの不健全な状態</h4>
+<p>Podがスケジュールされると、<a href="/docs/tasks/debug-application-cluster/debug-running-pod/">Debug Running Pods</a>で説明されている方法がデバッグに利用できるようになります。</p>
+<h4 id="podが期待する通りに動きません">Podが期待する通りに動きません</h4>
+<p>Podが期待した動作をしない場合、ポッドの記述(ローカルマシンの <code>mypod.yaml</code> ファイルなど)に誤りがあり、Pod作成時にその誤りが黙って無視された可能性があります。Pod記述のセクションのネストが正しくないか、キー名が間違って入力されていることがよくあり、そのようなとき、そのキーは無視されます。たとえば、<code>command</code>のスペルを<code>commnd</code>と間違えた場合、Podは作成されますが、あなたが意図したコマンドラインは使用されません。</p>
+<p>まずPodを削除して、<code>--validate</code> オプションを付けて再度作成してみてください。
+例えば、<code>kubectl apply --validate -f mypod.yaml</code>と実行します。
+<code>command</code>のスペルを<code>commnd</code>に間違えると、以下のようなエラーになります。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">I0805 10:43:25.129850   <span style="color:#666">46757</span> schema.go:126<span style="color:#666">]</span> unknown field: commnd
+I0805 10:43:25.129973   <span style="color:#666">46757</span> schema.go:129<span style="color:#666">]</span> this may be a <span style="color:#a2f">false</span> alarm, see https://github.com/kubernetes/kubernetes/issues/6842
+pods/mypod
+</code></pre></div><!-- TODO: Now that #11914 is merged, this advice may need to be updated -->
+<p>次に確認することは、apiserver上のPodが、作成しようとしたPod(例えば、ローカルマシンのyamlファイル)と一致しているかどうかです。
+例えば、<code>kubectl get pods/mypod -o yaml &gt; mypod-on-apiserver.yaml</code> を実行して、元のポッドの説明である<code>mypod.yaml</code>とapiserverから戻ってきた<code>mypod-on-apiserver.yaml</code>を手動で比較してみてください。
+通常、&quot;apiserver&quot; バージョンには、元のバージョンにはない行がいくつかあります。これは予想されることです。
+しかし、もし元のバージョンにある行がapiserverバージョンにない場合、これはあなたのPod specに問題があることを示している可能性があります。</p>
+<h3 id="レプリケーションコントローラーのデバッグ">レプリケーションコントローラーのデバッグ</h3>
+<p>レプリケーションコントローラーはかなり単純なものです。
+彼らはPodを作ることができるか、できないか、どちらかです。
+もしPodを作成できないのであれば、<a href="#debugging-pods">上記の説明</a>を参照して、Podをデバッグしてください。
+また、<code>kubectl describe rc ${CONTROLLER_NAME}</code>を使用すると、レプリケーションコントローラーに関連するイベントを確認することができます。</p>
+<h3 id="serviceのデバッグ">Serviceのデバッグ</h3>
+<p>Serviceは、Podの集合全体でロードバランシングを提供します。
+Serviceが正しく動作しない原因には、いくつかの一般的な問題があります。</p>
+<p>以下の手順は、Serviceの問題をデバッグするのに役立つはずです。</p>
+<p>まず、Serviceに対応するEndpointが存在することを確認します。
+全てのServiceオブジェクトに対して、apiserverは <code>endpoints</code> リソースを利用できるようにします。
+このリソースは次のようにして見ることができます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get endpoints <span style="color:#b68;font-weight:bold">${</span><span style="color:#b8860b">SERVICE_NAME</span><span style="color:#b68;font-weight:bold">}</span>
+</code></pre></div><p>EndpointがServiceのメンバーとして想定されるPod数と一致していることを確認してください。
+例えば、3つのレプリカを持つnginxコンテナ用のServiceであれば、ServiceのEndpointには3つの異なるIPアドレスが表示されるはずです。</p>
+<h4 id="serviceに対応するendpointがありません">Serviceに対応するEndpointがありません</h4>
+<p>Endpointが見つからない場合は、Serviceが使用しているラベルを使用してPodをリストアップしてみてください。
+ラベルがあるところにServiceがあると想像してください。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">     </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">     </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span></code></pre></div><p>セレクタに一致するPodを一覧表示するには、次のコマンドを使用します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods --selector<span style="color:#666">=</span><span style="color:#b8860b">name</span><span style="color:#666">=</span>nginx,type<span style="color:#666">=</span>frontend
+</code></pre></div><p>リストがServiceを提供する予定のPodと一致することを確認します。
+Podの<code>containerPort</code>がServiceの<code>targetPort</code>と一致することを確認します。</p>
+<h4 id="ネットワークトラフィックが転送されません">ネットワークトラフィックが転送されません</h4>
+<p>詳しくは<a href="/ja/docs/tasks/debug-application-cluster/debug-service/">Serviceのデバッグ</a>を参照してください。</p>
+<h2 id="次の項目">次の項目</h2>
+<p>上記のいずれの方法でも問題が解決しない場合は、以下の手順に従ってください。
+<a href="/docs/tasks/debug-application-cluster/debug-service/">Debugging Service document</a>で、<code>Service</code> が実行されていること、<code>Endpoints</code>があること、<code>Pods</code>が実際にサービスを提供していること、DNS が機能していること、IPtablesルールがインストールされていること、kube-proxyが誤作動を起こしていないようなことを確認してください。</p>
+<p><a href="/docs/tasks/debug-application-cluster/troubleshooting/">トラブルシューティングドキュメント</a>に詳細が記載されています。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-731bb8b338c16aebfb9590ba2bd3fdd1">8 - アプリケーションの自己観察とデバッグ</h1>
+    
+	<!-- overview -->
+<p>アプリケーションが稼働すると、必然的にその問題をデバッグする必要が出てきます。
+先に、<code>kubectl get pods</code>を使って、Podの簡単なステータス情報を取得する方法を説明しました。
+しかし、アプリケーションに関するより多くの情報を取得する方法がいくつかあります。</p>
+<!-- body -->
+<h2 id="kubectl-describe-pod-を使ってpodの詳細を取得"><code>kubectl describe pod</code>を使ってpodの詳細を取得</h2>
+<p>この例では、先ほどの例と同様に、Deploymentを使用して2つのpodを作成します。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ja/examples/application/nginx-with-request.yaml" download="application/nginx-with-request.yaml"><code>application/nginx-with-request.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-nginx-with-request-yaml')" title="Copy application/nginx-with-request.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-nginx-with-request-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx-deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">2</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;128Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;500m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">80</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>以下のコマンドを実行して、Deploymentを作成します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/nginx-with-request.yaml
+</code></pre></div><pre><code class="language-none" data-lang="none">deployment.apps/nginx-deployment created
+</code></pre><p>以下のコマンドでPodの状態を確認します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME                                READY     STATUS    RESTARTS   AGE
+nginx-deployment-1006230814-6winp   1/1       Running   0          11s
+nginx-deployment-1006230814-fmgu3   1/1       Running   0          11s
+</code></pre><p><code>kubectl describe pod</code>を使うと、これらのPodについてより多くの情報を得ることができます。
+例えば:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe pod nginx-deployment-1006230814-6winp
+</code></pre></div><pre><code class="language-none" data-lang="none">Name:		nginx-deployment-1006230814-6winp
+Namespace:	default
+Node:		kubernetes-node-wul5/10.240.0.9
+Start Time:	Thu, 24 Mar 2016 01:39:49 +0000
+Labels:		app=nginx,pod-template-hash=1006230814
+Annotations:    kubernetes.io/created-by={&quot;kind&quot;:&quot;SerializedReference&quot;,&quot;apiVersion&quot;:&quot;v1&quot;,&quot;reference&quot;:{&quot;kind&quot;:&quot;ReplicaSet&quot;,&quot;namespace&quot;:&quot;default&quot;,&quot;name&quot;:&quot;nginx-deployment-1956810328&quot;,&quot;uid&quot;:&quot;14e607e7-8ba1-11e7-b5cb-fa16&quot; ...
+Status:		Running
+IP:		10.244.0.6
+Controllers:	ReplicaSet/nginx-deployment-1006230814
+Containers:
+  nginx:
+    Container ID:	docker://90315cc9f513c724e9957a4788d3e625a078de84750f244a40f97ae355eb1149
+    Image:		nginx
+    Image ID:		docker://6f62f48c4e55d700cf3eb1b5e33fa051802986b77b874cc351cce539e5163707
+    Port:		80/TCP
+    QoS Tier:
+      cpu:	Guaranteed
+      memory:	Guaranteed
+    Limits:
+      cpu:	500m
+      memory:	128Mi
+    Requests:
+      memory:		128Mi
+      cpu:		500m
+    State:		Running
+      Started:		Thu, 24 Mar 2016 01:39:51 +0000
+    Ready:		True
+    Restart Count:	0
+    Environment:        &lt;none&gt;
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-5kdvl (ro)
+Conditions:
+  Type          Status
+  Initialized   True
+  Ready         True
+  PodScheduled  True
+Volumes:
+  default-token-4bcbi:
+    Type:	Secret (a volume populated by a Secret)
+    SecretName:	default-token-4bcbi
+    Optional:   false
+QoS Class:      Guaranteed
+Node-Selectors: &lt;none&gt;
+Tolerations:    &lt;none&gt;
+Events:
+  FirstSeen	LastSeen	Count	From					SubobjectPath		Type		Reason		Message
+  ---------	--------	-----	----					-------------		--------	------		-------
+  54s		54s		1	{default-scheduler }						Normal		Scheduled	Successfully assigned nginx-deployment-1006230814-6winp to kubernetes-node-wul5
+  54s		54s		1	{kubelet kubernetes-node-wul5}	spec.containers{nginx}	Normal		Pulling		pulling image &quot;nginx&quot;
+  53s		53s		1	{kubelet kubernetes-node-wul5}	spec.containers{nginx}	Normal		Pulled		Successfully pulled image &quot;nginx&quot;
+  53s		53s		1	{kubelet kubernetes-node-wul5}	spec.containers{nginx}	Normal		Created		Created container with docker id 90315cc9f513
+  53s		53s		1	{kubelet kubernetes-node-wul5}	spec.containers{nginx}	Normal		Started		Started container with docker id 90315cc9f513
+</code></pre><p>ここでは、コンテナ(複数可)とPodに関する構成情報(ラベル、リソース要件など)や、コンテナ(複数可)とPodに関するステータス情報(状態、準備状況、再起動回数、イベントなど)を確認できます。</p>
+<p>コンテナの状態は、Waiting(待機中)、Running(実行中)、Terminated(終了)のいずれかです。状態に応じて、追加の情報が提供されます。ここでは、Running状態のコンテナについて、コンテナがいつ開始されたかが表示されています。</p>
+<p>Readyは、コンテナが最後のReadiness Probeに合格したかどうかを示す。(この場合、コンテナにはReadiness Probeが設定されていません。Readiness Probeが設定されていない場合、コンテナは準備が完了した状態であるとみなされます)。</p>
+<p>Restart Countは、コンテナが何回再起動されたかを示します。この情報は、再起動ポリシーが「always」に設定されているコンテナのクラッシュループを検出するのに役立ちます。</p>
+<p>現在、Podに関連する条件は、二値のReady条件のみです。これは、Podがリクエストに対応可能であり、マッチングするすべてのサービスのロードバランシングプールに追加されるべきであることを示します。</p>
+<p>最後に、Podに関連する最近のイベントのログが表示されます。このシステムでは、複数の同一イベントを圧縮して、最初に見られた時刻と最後に見られた時刻、そして見られた回数を示します。&quot;From&quot;はイベントを記録しているコンポーネントを示し、&quot;SubobjectPath&quot;はどのオブジェクト(例: Pod内のコンテナ)が参照されているかを示し、&quot;Reason&quot;と &quot;Message&quot;は何が起こったかを示しています。</p>
+<h2 id="例-pending-podsのデバッグ">例: Pending Podsのデバッグ</h2>
+<p>イベントを使って検出できる一般的なシナリオは、どのノードにも収まらないPodを作成した場合です。例えば、Podがどのノードでも空いている以上のリソースを要求したり、どのノードにもマッチしないラベルセレクターを指定したりする場合です。例えば、各(仮想)マシンが1つのCPUを持つ4ノードのクラスター上で、(2つではなく)5つのレプリカを持ち、500ではなく600ミリコアを要求する前のDeploymentを作成したとします。この場合、Podの1つがスケジュールできなくなります。(なお、各ノードではfluentdやskydnsなどのクラスターアドオンPodが動作しているため、もし1000ミリコアを要求した場合、どのPodもスケジュールできなくなります)</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME                                READY     STATUS    RESTARTS   AGE
+nginx-deployment-1006230814-6winp   1/1       Running   0          7m
+nginx-deployment-1006230814-fmgu3   1/1       Running   0          7m
+nginx-deployment-1370807587-6ekbw   1/1       Running   0          1m
+nginx-deployment-1370807587-fg172   0/1       Pending   0          1m
+nginx-deployment-1370807587-fz9sd   0/1       Pending   0          1m
+</code></pre><p>nginx-deployment-1370807587-fz9sdのPodが実行されていない理由を調べるには、保留中のPodに対して<code>kubectl describe pod</code>を使用し、そのイベントを見てみましょう</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe pod nginx-deployment-1370807587-fz9sd
+</code></pre></div><pre><code class="language-none" data-lang="none">  Name:		nginx-deployment-1370807587-fz9sd
+  Namespace:	default
+  Node:		/
+  Labels:		app=nginx,pod-template-hash=1370807587
+  Status:		Pending
+  IP:
+  Controllers:	ReplicaSet/nginx-deployment-1370807587
+  Containers:
+    nginx:
+      Image:	nginx
+      Port:	80/TCP
+      QoS Tier:
+        memory:	Guaranteed
+        cpu:	Guaranteed
+      Limits:
+        cpu:	1
+        memory:	128Mi
+      Requests:
+        cpu:	1
+        memory:	128Mi
+      Environment Variables:
+  Volumes:
+    default-token-4bcbi:
+      Type:	Secret (a volume populated by a Secret)
+      SecretName:	default-token-4bcbi
+  Events:
+    FirstSeen	LastSeen	Count	From			        SubobjectPath	Type		Reason			    Message
+    ---------	--------	-----	----			        -------------	--------	------			    -------
+    1m		    48s		    7	    {default-scheduler }			        Warning		FailedScheduling	pod (nginx-deployment-1370807587-fz9sd) failed to fit in any node
+  fit failure on node (kubernetes-node-6ta5): Node didn't have enough resource: CPU, requested: 1000, used: 1420, capacity: 2000
+  fit failure on node (kubernetes-node-wul5): Node didn't have enough resource: CPU, requested: 1000, used: 1100, capacity: 2000
+</code></pre><p>ここでは、理由 <code>FailedScheduling</code> (およびその他の理由)でPodのスケジュールに失敗したという、スケジューラーによって生成されたイベントを見ることができます。このメッセージは、どのノードでもPodに十分なリソースがなかったことを示しています。</p>
+<p>この状況を修正するには、<code>kubectl scale</code>を使用して、4つ以下のレプリカを指定するようにDeploymentを更新します。(あるいは、1つのPodを保留にしたままにしておいても害はありません。)</p>
+<p><code>kubectl describe pod</code>の最後に出てきたようなイベントは、etcdに永続化され、クラスターで何が起こっているかについての高レベルの情報を提供します。</p>
+<p>すべてのイベントをリストアップするには、次のようにします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get events
+</code></pre></div><p>しかし、イベントは名前空間に所属することを忘れてはいけません。つまり、名前空間で管理されているオブジェクトのイベントに興味がある場合(例: 名前空間 <code>my-namespace</code>のPods で何が起こったか)、コマンドに名前空間を明示的に指定する必要があります。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get events --namespace<span style="color:#666">=</span>my-namespace
+</code></pre></div><p>すべての名前空間からのイベントを見るには、<code>--all-namespaces</code> 引数を使用できます。</p>
+<p><code>kubectl describe pod</code>に加えて、(<code>kubectl get pod</code> で提供される以上の)Podに関する追加情報を得るためのもう一つの方法は、<code>-o yaml</code>出力形式フラグを <code>kubectl get pod</code>に渡すことです。これにより、<code>kubectl describe pod</code>よりもさらに多くの情報、つまりシステムが持っているPodに関するすべての情報をYAML形式で得ることができます。ここでは、アノテーション(Kubernetesのシステムコンポーネントが内部的に使用している、ラベル制限のないキーバリューのメタデータ)、再起動ポリシー、ポート、ボリュームなどが表示されます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod nginx-deployment-1006230814-6winp -o yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">annotations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">kubernetes.io/created-by</span>:<span style="color:#bbb"> </span>|<span style="color:#b44;font-style:italic">
+</span><span style="color:#b44;font-style:italic">      </span><span style="color:#bbb">      </span>{<span style="color:#b44">&#34;kind&#34;</span>:<span style="color:#b44">&#34;SerializedReference&#34;</span>,<span style="color:#b44">&#34;apiVersion&#34;</span>:<span style="color:#b44">&#34;v1&#34;</span>,<span style="color:#b44">&#34;reference&#34;</span>:{<span style="color:#b44">&#34;kind&#34;</span>:<span style="color:#b44">&#34;ReplicaSet&#34;</span>,<span style="color:#b44">&#34;namespace&#34;</span>:<span style="color:#b44">&#34;default&#34;</span>,<span style="color:#b44">&#34;name&#34;</span>:<span style="color:#b44">&#34;nginx-deployment-1006230814&#34;</span>,<span style="color:#b44">&#34;uid&#34;</span>:<span style="color:#b44">&#34;4c84c175-f161-11e5-9a78-42010af00005&#34;</span>,<span style="color:#b44">&#34;apiVersion&#34;</span>:<span style="color:#b44">&#34;extensions&#34;</span>,<span style="color:#b44">&#34;resourceVersion&#34;</span>:<span style="color:#b44">&#34;133434&#34;</span>}}<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">creationTimestamp</span>:<span style="color:#bbb"> </span>2016-03-24T01:39:50Z<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">generateName</span>:<span style="color:#bbb"> </span>nginx-deployment-1006230814-<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pod-template-hash</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1006230814&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx-deployment-1006230814-6winp<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">namespace</span>:<span style="color:#bbb"> </span>default<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resourceVersion</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;133447&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">uid</span>:<span style="color:#bbb"> </span>4c879808-f161-11e5-9a78-42010af00005<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">imagePullPolicy</span>:<span style="color:#bbb"> </span>Always<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">80</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">protocol</span>:<span style="color:#bbb"> </span>TCP<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>500m<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>128Mi<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>500m<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>128Mi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">terminationMessagePath</span>:<span style="color:#bbb"> </span>/dev/termination-log<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">volumeMounts</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/run/secrets/kubernetes.io/serviceaccount<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-token-4bcbi<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">readOnly</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">dnsPolicy</span>:<span style="color:#bbb"> </span>ClusterFirst<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodeName</span>:<span style="color:#bbb"> </span>kubernetes-node-wul5<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">restartPolicy</span>:<span style="color:#bbb"> </span>Always<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">securityContext</span>:<span style="color:#bbb"> </span>{}<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">serviceAccount</span>:<span style="color:#bbb"> </span>default<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">serviceAccountName</span>:<span style="color:#bbb"> </span>default<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">terminationGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">30</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">volumes</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-token-4bcbi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">secret</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">secretName</span>:<span style="color:#bbb"> </span>default-token-4bcbi<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">conditions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">lastProbeTime</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">null</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">lastTransitionTime</span>:<span style="color:#bbb"> </span>2016-03-24T01:39:51Z<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;True&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Ready<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containerStatuses</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">containerID</span>:<span style="color:#bbb"> </span>docker://90315cc9f513c724e9957a4788d3e625a078de84750f244a40f97ae355eb1149<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">imageID</span>:<span style="color:#bbb"> </span>docker://6f62f48c4e55d700cf3eb1b5e33fa051802986b77b874cc351cce539e5163707<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">lastState</span>:<span style="color:#bbb"> </span>{}<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">ready</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">restartCount</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">state</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">running</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">startedAt</span>:<span style="color:#bbb"> </span>2016-03-24T01:39:51Z<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hostIP</span>:<span style="color:#bbb"> </span><span style="color:#666">10.240.0.9</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">phase</span>:<span style="color:#bbb"> </span>Running<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">podIP</span>:<span style="color:#bbb"> </span><span style="color:#666">10.244.0.6</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">startTime</span>:<span style="color:#bbb"> </span>2016-03-24T01:39:49Z<span style="color:#bbb">
+</span></code></pre></div><h2 id="例-ダウン-到達不可能なノードのデバッグ">例: ダウン/到達不可能なノードのデバッグ</h2>
+<p>例えば、ノード上で動作しているPodのおかしな挙動に気付いたり、Podがノード上でスケジュールされない原因を探ったりと、デバッグ時にノードのステータスを見ることが有用な場合があります。Podと同様に、<code>kubectl describe node</code>や<code>kubectl get node -o yaml</code>を使ってノードの詳細情報を取得することができます。例えば、ノードがダウンした場合(ネットワークから切断された、またはkubeletが死んで再起動しないなど)に表示される内容は以下の通りです。ノードがNotReadyであることを示すイベントに注目してください。また、Podが実行されなくなっていることにも注目してください(NotReady状態が5分続くと、Podは退避されます)。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get nodes
+</code></pre></div><pre><code class="language-none" data-lang="none">NAME                     STATUS       ROLES     AGE     VERSION
+kubernetes-node-861h     NotReady     &lt;none&gt;    1h      v1.13.0
+kubernetes-node-bols     Ready        &lt;none&gt;    1h      v1.13.0
+kubernetes-node-st6x     Ready        &lt;none&gt;    1h      v1.13.0
+kubernetes-node-unaj     Ready        &lt;none&gt;    1h      v1.13.0
+</code></pre><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe node kubernetes-node-861h
+</code></pre></div><pre><code class="language-none" data-lang="none">Name:			kubernetes-node-861h
+Role
+Labels:		 kubernetes.io/arch=amd64
+           kubernetes.io/os=linux
+           kubernetes.io/hostname=kubernetes-node-861h
+Annotations:        node.alpha.kubernetes.io/ttl=0
+                    volumes.kubernetes.io/controller-managed-attach-detach=true
+Taints:             &lt;none&gt;
+CreationTimestamp:	Mon, 04 Sep 2017 17:13:23 +0800
+Phase:
+Conditions:
+  Type		Status		LastHeartbeatTime			LastTransitionTime			Reason					Message
+  ----    ------    -----------------     ------------------      ------          -------
+  OutOfDisk             Unknown         Fri, 08 Sep 2017 16:04:28 +0800         Fri, 08 Sep 2017 16:20:58 +0800         NodeStatusUnknown       Kubelet stopped posting node status.
+  MemoryPressure        Unknown         Fri, 08 Sep 2017 16:04:28 +0800         Fri, 08 Sep 2017 16:20:58 +0800         NodeStatusUnknown       Kubelet stopped posting node status.
+  DiskPressure          Unknown         Fri, 08 Sep 2017 16:04:28 +0800         Fri, 08 Sep 2017 16:20:58 +0800         NodeStatusUnknown       Kubelet stopped posting node status.
+  Ready                 Unknown         Fri, 08 Sep 2017 16:04:28 +0800         Fri, 08 Sep 2017 16:20:58 +0800         NodeStatusUnknown       Kubelet stopped posting node status.
+Addresses:	10.240.115.55,104.197.0.26
+Capacity:
+ cpu:           2
+ hugePages:     0
+ memory:        4046788Ki
+ pods:          110
+Allocatable:
+ cpu:           1500m
+ hugePages:     0
+ memory:        1479263Ki
+ pods:          110
+System Info:
+ Machine ID:                    8e025a21a4254e11b028584d9d8b12c4
+ System UUID:                   349075D1-D169-4F25-9F2A-E886850C47E3
+ Boot ID:                       5cd18b37-c5bd-4658-94e0-e436d3f110e0
+ Kernel Version:                4.4.0-31-generic
+ OS Image:                      Debian GNU/Linux 8 (jessie)
+ Operating System:              linux
+ Architecture:                  amd64
+ Container Runtime Version:     docker://1.12.5
+ Kubelet Version:               v1.6.9+a3d1dfa6f4335
+ Kube-Proxy Version:            v1.6.9+a3d1dfa6f4335
+ExternalID:                     15233045891481496305
+Non-terminated Pods:            (9 in total)
+  Namespace                     Name                                            CPU Requests    CPU Limits      Memory Requests Memory Limits
+  ---------                     ----                                            ------------    ----------      --------------- -------------
+......
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  CPU Requests  CPU Limits      Memory Requests         Memory Limits
+  ------------  ----------      ---------------         -------------
+  900m (60%)    2200m (146%)    1009286400 (66%)        5681286400 (375%)
+Events:         &lt;none&gt;
+</code></pre><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get node kubernetes-node-861h -o yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Node<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">creationTimestamp</span>:<span style="color:#bbb"> </span>2015-07-10T21:32:29Z<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">kubernetes.io/hostname</span>:<span style="color:#bbb"> </span>kubernetes-node-861h<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>kubernetes-node-861h<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resourceVersion</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;757&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">uid</span>:<span style="color:#bbb"> </span>2a69374e-274b-11e5-a234-42010af0d969<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">externalID</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;15233045891481496305&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">podCIDR</span>:<span style="color:#bbb"> </span><span style="color:#666">10.244.0.0</span>/24<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">providerID</span>:<span style="color:#bbb"> </span>gce://striped-torus-760/us-central1-b/kubernetes-node-861h<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">addresses</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">address</span>:<span style="color:#bbb"> </span><span style="color:#666">10.240.115.55</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>InternalIP<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">address</span>:<span style="color:#bbb"> </span><span style="color:#666">104.197.0.26</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>ExternalIP<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">capacity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>3800808Ki<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pods</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;100&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">conditions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">lastHeartbeatTime</span>:<span style="color:#bbb"> </span>2015-07-10T21:34:32Z<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">lastTransitionTime</span>:<span style="color:#bbb"> </span>2015-07-10T21:35:15Z<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">reason</span>:<span style="color:#bbb"> </span>Kubelet stopped posting node status.<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb"> </span>Unknown<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Ready<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodeInfo</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">bootID</span>:<span style="color:#bbb"> </span><span style="color:#666">4e316776</span>-b40d-4f78-a4ea-ab0d73390897<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">containerRuntimeVersion</span>:<span style="color:#bbb"> </span>docker://Unknown<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">kernelVersion</span>:<span style="color:#bbb"> </span><span style="color:#666">3.16.0-0.</span>bpo.4-amd64<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">kubeProxyVersion</span>:<span style="color:#bbb"> </span>v0.21.1-185-gffc5a86098dc01<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">kubeletVersion</span>:<span style="color:#bbb"> </span>v0.21.1-185-gffc5a86098dc01<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">machineID</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">osImage</span>:<span style="color:#bbb"> </span>Debian GNU/Linux 7 (wheezy)<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">systemUUID</span>:<span style="color:#bbb"> </span>ABE5F6B4-D44B-108B-C46A-24CCE16C8B6E<span style="color:#bbb">
+</span></code></pre></div><h2 id="次の項目">次の項目</h2>
+<p>以下のような追加のデバッグツールについて学びます:</p>
+<ul>
+<li><a href="/docs/concepts/cluster-administration/logging/">Logging</a></li>
+<li><a href="/docs/tasks/debug-application-cluster/resource-usage-monitoring/">Monitoring</a></li>
+<li><a href="/docs/tasks/debug-application-cluster/get-shell-running-container/">Getting into containers via <code>exec</code></a></li>
+<li><a href="/docs/tasks/extend-kubernetes/http-proxy-access-api/">Connecting to containers via proxies</a></li>
+<li><a href="/docs/tasks/access-application-cluster/port-forward-access-application-cluster/">Connecting to containers via port forwarding</a></li>
+<li><a href="/docs/tasks/debug-application-cluster/crictl/">Inspect Kubernetes node with crictl</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-47290c80fb8b00accec6729f3da49734">9 - クラスターのトラブルシューティング</h1>
+    
+	<!-- overview -->
+<p>このドキュメントはクラスターのトラブルシューティングに関するもので、あなたが経験している問題の根本原因として、アプリケーションをすでに除外していることを前提としています。
+アプリケーションのデバッグのコツは、<a href="/docs/tasks/debug-application-cluster/debug-application">application troubleshooting guide</a>をご覧ください。
+また、<a href="/docs/tasks/debug-application-cluster/troubleshooting/">troubleshooting document</a>にも詳しい情報があります。</p>
+<!-- body -->
+<h2 id="クラスターのリストアップ">クラスターのリストアップ</h2>
+<p>クラスターで最初にデバッグするのは、ノードがすべて正しく登録されているかどうかです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get nodes
+</code></pre></div><p>そして、期待するノードがすべて存在し、それらがすべて <code>Ready</code> 状態であることを確認します。</p>
+<p>クラスター全体の健全性に関する詳細な情報を得るには、以下を実行します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl cluster-info dump
+</code></pre></div><h2 id="ログの確認">ログの確認</h2>
+<p>今のところ、クラスターをより深く掘り下げるには、関連するマシンにログインする必要があります。
+以下は、関連するログファイルの場所です。
+(systemdベースのシステムでは、代わりに <code>journalctl</code> を使う必要があるかもしれないことに注意してください)</p>
+<h3 id="マスターノード">マスターノード</h3>
+<ul>
+<li><code>/var/log/kube-apiserver.log</code> - APIの提供を担当するAPIサーバーのログ</li>
+<li><code>/var/log/kube-scheduler.log</code> - スケジューリング決定責任者であるスケジューラーのログ</li>
+<li><code>/var/log/kube-controller-manager.log</code> - レプリケーションコントローラーを管理するコントローラーのログ</li>
+</ul>
+<h3 id="ワーカーノード">ワーカーノード</h3>
+<ul>
+<li><code>/var/log/kubelet.log</code> - ノード上でコンテナの実行を担当するKubeletのログ</li>
+<li><code>/var/log/kube-proxy.log</code> - サービスのロードバランシングを担うKube Proxyのログ</li>
+</ul>
+<h2 id="クラスター障害モードの一般的な概要">クラスター障害モードの一般的な概要</h2>
+<p>これは、問題が発生する可能性のある事柄と、問題を軽減するためにクラスターのセットアップを調整する方法の不完全なリストです。</p>
+<h3 id="根本的な原因">根本的な原因</h3>
+<ul>
+<li>VMのシャットダウン</li>
+<li>クラスター内、またはクラスターとユーザー間のネットワークパーティション</li>
+<li>Kubernetesソフトウェアのクラッシュ</li>
+<li>データの損失や永続的ストレージ(GCE PDやAWS EBSボリュームなど)の使用不能</li>
+<li>Kubernetesソフトウェアやアプリケーションソフトウェアの設定ミスなど、オペレーターのミス</li>
+</ul>
+<h3 id="具体的なシナリオ">具体的なシナリオ</h3>
+<ul>
+<li>
+<p>apiserver VMのシャットダウンまたはapiserverのクラッシュ</p>
+<ul>
+<li>新しいPod、サービス、レプリケーションコントローラの停止、更新、起動ができない</li>
+<li>Kubernetes APIに依存していない限り、既存のPodやサービスは正常に動作し続けるはずです</li>
+</ul>
+</li>
+<li>
+<p>apiserverのバックアップストレージが失われた</p>
+<ul>
+<li>apiserverが立ち上がらない</li>
+<li>kubeletsは到達できなくなりますが、同じPodを実行し、同じサービスのプロキシを提供し続けます</li>
+<li>apiserverを再起動する前に、手動でapiserverの状態を回復または再現する必要がある</li>
+</ul>
+</li>
+<li>
+<p>サポートサービス(ノードコントローラ、レプリケーションコントローラーマネージャー、スケジューラーなど)VMのシャットダウンまたはクラッシュ</p>
+<ul>
+<li>現在、これらはapiserverとコロケーションしており、使用できない場合はapiserverと同様の影響があります</li>
+<li>将来的には、これらも複製されるようになり、同じ場所に配置されない可能性があります</li>
+<li>独自の永続的な状態を持っていない。</li>
+</ul>
+</li>
+<li>
+<p>個別ノード(VMまたは物理マシン)のシャットダウン</p>
+<ul>
+<li>そのノード上のPodの実行を停止</li>
+</ul>
+</li>
+<li>
+<p>ネットワークパーティション</p>
+<ul>
+<li>パーティションAはパーティションBのノードがダウンしていると考え、パーティションBはapiserverがダウンしていると考えています。(マスターVMがパーティションAで終了したと仮定)</li>
+</ul>
+</li>
+<li>
+<p>Kubeletソフトウェア障害</p>
+<ul>
+<li>クラッシュしたkubeletがノード上で新しいPodを起動できない</li>
+<li>kubeletがPodを削除するかどうか</li>
+<li>ノードが不健全と判定される</li>
+<li>レプリケーションコントローラーが別の場所で新しいPodを起動する</li>
+</ul>
+</li>
+<li>
+<p>クラスターオペレーターエラー</p>
+<ul>
+<li>PodやServiceなどの損失</li>
+<li>apiserverのバックエンドストレージの紛失</li>
+<li>ユーザーがAPIを読めなくなる</li>
+<li>その他</li>
+</ul>
+</li>
+</ul>
+<h3 id="軽減策">軽減策</h3>
+<ul>
+<li>
+<p>対処法: IaaSプロバイダーの自動VM再起動機能をIaaS VMに使用する</p>
+<ul>
+<li>異常: Apiserver VMのシャットダウンまたはApiserverのクラッシュ</li>
+<li>異常: サポートサービスのVMシャットダウンまたはクラッシュ</li>
+</ul>
+</li>
+<li>
+<p>対処法: IaaSプロバイダーの信頼できるストレージ(GCE PDやAWS EBSボリュームなど)をapiserver+etcdを使用するVMに使用する</p>
+<ul>
+<li>異常: Apiserverのバックエンドストレージが失われる</li>
+</ul>
+</li>
+<li>
+<p>対処法: <a href="/docs/setup/production-environment/tools/kubeadm/high-availability/">高可用性</a>構成を使用します</p>
+<ul>
+<li>異常: コントロールプレーンノードのシャットダウンまたはコントロールプレーンコンポーネント(スケジューラー、APIサーバー、コントローラーマネージャー)のクラッシュ
+<ul>
+<li>1つ以上のノードまたはコンポーネントの同時故障に耐えることができる</li>
+</ul>
+</li>
+<li>異常: APIサーバーのバックアップストレージ(etcdのデータディレクトリーなど)が消失
+<ul>
+<li>HA(高可用性) etcdの構成を想定しています</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>対処法: apiserver PDs/EBS-volumesを定期的にスナップショットする</p>
+<ul>
+<li>異常: Apiserver のバックエンドストレージが失われる</li>
+<li>異常: 操作ミスが発生する場合がある</li>
+<li>異常: Kubernetesのソフトウェアに障害が発生する場合がある</li>
+</ul>
+</li>
+<li>
+<p>対処法：レプリケーションコントローラーとServiceをPodの前に使用する</p>
+<ul>
+<li>異常: ノードのシャットダウン</li>
+<li>異常: Kubeletソフトウェア障害</li>
+</ul>
+</li>
+<li>
+<p>対処法: 予期せぬ再起動に耐えられるように設計されたアプリケーション(コンテナ)</p>
+<ul>
+<li>異常: ノードのシャットダウン</li>
+<li>異常: Kubeletソフトウェア障害</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-96b25d30e732385047272b84d3c4188f">10 - リソースメトリクスパイプライン</h1>
+    
+	<!-- overview -->
+<p>Kubernetesでは、コンテナのCPU使用率やメモリ使用率といったリソース使用量のメトリクスが、メトリクスAPIを通じて提供されています。これらのメトリクスは、ユーザーが<code>kubectl top</code>コマンドで直接アクセスするか、クラスター内のコントローラー(例えばHorizontal Pod Autoscaler)が判断するためにアクセスすることができます。</p>
+<!-- body -->
+<h2 id="メトリクスapi">メトリクスAPI</h2>
+<p>メトリクスAPIを使用すると、指定したノードやPodが現在使用しているリソース量を取得することができます。
+このAPIはメトリックの値を保存しないので、例えば10分前に指定されたノードが使用したリソース量を取得することはできません。</p>
+<p>メトリクスAPIは他のAPIと何ら変わりはありません。</p>
+<ul>
+<li>他のKubernetes APIと同じエンドポイントを経由して、<code>/apis/metrics.k8s.io/</code>パスの下で発見できます。</li>
+<li>同じセキュリティ、スケーラビリティ、信頼性の保証を提供します。</li>
+</ul>
+<p>メトリクスAPIは<a href="https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/v1beta1/types.go">k8s.io/metrics</a>リポジトリで定義されています。
+メトリクスAPIについての詳しい情報はそちらをご覧ください。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> メトリクスAPIを使用するには、クラスター内にメトリクスサーバーが配置されている必要があります。そうでない場合は利用できません。
+</div>
+<h2 id="リソース使用量の測定">リソース使用量の測定</h2>
+<h3 id="cpu">CPU</h3>
+<p>CPUは、一定期間の平均使用量を<a href="/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu">CPU cores</a>という単位で報告されます。
+この値は、カーネルが提供する累積CPUカウンターの比率を取得することで得られます(LinuxとWindowsの両カーネルで)。
+kubeletは、比率計算のためのウィンドウを選択します。</p>
+<h3 id="メモリ">メモリ</h3>
+<p>メモリは、測定値が収集された時点のワーキングセットとして、バイト単位で報告されます。
+理想的な世界では、「ワーキングセット」は、メモリ不足で解放できない使用中のメモリ量です。
+しかし、ワーキングセットの計算はホストOSによって異なり、一般に推定値を生成するために経験則を多用しています。
+Kubernetesはスワップをサポートしていないため、すべての匿名(非ファイルバックアップ)メモリが含まれます。
+ホストOSは常にそのようなページを再請求することができないため、メトリックには通常、一部のキャッシュされた(ファイルバックされた)メモリも含まれます。</p>
+<h2 id="メトリクスサーバー">メトリクスサーバー</h2>
+<p><a href="https://github.com/kubernetes-sigs/metrics-server">メトリクスサーバー</a>は、クラスター全体のリソース使用量データのアグリゲーターです。
+デフォルトでは、<code>kube-up.sh</code>スクリプトで作成されたクラスターにDeploymentオブジェクトとしてデプロイされます。
+別のKubernetesセットアップ機構を使用する場合は、提供される<a href="https://github.com/kubernetes-sigs/metrics-server/releases">deployment components.yaml</a>ファイルを使用してデプロイすることができます。
+メトリクスサーバーは、Summary APIからメトリクスを収集します。
+各ノードの<a href="/docs/reference/command-line-tools-reference/kubelet/">Kubelet</a>から<a href="/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/">Kubernetes aggregator</a>経由でメインAPIサーバーに登録されるようになっています。</p>
+<p>メトリクスサーバーについては、<a href="https://github.com/kubernetes/design-proposals-archive/blob/main/instrumentation/metrics-server.md">Design proposals</a>で詳しく解説しています。</p>
+<h3 id="summary-apiソース">Summary APIソース</h3>
+<p><a href="/docs/reference/command-line-tools-reference/kubelet/">Kubelet</a>は、ノード、ボリューム、Pod、コンテナレベルの統計情報を収集し、<a href="https://github.com/kubernetes/kubernetes/blob/7d309e0104fedb57280b261e5677d919cb2a0e2d/staging/src/k8s.io/kubelet/pkg/apis/stats/v1alpha1/types.go">Summary API</a>で省略して消費者が読めるようにするものです。</p>
+<p>1.23以前は、これらのリソースは主に<a href="https://github.com/google/cadvisor">cAdvisor</a>から収集されていました。しかし、1.23では<code>PodAndContainerStatsFromCRI</code>フィーチャーゲートの導入により、コンテナとPodレベルの統計情報をCRI実装で収集することができます。</p>
+<p>注意: これはCRI実装によるサポートも必要です(containerd &gt;= 1.6.0, CRI-O &gt;= 1.23.0)。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-9e6e1b706f11386fe2c4b4ffda1409e4">11 - リソース監視のためのツール</h1>
+    
+	<!-- overview -->
+<p>アプリケーションを拡張し、信頼性の高いサービスを提供するために、デプロイ時にアプリケーションがどのように動作するかを理解する必要があります。
+コンテナ、<a href="/docs/concepts/workloads/pods/">Pod</a>、<a href="/docs/concepts/services-networking/service/">Service</a>、クラスター全体の特性を調べることにより、Kubernetesクラスターのアプリケーションパフォーマンスを調査することができます。
+Kubernetesは、これらの各レベルでアプリケーションのリソース使用に関する詳細な情報を提供します。
+この情報により、アプリケーションのパフォーマンスを評価し、ボトルネックを取り除くことで全体のパフォーマンスを向上させることができます。</p>
+<!-- body -->
+<p>Kubernetesでは、アプリケーションの監視は1つの監視ソリューションに依存することはありません。
+新しいクラスターでは、<a href="#resource-metrics-pipeline">リソースメトリクス</a>または<a href="#full-metrics-pipeline">フルメトリクス</a>パイプラインを使用してモニタリング統計を収集することができます。</p>
+<h2 id="リソースメトリクスパイプライン">リソースメトリクスパイプライン</h2>
+<p>リソースメトリックパイプラインは、<a href="/docs/tasks/run-application/horizontal-pod-autoscale/">Horizontal Pod Autoscaler</a>コントローラーなどのクラスターコンポーネントや、<code>kubectl top</code>ユーティリティに関連する限定的なメトリックセットを提供します。</p>
+<p>これらのメトリクスは軽量、短期、インメモリーの<a href="https://github.com/kubernetes-sigs/metrics-server">metrics-server</a>によって収集され、<code>metrics.k8s.io</code> APIを通じて公開されます。</p>
+<p>metrics-serverはクラスター上のすべてのノードを検出し
+各ノードの<a href="/docs/reference/command-line-tools-reference/kubelet/">kubelet</a>にCPUとメモリーの使用量を問い合わせます。</p>
+<p>kubeletはKubernetesマスターとノードの橋渡し役として、マシン上で動作するPodやコンテナを管理する。
+kubeletは各Podを構成するコンテナに変換し、コンテナランタイムインターフェースを介してコンテナランタイムから個々のコンテナ使用統計情報を取得します。この情報は、レガシーDocker統合のための統合cAdvisorから取得されます。</p>
+<p>そして、集約されたPodリソース使用統計情報を、metrics-server Resource Metrics APIを通じて公開します。
+このAPIは、kubeletの認証済みおよび読み取り専用ポート上の <code>/metrics/resource/v1beta1</code> で提供されます。</p>
+<h2 id="フルメトリクスパイプライン">フルメトリクスパイプライン</h2>
+<p>フルメトリクスパイプラインは、より豊富なメトリクスにアクセスすることができます。
+Kubernetesは、Horizontal Pod Autoscalerなどのメカニズムを使用して、現在の状態に基づいてクラスターを自動的にスケールまたは適応させることによって、これらのメトリクスに対応することができます。
+モニタリングパイプラインは、kubeletからメトリクスを取得し、<code>custom.metrics.k8s.io</code> または <code>external.metrics.k8s.io</code> APIを実装してアダプタ経由でKubernetesにそれらを公開します。
+CNCFプロジェクトの<a href="https://prometheus.io">Prometheus</a>は、Kubernetes、ノード、Prometheus自身をネイティブに監視することができます。
+CNCFに属さない完全なメトリクスパイプラインのプロジェクトは、Kubernetesのドキュメントの範囲外です。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-d25a16285195bd17d9055b1eb7bc605c">12 - ローカルでのサービス開発・デバッグ</h1>
+    
+	<!-- overview -->
+<p>Kubernetesアプリケーションは通常、複数の独立したサービスから構成され、それぞれが独自のコンテナで動作しています。これらのサービスをリモートのKubernetesクラスター上で開発・デバッグするには、<a href="/docs/task/debug-application-cluster/get-shell-running-container/">get a shell on a running container</a>してリモートシェル内でツールを実行しなければならず面倒な場合があります。</p>
+<p><code>telepresence</code>は、リモートKubernetesクラスターにサービスをプロキシーしながら、ローカルでサービスを開発・デバッグするプロセスを容易にするためのツールです。
+<code>telepresence</code> を使用すると、デバッガーやIDEなどのカスタムツールをローカルサービスで使用でき、ConfigMapやsecret、リモートクラスター上で動作しているサービスへのフルアクセスをサービスに提供します。</p>
+<p>このドキュメントでは、リモートクラスタ上で動作しているサービスをローカルで開発・デバッグするために<code>telepresence</code>を使用する方法を説明します。</p>
+<h2 id="始める前に">始める前に</h2>
+<ul>
+<li>Kubernetesクラスターがインストールされていること</li>
+<li>クラスターと通信するために <code>kubectl</code> が設定されていること</li>
+<li><a href="https://www.telepresence.io/reference/install">telepresence</a>がインストールされていること</li>
+</ul>
+<!-- steps -->
+<h2 id="リモートクラスター上でシェルの取得">リモートクラスター上でシェルの取得</h2>
+<p>ターミナルを開いて、引数なしで<code>telepresence</code>を実行すると、<code>telepresence</code>シェルが表示されます。
+このシェルはローカルで動作し、ローカルのファイルシステムに完全にアクセスすることができます。</p>
+<p>この<code>telepresence</code>シェルは様々な方法で使用することができます。
+例えば、ラップトップでシェルスクリプトを書いて、それをシェルから直接リアルタイムで実行することができます。これはリモートシェルでもできますが、好みのコードエディターが使えないかもしれませんし、コンテナが終了するとスクリプトは削除されます。</p>
+<p>終了してシェルを閉じるには<code>exit</code>と入力してください。</p>
+<h2 id="既存サービスの開発-デバッグ">既存サービスの開発・デバッグ</h2>
+<p>Kubernetes上でアプリケーションを開発する場合、通常は1つのサービスをプログラミングまたはデバッグすることになります。
+そのサービスは、テストやデバッグのために他のサービスへのアクセスを必要とする場合があります。
+継続的なデプロイメントパイプラインを使用することも一つの選択肢ですが、最速のデプロイメントパイプラインでさえ、プログラムやデバッグサイクルに遅延が発生します。</p>
+<p>既存のデプロイメントとtelepresenceプロキシーを交換するには、<code>--swap-deployment</code> オプションを使用します。
+スワップすることで、ローカルでサービスを実行し、リモートのKubernetesクラスターに接続することができます。
+リモートクラスター内のサービスは、ローカルで実行されているインスタンスにアクセスできるようになりました。</p>
+<p>telepresenceを「--swap-deployment」で実行するには、次のように入力します。</p>
+<p><code>telepresence --swap-deployment $DEPLOYMENT_NAME</code></p>
+<p>ここで、$DEPLOYMENT_NAMEは既存のDeploymentの名前です。</p>
+<p>このコマンドを実行すると、シェルが起動します。そのシェルで、サービスを起動します。
+そして、ローカルでソースコードの編集を行い、保存すると、すぐに変更が反映されるのを確認できます。
+また、デバッガーやその他のローカルな開発ツールでサービスを実行することもできます。</p>
+<h2 id="次の項目">次の項目</h2>
+<p>もしハンズオンのチュートリアルに興味があるなら、Google Kubernetes Engine上でGuestbookアプリケーションをローカルに開発する手順を説明した<a href="https://cloud.google.com/community/tutorials/developing-services-with-k8s">こちらのチュートリアル</a>をチェックしてみてください。</p>
+<p>telepresenceには、状況に応じて<a href="https://www.telepresence.io/reference/methods">numerous proxying options</a>があります。</p>
+<p>さらに詳しい情報は、<a href="https://www.telepresence.io">telepresence website</a>をご覧ください。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-9713ac27b6d9e3034033200d968221f2">13 - 実行中のコンテナへのシェルを取得する</h1>
+    
+	<!-- overview -->
+<p>このページは<code>kubectl exec</code>を使用して実行中のコンテナへのシェルを取得する方法を説明します。</p>
+<h2 id="始める前に">始める前に</h2>
+<p><p>Kubernetesクラスターが必要、かつそのクラスターと通信するためにkubectlコマンドラインツールが設定されている必要があります。
+このチュートリアルは、コントロールプレーンのホストとして動作していない少なくとも2つのノードを持つクラスターで実行することをおすすめします。
+まだクラスターがない場合、<a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">minikube</a>を使って作成するか、
+以下のいずれかのKubernetesプレイグラウンドも使用できます:</p>
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">Play with Kubernetes</a></li>
+</ul>
+ 
+ バージョンを確認するには次のコマンドを実行してください: <code>kubectl version</code>.
+</p>
+<!-- steps -->
+<h2 id="コンテナへのシェルの取得">コンテナへのシェルの取得</h2>
+<p>このエクササイズでは、1つのコンテナを持つPodを作成します。
+コンテナはnginxのイメージを実行します。以下がそのPodの設定ファイルです:</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ja/examples/application/shell-demo.yaml" download="application/shell-demo.yaml"><code>application/shell-demo.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-shell-demo-yaml')" title="Copy application/shell-demo.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-shell-demo-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>shell-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">volumes</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>shared-data<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">emptyDir</span>:<span style="color:#bbb"> </span>{}<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">volumeMounts</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>shared-data<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/usr/share/nginx/html<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>Podを作成します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/shell-demo.yaml
+</code></pre></div><p>コンテナが実行中であることを確認します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod shell-demo
+</code></pre></div><p>実行中のコンテナへのシェルを取得します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">exec</span> --stdin --tty shell-demo -- /bin/bash
+</code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> ダブルダッシュの記号 <code>--</code> はコマンドに渡す引数とkubectlの引数を分離します。
+</div>
+<p>シェル内で、ルートディレクトリーのファイル一覧を表示します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># このコマンドをコンテナ内で実行します</span>
+ls /
+</code></pre></div><p>シェル内で、他のコマンドを試しましょう。以下がいくつかの例です:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># これらのサンプルコマンドをコンテナ内で実行することができます</span>
+ls /
+cat /proc/mounts
+cat /proc/1/maps
+apt-get update
+apt-get install -y tcpdump
+tcpdump
+apt-get install -y lsof
+lsof
+apt-get install -y procps
+ps aux
+ps aux | grep nginx
+</code></pre></div><h2 id="nginxのルートページへの書き込み">nginxのルートページへの書き込み</h2>
+<p>Podの設定ファイルを再度確認します。Podは<code>emptyDir</code>ボリュームを持ち、
+コンテナは<code>/usr/share/nginx/html</code>ボリュームをマウントします。</p>
+<p>シェル内で、<code>/usr/share/nginx/html</code>ディレクトリに<code>index.html</code>を作成します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># このコマンドをコンテナ内で実行します</span>
+<span style="color:#a2f">echo</span> <span style="color:#b44">&#39;Hello shell demo&#39;</span> &gt; /usr/share/nginx/html/index.html
+</code></pre></div><p>シェル内で、nginxサーバーにGETリクエストを送信します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># これらのコマンドをコンテナ内のシェルで実行します</span>
+apt-get update
+apt-get install curl
+curl http://localhost/
+</code></pre></div><p>出力に<code>index.html</code>ファイルに書き込んだ文字列が表示されます:</p>
+<pre><code>Hello shell demo
+</code></pre><p>シェルを終了する場合、<code>exit</code>を入力します。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#a2f">exit</span> <span style="color:#080;font-style:italic"># コンテナ内のシェルを終了する</span>
+</code></pre></div><h2 id="コンテナ内での各コマンドの実行">コンテナ内での各コマンドの実行</h2>
+<p>シェルではない通常のコマンドウインドウ内で、実行中のコンテナの環境変数の一覧を表示します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">exec</span> shell-demo env
+</code></pre></div><p>他のコマンドを試します。以下がいくつかの例です:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">exec</span> shell-demo -- ps aux
+kubectl <span style="color:#a2f">exec</span> shell-demo -- ls /
+kubectl <span style="color:#a2f">exec</span> shell-demo -- cat /proc/1/mounts
+</code></pre></div><!-- discussion -->
+<h2 id="podが1つ以上のコンテナを持つ場合にシェルを開く">Podが1つ以上のコンテナを持つ場合にシェルを開く</h2>
+<p>Podが1つ以上のコンテナを持つ場合、<code>--container</code>か<code>-c</code>を使用して、<code>kubectl exec</code>コマンド内でコンテナを指定します。
+例えば、my-podという名前のPodがあり、そのPodが <em>main-app</em> と <em>helper-app</em> という2つのコンテナを持つとします。
+以下のコマンドは <em>main-app</em> のコンテナへのシェルを開きます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">exec</span> -i -t my-pod --container main-app -- /bin/bash
+</code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> ショートオプションの<code>-i</code>と<code>-t</code>は、ロングオプションの<code>--stdin</code>と<code>--tty</code>と同様です。
+</div>
+<h2 id="次の項目">次の項目</h2>
+<ul>
+<li><a href="/docs/reference/generated/kubectl/kubectl-commands/#exec">kubectl exec</a>について読む</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-cbd33a50cc4779f855318a0dd00d7b06">14 - 監査</h1>
+    
+	<!-- overview -->
+<p>Kubernetesの監査はクラスター内の一連の行動を記録するセキュリティに関連した時系列の記録を提供します。
+クラスターはユーザー、Kubernetes APIを使用するアプリケーション、
+およびコントロールプレーン自体によって生成されたアクティビティなどを監査します。</p>
+<p>監査により、クラスター管理者は以下の質問に答えることができます:</p>
+<ul>
+<li>何が起きたのか？</li>
+<li>いつ起こったのか？</li>
+<li>誰がそれを始めたのか？</li>
+<li>何のために起こったのか？</li>
+<li>それはどこで観察されたのか？</li>
+<li>それはどこから始まったのか？</li>
+<li>それはどこへ向かっていたのか？</li>
+</ul>
+<!-- body -->
+<p>監査記録のライフサイクルは<a href="/docs/reference/command-line-tools-reference/kube-apiserver/">kube-apiserver</a>コンポーネントの中で始まります。
+各リクエストの実行の各段階で、監査イベントが生成されます。
+ポリシーに従って前処理され、バックエンドに書き込まれます。 ポリシーが何を記録するかを決定し、
+バックエンドがその記録を永続化します。現在のバックエンドの実装はログファイルやWebhookなどがあります。</p>
+<p>各リクエストは関連する <em>stage</em> で記録されます。
+定義されたステージは以下の通りです:</p>
+<ul>
+<li><code>RequestReceived</code> - 監査ハンドラーがリクエストを受信すると同時に生成されるイベントのステージ。
+つまり、ハンドラーチェーンに委譲される前に生成されるイベントのステージです。</li>
+<li><code>ResponseStarted</code> - レスポンスヘッダーが送信された後、レスポンスボディが送信される前のステージです。
+このステージは長時間実行されるリクエスト(watchなど)でのみ発生します。</li>
+<li><code>ResponseComplete</code> - レスポンスボディの送信が完了して、それ以上のバイトは送信されません。</li>
+<li><code>Panic</code> - パニックが起きたときに発生するイベント。</li>
+</ul>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> <a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event">Audit Event configuration</a>の設定は<a href="/docs/reference/generated/kubernetes-api/v1.23/#event-v1-core">Event</a>APIオブジェクトとは異なります。
+</div>
+<p>監査ログ機能は、リクエストごとに監査に必要なコンテキストが保存されるため、APIサーバーのメモリー消費量が増加します。
+メモリーの消費量は、監査ログ機能の設定によって異なります。</p>
+<h2 id="監査ポリシー">監査ポリシー</h2>
+<p>監査ポリシーはどのようなイベントを記録し、どのようなデータを含むべきかについてのルールを定義します。
+監査ポリシーのオブジェクト構造は、<a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy"><code>audit.k8s.io</code> API group</a>で定義されています。</p>
+<p>イベントが処理されると、そのイベントは順番にルールのリストと比較されます。
+最初のマッチングルールは、イベントの監査レベルを設定します。</p>
+<p>定義されている監査レベルは:</p>
+<ul>
+<li><code>None</code> - ルールに一致するイベントを記録しません。</li>
+<li><code>Metadata</code> - リクエストのメタデータ(リクエストしたユーザー、タイムスタンプ、リソース、動作など)を記録しますが、リクエストやレスポンスのボディは記録しません。</li>
+<li><code>Request</code> - ログイベントのメタデータとリクエストボディは表示されますが、レスポンスボディは表示されません。
+これは非リソースリクエストには適用されません。</li>
+<li><code>RequestResponse</code> - イベントのメタデータ、リクエストとレスポンスのボディを記録しますが、
+非リソースリクエストには適用されません。</li>
+</ul>
+<p><code>audit-policy-file</code>フラグを使って、ポリシーを記述したファイルを <code>kube-apiserver</code>に渡すことができます。
+このフラグが省略された場合イベントは記録されません。
+監査ポリシーファイルでは、<code>rules</code>フィールドが必ず指定されることに注意してください。
+ルールがない(0)ポリシーは不当なものとして扱われます。</p>
+<p>以下は監査ポリシーファイルの例です:</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ja/examples/audit/audit-policy.yaml" download="audit/audit-policy.yaml"><code>audit/audit-policy.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('audit-audit-policy-yaml')" title="Copy audit/audit-policy.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="audit-audit-policy-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>audit.k8s.io/v1<span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># This is required.</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Policy<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#080;font-style:italic"># Don&#39;t generate audit events for all requests in RequestReceived stage.</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">omitStages</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;RequestReceived&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">rules</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Log pod changes at RequestResponse level</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>RequestResponse<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># Resource &#34;pods&#34; doesn&#39;t match requests to any subresource of pods,</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># which is consistent with the RBAC policy.</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;pods&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Log &#34;pods/log&#34;, &#34;pods/status&#34; at Metadata level</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Metadata<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;pods/log&#34;</span>,<span style="color:#bbb"> </span><span style="color:#b44">&#34;pods/status&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Don&#39;t log requests to a configmap called &#34;controller-leader&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>None<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;configmaps&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resourceNames</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;controller-leader&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Don&#39;t log watch requests by the &#34;system:kube-proxy&#34; on endpoints or services</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>None<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">users</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;system:kube-proxy&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;watch&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># core API group</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;endpoints&#34;</span>,<span style="color:#bbb"> </span><span style="color:#b44">&#34;services&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Don&#39;t log authenticated requests to certain non-resource URL paths.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>None<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">userGroups</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;system:authenticated&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">nonResourceURLs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#b44">&#34;/api*&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># Wildcard matching.</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#b44">&#34;/version&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Log the request body of configmap changes in kube-system.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Request<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># core API group</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;configmaps&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># This rule only applies to resources in the &#34;kube-system&#34; namespace.</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># The empty string &#34;&#34; can be used to select non-namespaced resources.</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">namespaces</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;kube-system&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Log configmap and secret changes in all other namespaces at the Metadata level.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Metadata<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># core API group</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb"> </span>[<span style="color:#b44">&#34;secrets&#34;</span>,<span style="color:#bbb"> </span><span style="color:#b44">&#34;configmaps&#34;</span>]<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># Log all other resources in core and extensions at the Request level.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Request<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># core API group</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>- <span style="color:#008000;font-weight:bold">group</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;extensions&#34;</span><span style="color:#bbb"> </span><span style="color:#080;font-style:italic"># Version of group should NOT be included.</span><span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># A catch-all rule to log all other requests at the Metadata level.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Metadata<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># Long-running requests like watches that fall under this rule will not</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># generate an audit event in RequestReceived.</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">omitStages</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#b44">&#34;RequestReceived&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>最小限の監査ポリシーファイルを使用して、すべてのリクエストを <code>Metadata</code>レベルで記録することができます。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># Log all requests at the Metadata level.</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>audit.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Policy<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">rules</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">level</span>:<span style="color:#bbb"> </span>Metadata<span style="color:#bbb">
+</span></code></pre></div><p>独自の監査プロファイルを作成する場合は、Google Container-Optimized OSの監査プロファイルを出発点として使用できます。
+監査ポリシーファイルを生成する<a href="https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh">configure-helper.sh</a>スクリプトを確認することができます。
+スクリプトを直接見ることで、監査ポリシーファイルのほとんどを見ることができます。</p>
+<p>また、定義されているフィールドの詳細については、<a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy">Policy` configuration reference</a>を参照できます。</p>
+<h2 id="監査バックエンド">監査バックエンド</h2>
+<p>監査バックエンドは監査イベントを外部ストレージに永続化します。
+kube-apiserverには2つのバックエンドが用意されています。</p>
+<ul>
+<li>イベントをファイルシステムに書き込むログバックエンド</li>
+<li>外部のHTTP APIにイベントを送信するWebhookバックエンド</li>
+</ul>
+<p>いずれの場合も、監査イベントはKubernetes API<a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event"><code>audit.k8s.io</code> API group</a>で定義されている構造に従います。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>備考:</strong> <p>パッチの場合、リクエストボディはパッチ操作を含むJSON配列であり、適切なKubernetes APIオブジェクトを含むJSONオブジェクトではありません。
+例えば、以下のリクエストボディは<code>/apis/batch/v1/namespaces/some-namespace/jobs/some-job-name</code>に対する有効なパッチリクエストです。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
+  {
+    <span style="color:#008000;font-weight:bold">&#34;op&#34;</span>: <span style="color:#b44">&#34;replace&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;path&#34;</span>: <span style="color:#b44">&#34;/spec/parallelism&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;value&#34;</span>: <span style="color:#666">0</span>
+  },
+  {
+    <span style="color:#008000;font-weight:bold">&#34;op&#34;</span>: <span style="color:#b44">&#34;remove&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;path&#34;</span>: <span style="color:#b44">&#34;/spec/template/spec/containers/0/terminationMessagePolicy&#34;</span>
+  }
+]
+</code></pre></div>
+</div>
+<h3 id="ログバックエンド">ログバックエンド</h3>
+<p>ログバックエンドは監査イベントを<a href="https://jsonlines.org/">JSONlines</a>形式のファイルに書き込みます。
+以下の <code>kube-apiserver</code> フラグを使ってログ監査バックエンドを設定できます。</p>
+<ul>
+<li><code>--audit-log-path</code> は、ログバックエンドが監査イベントを書き込む際に使用するログファイルのパスを指定します。
+このフラグを指定しないと、ログバックエンドは無効になります。<code>-</code> は標準出力を意味します。</li>
+<li><code>--audit-log-maxage</code> は、古い監査ログファイルを保持する最大日数を定義します。</li>
+<li><code>audit-log-maxbackup</code>は、保持する監査ログファイルの最大数を定義します。</li>
+<li><code>--audit-log-maxsize</code> は、監査ログファイルがローテーションされるまでの最大サイズをメガバイト単位で定義します。</li>
+</ul>
+<p>クラスターのコントロールプレーンでkube-apiserverをPodとして動作させている場合は、監査記録が永久化されるように、ポリシーファイルとログファイルの場所に<code>hostPath</code>をマウントすることを忘れないでください。
+例えば:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">    --audit-policy-file<span style="color:#666">=</span>/etc/kubernetes/audit-policy.yaml <span style="color:#b62;font-weight:bold">\
+</span><span style="color:#b62;font-weight:bold"></span>    --audit-log-path<span style="color:#666">=</span>/var/log/audit.log
+</code></pre></div><p>それからボリュームをマウントします:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">volumeMounts</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/etc/kubernetes/audit-policy.yaml<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>audit<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">readOnly</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/log/audit.log<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>audit-log<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">readOnly</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">false</span><span style="color:#bbb">
+</span></code></pre></div><p>最後に<code>hostPath</code>を設定します:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">volumes</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>audit<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/etc/kubernetes/audit-policy.yaml<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>File<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>audit-log<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/var/log/audit.log<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>FileOrCreate<span style="color:#bbb">
+</span></code></pre></div><h3 id="webhookバックエンド">Webhookバックエンド</h3>
+<p>Webhook監査バックエンドは、監査イベントをリモートのWeb APIに送信しますが、
+これは認証手段を含むKubernetes APIの形式であると想定されます。</p>
+<p>Webhook監査バックエンドを設定するには、以下のkube-apiserverフラグを使用します。</p>
+<ul>
+<li><code>--audit-webhook-config-file</code> は、Webhookの設定ファイルのパスを指定します。
+webhookの設定は、事実上特化した<a href="/docs/tasks/access-application-cluster/configure-access-multiple-clusters">kubeconfig</a>です。</li>
+<li><code>--audit-webhook-initial-backoff</code> は、最初に失敗したリクエストの後、再試行するまでに待つ時間を指定します。
+それ以降のリクエストは、指数関数的なバックオフで再試行されます。</li>
+</ul>
+<p>Webhookの設定ファイルは、kubeconfig形式でサービスのリモートアドレスと接続に使用する認証情報を指定します。</p>
+<h2 id="batching">イベントバッチ</h2>
+<p>ログバックエンドとwebhookバックエンドの両方がバッチ処理をサポートしています。
+webhookを例に、利用可能なフラグの一覧を示します。
+ログバックエンドで同じフラグを取得するには、フラグ名の<code>webhook</code>を<code>log</code>に置き換えてください。
+デフォルトでは、バッチングは<code>webhook</code>では有効で、<code>log</code>では無効です。
+同様に、デフォルトではスロットリングは <code>webhook</code> で有効で、<code>log</code>では無効です。</p>
+<ul>
+<li><code>--audit-webhook-mode</code> は、バッファリング戦略を定義します。以下のいずれかとなります。
+<ul>
+<li><code>batch</code> - イベントをバッファリングして、非同期にバッチ処理します。これがデフォルトです。</li>
+<li><code>blocking</code> - 個々のイベントを処理する際に、APIサーバーの応答をブロックします。</li>
+<li><code>blocking-strict</code> - blockingと同じですが、RequestReceivedステージでの監査ログに失敗した場合は RequestReceivedステージで監査ログに失敗すると、kube-apiserverへのリクエスト全体が失敗します。</li>
+</ul>
+</li>
+</ul>
+<p>以下のフラグは <code>batch</code> モードでのみ使用されます:</p>
+<ul>
+<li><code>--audit-webhook-batch-buffer-size</code>は、バッチ処理を行う前にバッファリングするイベントの数を定義します。
+入力イベントの割合がバッファをオーバーフローすると、イベントはドロップされます。</li>
+<li><code>--audit-webhook-batch-max-size</code>は、1つのバッチに入れるイベントの最大数を定義します。</li>
+<li><code>--audit-webhook-batch-max-wait</code>は、キュー内のイベントを無条件にバッチ処理するまでの最大待機時間を定義します。</li>
+<li><code>--audit-webhook-batch-throttle-qps</code>は、1秒あたりに生成されるバッチの最大平均数を定義します。</li>
+<li><code>--audit-webhook-batch-throttle-burst</code>は、許可された QPS が低い場合に、同じ瞬間に生成されるバッチの最大数を定義します。</li>
+</ul>
+<h2 id="パラメーターチューニング">パラメーターチューニング</h2>
+<p>パラメーターは、APIサーバーの負荷に合わせて設定してください。</p>
+<p>例えば、kube-apiserverが毎秒100件のリクエストを受け取り、それぞれのリクエストが<code>ResponseStarted</code>と<code>ResponseComplete</code>の段階でのみ監査されるとします。毎秒≅200の監査イベントが発生すると考えてください。
+1つのバッチに最大100個のイベントがあるの場合、スロットリングレベルを少なくとも2クエリ/秒に設定する必要があります。
+バックエンドがイベントを書き込むのに最大で5秒かかる場合、5秒分のイベントを保持するようにバッファーサイズを設定する必要があります。</p>
+<p>10バッチ、または1000イベントとなります。</p>
+<p>しかし、ほとんどの場合デフォルトのパラメーターで十分であり、手動で設定する必要はありません。
+kube-apiserverが公開している以下のPrometheusメトリクスや、ログを見て監査サブシステムの状態を監視することができます。</p>
+<ul>
+<li><code>apiserver_audit_event_total</code>メトリックには、エクスポートされた監査イベントの合計数が含まれます。</li>
+<li><code>apiserver_audit_error_total</code>メトリックには、エクスポート中にエラーが発生してドロップされたイベントの総数が含まれます。</li>
+</ul>
+<h3 id="truncate">ログエントリー・トランケーション</h3>
+<p>logバックエンドとwebhookバックエンドは、ログに記録されるイベントのサイズを制限することをサポートしています。</p>
+<p>例として、logバックエンドで利用可能なフラグの一覧を以下に示します</p>
+<ul>
+<li><code>audit-log-truncate-enabled</code>イベントとバッチの切り捨てを有効にするかどうかです。</li>
+<li><code>audit-log-truncate-max-batch-size</code>バックエンドに送信されるバッチのバイト単位の最大サイズ。</li>
+<li><code>audit-log-truncate-max-event-size</code>バックエンドに送信される監査イベントのバイト単位の最大サイズです。</li>
+</ul>
+<p>デフォルトでは、<code>webhook</code>と<code>log</code>の両方で切り捨ては無効になっていますが、クラスター管理者は <code>audit-log-truncate-enabled</code>または<code>audit-webhook-truncate-enabled</code>を設定して、この機能を有効にする必要があります。</p>
+<h2 id="次の項目">次の項目</h2>
+<ul>
+<li><a href="/docs/reference/access-authn-authz/extensible-admission-controllers/#mutating-webhook-auditing-annotations">Mutating webhook auditing annotations</a>.</li>
+<li><a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Event"><code>Event</code></a></li>
+<li><a href="/docs/reference/config-api/apiserver-audit.v1/#audit-k8s-io-v1-Policy"><code>Policy</code></a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/ja/docs/home/">ホーム</a>
+      
+      <a class="text-white" href="/ja/blog/">Blogs</a>
+      
+      <a class="text-white" href="/ja/training/">トレーニング</a>
+      
+      <a class="text-white" href="/ja/partners/">パートナー</a>
+      
+      <a class="text-white" href="/ja/community/">コミュニティ</a>
+      
+      <a class="text-white" href="/ja/case-studies/">ケーススタディ</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

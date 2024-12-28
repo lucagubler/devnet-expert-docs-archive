@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="uk" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/zh/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="pt-br" href="http://localhost:1313/pt-br/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="vi" href="http://localhost:1313/vi/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="ru" href="http://localhost:1313/ru/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<link rel="alternate" hreflang="pl" href="http://localhost:1313/pl/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>Ознайомлення з Pod&#39;ами і вузлами (nodes) | Kubernetes</title><meta property="og:title" content="Ознайомлення з Pod&#39;ами і вузлами (nodes)" />
+<meta property="og:description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2020-04-14T15:31:49+03:00" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="Ознайомлення з Pod&#39;ами і вузлами (nodes)">
+<meta itemprop="description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers.">
+<meta itemprop="dateModified" content="2020-04-14T15:31:49+03:00" />
+<meta itemprop="wordCount" content="1086">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Ознайомлення з Pod&#39;ами і вузлами (nodes)"/>
+<meta name="twitter:description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers."/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers.">
+<meta property="og:description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers.">
+<meta name="twitter:description" content="Objectives -- Цілі  Learn about Kubernetes Pods. -- Дізнатися, що таке Pod&#39;и Kubernetes. Learn about Kubernetes Nodes. -- Дізнатися, що таке вузли Kubernetes. Troubleshoot deployed applications. -- Діагностика розгорнутих застосунків.   Kubernetes Pods -- Pod&#39;и Kubernetes When you created a Deployment in Module 2, Kubernetes created a Pod to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers.">
+<meta property="og:url" content="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">
+<meta property="og:title" content="Ознайомлення з Pod&#39;ами і вузлами (nodes)">
+<meta name="twitter:title" content="Ознайомлення з Pod&#39;ами і вузлами (nodes)">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+    <title>Ознайомлення з Pod&#39;ами і вузлами (nodes) | Kubernetes</title>
+  </head>
+  <body class="td-page td-documentation">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/uk/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/uk/docs/" >Документація</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/uk/case-studies/" >Приклади використання</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Українська
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tutorials/kubernetes-basics/explore/explore-intro/">English</a>
+	
+	<a class="dropdown-item" href="/zh/docs/tutorials/kubernetes-basics/explore/explore-intro/">中文 Chinese</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tutorials/kubernetes-basics/explore/explore-intro/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/ja/docs/tutorials/kubernetes-basics/explore/explore-intro/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/de/docs/tutorials/kubernetes-basics/explore/explore-intro/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/pt-br/docs/tutorials/kubernetes-basics/explore/explore-intro/">Português</a>
+	
+	<a class="dropdown-item" href="/id/docs/tutorials/kubernetes-basics/explore/explore-intro/">Bahasa Indonesia</a>
+	
+	<a class="dropdown-item" href="/vi/docs/tutorials/kubernetes-basics/explore/explore-intro/">Tiếng Việt</a>
+	
+	<a class="dropdown-item" href="/ru/docs/tutorials/kubernetes-basics/explore/explore-intro/">Русский</a>
+	
+	<a class="dropdown-item" href="/pl/docs/tutorials/kubernetes-basics/explore/explore-intro/">Polski</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+      
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+      
+        <section class="header-hero filler">
+        </section>
+         
+
+
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-md-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+  <script>
+    $(function() {
+    $("#td-section-nav a").removeClass("active");
+    $("#td-section-nav #m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro").addClass("active"); 
+    $("#td-section-nav #m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro-li span").addClass("td-sidebar-nav-active-item"); 
+    $("#td-section-nav #m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro").parents("li").addClass("active-path"); 
+    $("#td-section-nav li.active-path").addClass("show"); 
+    $("#td-section-nav li.active-path").children("input").prop('checked', true);
+    $("#td-section-nav #m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro-li").siblings("li").addClass("show");  
+    $("#td-section-nav #m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro-li").children("ul").children("li").addClass("show");  
+    $("#td-sidebar-menu").toggleClass("d-none"); 
+    });
+  </script>
+  
+<div id="td-sidebar-menu" class="td-sidebar__inner d-none">
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+  <input
+    type="search"
+    class="form-control td-search-input"
+    name="q"
+    placeholder="&#xf002 Пошук"
+    aria-label="Пошук"
+    autocomplete="off"
+  >
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="collapse td-sidebar-nav" id="td-section-nav">
+    
+    
+    <ul class="td-sidebar-nav__section pr-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-uk-docs-li">
+    <ul class="ul-1">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-uk-docs-reference-glossary-li">
+    
+      <a href="/uk/docs/reference/glossary/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-reference-glossary"><span class="">Глосарій</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-uk-docs-home-li">
+    
+      <a href="/uk/docs/home/" title="Документація Kubernetes" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-home"><span class="">Головна</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-uk-docs-tasks-tools-install-minikube-li">
+    
+      <a href="/uk/docs/tasks/tools/install-minikube/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tasks-tools-install-minikube"><span class="">Встановлення Minikube</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-uk-docs-setup-li">
+    
+      <a href="/uk/docs/setup/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup"><span class="">Початок роботи</span></a>
+      <ul class="ul-2 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-release-li">
+    
+      <a href="/uk/docs/setup/release/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-release"><span class="">Зміни в релізах нових версій</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-learning-environment-li">
+    
+      <a href="/uk/docs/setup/learning-environment/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-learning-environment"><span class="">Навчальне оточення</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-setup-production-environment-li">
+    
+      <a href="/uk/docs/setup/production-environment/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment"><span class="">Прод оточення</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-setup-production-environment-container-runtimes-li">
+    
+      <a href="/docs/setup/production-environment/container-runtimes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-setup-production-environment-container-runtimes"><span class="">Container Runtimes</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-setup-production-environment-turnkey-solutions-li">
+    
+      <a href="/docs/setup/production-environment/turnkey-solutions/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-setup-production-environment-turnkey-solutions"><span class="">Turnkey Cloud Solutions</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-setup-production-environment-tools-li">
+    
+      <a href="/uk/docs/setup/production-environment/tools/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment-tools"><span class="">Встановлення Kubernetes за допомогою інструментів розгортання</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-production-environment-tools-kubeadm-li">
+    
+      <a href="/uk/docs/setup/production-environment/tools/kubeadm/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment-tools-kubeadm"><span class="">Запуск кластерів з kubeadm</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-setup-production-environment-tools-kops-li">
+    
+      <a href="/docs/setup/production-environment/tools/kops/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-setup-production-environment-tools-kops"><span class="">Installing Kubernetes with kops</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-setup-production-environment-tools-kubespray-li">
+    
+      <a href="/docs/setup/production-environment/tools/kubespray/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-setup-production-environment-tools-kubespray"><span class="">Installing Kubernetes with Kubespray</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-production-environment-turnkey-li">
+    
+      <a href="/uk/docs/setup/production-environment/turnkey/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment-turnkey"><span class="">Хмарні рішення під ключ</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-production-environment-on-premises-vm-li">
+    
+      <a href="/uk/docs/setup/production-environment/on-premises-vm/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment-on-premises-vm"><span class="">Менеджери віртуалізації</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-production-environment-windows-li">
+    
+      <a href="/uk/docs/setup/production-environment/windows/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-production-environment-windows"><span class="">Windows в Kubernetes</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-setup-best-practices-li">
+    
+      <a href="/uk/docs/setup/best-practices/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-setup-best-practices"><span class="">Найкращі практики</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-uk-docs-concepts-li">
+    
+      <a href="/uk/docs/concepts/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts"><span class="">Концепції</span></a>
+      <ul class="ul-2 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-concepts-overview-li">
+    
+      <a href="/uk/docs/concepts/overview/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-overview"><span class="">Огляд</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-concepts-overview-what-is-kubernetes-li">
+    
+      <a href="/uk/docs/concepts/overview/what-is-kubernetes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-concepts-overview-what-is-kubernetes"><span class="">Що таке Kubernetes?</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-components-li">
+    
+      <a href="/docs/concepts/overview/components/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-components"><span class="">Kubernetes Components</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-kubernetes-api-li">
+    
+      <a href="/docs/concepts/overview/kubernetes-api/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-kubernetes-api"><span class="">The Kubernetes API</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-overview-working-with-objects-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-overview-working-with-objects"><span class="">Working with Kubernetes Objects</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-kubernetes-objects-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/kubernetes-objects/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-kubernetes-objects"><span class="">Understanding Kubernetes Objects</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-object-management-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/object-management/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-object-management"><span class="">Kubernetes Object Management</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-names-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/names/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-names"><span class="">Object Names and IDs</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-namespaces-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/namespaces/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-namespaces"><span class="">Namespaces</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-labels-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/labels/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-labels"><span class="">Labels and Selectors</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-annotations-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/annotations/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-annotations"><span class="">Annotations</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-field-selectors-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/field-selectors/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-field-selectors"><span class="">Field Selectors</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-finalizers-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/finalizers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-finalizers"><span class="">Finalizers</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-owners-dependents-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/owners-dependents/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-owners-dependents"><span class="">Owners and Dependents</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-overview-working-with-objects-common-labels-li">
+    
+      <a href="/docs/concepts/overview/working-with-objects/common-labels/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-overview-working-with-objects-common-labels"><span class="">Recommended Labels</span></a>
+      
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-architecture-li">
+    
+      <a href="/docs/concepts/architecture/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-architecture"><span class="">Cluster Architecture</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-nodes-li">
+    
+      <a href="/docs/concepts/architecture/nodes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-nodes"><span class="">Nodes</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-control-plane-node-communication-li">
+    
+      <a href="/docs/concepts/architecture/control-plane-node-communication/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-control-plane-node-communication"><span class="">Control Plane-Node Communication</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-controller-li">
+    
+      <a href="/docs/concepts/architecture/controller/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-controller"><span class="">Controllers</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-cloud-controller-li">
+    
+      <a href="/docs/concepts/architecture/cloud-controller/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-cloud-controller"><span class="">Cloud Controller Manager</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-cri-li">
+    
+      <a href="/docs/concepts/architecture/cri/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-cri"><span class="">Container Runtime Interface (CRI)</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-architecture-garbage-collection-li">
+    
+      <a href="/docs/concepts/architecture/garbage-collection/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-architecture-garbage-collection"><span class="">Garbage Collection</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-containers-li">
+    
+      <a href="/docs/concepts/containers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-containers"><span class="">Containers</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-containers-images-li">
+    
+      <a href="/docs/concepts/containers/images/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-containers-images"><span class="">Images</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-containers-container-environment-li">
+    
+      <a href="/docs/concepts/containers/container-environment/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-containers-container-environment"><span class="">Container Environment</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-containers-runtime-class-li">
+    
+      <a href="/docs/concepts/containers/runtime-class/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-containers-runtime-class"><span class="">Runtime Class</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-containers-container-lifecycle-hooks-li">
+    
+      <a href="/docs/concepts/containers/container-lifecycle-hooks/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-containers-container-lifecycle-hooks"><span class="">Container Lifecycle Hooks</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-concepts-workloads-li">
+    
+      <a href="/uk/docs/concepts/workloads/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-workloads"><span class="">Робочі навантаження</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-workloads-pods-li">
+    
+      <a href="/docs/concepts/workloads/pods/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-workloads-pods"><span class="">Pods</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-workloads-pods-pod-lifecycle-li">
+    
+      <a href="/docs/concepts/workloads/pods/pod-lifecycle/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-workloads-pods-pod-lifecycle"><span class="">Pod Lifecycle</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-workloads-pods-init-containers-li">
+    
+      <a href="/docs/concepts/workloads/pods/init-containers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-workloads-pods-init-containers"><span class="">Init Containers</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-workloads-pods-pod-topology-spread-constraints-li">
+    
+      <a href="/docs/concepts/workloads/pods/pod-topology-spread-constraints/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-workloads-pods-pod-topology-spread-constraints"><span class="">Pod Topology Spread Constraints</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-workloads-pods-disruptions-li">
+    
+      <a href="/docs/concepts/workloads/pods/disruptions/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-workloads-pods-disruptions"><span class="">Disruptions</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-workloads-pods-ephemeral-containers-li">
+    
+      <a href="/docs/concepts/workloads/pods/ephemeral-containers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-workloads-pods-ephemeral-containers"><span class="">Ephemeral Containers</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-concepts-workloads-controllers-li">
+    
+      <a href="/uk/docs/concepts/workloads/controllers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-workloads-controllers"><span class="">Контролери</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-concepts-services-networking-li">
+    
+      <a href="/uk/docs/concepts/services-networking/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-services-networking"><span class="">Сервіси, балансування навантаження та мережа</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-concepts-storage-li">
+    
+      <a href="/uk/docs/concepts/storage/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-storage"><span class="">Сховища інформації</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-concepts-configuration-li">
+    
+      <a href="/uk/docs/concepts/configuration/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-concepts-configuration"><span class="">Конфігурація</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-security-li">
+    
+      <a href="/docs/concepts/security/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-security"><span class="">Security</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-security-overview-li">
+    
+      <a href="/docs/concepts/security/overview/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-security-overview"><span class="">Overview of Cloud Native Security</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-security-pod-security-standards-li">
+    
+      <a href="/docs/concepts/security/pod-security-standards/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-security-pod-security-standards"><span class="">Pod Security Standards</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-security-pod-security-admission-li">
+    
+      <a href="/docs/concepts/security/pod-security-admission/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-security-pod-security-admission"><span class="">Pod Security Admission</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-security-pod-security-policy-li">
+    
+      <a href="/docs/concepts/security/pod-security-policy/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-security-pod-security-policy"><span class="">Pod Security Policies</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-security-controlling-access-li">
+    
+      <a href="/docs/concepts/security/controlling-access/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-security-controlling-access"><span class="">Controlling Access to the Kubernetes API</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-policy-li">
+    
+      <a href="/docs/concepts/policy/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-policy"><span class="">Policies</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-policy-limit-range-li">
+    
+      <a href="/docs/concepts/policy/limit-range/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-policy-limit-range"><span class="">Limit Ranges</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-policy-resource-quotas-li">
+    
+      <a href="/docs/concepts/policy/resource-quotas/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-policy-resource-quotas"><span class="">Resource Quotas</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-policy-pid-limiting-li">
+    
+      <a href="/docs/concepts/policy/pid-limiting/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-policy-pid-limiting"><span class="">Process ID Limits And Reservations</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-policy-node-resource-managers-li">
+    
+      <a href="/docs/concepts/policy/node-resource-managers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-policy-node-resource-managers"><span class="">Node Resource Managers</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-scheduling-eviction-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-scheduling-eviction"><span class="">Scheduling, Preemption and Eviction</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-kube-scheduler-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/kube-scheduler/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-kube-scheduler"><span class="">Kubernetes Scheduler</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-assign-pod-node-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/assign-pod-node/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-assign-pod-node"><span class="">Assigning Pods to Nodes</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-pod-overhead-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/pod-overhead/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-pod-overhead"><span class="">Pod Overhead</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-taint-and-toleration-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/taint-and-toleration/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-taint-and-toleration"><span class="">Taints and Tolerations</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-pod-priority-preemption-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/pod-priority-preemption/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-pod-priority-preemption"><span class="">Pod Priority and Preemption</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-node-pressure-eviction-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/node-pressure-eviction/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-node-pressure-eviction"><span class="">Node-pressure Eviction</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-api-eviction-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/api-eviction/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-api-eviction"><span class="">API-initiated Eviction</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-resource-bin-packing-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/resource-bin-packing/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-resource-bin-packing"><span class="">Resource Bin Packing for Extended Resources</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-scheduling-framework-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/scheduling-framework/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-scheduling-framework"><span class="">Scheduling Framework</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-scheduling-eviction-scheduler-perf-tuning-li">
+    
+      <a href="/docs/concepts/scheduling-eviction/scheduler-perf-tuning/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-scheduling-eviction-scheduler-perf-tuning"><span class="">Scheduler Performance Tuning</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-cluster-administration-li">
+    
+      <a href="/docs/concepts/cluster-administration/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-cluster-administration"><span class="">Cluster Administration</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-certificates-li">
+    
+      <a href="/docs/concepts/cluster-administration/certificates/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-certificates"><span class="">Certificates</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-manage-deployment-li">
+    
+      <a href="/docs/concepts/cluster-administration/manage-deployment/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-manage-deployment"><span class="">Managing Resources</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-networking-li">
+    
+      <a href="/docs/concepts/cluster-administration/networking/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-networking"><span class="">Cluster Networking</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-logging-li">
+    
+      <a href="/docs/concepts/cluster-administration/logging/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-logging"><span class="">Logging Architecture</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-system-metrics-li">
+    
+      <a href="/docs/concepts/cluster-administration/system-metrics/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-system-metrics"><span class="">Metrics For Kubernetes System Components</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-system-logs-li">
+    
+      <a href="/docs/concepts/cluster-administration/system-logs/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-system-logs"><span class="">System Logs</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-system-traces-li">
+    
+      <a href="/docs/concepts/cluster-administration/system-traces/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-system-traces"><span class="">Traces For Kubernetes System Components</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-proxies-li">
+    
+      <a href="/docs/concepts/cluster-administration/proxies/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-proxies"><span class="">Proxies in Kubernetes</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-flow-control-li">
+    
+      <a href="/docs/concepts/cluster-administration/flow-control/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-flow-control"><span class="">API Priority and Fairness</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-cluster-administration-addons-li">
+    
+      <a href="/docs/concepts/cluster-administration/addons/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-cluster-administration-addons"><span class="">Installing Addons</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-extend-kubernetes-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-extend-kubernetes"><span class="">Extending Kubernetes</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-extend-kubernetes-api-extension-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/api-extension/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-extend-kubernetes-api-extension"><span class="">Extending the Kubernetes API</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-api-extension-custom-resources-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/api-extension/custom-resources/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-api-extension-custom-resources"><span class="">Custom Resources</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-api-extension-apiserver-aggregation-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-api-extension-apiserver-aggregation"><span class="">Kubernetes API Aggregation Layer</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-concepts-extend-kubernetes-compute-storage-net-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/compute-storage-net/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-concepts-extend-kubernetes-compute-storage-net"><span class="">Compute, Storage, and Networking Extensions</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-compute-storage-net-network-plugins-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-compute-storage-net-network-plugins"><span class="">Network Plugins</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-compute-storage-net-device-plugins-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-compute-storage-net-device-plugins"><span class="">Device Plugins</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-operator-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/operator/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-operator"><span class="">Operator pattern</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-concepts-extend-kubernetes-service-catalog-li">
+    
+      <a href="/docs/concepts/extend-kubernetes/service-catalog/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-concepts-extend-kubernetes-service-catalog"><span class="">Service Catalog</span></a>
+      
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li><a class="td-sidebar-link td-sidebar-link__page " id="m-docs-tasks" target="_blank"  href="/docs/tasks/">
+                Tasks <small>(EN)</small></a>
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-uk-docs-tutorials-li">
+    
+      <a href="/uk/docs/tutorials/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials"><span class="">Навчальні матеріали</span></a>
+      <ul class="ul-2 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-hello-minikube-li">
+    
+      <a href="/uk/docs/tutorials/hello-minikube/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-hello-minikube"><span class="">Привіт Minikube</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/" title="Дізнатися про основи Kubernetes" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics"><span class="">Основи Kubernetes</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/create-cluster/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster"><span class="">Створення кластера</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster-cluster-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/create-cluster/cluster-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster-cluster-intro"><span class="">Використання Minikube для створення кластера</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster-cluster-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/create-cluster/cluster-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-create-cluster-cluster-interactive"><span class="">Інтерактивний урок - Створення кластера</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/deploy-app/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app"><span class="">Розгортання застосунку</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app-deploy-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app-deploy-intro"><span class="">Використання kubectl для створення Deployment&#39;а</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app-deploy-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/deploy-app/deploy-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-deploy-app-deploy-interactive"><span class="">Інтерактивний урок - Розгортання застосунку</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-explore-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/explore/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-explore"><span class="">Вивчення застосунку</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-explore-explore-intro"><span class="">Ознайомлення з Pod&#39;ами і вузлами (nodes)</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-explore-explore-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/explore/explore-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-explore-explore-interactive"><span class="">Інтерактивний урок - Вивчення застосунку</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-expose-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/expose/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-expose"><span class="">Відкриття доступу до застосунку за межами кластера</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-expose-expose-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/expose/expose-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-expose-expose-intro"><span class="">Використання Cервісу для відкриття доступу до застосунку за межами кластера</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-expose-expose-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/expose/expose-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-expose-expose-interactive"><span class="">Інтерактивний урок - Відкриття доступу до застосунку</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-scale-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/scale/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-scale"><span class="">Масштабування застосунку</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-scale-scale-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/scale/scale-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-scale-scale-intro"><span class="">Запуск вашого застосунку на декількох Pod&#39;ах</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-scale-scale-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/scale/scale-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-scale-scale-interactive"><span class="">Інтерактивний урок - Масштабування застосунку</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-update-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/update/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-uk-docs-tutorials-kubernetes-basics-update"><span class="">Оновлення застосунку</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-update-update-intro-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/update/update-intro/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-update-update-intro"><span class="">Виконання послідовного оновлення (rolling update)</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-uk-docs-tutorials-kubernetes-basics-update-update-interactive-li">
+    
+      <a href="/uk/docs/tutorials/kubernetes-basics/update/update-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-tutorials-kubernetes-basics-update-update-interactive"><span class="">Інтерактивний урок - Оновлення застосунку</span></a>
+      
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-configuration-li">
+    
+      <a href="/docs/tutorials/configuration/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-configuration"><span class="">Configuration</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-configuration-configure-java-microservice-li">
+    
+      <a href="/docs/tutorials/configuration/configure-java-microservice/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-configuration-configure-java-microservice"><span class="">Example: Configuring a Java Microservice</span></a>
+      <ul class="ul-4 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-configuration-configure-java-microservice-configure-java-microservice-li">
+    
+      <a href="/docs/tutorials/configuration/configure-java-microservice/configure-java-microservice/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-configuration-configure-java-microservice-configure-java-microservice"><span class="">Externalizing config using MicroProfile, ConfigMaps and Secrets</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-configuration-configure-java-microservice-configure-java-microservice-interactive-li">
+    
+      <a href="/docs/tutorials/configuration/configure-java-microservice/configure-java-microservice-interactive/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-configuration-configure-java-microservice-configure-java-microservice-interactive"><span class="">Interactive Tutorial - Configuring a Java Microservice</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-configuration-configure-redis-using-configmap-li">
+    
+      <a href="/docs/tutorials/configuration/configure-redis-using-configmap/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-configuration-configure-redis-using-configmap"><span class="">Configuring Redis using a ConfigMap</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-security-li">
+    
+      <a href="/docs/tutorials/security/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-security"><span class="">Security</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-security-cluster-level-pss-li">
+    
+      <a href="/docs/tutorials/security/cluster-level-pss/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-security-cluster-level-pss"><span class="">Apply Pod Security Standards at the Cluster Level</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-security-ns-level-pss-li">
+    
+      <a href="/docs/tutorials/security/ns-level-pss/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-security-ns-level-pss"><span class="">Apply Pod Security Standards at the Namespace Level</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-security-apparmor-li">
+    
+      <a href="/docs/tutorials/security/apparmor/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-security-apparmor"><span class="">Restrict a Container&#39;s Access to Resources with AppArmor</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-security-seccomp-li">
+    
+      <a href="/docs/tutorials/security/seccomp/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-security-seccomp"><span class="">Restrict a Container&#39;s Syscalls with seccomp</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-stateless-application-li">
+    
+      <a href="/docs/tutorials/stateless-application/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-stateless-application"><span class="">Stateless Applications</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateless-application-expose-external-ip-address-li">
+    
+      <a href="/docs/tutorials/stateless-application/expose-external-ip-address/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateless-application-expose-external-ip-address"><span class="">Exposing an External IP Address to Access an Application in a Cluster</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateless-application-guestbook-li">
+    
+      <a href="/docs/tutorials/stateless-application/guestbook/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateless-application-guestbook"><span class="">Example: Deploying PHP Guestbook application with Redis</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-stateful-application-li">
+    
+      <a href="/docs/tutorials/stateful-application/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-stateful-application"><span class="">Stateful Applications</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateful-application-basic-stateful-set-li">
+    
+      <a href="/docs/tutorials/stateful-application/basic-stateful-set/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateful-application-basic-stateful-set"><span class="">StatefulSet Basics</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateful-application-mysql-wordpress-persistent-volume-li">
+    
+      <a href="/docs/tutorials/stateful-application/mysql-wordpress-persistent-volume/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateful-application-mysql-wordpress-persistent-volume"><span class="">Example: Deploying WordPress and MySQL with Persistent Volumes</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateful-application-cassandra-li">
+    
+      <a href="/docs/tutorials/stateful-application/cassandra/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateful-application-cassandra"><span class="">Example: Deploying Cassandra with a StatefulSet</span></a>
+      
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-stateful-application-zookeeper-li">
+    
+      <a href="/docs/tutorials/stateful-application/zookeeper/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-stateful-application-zookeeper"><span class="">Running ZooKeeper, A Distributed System Coordinator</span></a>
+      
+  </li>
+      </ul>
+  </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child collapse" id="m-docs-tutorials-services-li">
+    
+      <a href="/docs/tutorials/services/" class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id="m-docs-tutorials-services"><span class="">Services</span></a>
+      <ul class="ul-3 foldable">
+        
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child collapse" id="m-docs-tutorials-services-source-ip-li">
+    
+      <a href="/docs/tutorials/services/source-ip/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-docs-tutorials-services-source-ip"><span class="">Using Source IP</span></a>
+      
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li><a class="td-sidebar-link td-sidebar-link__page " id="m-docs-reference" target="_blank"  href="/docs/reference/">
+                Reference <small>(EN)</small></a>
+            <a class="td-sidebar-link td-sidebar-link__page " id="m-docs-contribute" target="_blank"  href="/docs/contribute/">
+                Contribute <small>(EN)</small></a>
+            <a class="td-sidebar-link td-sidebar-link__page " id="m-docs-test" target="_blank"  href="/docs/test/">
+                Docs smoke test page <small>(EN)</small></a>
+            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-uk-docs-contribute-localization-uk-li">
+    
+      <a href="/uk/docs/contribute/localization_uk/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-uk-docs-contribute-localization-uk"><span class="">Рекомендації з перекладу українською мовою</span></a>
+      
+  </li>
+      </ul>
+  </li>
+    </ul>
+  </nav>
+</div>
+
+
+
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="http://localhost:1313/uk/docs/">Документація</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="http://localhost:1313/uk/docs/tutorials/">Навчальні матеріали</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/">Основи Kubernetes</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/explore/">Вивчення застосунку</a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <a href="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/explore/explore-intro/">Ознайомлення з Pod&#39;ами і вузлами (nodes)</a>
+  </li>
+  </ol>
+</nav>
+            
+              
+            
+              
+    <div class="td-content">
+    
+  <h1>Ознайомлення з Pod&#39;ами і вузлами (nodes)</h1>
+  
+  
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<body>
+
+<link href="/docs/tutorials/kubernetes-basics/public/css/styles.css" rel="stylesheet">
+
+
+<div class="layout" id="top">
+
+    <main class="content">
+
+        <div class="row">
+
+     <div class="col-md-8">
+          <!--<h3>Objectives</h3>
+          -->
+          <h3>Цілі</h3>
+                <ul>
+                    <!--<li>Learn about Kubernetes Pods.</li>
+                    -->
+                    <li>Дізнатися, що таке Pod'и Kubernetes.</li>
+                    <!--<li>Learn about Kubernetes Nodes.</li>
+                    -->
+                    <li>Дізнатися, що таке вузли Kubernetes.</li>
+                    <!--<li>Troubleshoot deployed applications.</li>
+                    -->
+                    <li>Діагностика розгорнутих застосунків.</li>
+                </ul>
+            </div>
+
+            <div class="col-md-8">
+                <!--<h2>Kubernetes Pods</h2>
+                -->
+                <h2>Pod'и Kubernetes</h2>
+                <!--<p>When you created a Deployment in Module <a href="/docs/tutorials/kubernetes-basics/deploy-intro/">2</a>, Kubernetes created a <b>Pod</b> to host your application instance. A Pod is a Kubernetes abstraction that represents a group of one or more application containers (such as Docker or rkt), and some shared resources for those containers. Those resources include:</p>
+                -->
+                <p>Коли ви створили Deployment у модулі <a href="/uk/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/">2</a>, Kubernetes створив <b>Pod</b>, щоб розмістити ваш застосунок. Pod - це абстракція в Kubernetes, що являє собою групу з одного або декількох контейнерів застосунку (як Docker або rkt) і ресурси, спільні для цих контейнерів. До цих ресурсів належать:</p>
+                <ul>
+                    <!--<li>Shared storage, as Volumes</li>
+                    -->
+                    <li>Спільні сховища даних, або Volumes</li>
+                    <!--<li>Networking, as a unique cluster IP address</li>
+                    -->
+                    <li>Мережа, адже кожен Pod у кластері має унікальну IP-адресу</li>
+                    <!--<li>Information about how to run each container, such as the container image version or specific ports to use</li>
+                    -->
+                    <li>Інформація з запуску кожного контейнера, така як версія образу контейнера або використання певних портів</li>
+                </ul>
+                <!--<p>A Pod models an application-specific "logical host" and can contain different application containers which are relatively tightly coupled. For example, a Pod might include both the container with your Node.js app as well as a different container that feeds the data to be published by the Node.js webserver. The containers in a Pod share an IP Address and port space, are always co-located and co-scheduled, and run in a shared context on the same Node.</p>
+                -->
+                <p>Pod моделює специфічний для даного застосунку "логічний хост" і може містити різні, але доволі щільно зв'язані контейнери. Наприклад, в одному Pod'і може бути контейнер з вашим Node.js застосунком та інший контейнер, що передає дані для публікації Node.js вебсерверу. Контейнери в межах Pod'а мають спільну IP-адресу і порти, завжди є сполученими, плануються для запуску разом і запускаються у спільному контексті на одному вузлі.</p>
+
+            <!--<p>Pods are the atomic unit on the Kubernetes platform. When we create a Deployment on Kubernetes, that Deployment creates Pods with containers inside them (as opposed to creating containers directly). Each Pod is tied to the Node where it is scheduled, and remains there until termination (according to restart policy) or deletion. In case of a Node failure, identical Pods are scheduled on other available Nodes in the cluster.</p>
+            -->
+            <p>Pod є неподільною одиницею платформи Kubernetes. Коли ви створюєте Deployment у Kubernetes, цей Deployment створює Pod'и вже з контейнерами всередині, на відміну від створення контейнерів окремо. Кожен Pod прив'язаний до вузла, до якого його було розподілено, і лишається на ньому до припинення роботи (згідно з політикою перезапуску) або видалення. У разі відмови вузла ідентичні Pod'и розподіляються по інших доступних вузлах кластера.</p>
+
+            </div>
+            <div class="col-md-4">
+                <div class="content__box content__box_lined">
+                    <h3>Зміст:</h3>
+                    <ul>
+                        <li>Pod'и</li>
+                        <li>Вузли</li>
+                        <li>Основні команди kubectl</li>
+                    </ul>
+                </div>
+                <div class="content__box content__box_fill">
+                        <!--<p><i>
+                            A Pod is a group of one or more application containers (such as Docker or rkt) and includes shared storage (volumes), IP address and information about how to run them.
+                        </i></p>
+                        -->
+                        <p><i>
+                            Pod - це група з одного або декількох контейнерів (таких як Docker або rkt), що має спільне сховище даних (volumes), унікальну IP-адресу і містить інформацію як їх запустити.
+                        </i></p>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h2 style="color: #3771e3;">Узагальнена схема Pod'ів</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <p><img src="/docs/tutorials/kubernetes-basics/public/images/module_03_pods.svg"></p>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!--<h2>Nodes</h2>
+                -->
+                <h2>Вузли</h2>
+                <!--<p>A Pod always runs on a <b>Node</b>. A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Each Node is managed by the Master. A Node can have multiple pods, and the Kubernetes master automatically handles scheduling the pods across the Nodes in the cluster. The Master's automatic scheduling takes into account the available resources on each Node.</p>
+                -->
+                <p>Pod завжди запускається на <b>вузлі</b>. Вузол - це робоча машина в Kubernetes, віртуальна або фізична, в залежності від кластера. Функціонування кожного вузла контролюється master'ом. Вузол може мати декілька Pod'ів. Kubernetes master автоматично розподіляє Pod'и по вузлах кластера з урахуванням ресурсів, наявних на кожному вузлі.</p>
+
+                <!--<p>Every Kubernetes Node runs at least:</p>
+                -->
+                <p>На кожному вузлі Kubernetes запущені як мінімум:</p>
+                <ul>
+                    <!--<li>Kubelet, a process responsible for communication between the Kubernetes Master and the Node; it manages the Pods and the containers running on a machine.</li>
+                    -->
+                    <li>kubelet - процес, що забезпечує обмін даними між Kubernetes master і робочим вузлом; kubelet контролює Pod'и і контейнери, запущені на машині.</li>
+                    <!--<li>A container runtime (like Docker, rkt) responsible for pulling the container image from a registry, unpacking the container, and running the application.</li>
+                    -->
+                    <li>оточення для контейнерів (таке як Docker, rkt), що забезпечує завантаження образу контейнера з реєстру, розпакування контейнера і запуск застосунку.</li>
+
+                </ul>
+
+            </div>
+            <div class="col-md-4">
+                <div class="content__box content__box_fill">
+                    <!--<p><i> Containers should only be scheduled together in a single Pod if they are tightly coupled and need to share resources such as disk. </i></p>
+                    -->
+                    <p><i> Контейнери повинні бути разом в одному Pod'і, лише якщо вони щільно зв'язані і мають спільні ресурси, такі як диск. </i></p>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h2 style="color: #3771e3;">Узагальнена схема вузлів</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <p><img src="/docs/tutorials/kubernetes-basics/public/images/module_03_nodes.svg"></p>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!--<h2>Troubleshooting with kubectl</h2>
+                -->
+                <h2>Діагностика за допомогою kubectl</h2>
+                <!--<p>In Module <a href="/docs/tutorials/kubernetes-basics/deploy-intro/">2</a>, you used Kubectl command-line interface. You'll continue to use it in Module 3 to get information about deployed applications and their environments. The most common operations can be done with the following kubectl commands:</p>
+                -->
+                <p>У модулі <a href="/uk/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/">2</a> ви вже використовували інтерфейс командного рядка kubectl. У модулі 3 ви продовжуватимете користуватися ним для отримання інформації про застосунки та оточення, в яких вони розгорнуті. Нижченаведені команди kubectl допоможуть вам виконати наступні поширені дії:</p>
+                <ul>
+                    <!--<li><b>kubectl get</b> - list resources</li>
+                    -->
+                    <li><b>kubectl get</b> - відобразити список ресурсів</li>
+                    <!--<li><b>kubectl describe</b> - show detailed information about a resource</li>
+                    --> 
+                    <li><b>kubectl describe</b> - показати детальну інформацію про ресурс</li>
+                    <!--<li><b>kubectl logs</b> - print the logs from a container in a pod</li>
+                    -->
+                    <li><b>kubectl logs</b> - вивести логи контейнера, розміщеного в Pod'і</li>
+                    <!--<li><b>kubectl exec</b> - execute a command on a container in a pod</li>
+                    -->
+                    <li><b>kubectl exec</b> - виконати команду в контейнері, розміщеному в Pod'і</li>
+                </ul>
+
+                <!--<p>You can use these commands to see when applications were deployed, what their current statuses are, where they are running and what their configurations are.</p>
+                -->
+                <p>За допомогою цих команд ви можете подивитись, коли і в якому оточенні був розгорнутий застосунок, перевірити його поточний статус і конфігурацію.</p>
+
+                <!--<p>Now that we know more about our cluster components and the command line, let's explore our application.</p>
+                -->
+                <p>А зараз, коли ми дізналися більше про складові нашого кластера і командний рядок, давайте детальніше розглянемо наш застосунок.</p>
+
+            </div>
+            <div class="col-md-4">
+                <div class="content__box content__box_fill">
+                    <!--<p><i> A node is a worker machine in Kubernetes and may be a VM or physical machine, depending on the cluster. Multiple Pods can run on one Node. </i></p>
+                    -->
+                    <p><i> Вузол - це робоча машина в Kubernetes, віртуальна або фізична, в залежності від кластера. На одному вузлі можуть бути запущені декілька Pod'ів. </i></p>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-12">
+                <a class="btn btn-lg btn-success" href="/uk/docs/tutorials/kubernetes-basics/explore/explore-interactive/" role="button">Почати інтерактивний урок <span class="btn__next">›</span></a>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
+
+
+    </div>
+
+              
+<div id="pre-footer">
+  <h2>Ваша думка</h2>
+    <p class="feedback--prompt">Чи була ця сторінка корисною? </p>
+    <button class="btn btn-primary mb-4 feedback--yes">Так</button>
+    <button class="btn btn-primary mb-4 feedback--no">Ні</button>
+    <p class="feedback--response feedback--response__hidden">
+      Дякуємо за ваш відгук. Якщо ви маєте конкретне запитання щодо використання Kubernetes, ви можете поставити його
+      <a target="_blank" rel="noopener"
+        href="https://stackoverflow.com/questions/tagged/kubernetes">
+        Stack Overflow</a>.
+      Створіть issue в GitHub репозиторії, якщо ви хочете 
+      <a class="feedback--link" target="_blank" rel="noopener"
+        href="https://github.com/kubernetes/website/issues/new?title=Issue%20with%20k8s.io">
+        повідомити про проблему</a>
+      або
+      <a class="feedback--link" target="_blank" rel="noopener"
+        href="https://github.com/kubernetes/website/issues/new?title=Improvement%20for%20k8s.io">
+        запропонувати покращення</a>.
+    </p>
+  </div>  
+  <script>
+    const yes = document.querySelector('.feedback--yes');
+    const no = document.querySelector('.feedback--no');
+    document.querySelectorAll('.feedback--link').forEach(link => {
+      link.href = link.href + window.location.pathname;
+    });
+    const sendFeedback = (value) => {
+      if (!gtag) { console.log('!gtag'); }
+      gtag('event', 'click', {
+        'event_category': 'Helpful',
+        'event_label': window.location.pathname,
+        value
+      });
+    };
+    const disableButtons = () => {
+      yes.disabled = true;
+      yes.classList.add('feedback--button__disabled');
+      no.disabled = true;
+      no.classList.add('feedback--button__disabled');
+    };
+    yes.addEventListener('click', () => {
+      sendFeedback(1);
+      disableButtons();
+      document.querySelector('.feedback--response').classList.remove('feedback--response__hidden');
+    });
+    no.addEventListener('click', () => {
+      sendFeedback(0);
+      disableButtons();
+      document.querySelector('.feedback--response').classList.remove('feedback--response__hidden');
+    });
+  </script>
+
+
+            
+            <div class="text-muted mt-5 pt-3 border-top">
+  Змінено April 14, 2020 at 3:31 PM PST: <a href="https://github.com/kubernetes/website/commit/ec4588070b50cd4b88fa237940c87b81e2ff0ee5">&#34;Introduction tutorial&#34; internal linking (ec4588070b)</a>
+</div>
+
+            
+          </main>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+            
+
+  
+  
+  
+  
+  
+  <div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
+  
+    
+    
+      
+    
+    
+    
+    
+    
+    
+    
+
+    
+    <a href="https://github.com/kubernetes/website/edit/main/content/uk/docs/tutorials/kubernetes-basics/explore/explore-intro.html" target="_blank"><i class="fa fa-edit fa-fw"></i> Відредагувати сторінку</a>
+
+    <a href="https://github.com/kubernetes/website/new/main/content/uk/docs/tutorials/kubernetes-basics/explore/explore-intro.html?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" target="_blank"><i class="fa fa-edit fa-fw"></i> Створити додаткову сторінку</a>
+    
+
+    <a href="https://github.com/kubernetes/website/issues/new?title=%d0%9e%d0%b7%d0%bd%d0%b0%d0%b9%d0%be%d0%bc%d0%bb%d0%b5%d0%bd%d0%bd%d1%8f%20%d0%b7%20Pod&amp;#39;%d0%b0%d0%bc%d0%b8%20%d1%96%20%d0%b2%d1%83%d0%b7%d0%bb%d0%b0%d0%bc%d0%b8%20%28nodes%29" target="_blank"><i class="fab fa-github fa-fw"></i> Запропонувати змінення документації</a>
+    
+
+  
+  
+    <a id="print" href="http://localhost:1313/uk/docs/tutorials/kubernetes-basics/explore/_print/"><i class="fa fa-print fa-fw"></i> Друкувати увесь розділ</a>
+  
+  </div>
+
+
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/uk/docs/home/">Головна</a>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <a class="text-white" href="/uk/case-studies/">Приклади використання</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 Автори Kubernetes | Документація розповсюджується під ліцензією <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. Всі права застережено. The Linux Foundation є зареєстрованою торговою маркою. Перелік торгових марок The Linux Foundation ви знайдете на нашій сторінці <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Використання торгових марок</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

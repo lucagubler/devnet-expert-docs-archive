@@ -1,0 +1,2906 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tasks/administer-cluster/manage-resources/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tasks/administer-cluster/manage-resources/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/tasks/administer-cluster/manage-resources/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tasks/administer-cluster/manage-resources/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tasks/administer-cluster/manage-resources/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/tasks/administer-cluster/manage-resources/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/zh/docs/tasks/administer-cluster/manage-resources/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>管理内存，CPU 和 API 资源 | Kubernetes</title><meta property="og:title" content="管理内存，CPU 和 API 资源" />
+<meta property="og:description" content="生产级别的容器编排系统" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/administer-cluster/manage-resources/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="管理内存，CPU 和 API 资源">
+<meta itemprop="description" content="生产级别的容器编排系统"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="管理内存，CPU 和 API 资源"/>
+<meta name="twitter:description" content="生产级别的容器编排系统"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="">
+<meta property="og:description" content="">
+<meta name="twitter:description" content="">
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/administer-cluster/manage-resources/">
+<meta property="og:title" content="管理内存，CPU 和 API 资源">
+<meta name="twitter:title" content="管理内存，CPU 和 API 资源">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tasks/administer-cluster/manage-resources/">English</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tasks/administer-cluster/manage-resources/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/ja/docs/tasks/administer-cluster/manage-resources/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tasks/administer-cluster/manage-resources/">Français</a>
+	
+	<a class="dropdown-item" href="/es/docs/tasks/administer-cluster/manage-resources/">Español</a>
+	
+	<a class="dropdown-item" href="/id/docs/tasks/administer-cluster/manage-resources/">Bahasa Indonesia</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+这是本节的多页打印视图。
+<a href="#" onclick="print();return false;">点击此处打印</a>.
+</p><p>
+<a href="/zh/docs/tasks/administer-cluster/manage-resources/">返回本页常规视图</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">管理内存，CPU 和 API 资源</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-337620c76587e4aeb32009cb23be46de">为命名空间配置默认的内存请求和限制</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-320af95e480962c538ebef7ae205845c">为命名空间配置默认的 CPU 请求和限制</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-adb489b1ab985c9215657b0d4c6ae92b">配置命名空间的最小和最大内存约束</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-a87cbd1f9379dac7a48ae320da68a9ad">为命名空间配置 CPU 最小和最大约束</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-fe3283559a3df299aae3ee00ecea2fad">为命名空间配置内存和 CPU 配额</a></li>
+
+
+    
+  
+    
+    
+	
+<li>6: <a href="#pg-40e30a9209e0c9f4153707e43243e9d7">配置命名空间下 Pod 配额</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-337620c76587e4aeb32009cb23be46de">1 - 为命名空间配置默认的内存请求和限制</h1>
+    
+	<!--
+title: Configure Default Memory Requests and Limits for a Namespace
+content_type: task
+weight: 10
+-->
+<!-- overview -->
+<!--
+This page shows how to configure default memory requests and limits for a namespace.
+If a Container is created in a namespace that has a default memory limit, and the Container
+does not specify its own memory limit, then the Container is assigned the default memory limit.
+Kubernetes assigns a default memory request under certain conditions that are explained later in this topic.
+-->
+<p>本文介绍怎样给命名空间配置默认的内存请求和限制。
+如果在一个有默认内存限制的命名空间创建容器，该容器没有声明自己的内存限制时，
+将会被指定默认内存限制。
+Kubernetes 还为某些情况指定了默认的内存请求，本章后面会进行介绍。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!--
+Each node in your cluster must have at least 2 GiB of memory.
+-->
+<p>你的集群中的每个节点必须至少有 2 GiB 的内存。</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建命名空间">创建命名空间</h2>
+<p>创建一个命名空间，以便本练习中所建的资源与集群的其余资源相隔离。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace default-mem-example
+</code></pre></div><!--
+## Create a LimitRange and a Pod
+
+Here's the configuration file for a LimitRange object. The configuration specifies
+a default memory request and a default memory limit.
+-->
+<h2 id="创建-limitrange-和-pod">创建 LimitRange 和 Pod</h2>
+<p>这里给出了一个限制范围对象的配置文件。该配置声明了一个默认的内存请求和一个默认的内存限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-defaults.yaml" download="admin/resource/memory-defaults.yaml"><code>admin/resource/memory-defaults.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-defaults-yaml')" title="Copy admin/resource/memory-defaults.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-defaults-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>LimitRange<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>mem-limit-range<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">default</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>512Mi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">defaultRequest</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>256Mi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Container<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the LimitRange in the default-mem-example namespace:
+-->
+<p>在 default-mem-example 命名空间创建限制范围：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-defaults.yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+Now if a Container is created in the default-mem-example namespace, and the
+Container does not specify its own values for memory request and memory limit,
+the Container is given a default memory request of 256 MiB and a default
+memory limit of 512 MiB.
+
+Here's the configuration file for a Pod that has one Container. The Container
+does not specify a memory request and limit.
+-->
+<p>现在，如果在 default-mem-example 命名空间创建容器，并且该容器没有声明自己的内存请求和限制值，
+它将被指定默认的内存请求 256 MiB 和默认的内存限制 512 MiB。</p>
+<p>下面是具有一个容器的 Pod 的配置文件。
+容器未指定内存请求和限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-defaults-pod.yaml" download="admin/resource/memory-defaults-pod.yaml"><code>admin/resource/memory-defaults-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-defaults-pod-yaml')" title="Copy admin/resource/memory-defaults-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-defaults-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod.
+-->
+<p>创建 Pod</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-defaults-pod.yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 的详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod default-mem-demo --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+The output shows that the Pod's Container has a memory request of 256 MiB and
+a memory limit of 512 MiB. These are the default values specified by the LimitRange.
+-->
+<p>输出内容显示该 Pod 的容器有 256 MiB 的内存请求和 512 MiB 的内存限制。
+这些都是 LimitRange 设置的默认值。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">containers:
+- image: nginx
+  imagePullPolicy: Always
+  name: default-mem-demo-ctr
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+</code></pre></div><!--
+Delete your Pod:
+-->
+<p>删除你的 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete pod default-mem-demo --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+## What if you specify a Container's limit, but not its request?
+
+Here's the configuration file for a Pod that has one Container. The Container
+specifies a memory limit, but not a request:
+-->
+<h2 id="声明容器的限制而不声明它的请求会怎么样">声明容器的限制而不声明它的请求会怎么样？</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。该容器声明了内存限制，而没有声明内存请求：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-defaults-pod-2.yaml" download="admin/resource/memory-defaults-pod-2.yaml"><code>admin/resource/memory-defaults-pod-2.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-defaults-pod-2-yaml')" title="Copy admin/resource/memory-defaults-pod-2.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-defaults-pod-2-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo-2<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo-2-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1Gi&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-defaults-pod-2.yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 的详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod default-mem-demo-2 --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+The output shows that the Container's memory request is set to match its memory limit.
+Notice that the Container was not assigned the default memory request value of 256Mi.
+-->
+<p>输出结果显示容器的内存请求被设置为它的内存限制相同的值。注意该容器没有被指定默认的内存请求值 256MiB。</p>
+<pre><code>resources:
+  limits:
+    memory: 1Gi
+  requests:
+    memory: 1Gi
+</code></pre><!--
+## What if you specify a Container's request, but not its limit?
+-->
+<h2 id="声明容器的内存请求而不声明内存限制会怎么样">声明容器的内存请求而不声明内存限制会怎么样？</h2>
+<!--
+Here's the configuration file for a Pod that has one Container. The Container
+specifies a memory request, but not a limit:
+-->
+<p>这里给出了一个包含一个容器的 Pod 的配置文件。该容器声明了内存请求，但没有内存限制：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-defaults-pod-3.yaml" download="admin/resource/memory-defaults-pod-3.yaml"><code>admin/resource/memory-defaults-pod-3.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-defaults-pod-3-yaml')" title="Copy admin/resource/memory-defaults-pod-3.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-defaults-pod-3-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo-3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-mem-demo-3-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;128Mi&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-defaults-pod-3.yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+View the Pod's specification:
+-->
+<p>查看 Pod 声明：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod default-mem-demo-3 --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>default-mem-example
+</code></pre></div><!--
+The output shows that the Container's memory request is set to the value specified in the
+Container's configuration file. The Container's memory limit is set to 512Mi, which is the
+default memory limit for the namespace.
+-->
+<p>输出结果显示该容器的内存请求被设置为了容器配置文件中声明的数值。
+容器的内存限制被设置为 512MiB，即命名空间的默认内存限制。</p>
+<pre><code>resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 128Mi
+</code></pre><!--
+## Motivation for default memory limits and requests
+
+If your namespace has a resource quota,
+it is helpful to have a default value in place for memory limit.
+Here are two of the restrictions that a resource quota imposes on a namespace:
+-->
+<h2 id="设置默认内存限制和请求的动机">设置默认内存限制和请求的动机</h2>
+<p>如果你的命名空间有资源配额，那么默认内存限制是很有帮助的。
+下面是一个例子，通过资源配额为命名空间设置两项约束：</p>
+<!--
+* Every Container that runs in the namespace must have its own memory limit.
+* The total amount of memory used by all Containers in the namespace must not exceed a specified limit.
+-->
+<ul>
+<li>运行在命名空间中的每个容器必须有自己的内存限制。</li>
+<li>命名空间中所有容器的内存使用量之和不能超过声明的限制值。</li>
+</ul>
+<!--
+If a Container does not specify its own memory limit, it is given the default limit, and then
+it can be allowed to run in a namespace that is restricted by a quota.
+-->
+<p>如果一个容器没有声明自己的内存限制，会被指定默认限制，然后它才会被允许在限定了配额的命名空间中运行。</p>
+<!--
+## Clean up
+
+Delete your namespace:
+-->
+<h2 id="清理">清理</h2>
+<p>删除你的命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace default-mem-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/cpu-default-namespace/)
+
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/memory-constraint-namespace/)
+
+* [Configure Minimum and Maximum CPU Constraints for a Namespace](/docs/tasks/administer-cluster/cpu-constraint-namespace/)
+
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/quota-memory-cpu-namespace/)
+
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理员参考">集群管理员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/">为命名空间配置默认的 CPU 请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置最小和最大内存限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置最小和最大 CPU 限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/">为命名空间配置 Pod 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象配置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发者参考">应用开发者参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">为容器和 Pod 分配 CPU 资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">为 Pod 配置服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-320af95e480962c538ebef7ae205845c">2 - 为命名空间配置默认的 CPU 请求和限制</h1>
+    
+	<!--
+title: Configure Default CPU Requests and Limits for a Namespace
+content_type: task
+weight: 20
+-->
+<!-- overview -->
+<!--
+This page shows how to configure default CPU requests and limits for a namespace.
+A Kubernetes cluster can be divided into namespaces. If a Container is created in a namespace
+that has a default CPU limit, and the Container does not specify its own CPU limit, then
+the Container is assigned the default CPU limit. Kubernetes assigns a default CPU request
+under certain conditions that are explained later in this topic.
+-->
+<p>本章介绍怎样为命名空间配置默认的 CPU 请求和限制。
+一个 Kubernetes 集群可被划分为多个命名空间。如果在配置了 CPU 限制的命名空间创建容器，
+并且该容器没有声明自己的 CPU 限制，那么这个容器会被指定默认的 CPU 限制。
+Kubernetes 在一些特定情况还会指定 CPU 请求，本文后续章节将会对其进行解释。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建命名空间">创建命名空间</h2>
+<p>创建一个命名空间，以便本练习中创建的资源和集群的其余部分相隔离。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace default-cpu-example
+</code></pre></div><!--
+## Create a LimitRange and a Pod
+
+Here's the configuration file for a LimitRange object. The configuration specifies
+a default CPU request and a default CPU limit.
+-->
+<h2 id="创建-limitrange-和-pod">创建 LimitRange 和 Pod</h2>
+<p>这里给出了 LimitRange 对象的配置文件。该配置声明了一个默认的 CPU 请求和一个默认的 CPU 限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-defaults.yaml" download="admin/resource/cpu-defaults.yaml"><code>admin/resource/cpu-defaults.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-defaults-yaml')" title="Copy admin/resource/cpu-defaults.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-defaults-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>LimitRange<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cpu-limit-range<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">default</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">defaultRequest</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#666">0.5</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Container<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the LimitRange in the default-cpu-example namespace:
+-->
+<p>在命名空间 default-cpu-example 中创建 LimitRange 对象：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-defaults.yaml --namespace<span style="color:#666">=</span>default-cpu-example
+</code></pre></div><!--
+Now if a Container is created in the default-cpu-example namespace, and the
+Container does not specify its own values for CPU request and CPU limit,
+the Container is given a default CPU request of 0.5 and a default
+CPU limit of 1.
+
+Here's the configuration file for a Pod that has one Container. The Container
+does not specify a CPU request and limit.
+-->
+<p>现在如果在 default-cpu-example 命名空间创建一个容器，该容器没有声明自己的 CPU 请求和限制时，
+将会给它指定默认的 CPU 请求0.5和默认的 CPU 限制值1.</p>
+<p>这里给出了包含一个容器的 Pod 的配置文件。该容器没有声明 CPU 请求和限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-defaults-pod.yaml" download="admin/resource/cpu-defaults-pod.yaml"><code>admin/resource/cpu-defaults-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-defaults-pod-yaml')" title="Copy admin/resource/cpu-defaults-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-defaults-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod.
+-->
+<p>创建 Pod。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-defaults-pod.yaml --namespace<span style="color:#666">=</span>default-cpu-example
+</code></pre></div><!--
+View the Pod's specification:
+-->
+<p>查看该 Pod 的声明：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod default-cpu-demo --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>default-cpu-example
+</code></pre></div><!--
+The output shows that the Pod's Container has a CPU request of 500 millicpus and
+a CPU limit of 1 cpu. These are the default values specified by the LimitRange.
+-->
+<p>输出显示该 Pod 的容器有一个500 millicpus的 CPU 请求和一个1 cpu的 CPU 限制。这些是 LimitRange 声明的默认值。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">containers:
+- image: nginx
+  imagePullPolicy: Always
+  name: default-cpu-demo-ctr
+  resources:
+    limits:
+      cpu: <span style="color:#b44">&#34;1&#34;</span>
+    requests:
+      cpu: 500m
+</code></pre></div><!--
+## What if you specify a Container's limit, but not its request?
+
+Here's the configuration file for a Pod that has one Container. The Container
+specifies a CPU limit, but not a request:
+-->
+<h2 id="你只声明容器的限制-而不声明请求会怎么样">你只声明容器的限制，而不声明请求会怎么样？</h2>
+<p>这是包含一个容器的 Pod 的配置文件。该容器声明了 CPU 限制，而没有声明 CPU 请求。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-defaults-pod-2.yaml" download="admin/resource/cpu-defaults-pod-2.yaml"><code>admin/resource/cpu-defaults-pod-2.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-defaults-pod-2-yaml')" title="Copy admin/resource/cpu-defaults-pod-2.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-defaults-pod-2-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo-2<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo-2-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-defaults-pod-2.yaml --namespace<span style="color:#666">=</span>default-cpu-example
+</code></pre></div><!--
+View the Pod specification:
+-->
+<p>查看 Pod 的声明：</p>
+<pre><code>kubectl get pod default-cpu-demo-2 --output=yaml --namespace=default-cpu-example
+</code></pre><!--
+The output shows that the Container's CPU request is set to match its CPU limit.
+Notice that the Container was not assigned the default CPU request value of 0.5 cpu.
+-->
+<p>输出显示该容器的 CPU 请求和 CPU 限制设置相同。注意该容器没有被指定默认的 CPU 请求值0.5 cpu。</p>
+<pre><code>resources:
+  limits:
+    cpu: &quot;1&quot;
+  requests:
+    cpu: &quot;1&quot;
+</code></pre><!--
+## What if you specify a Container's request, but not its limit?
+
+Here's the configuration file for a Pod that has one Container. The Container
+specifies a CPU request, but not a limit:
+-->
+<h2 id="你只声明容器的请求-而不声明它的限制会怎么样">你只声明容器的请求，而不声明它的限制会怎么样？</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。该容器声明了 CPU 请求，而没有声明 CPU 限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-defaults-pod-3.yaml" download="admin/resource/cpu-defaults-pod-3.yaml"><code>admin/resource/cpu-defaults-pod-3.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-defaults-pod-3-yaml')" title="Copy admin/resource/cpu-defaults-pod-3.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-defaults-pod-3-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo-3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>default-cpu-demo-3-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;0.75&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-defaults-pod-3.yaml --namespace<span style="color:#666">=</span>default-cpu-example
+</code></pre></div><!--
+View the Pod specification:
+-->
+<p>查看 Pod 的规约：</p>
+<pre><code>kubectl get pod default-cpu-demo-3 --output=yaml --namespace=default-cpu-example
+</code></pre><!--
+The output shows that the Container's CPU request is set to the value specified in the
+Container's configuration file. The Container's CPU limit is set to 1 cpu, which is the
+default CPU limit for the namespace.
+-->
+<p>结果显示该容器的 CPU 请求被设置为容器配置文件中声明的数值。
+容器的CPU限制被设置为 1 CPU，即该命名空间的默认 CPU 限制值。</p>
+<pre><code>resources:
+  limits:
+    cpu: &quot;1&quot;
+  requests:
+    cpu: 750m
+</code></pre><!--
+## Motivation for default CPU limits and requests
+
+If your namespace has a
+[resource quota](/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/),
+it is helpful to have a default value in place for CPU limit.
+Here are two of the restrictions that a resource quota imposes on a namespace:
+
+* Every Container that runs in the namespace must have its own CPU limit.
+* The total amount of CPU used by all Containers in the namespace must not exceed a specified limit.
+
+If a Container does not specify its own CPU limit, it is given the default limit, and then
+it can be allowed to run in a namespace that is restricted by a quota.
+-->
+<h2 id="默认-cpu-限制和请求的动机">默认 CPU 限制和请求的动机</h2>
+<p>如果你的命名空间有一个
+<a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">资源配额</a>，
+那么有一个默认的 CPU 限制是有帮助的。这里有资源配额强加给命名空间的两条限制：</p>
+<ul>
+<li>命名空间中运行的每个容器必须有自己的 CPU 限制。</li>
+<li>命名空间中所有容器使用的 CPU 总和不能超过一个声明值。</li>
+</ul>
+<p>如果容器没有声明自己的 CPU 限制，将会给它一个默认限制，这样它就能被允许运行在一个有配额限制的命名空间中。</p>
+<!--
+## Clean up
+
+Delete your namespace:
+
+```shell
+kubectl delete namespace default-cpu-example
+```
+-->
+<h2 id="清理">清理</h2>
+<p>删除你的命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace constraints-cpu-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/memory-default-namespace/)
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/memory-constraint-namespace/)
+* [Configure Minimum and Maximum CPU Constraints for a Namespace](/docs/tasks/administer-cluster/cpu-constraint-namespace/)
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/quota-memory-cpu-namespace/)
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理员参考">集群管理员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">为命名空间配置默认内存请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置内存限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置 CPU 限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/">为命名空间配置 Pod 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象配置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发者参考">应用开发者参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">为容器和 Pod 分配 CPU 资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">为 Pod 配置服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-adb489b1ab985c9215657b0d4c6ae92b">3 - 配置命名空间的最小和最大内存约束</h1>
+    
+	<!--
+title: Configure Minimum and Maximum Memory Constraints for a Namespace
+content_type: task
+weight: 30
+-->
+<!-- overview -->
+<!--
+This page shows how to set minimum and maximum values for memory used by Containers
+running in a namespace. You specify minimum and maximum memory values in a
+[LimitRange](/docs/reference/generated/kubernetes-api/v1.23/#limitrange-v1-core)
+object. If a Pod does not meet the constraints imposed by the LimitRange,
+it cannot be created in the namespace.
+-->
+<p>本页介绍如何设置在命名空间中运行的容器使用的内存的最小值和最大值。 你可以在
+<a href="/docs/reference/generated/kubernetes-api/v1.23/#limitrange-v1-core">LimitRange</a>
+对象中指定最小和最大内存值。如果 Pod 不满足 LimitRange 施加的约束，则无法在命名空间中创建它。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!--
+Each node in your cluster must have at least 1 GiB of memory.
+-->
+<p>集群中每个节点必须至少要有 1 GiB 的内存。</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建命名空间">创建命名空间</h2>
+<p>创建一个命名空间，以便在此练习中创建的资源与群集的其余资源隔离。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace constraints-mem-example
+</code></pre></div><!--
+## Create a LimitRange and a Pod
+
+Here's the configuration file for a LimitRange:
+-->
+<h2 id="创建-limitrange-和-pod">创建 LimitRange 和 Pod</h2>
+<p>下面是 LimitRange 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-constraints.yaml" download="admin/resource/memory-constraints.yaml"><code>admin/resource/memory-constraints.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-constraints-yaml')" title="Copy admin/resource/memory-constraints.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-constraints-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>LimitRange<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>mem-min-max-demo-lr<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">max</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>1Gi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">min</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>500Mi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Container<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the LimitRange:
+-->
+<p>创建 LimitRange:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-constraints.yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+View detailed information about the LimitRange:
+-->
+<p>查看 LimitRange 的详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get limitrange mem-min-max-demo-lr --namespace<span style="color:#666">=</span>constraints-mem-example --output<span style="color:#666">=</span>yaml
+</code></pre></div><!--
+The output shows the minimum and maximum memory constraints as expected. But
+notice that even though you didn't specify default values in the configuration
+file for the LimitRange, they were created automatically.
+-->
+<p>输出显示预期的最小和最大内存约束。 但请注意，即使你没有在 LimitRange 的配置文件中指定默认值，也会自动创建它们。</p>
+<pre><code>  limits:
+  - default:
+      memory: 1Gi
+    defaultRequest:
+      memory: 1Gi
+    max:
+      memory: 1Gi
+    min:
+      memory: 500Mi
+    type: Container
+</code></pre><!--
+Now whenever a Container is created in the constraints-mem-example namespace, Kubernetes
+performs these steps:
+
+* If the Container does not specify its own memory request and limit, assign the default
+memory request and limit to the Container.
+
+* Verify that the Container has a memory request that is greater than or equal to 500 MiB.
+
+* Verify that the Container has a memory limit that is less than or equal to 1 GiB.
+
+Here's the configuration file for a Pod that has one Container. The Container manifest
+specifies a memory request of 600 MiB and a memory limit of 800 MiB. These satisfy the
+minimum and maximum memory constraints imposed by the LimitRange.
+-->
+<p>现在，只要在 constraints-mem-example 命名空间中创建容器，Kubernetes 就会执行下面的步骤：</p>
+<ul>
+<li>
+<p>如果 Container 未指定自己的内存请求和限制，将为它指定默认的内存请求和限制。</p>
+</li>
+<li>
+<p>验证 Container 的内存请求是否大于或等于500 MiB。</p>
+</li>
+<li>
+<p>验证 Container 的内存限制是否小于或等于1 GiB。</p>
+</li>
+</ul>
+<p>这里给出了包含一个 Container 的 Pod 配置文件。Container 声明了 600 MiB 的内存请求和
+800 MiB 的内存限制， 这些满足了 LimitRange 施加的最小和最大内存约束。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-constraints-pod.yaml" download="admin/resource/memory-constraints-pod.yaml"><code>admin/resource/memory-constraints-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-constraints-pod-yaml')" title="Copy admin/resource/memory-constraints-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-constraints-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;600Mi&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-constraints-pod.yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+Verify that the Pod's Container is running:
+-->
+<p>确认下 Pod 中的容器在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod constraints-mem-demo --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod constraints-mem-demo --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+The output shows that the Container has a memory request of 600 MiB and a memory limit
+of 800 MiB. These satisfy the constraints imposed by the LimitRange.
+-->
+<p>输出结果显示容器的内存请求为600 MiB，内存限制为800 MiB。这些满足了 LimitRange 设定的限制范围。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">     </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>800Mi<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>600Mi<span style="color:#bbb">
+</span></code></pre></div><!--
+Delete your Pod:
+-->
+<p>删除你创建的 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete pod constraints-mem-demo --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+## Attempt to create a Pod that exceeds the maximum memory constraint
+
+Here's the configuration file for a Pod that has one Container. The Container specifies a
+memory request of 800 MiB and a memory limit of 1.5 GiB.
+-->
+<h2 id="尝试创建一个超过最大内存限制的-pod">尝试创建一个超过最大内存限制的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。容器声明了800 MiB 的内存请求和1.5 GiB 的内存限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-constraints-pod-2.yaml" download="admin/resource/memory-constraints-pod-2.yaml"><code>admin/resource/memory-constraints-pod-2.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-constraints-pod-2-yaml')" title="Copy admin/resource/memory-constraints-pod-2.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-constraints-pod-2-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-2<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-2-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1.5Gi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800Mi&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Attempt to create the Pod:
+-->
+<p>尝试创建 Pod:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-constraints-pod-2.yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+The output shows that the Pod does not get created, because the Container specifies a memory limit that is
+too large:
+-->
+<p>输出结果显示 Pod 没有创建成功，因为容器声明的内存限制太大了：</p>
+<pre><code>Error from server (Forbidden): error when creating &quot;examples/admin/resource/memory-constraints-pod-2.yaml&quot;:
+pods &quot;constraints-mem-demo-2&quot; is forbidden: maximum memory usage per Container is 1Gi, but limit is 1536Mi.
+</code></pre><!--
+## Attempt to create a Pod that does not meet the minimum memory request
+
+Here's the configuration file for a Pod that has one Container. The Container specifies a
+memory request of 100 MiB and a memory limit of 800 MiB.
+-->
+<h2 id="尝试创建一个不满足最小内存请求的-pod">尝试创建一个不满足最小内存请求的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。容器声明了100 MiB 的内存请求和800 MiB 的内存限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-constraints-pod-3.yaml" download="admin/resource/memory-constraints-pod-3.yaml"><code>admin/resource/memory-constraints-pod-3.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-constraints-pod-3-yaml')" title="Copy admin/resource/memory-constraints-pod-3.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-constraints-pod-3-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-3-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;100Mi&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Attempt to create the Pod:
+-->
+<p>尝试创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-constraints-pod-3.yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+The output shows that the Pod does not get created, because the Container specifies a memory
+request that is too small:
+-->
+<p>输出结果显示 Pod 没有创建成功，因为容器声明的内存请求太小了：</p>
+<pre><code>Error from server (Forbidden): error when creating &quot;examples/admin/resource/memory-constraints-pod-3.yaml&quot;:
+pods &quot;constraints-mem-demo-3&quot; is forbidden: minimum memory usage per Container is 500Mi, but request is 100Mi.
+</code></pre><!--
+## Create a Pod that does not specify any memory request or limit
+
+Here's the configuration file for a Pod that has one Container. The Container does not
+specify a memory request, and it does not specify a memory limit.
+-->
+<h2 id="创建一个没有声明内存请求和限制的-pod">创建一个没有声明内存请求和限制的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。容器没有声明内存请求，也没有声明内存限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/memory-constraints-pod-4.yaml" download="admin/resource/memory-constraints-pod-4.yaml"><code>admin/resource/memory-constraints-pod-4.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-memory-constraints-pod-4-yaml')" title="Copy admin/resource/memory-constraints-pod-4.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-memory-constraints-pod-4-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-4<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-mem-demo-4-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/memory-constraints-pod-4.yaml --namespace<span style="color:#666">=</span>constraints-mem-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 详情：</p>
+<pre><code>kubectl get pod constraints-mem-demo-4 --namespace=constraints-mem-example --output=yaml
+</code></pre><!--
+The output shows that the Pod's Container has a memory request of 1 GiB and a memory limit of 1 GiB.
+How did the Container get those values?
+-->
+<p>输出结果显示 Pod 的内存请求为1 GiB，内存限制为1 GiB。容器怎样获得哪些数值呢？</p>
+<pre><code>resources:
+  limits:
+    memory: 1Gi
+  requests:
+    memory: 1Gi
+</code></pre><!--
+Because your Container did not specify its own memory request and limit, it was given the
+[default memory request and limit](/docs/tasks/administer-cluster/memory-default-namespace/)
+from the LimitRange.
+-->
+<p>因为你的容器没有声明自己的内存请求和限制，它从 LimitRange 那里获得了
+<a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">默认的内存请求和限制</a>。</p>
+<!--
+At this point, your Container might be running or it might not be running. Recall that a prerequisite
+for this task is that your Nodes have at least 1 GiB of memory. If each of your Nodes has only
+1 GiB of memory, then there is not enough allocatable memory on any Node to accommodate a memory
+request of 1 GiB. If you happen to be using Nodes with 2 GiB of memory, then you probably have
+enough space to accommodate the 1 GiB request.
+
+Delete your Pod:
+-->
+<p>此时，你的容器可能运行起来也可能没有运行起来。
+回想一下我们本次任务的先决条件是你的每个节点都至少有1 GiB 的内存。
+如果你的每个节点都只有1 GiB 的内存，那将没有一个节点拥有足够的可分配内存来满足1 GiB 的内存请求。</p>
+<p>删除你的 Pod：</p>
+<pre><code>kubectl delete pod constraints-mem-demo-4 --namespace=constraints-mem-example
+</code></pre><!--
+## Enforcement of minimum and maximum memory constraints
+
+The maximum and minimum memory constraints imposed on a namespace by a LimitRange are enforced only
+when a Pod is created or updated. If you change the LimitRange, it does not affect
+Pods that were created previously.
+-->
+<h2 id="强制执行内存最小和最大限制">强制执行内存最小和最大限制</h2>
+<p>LimitRange 为命名空间设定的最小和最大内存限制只有在 Pod 创建和更新时才会强制执行。
+如果你更新 LimitRange，它不会影响此前创建的 Pod。</p>
+<!--
+## Motivation for minimum and maximum memory constraints
+-->
+<h2 id="设置内存最小和最大限制的动因">设置内存最小和最大限制的动因</h2>
+<!--
+As a cluster administrator, you might want to impose restrictions on the amount of memory that Pods can use.
+For example:
+
+* Each Node in a cluster has 2 GB of memory. You do not want to accept any Pod that requests
+  more than 2 GB of memory, because no Node in the cluster can support the request.
+
+* A cluster is shared by your production and development departments.
+  You want to allow production workloads to consume up to 8 GB of memory, but
+  you want development workloads to be limited to 512 MB. You create separate namespaces
+  for production and development, and you apply memory constraints to each namespace.
+-->
+<p>作为集群管理员，你可能想规定 Pod 可以使用的内存总量限制。例如：</p>
+<ul>
+<li>集群的每个节点有 2 GB 内存。你不想接受任何请求超过 2 GB 的 Pod，因为集群中没有节点可以满足。</li>
+<li>集群由生产部门和开发部门共享。你希望允许产品部门的负载最多耗用 8 GB 内存，
+但是开发部门的负载最多可使用 512 MiB。
+这时，你可以为产品部门和开发部门分别创建名字空间，并为各个名字空间设置内存约束。</li>
+</ul>
+<!--
+## Clean up
+
+Delete your namespace:
+-->
+<h2 id="清理">清理</h2>
+<p>删除你的命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace constraints-mem-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/memory-default-namespace/)
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/cpu-default-namespace/)
+* [Configure Minimum and Maximum CPU Constraints for a Namespace](/docs/tasks/administer-cluster/cpu-constraint-namespace/)
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/quota-memory-cpu-namespace/)
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理员参考">集群管理员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">为命名空间配置默认内存请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置内存限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置 CPU 限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/">为命名空间配置 Pod 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象配置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发者参考">应用开发者参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">为容器和 Pod 分配 CPU 资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">为 Pod 配置服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-a87cbd1f9379dac7a48ae320da68a9ad">4 - 为命名空间配置 CPU 最小和最大约束</h1>
+    
+	<!--
+title: Configure Minimum and Maximum CPU Constraints for a Namespace
+content_type: task
+weight: 40
+-->
+<!-- overview -->
+<!--
+This page shows how to set minimum and maximum values for the CPU resources used by Containers
+and Pods in a namespace. You specify minimum and maximum CPU values in a
+[LimitRange](/docs/reference/generated/kubernetes-api/v1.23/#limitrange-v1-core)
+object. If a Pod does not meet the constraints imposed by the LimitRange, it cannot be created
+in the namespace.
+-->
+<p>本页介绍如何为命名空间中容器和 Pod 使用的 CPU 资源设置最小和最大值。
+你可以通过
+<a href="/docs/reference/generated/kubernetes-api/v1.23/#limitrange-v1-core">LimitRange</a>
+对象声明 CPU 的最小和最大值. 如果 Pod 不能满足 LimitRange 的限制，它就不能在命名空间中创建。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!--
+Your cluster must have at least 1 CPU available for use to run the task examples.
+-->
+<p>你的集群中每个节点至少要有 1 个 CPU 可用才能运行本任务示例。</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建命名空间">创建命名空间</h2>
+<p>创建一个命名空间，以便本练习中创建的资源和集群的其余资源相隔离。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace constraints-cpu-example
+</code></pre></div><!--
+## Create a LimitRange and a Pod
+
+Here's the configuration file for a LimitRange:
+-->
+<h2 id="创建-limitrange-和-pod">创建 LimitRange 和 Pod</h2>
+<p>这里给出了 LimitRange 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-constraints.yaml" download="admin/resource/cpu-constraints.yaml"><code>admin/resource/cpu-constraints.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-constraints-yaml')" title="Copy admin/resource/cpu-constraints.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-constraints-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>LimitRange<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cpu-min-max-demo-lr<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">max</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">min</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;200m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Container<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the LimitRange:
+-->
+<p>创建 LimitRange:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints.yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+View detailed information about the LimitRange:
+-->
+<p>查看 LimitRange 详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get limitrange cpu-min-max-demo-lr --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+The output shows the minimum and maximum CPU constraints as expected. But
+notice that even though you didn't specify default values in the configuration
+file for the LimitRange, they were created automatically.
+-->
+<p>输出结果显示 CPU 的最小和最大限制符合预期。但需要注意的是，尽管你在 LimitRange
+的配置文件中你没有声明默认值，默认值也会被自动创建。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">default</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">defaultRequest</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">max</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">min</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>200m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>Container<span style="color:#bbb">
+</span></code></pre></div><!--
+Now whenever a Container is created in the constraints-cpu-example namespace, Kubernetes
+performs these steps:
+
+* If the Container does not specify its own CPU request and limit, assign the default
+CPU request and limit to the Container.
+
+* Verify that the Container specifies a CPU request that is greater than or equal to 200 millicpu.
+
+* Verify that the Container specifies a CPU limit that is less than or equal to 800 millicpu.
+-->
+<p>现在不管什么时候在 constraints-cpu-example 命名空间中创建容器，Kubernetes 都会执行下面这些步骤：</p>
+<ul>
+<li>
+<p>如果容器没有声明自己的 CPU 请求和限制，将为容器指定默认 CPU 请求和限制。</p>
+</li>
+<li>
+<p>核查容器声明的 CPU 请求确保其大于或者等于 200 millicpu。</p>
+</li>
+<li>
+<p>核查容器声明的 CPU 限制确保其小于或者等于 800 millicpu。</p>
+</li>
+</ul>
+<!--
+When creating a `LimitRange` object, you can specify limits on huge-pages
+or GPUs as well. However, when both `default` and `defaultRequest` are specified
+on these resources, the two values must be the same.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 当创建 LimitRange 对象时，你也可以声明大页面和 GPU 的限制。
+当这些资源同时声明了 'default' 和 'defaultRequest' 参数时，两个参数值必须相同。
+</div>
+<!--
+Here's the configuration file for a Pod that has one Container. The Container manifest
+specifies a CPU request of 500 millicpu and a CPU limit of 800 millicpu. These satisfy the
+minimum and maximum CPU constraints imposed by the LimitRange.
+-->
+<p>这里给出了包含一个容器的 Pod 的配置文件。
+该容器声明了 500 millicpu 的 CPU 请求和 800 millicpu 的 CPU 限制。
+这些参数满足了 LimitRange 对象规定的 CPU 最小和最大限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-constraints-pod.yaml" download="admin/resource/cpu-constraints-pod.yaml"><code>admin/resource/cpu-constraints-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-constraints-pod-yaml')" title="Copy admin/resource/cpu-constraints-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-constraints-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;500m&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints-pod.yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+Verify that the Pod's Container is running:
+-->
+<p>确认一下 Pod 中的容器在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod constraints-cpu-demo --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 的详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pod constraints-cpu-demo --output<span style="color:#666">=</span>yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+The output shows that the Container has a CPU request of 500 millicpu and CPU limit
+of 800 millicpu. These satisfy the constraints imposed by the LimitRange.
+-->
+<p>输出结果表明容器的 CPU 请求为 500 millicpu，CPU 限制为 800 millicpu。
+这些参数满足 LimitRange 规定的限制范围。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>500m<span style="color:#bbb">
+</span></code></pre></div><!--
+## Delete the Pod
+-->
+<h2 id="删除-pod">删除 Pod</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete pod constraints-cpu-demo --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+## Attempt to create a Pod that exceeds the maximum CPU constraint
+
+Here's the configuration file for a Pod that has one Container. The Container specifies a
+CPU request of 500 millicpu and a cpu limit of 1.5 cpu.
+-->
+<h2 id="尝试创建一个超过最大-cpu-限制的-pod">尝试创建一个超过最大 CPU 限制的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。容器声明了 500 millicpu 的 CPU
+请求和 1.5 CPU 的 CPU 限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-constraints-pod-2.yaml" download="admin/resource/cpu-constraints-pod-2.yaml"><code>admin/resource/cpu-constraints-pod-2.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-constraints-pod-2-yaml')" title="Copy admin/resource/cpu-constraints-pod-2.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-constraints-pod-2-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-2<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-2-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1.5&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;500m&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Attempt to create the Pod:
+-->
+<p>尝试创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints-pod-2.yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+The output shows that the Pod does not get created, because the Container specifies a CPU limit that is
+too large:
+-->
+<p>输出结果表明 Pod 没有创建成功，因为容器声明的 CPU 限制太大了：</p>
+<pre><code>Error from server (Forbidden): error when creating &quot;examples/admin/resource/cpu-constraints-pod-2.yaml&quot;:
+pods &quot;constraints-cpu-demo-2&quot; is forbidden: maximum cpu usage per Container is 800m, but limit is 1500m.
+</code></pre><!--
+## Attempt to create a Pod that does not meet the minimum CPU request
+
+Here's the configuration file for a Pod that has one Container. The Container specifies a
+CPU request of 100 millicpu and a CPU limit of 800 millicpu.
+-->
+<h2 id="尝试创建一个不满足最小-cpu-请求的-pod">尝试创建一个不满足最小 CPU 请求的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。该容器声明了100 millicpu的 CPU 请求和800 millicpu的 CPU 限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-constraints-pod-3.yaml" download="admin/resource/cpu-constraints-pod-3.yaml"><code>admin/resource/cpu-constraints-pod-3.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-constraints-pod-3-yaml')" title="Copy admin/resource/cpu-constraints-pod-3.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-constraints-pod-3-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-3-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;100m&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Attempt to create the Pod:
+-->
+<p>尝试创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints-pod-3.yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+The output shows that the Pod does not get created, because the Container specifies a CPU
+request that is too small:
+-->
+<p>输出结果显示 Pod 没有创建成功，因为容器声明的 CPU 请求太小了：</p>
+<pre><code>Error from server (Forbidden): error when creating &quot;examples/admin/resource/cpu-constraints-pod-3.yaml&quot;:
+pods &quot;constraints-cpu-demo-4&quot; is forbidden: minimum cpu usage per Container is 200m, but request is 100m.
+</code></pre><!--
+## Create a Pod that does not specify any CPU request or limit
+
+Here's the configuration file for a Pod that has one Container. The Container does not
+specify a CPU request, and it does not specify a CPU limit.
+-->
+<h2 id="创建一个没有声明-cpu-请求和-cpu-限制的-pod">创建一个没有声明 CPU 请求和 CPU 限制的 Pod</h2>
+<p>这里给出了包含一个容器的 Pod 的配置文件。该容器没有设定 CPU 请求和 CPU 限制。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/cpu-constraints-pod-4.yaml" download="admin/resource/cpu-constraints-pod-4.yaml"><code>admin/resource/cpu-constraints-pod-4.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-cpu-constraints-pod-4-yaml')" title="Copy admin/resource/cpu-constraints-pod-4.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-cpu-constraints-pod-4-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-4<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>constraints-cpu-demo-4-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>vish/stress<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/cpu-constraints-pod-4.yaml --namespace<span style="color:#666">=</span>constraints-cpu-example
+</code></pre></div><!--
+View detailed information about the Pod:
+-->
+<p>查看 Pod 的详情：</p>
+<pre><code>kubectl get pod constraints-cpu-demo-4 --namespace=constraints-cpu-example --output=yaml
+</code></pre><!--
+The output shows that the Pod's Container has a CPU request of 800 millicpu and a CPU limit of 800 millicpu.
+How did the Container get those values?
+-->
+<p>输出结果显示 Pod 的容器有个 800 millicpu 的 CPU 请求和 800 millicpu 的 CPU 限制。
+容器是怎样得到那些值的呢？</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>800m<span style="color:#bbb">
+</span></code></pre></div><!--
+Because your Container did not specify its own CPU request and limit, it was given the
+[default CPU request and limit](/docs/tasks/administer-cluster/cpu-default-namespace/)
+from the LimitRange.
+-->
+<p>因为你的 Container 没有声明自己的 CPU 请求和限制，LimitRange 给它指定了
+<a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/">默认的 CPU 请求和限制</a></p>
+<!--
+At this point, your Container might be running or it might not be running. Recall that a prerequisite
+for this task is that your Nodes have at least 1 CPU. If each of your Nodes has only
+1 CPU, then there might not be enough allocatable CPU on any Node to accommodate a request
+of 800 millicpu. If you happen to be using Nodes with 2 CPU, then you probably have
+enough CPU to accommodate the 800 millicpu request.
+
+Delete your Pod:
+-->
+<p>此时，你的容器可能运行也可能没有运行。
+回想一下，本任务的先决条件是你的节点要有 1 个 CPU。
+如果你的每个节点仅有 1 个 CPU，那么可能没有任何一个节点可以满足 800 millicpu 的 CPU 请求。
+如果你在用的节点恰好有两个 CPU，那么你才可能有足够的 CPU 来满足 800 millicpu 的请求。</p>
+<pre><code>kubectl delete pod constraints-cpu-demo-4 --namespace=constraints-cpu-example
+</code></pre><!--
+## Enforcement of minimum and maximum CPU constraints
+
+The maximum and minimum CPU constraints imposed on a namespace by a LimitRange are enforced only
+when a Pod is created or updated. If you change the LimitRange, it does not affect
+Pods that were created previously.
+-->
+<h2 id="cpu-最小和最大限制的强制执行">CPU 最小和最大限制的强制执行</h2>
+<p>只有当 Pod 创建或者更新时，LimitRange 为命名空间规定的 CPU 最小和最大限制才会被强制执行。
+如果你对 LimitRange 进行修改，那不会影响此前创建的 Pod。</p>
+<!--
+## Motivation for minimum and maximum CPU constraints
+
+As a cluster administrator, you might want to impose restrictions on the CPU resources that Pods can use.
+For example:
+-->
+<h2 id="最小和最大-cpu-限制范围的动机">最小和最大 CPU 限制范围的动机</h2>
+<p>作为集群管理员，你可能想设定 Pod 可以使用的 CPU 资源限制。例如：</p>
+<!--
+* Each Node in a cluster has 2 CPU. You do not want to accept any Pod that requests
+more than 2 CPU, because no Node in the cluster can support the request.
+
+* A cluster is shared by your production and development departments.
+You want to allow production workloads to consume up to 3 CPU, but you want development workloads to be limited
+to 1 CPU. You create separate namespaces for production and development, and you apply CPU constraints to
+each namespace.
+-->
+<ul>
+<li>集群中的每个节点有两个 CPU。你不想接受任何请求超过 2 个 CPU 的 Pod，因为集群中没有节点可以支持这种请求。</li>
+<li>你的生产和开发部门共享一个集群。你想允许生产工作负载消耗 3 个 CPU，
+而开发部门工作负载的消耗限制为 1 个 CPU。
+你可以为生产和开发创建不同的命名空间，并且为每个命名空间都应用 CPU 限制。</li>
+</ul>
+<!--
+## Clean up
+
+Delete your namespace:
+-->
+<h2 id="清理">清理</h2>
+<p>删除你的命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace constraints-cpu-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/memory-default-namespace/)
+
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/cpu-default-namespace/)
+
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/memory-constraint-namespace/)
+
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/quota-memory-cpu-namespace/)
+
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理员参考">集群管理员参考：</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">为命名空间配置默认内存请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置内存限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置 CPU 限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/">为命名空间配置 Pod 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象配置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发者参考">应用开发者参考：</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">为容器和 Pod 分配 CPU 资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">为 Pod 配置服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-fe3283559a3df299aae3ee00ecea2fad">5 - 为命名空间配置内存和 CPU 配额</h1>
+    
+	<!--
+title: Configure Memory and CPU Quotas for a Namespace
+content_type: task
+weight: 50
+-->
+<!-- overview -->
+<!--
+This page shows how to set quotas for the total amount memory and CPU that
+can be used by all Containers running in a namespace. You specify quotas in a
+[ResourceQuota](/docs/reference/generated/kubernetes-api/v1.23/#resourcequota-v1-core)
+object.
+-->
+<p>本文介绍怎样为命名空间设置容器可用的内存和 CPU 总量。你可以通过
+<a href="/docs/reference/generated/kubernetes-api/v1.23/#resourcequota-v1-core">ResourceQuota</a>
+对象设置配额.</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!--
+Each node in your cluster must have at least 1 GiB of memory.
+-->
+<p>集群中每个节点至少有 1 GiB 的内存。</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建命名空间">创建命名空间</h2>
+<p>创建一个命名空间，以便本练习中创建的资源和集群的其余部分相隔离。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace quota-mem-cpu-example
+</code></pre></div><!--
+## Create a ResourceQuota
+
+Here is the configuration file for a ResourceQuota object:
+-->
+<h2 id="创建-resourcequota">创建 ResourceQuota</h2>
+<p>这里给出一个 ResourceQuota 对象的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/quota-mem-cpu.yaml" download="admin/resource/quota-mem-cpu.yaml"><code>admin/resource/quota-mem-cpu.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-quota-mem-cpu-yaml')" title="Copy admin/resource/quota-mem-cpu.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-quota-mem-cpu-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ResourceQuota<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>mem-cpu-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hard</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">requests.cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">requests.memory</span>:<span style="color:#bbb"> </span>1Gi<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">limits.cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;2&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">limits.memory</span>:<span style="color:#bbb"> </span>2Gi<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the ResourceQuota:
+-->
+<p>创建 ResourceQuota</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/quota-mem-cpu.yaml --namespace<span style="color:#666">=</span>quota-mem-cpu-example
+</code></pre></div><!--
+View detailed information about the ResourceQuota:
+-->
+<p>查看 ResourceQuota 详情：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get resourcequota mem-cpu-demo --namespace<span style="color:#666">=</span>quota-mem-cpu-example --output<span style="color:#666">=</span>yaml
+</code></pre></div><!--
+The ResourceQuota places these requirements on the quota-mem-cpu-example namespace:
+
+* Every Container must have a memory request, memory limit, cpu request, and cpu limit.
+* The memory request total for all Containers must not exceed 1 GiB.
+* The memory limit total for all Containers must not exceed 2 GiB.
+* The CPU request total for all Containers must not exceed 1 cpu.
+* The CPU limit total for all Containers must not exceed 2 cpu.
+-->
+<p>ResourceQuota 在 quota-mem-cpu-example 命名空间中设置了如下要求：</p>
+<ul>
+<li>每个容器必须有内存请求和限制，以及 CPU 请求和限制。</li>
+<li>所有容器的内存请求总和不能超过1 GiB。</li>
+<li>所有容器的内存限制总和不能超过2 GiB。</li>
+<li>所有容器的 CPU 请求总和不能超过1 cpu。</li>
+<li>所有容器的 CPU 限制总和不能超过2 cpu。</li>
+</ul>
+<!--
+## Create a Pod
+
+Here is the configuration file for a Pod:
+-->
+<h2 id="创建-pod">创建 Pod</h2>
+<p>这里给出 Pod 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/quota-mem-cpu-pod.yaml" download="admin/resource/quota-mem-cpu-pod.yaml"><code>admin/resource/quota-mem-cpu-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-quota-mem-cpu-pod-yaml')" title="Copy admin/resource/quota-mem-cpu-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-quota-mem-cpu-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>quota-mem-cpu-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>quota-mem-cpu-demo-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;600Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;400m&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+Create the Pod:
+-->
+<p>创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/quota-mem-cpu-pod.yaml --namespace<span style="color:#666">=</span>quota-mem-cpu-example
+</code></pre></div><!--
+Verify that the Pod's Container is running:
+-->
+<p>检查下 Pod 中的容器在运行：</p>
+<pre><code>kubectl get pod quota-mem-cpu-demo --namespace=quota-mem-cpu-example
+</code></pre><!--
+Once again, view detailed information about the ResourceQuota:
+-->
+<p>再查看 ResourceQuota 的详情：</p>
+<pre><code>kubectl get resourcequota mem-cpu-demo --namespace=quota-mem-cpu-example --output=yaml
+</code></pre><!--
+The output shows the quota along with how much of the quota has been used.
+You can see that the memory and CPU requests and limits for your Pod do not
+exceed the quota.
+-->
+<p>输出结果显示了配额以及有多少配额已经被使用。你可以看到 Pod 的内存和 CPU 请求值及限制值没有超过配额。</p>
+<pre><code>status:
+  hard:
+    limits.cpu: &quot;2&quot;
+    limits.memory: 2Gi
+    requests.cpu: &quot;1&quot;
+    requests.memory: 1Gi
+  used:
+    limits.cpu: 800m
+    limits.memory: 800Mi
+    requests.cpu: 400m
+    requests.memory: 600Mi
+</code></pre><!--
+## Attempt to create a second Pod
+
+Here is the configuration file for a second Pod:
+-->
+<h2 id="尝试创建第二个-pod">尝试创建第二个 Pod</h2>
+<p>这里给出了第二个 Pod 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/quota-mem-cpu-pod-2.yaml" download="admin/resource/quota-mem-cpu-pod-2.yaml"><code>admin/resource/quota-mem-cpu-pod-2.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-quota-mem-cpu-pod-2-yaml')" title="Copy admin/resource/quota-mem-cpu-pod-2.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-quota-mem-cpu-pod-2-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>quota-mem-cpu-demo-2<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>quota-mem-cpu-demo-2-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1Gi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;800m&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;700Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;400m&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+In the configuration file, you can see that the Pod has a memory request of 700 MiB.
+Notice that the sum of the used memory request and this new memory
+request exceeds the memory request quota. 600 MiB + 700 MiB > 1 GiB.
+
+Attempt to create the Pod:
+-->
+<p>配置文件中，你可以看到 Pod 的内存请求为 700 MiB。
+请注意新的内存请求与已经使用的内存请求只和超过了内存请求的配额。
+600 MiB + 700 MiB &gt; 1 GiB。</p>
+<p>尝试创建 Pod：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/quota-mem-cpu-pod-2.yaml --namespace<span style="color:#666">=</span>quota-mem-cpu-example
+</code></pre></div><!--
+The second Pod does not get created. The output shows that creating the second Pod
+would cause the memory request total to exceed the memory request quota.
+-->
+<p>第二个 Pod 不能被创建成功。输出结果显示创建第二个 Pod 会导致内存请求总量超过内存请求配额。</p>
+<pre><code>Error from server (Forbidden): error when creating &quot;examples/admin/resource/quota-mem-cpu-pod-2.yaml&quot;:
+pods &quot;quota-mem-cpu-demo-2&quot; is forbidden: exceeded quota: mem-cpu-demo,
+requested: requests.memory=700Mi,used: requests.memory=600Mi, limited: requests.memory=1Gi
+</code></pre><!--
+## Discussion
+
+As you have seen in this exercise, you can use a ResourceQuota to restrict
+the memory request total for all Containers running in a namespace.
+You can also restrict the totals for memory limit, cpu request, and cpu limit.
+
+If you want to restrict individual Containers, instead of totals for all Containers, use a
+[LimitRange](/docs/tasks/administer-cluster/memory-constraint-namespace/).
+-->
+<h2 id="讨论">讨论</h2>
+<p>如你在本练习中所见，你可以用 ResourceQuota 限制命名空间中所有容器的内存请求总量。
+同样你也可以限制内存限制总量、CPU 请求总量、CPU 限制总量。</p>
+<p>如果你想对单个容器而不是所有容器进行限制，就请使用
+<a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">LimitRange</a>。</p>
+<!--
+## Clean up
+
+Delete your namespace:
+-->
+<h2 id="清理">清理</h2>
+<p>删除你的命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace quota-mem-cpu-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/memory-default-namespace/)
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/cpu-default-namespace/)
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/memory-constraint-namespace/)
+* [Configure Minimum and Maximum CPU Constraints for a Namespace](/docs/tasks/administer-cluster/cpu-constraint-namespace/)
+* [Configure a Pod Quota for a Namespace](/docs/tasks/administer-cluster/quota-pod-namespace/)
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理员参考">集群管理员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">为命名空间配置默认内存请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置内存限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置 CPU 限制的最小值和最大值</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-pod-namespace/">为命名空间配置 Pod 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象配置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发者参考">应用开发者参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">为容器和 Pod 分配CPU资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">为 Pod 配置服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-40e30a9209e0c9f4153707e43243e9d7">6 - 配置命名空间下 Pod 配额</h1>
+    
+	<!-- overview -->
+<!--
+This page shows how to set a quota for the total number of Pods that can run
+in a namespace. You specify quotas in a
+[ResourceQuota](/docs/reference/generated/kubernetes-api/v1.23/#resourcequota-v1-core)
+object.
+-->
+<p>本文主要描述如何配置一个命名空间下可运行的 Pod 个数配额。
+你可以使用
+<a href="/docs/reference/generated/kubernetes-api/v1.23/#resourcequota-v1-core">ResourceQuota</a>
+对象来配置配额。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!-- steps -->
+<!--
+## Create a namespace
+
+Create a namespace so that the resources you create in this exercise are
+isolated from the rest of your cluster.
+-->
+<h2 id="创建一个命名空间">创建一个命名空间</h2>
+<p>首先创建一个命名空间，这样可以将本次操作中创建的资源与集群其他资源隔离开来。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create namespace quota-pod-example
+</code></pre></div><!--
+## Create a ResourceQuota
+
+Here is the configuration file for a ResourceQuota object:
+-->
+<h2 id="创建-resourcequota">创建 ResourceQuota</h2>
+<p>下面是一个 ResourceQuota 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/quota-pod.yaml" download="admin/resource/quota-pod.yaml"><code>admin/resource/quota-pod.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-quota-pod-yaml')" title="Copy admin/resource/quota-pod.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-quota-pod-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ResourceQuota<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>pod-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hard</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pods</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;2&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!-- 创建 ResourceQuota: -->
+<p>创建这个 ResourceQuota：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/quota-pod.yaml --namespace<span style="color:#666">=</span>quota-pod-example
+</code></pre></div><!--
+View detailed information about the ResourceQuota:
+-->
+<p>查看资源配额的详细信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get resourcequota pod-demo --namespace<span style="color:#666">=</span>quota-pod-example --output<span style="color:#666">=</span>yaml
+</code></pre></div><!--
+The output shows that the namespace has a quota of two Pods, and that currently there are
+no Pods; that is, none of the quota is used.
+-->
+<p>从输出的信息我们可以看到，该命名空间下 Pod 的配额是 2 个，目前创建的 Pod 数为 0，
+配额使用率为 0。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hard</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pods</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;2&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">hard</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pods</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;2&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">used</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pods</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;0&#34;</span><span style="color:#bbb">
+</span></code></pre></div><!--
+Here is the configuration file for a Deployment:
+-->
+<p>下面是一个 Deployment 的配置文件：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/admin/resource/quota-pod-deployment.yaml" download="admin/resource/quota-pod-deployment.yaml"><code>admin/resource/quota-pod-deployment.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('admin-resource-quota-pod-deployment-yaml')" title="Copy admin/resource/quota-pod-deployment.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="admin-resource-quota-pod-deployment-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>pod-quota-demo<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">purpose</span>:<span style="color:#bbb"> </span>quota-demo<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">purpose</span>:<span style="color:#bbb"> </span>quota-demo<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>pod-quota-demo<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+In the configuration file, `replicas: 3` tells Kubernetes to attempt to create three Pods, all running the same application.
+
+Create the Deployment:
+-->
+<p>在配置文件中，<code>replicas: 3</code> 告诉 Kubernetes 尝试创建三个 Pods，且运行相同的应用。</p>
+<p>创建这个 Deployment：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/admin/resource/quota-pod-deployment.yaml --namespace<span style="color:#666">=</span>quota-pod-example
+</code></pre></div><!--
+View detailed information about the Deployment:
+-->
+<p>查看 Deployment 的详细信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get deployment pod-quota-demo --namespace<span style="color:#666">=</span>quota-pod-example --output<span style="color:#666">=</span>yaml
+</code></pre></div><!--
+The output shows that even though the Deployment specifies three replicas, only two
+Pods were created because of the quota.
+-->
+<p>从输出的信息我们可以看到，尽管尝试创建三个 Pod，但是由于配额的限制，只有两个 Pod 能被成功创建。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>...<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">status</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">availableReplicas</span>:<span style="color:#bbb"> </span><span style="color:#666">2</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">lastUpdateTime</span>:<span style="color:#bbb"> </span>2017-07-07T20:57:05Z<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">message: &#39;unable to create pods</span>:<span style="color:#bbb"> </span>pods &#34;pod-quota-demo-1650323038-&#34; is forbidden:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">exceeded quota: pod-demo, requested: pods=1, used: pods=2, limited</span>:<span style="color:#bbb"> </span>pods=2&#39;<span style="color:#bbb">
+</span></code></pre></div><!--
+## Clean up
+
+Delete your namespace:
+-->
+<h2 id="清理">清理</h2>
+<p>删除命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete namespace quota-pod-example
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+### For cluster administrators
+
+* [Configure Default Memory Requests and Limits for a Namespace](/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
+* [Configure Default CPU Requests and Limits for a Namespace](/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/)
+* [Configure Minimum and Maximum Memory Constraints for a Namespace](/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/)
+* [Configure Minimum and Maximum CPU Constraints for a Namespace](/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/)
+* [Configure Memory and CPU Quotas for a Namespace](/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/)
+* [Configure Quotas for API Objects](/docs/tasks/administer-cluster/quota-api-object/)
+-->
+<h3 id="集群管理人员参考">集群管理人员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">为命名空间配置默认的内存请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/">为命名空间配置默认的的 CPU 请求和限制</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/memory-constraint-namespace/">为命名空间配置内存的最小值和最大值约束</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/">为命名空间配置 CPU 的最小值和最大值约束</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/">为命名空间配置内存和 CPU 配额</a></li>
+<li><a href="/zh/docs/tasks/administer-cluster/quota-api-object/">为 API 对象的设置配额</a></li>
+</ul>
+<!--
+### For app developers
+
+* [Assign Memory Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-memory-resource/)
+* [Assign CPU Resources to Containers and Pods](/docs/tasks/configure-pod-container/assign-cpu-resource/)
+* [Configure Quality of Service for Pods](/docs/tasks/configure-pod-container/quality-service-pod/)
+-->
+<h3 id="应用开发人员参考">应用开发人员参考</h3>
+<ul>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-memory-resource/">为容器和 Pod 分配内存资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/assign-cpu-resource/">给容器和 Pod 分配 CPU 资源</a></li>
+<li><a href="/zh/docs/tasks/configure-pod-container/quality-service-pod/">配置 Pod 的服务质量</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tasks/manage-daemon/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tasks/manage-daemon/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tasks/manage-daemon/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/tasks/manage-daemon/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tasks/manage-daemon/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/tasks/manage-daemon/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/zh/docs/tasks/manage-daemon/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>管理集群守护进程 | Kubernetes</title><meta property="og:title" content="管理集群守护进程" />
+<meta property="og:description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/manage-daemon/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="管理集群守护进程">
+<meta itemprop="description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="管理集群守护进程"/>
+<meta name="twitter:description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。">
+<meta property="og:description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。">
+<meta name="twitter:description" content="执行 DaemonSet 管理的常见任务，例如执行滚动更新。">
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/manage-daemon/">
+<meta property="og:title" content="管理集群守护进程">
+<meta name="twitter:title" content="管理集群守护进程">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/docs/tasks/manage-daemon/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/docs/tasks/manage-daemon/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/docs/tasks/manage-daemon/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/docs/tasks/manage-daemon/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/docs/tasks/manage-daemon/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tasks/manage-daemon/">English</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tasks/manage-daemon/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tasks/manage-daemon/">Français</a>
+	
+	<a class="dropdown-item" href="/de/docs/tasks/manage-daemon/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/es/docs/tasks/manage-daemon/">Español</a>
+	
+	<a class="dropdown-item" href="/id/docs/tasks/manage-daemon/">Bahasa Indonesia</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+这是本节的多页打印视图。
+<a href="#" onclick="print();return false;">点击此处打印</a>.
+</p><p>
+<a href="/zh/docs/tasks/manage-daemon/">返回本页常规视图</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">管理集群守护进程</h1>
+<div class="lead">执行 DaemonSet 管理的常见任务，例如执行滚动更新。</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-bcfd795e4b59420f7db275a0482af37c">对 DaemonSet 执行滚动更新</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-f1bf7e426f482a85e1a417d1fd9ea7b7">对 DaemonSet 执行回滚</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-bcfd795e4b59420f7db275a0482af37c">1 - 对 DaemonSet 执行滚动更新</h1>
+    
+	<!--
+reviewers:
+- janetkuo
+title: Perform a Rolling Update on a DaemonSet
+content_type: task
+-->
+<!-- overview -->
+<!--
+This page shows how to perform a rolling update on a DaemonSet.
+-->
+<p>本文介绍了如何对 DaemonSet 执行滚动更新。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+
+<!-- steps -->
+<!--
+## DaemonSet Update Strategy
+
+DaemonSet has two update strategy types:
+-->
+<h2 id="daemonset-更新策略">DaemonSet 更新策略</h2>
+<p>DaemonSet 有两种更新策略：</p>
+<!--
+* `OnDelete`: With `OnDelete` update strategy, after you update a DaemonSet template, new
+  DaemonSet pods will *only* be created when you manually delete old DaemonSet
+  pods. This is the same behavior of DaemonSet in Kubernetes version 1.5 or
+  before.
+* `RollingUpdate`: This is the default update strategy.  
+  With `RollingUpdate` update strategy, after you update a
+  DaemonSet template, old DaemonSet pods will be killed, and new DaemonSet pods
+  will be created automatically, in a controlled fashion.
+  At most one pod of the DaemonSet will be running on each node during the whole update process.
+-->
+<ul>
+<li><code>OnDelete</code>: 使用 <code>OnDelete</code> 更新策略时，在更新 DaemonSet 模板后，只有当你手动删除老的
+DaemonSet pods 之后，新的 DaemonSet Pod <em>才会</em>被自动创建。跟 Kubernetes 1.6 以前的版本类似。</li>
+<li><code>RollingUpdate</code>: 这是默认的更新策略。使用 <code>RollingUpdate</code> 更新策略时，在更新 DaemonSet 模板后，
+老的 DaemonSet pods 将被终止，并且将以受控方式自动创建新的 DaemonSet pods。
+更新期间，最多只能有 DaemonSet 的一个 Pod 运行于每个节点上。</li>
+</ul>
+<!--
+## Performing a Rolling Update
+
+To enable the rolling update feature of a DaemonSet, you must set its
+`.spec.updateStrategy.type` to `RollingUpdate`.
+-->
+<h2 id="执行滚动更新">执行滚动更新</h2>
+<p>要启用 DaemonSet 的滚动更新功能，必须设置 <code>.spec.updateStrategy.type</code> 为 <code>RollingUpdate</code>。</p>
+<!--
+You may want to set 
+[`.spec.updateStrategy.rollingUpdate.maxUnavailable`](/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec) 
+(default to 1),
+[`.spec.minReadySeconds`](/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec) 
+(default to 0) and 
+[`.spec.updateStrategy.rollingUpdate.maxSurge`](/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec)
+(a beta feature and defaults to 0) as well.
+
+-->
+<p>你可能想设置
+<a href="/zh/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec"><code>.spec.updateStrategy.rollingUpdate.maxUnavailable</code></a> (默认为 1)，
+<a href="/zh/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec"><code>.spec.minReadySeconds</code></a> (默认为 0) 和
+<a href="/zh/docs/reference/kubernetes-api/workload-resources/daemon-set-v1/#DaemonSetSpec"><code>.spec.updateStrategy.rollingUpdate.maxSurge</code></a>
+（一种 Beta 阶段的特性，默认为 0）。</p>
+<!--
+### Creating a DaemonSet with `RollingUpdate` update strategy
+
+This YAML file specifies a DaemonSet with an update strategy as 'RollingUpdate'
+-->
+<h3 id="创建带有-rollingupdate-更新策略的-daemonset">创建带有 <code>RollingUpdate</code> 更新策略的 DaemonSet</h3>
+<p>下面的 YAML 包含一个 DaemonSet，其更新策略为 'RollingUpdate'：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/controllers/fluentd-daemonset.yaml" download="controllers/fluentd-daemonset.yaml"><code>controllers/fluentd-daemonset.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('controllers-fluentd-daemonset-yaml')" title="Copy controllers/fluentd-daemonset.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="controllers-fluentd-daemonset-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>DaemonSet<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">namespace</span>:<span style="color:#bbb"> </span>kube-system<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">k8s-app</span>:<span style="color:#bbb"> </span>fluentd-logging<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">updateStrategy</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>RollingUpdate<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">rollingUpdate</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">maxUnavailable</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># this toleration is to have the daemonset runnable on master nodes</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># remove it if your masters can&#39;t run pods</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>node-role.kubernetes.io/master<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span>NoSchedule<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>quay.io/fluentd_elasticsearch/fluentd:v2.5.2<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">volumeMounts</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlog<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/log<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlibdockercontainers<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/lib/docker/containers<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">readOnly</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">terminationGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">30</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">volumes</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlog<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/var/log<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlibdockercontainers<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/var/lib/docker/containers<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+After verifying the update strategy of the DaemonSet manifest, create the DaemonSet:
+-->
+<p>检查了 DaemonSet 清单中更新策略的设置之后，创建 DaemonSet：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create -f https://k8s.io/examples/controllers/fluentd-daemonset.yaml
+</code></pre></div><!--
+Alternatively, use `kubectl apply` to create the same DaemonSet if you plan to
+update the DaemonSet with `kubectl apply`.
+-->
+<p>另一种方式是如果你希望使用 <code>kubectl apply</code> 来更新 DaemonSet 的话，也可以
+使用 <code>kubectl apply</code> 来创建 DaemonSet：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/controllers/fluentd-daemonset.yaml
+</code></pre></div><!--
+### Checking DaemonSet `RollingUpdate` update strategy
+
+Check the update strategy of your DaemonSet, and make sure it's set to
+`RollingUpdate`:
+-->
+<h3 id="检查-daemonset-的滚动更新策略">检查 DaemonSet 的滚动更新策略</h3>
+<p>首先，检查 DaemonSet 的更新策略，确保已经将其设置为 <code>RollingUpdate</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get ds/fluentd-elasticsearch -o go-template<span style="color:#666">=</span><span style="color:#b44">&#39;{{.spec.updateStrategy.type}}{{&#34;\n&#34;}}&#39;</span> -n kube-system
+</code></pre></div><!--
+If you haven't created the DaemonSet in the system, check your DaemonSet
+manifest with the following command instead:
+-->
+<p>如果还没在系统中创建 DaemonSet，请使用以下命令检查 DaemonSet 的清单：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/controllers/fluentd-daemonset.yaml --dry-run<span style="color:#666">=</span>client -o go-template<span style="color:#666">=</span><span style="color:#b44">&#39;{{.spec.updateStrategy.type}}{{&#34;\n&#34;}}&#39;</span>
+</code></pre></div><!--
+The output from both commands should be:
+-->
+<p>两个命令的输出都应该为：</p>
+<pre><code>RollingUpdate
+</code></pre><!--
+If the output isn't `RollingUpdate`, go back and modify the DaemonSet object or
+manifest accordingly.
+-->
+<p>如果输出不是 <code>RollingUpdate</code>，请返回并相应地修改 DaemonSet 对象或者清单。</p>
+<!--
+### Updating a DaemonSet template
+
+Any updates to a `RollingUpdate` DaemonSet `.spec.template` will trigger a rolling
+update. Let's update the DaemonSet by applying a new YAML file. This can be done with several different `kubectl` commands.
+-->
+<h3 id="更新-daemonset-模板">更新 DaemonSet 模板</h3>
+<p>对 <code>RollingUpdate</code> DaemonSet 的 <code>.spec.template</code> 的任何更新都将触发滚动更新。
+这可以通过几个不同的 <code>kubectl</code> 命令来完成。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/controllers/fluentd-daemonset-update.yaml" download="controllers/fluentd-daemonset-update.yaml"><code>controllers/fluentd-daemonset-update.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('controllers-fluentd-daemonset-update-yaml')" title="Copy controllers/fluentd-daemonset-update.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="controllers-fluentd-daemonset-update-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>DaemonSet<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">namespace</span>:<span style="color:#bbb"> </span>kube-system<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">k8s-app</span>:<span style="color:#bbb"> </span>fluentd-logging<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">updateStrategy</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">type</span>:<span style="color:#bbb"> </span>RollingUpdate<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">rollingUpdate</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">maxUnavailable</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># this toleration is to have the daemonset runnable on master nodes</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#080;font-style:italic"># remove it if your masters can&#39;t run pods</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>node-role.kubernetes.io/master<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span>NoSchedule<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>fluentd-elasticsearch<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>quay.io/fluentd_elasticsearch/fluentd:v2.5.2<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>200Mi<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>100m<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>200Mi<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">volumeMounts</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlog<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/log<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlibdockercontainers<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">mountPath</span>:<span style="color:#bbb"> </span>/var/lib/docker/containers<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">readOnly</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">terminationGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">30</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">volumes</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlog<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/var/log<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>varlibdockercontainers<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">hostPath</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">path</span>:<span style="color:#bbb"> </span>/var/lib/docker/containers<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+#### Declarative commands
+
+If you update DaemonSets using
+[configuration files](/docs/tasks/manage-kubernetes-objects/declarative-config/),
+use `kubectl apply`:
+-->
+<h4 id="声明式命令">声明式命令</h4>
+<p>如果你使用
+<a href="/zh/docs/tasks/manage-kubernetes-objects/declarative-config/">配置文件</a>
+来更新 DaemonSet，请使用 <code>kubectl apply</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/controllers/fluentd-daemonset-update.yaml
+</code></pre></div><!--
+#### Imperative commands
+
+If you update DaemonSets using
+[imperative commands](/docs/concepts/overview/object-management-kubectl/imperative-command/),
+use `kubectl edit`:
+-->
+<h4 id="指令式命令">指令式命令</h4>
+<p>如果你使用
+<a href="/zh/docs/tasks/manage-kubernetes-objects/imperative-command/">指令式命令</a>
+来更新 DaemonSets，请使用<code>kubectl edit</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl edit ds/fluentd-elasticsearch -n kube-system
+</code></pre></div><!--
+##### Updating only the container image
+
+If you only need to update the container image in the DaemonSet template, i.e.
+`.spec.template.spec.containers[*].image`, use `kubectl set image`:
+--->
+<h5 id="只更新容器镜像">只更新容器镜像</h5>
+<p>如果你只需要更新 DaemonSet 模板里的容器镜像，比如，<code>.spec.template.spec.containers[*].image</code>,
+请使用 <code>kubectl set image</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl <span style="color:#a2f">set</span> image ds/fluentd-elasticsearch fluentd-elasticsearch<span style="color:#666">=</span>quay.io/fluentd_elasticsearch/fluentd:v2.6.0 -n kube-system
+</code></pre></div><!--
+### Step 4: Watching the rolling update status
+
+Finally, watch the rollout status of the latest DaemonSet rolling update:
+-->
+<h3 id="监视滚动更新状态">监视滚动更新状态</h3>
+<p>最后，观察 DaemonSet 最新滚动更新的进度：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl rollout status ds/fluentd-elasticsearch -n kube-system
+</code></pre></div><!--
+When the rollout is complete, the output is similar to this:
+-->
+<p>当滚动更新完成时，输出结果如下：</p>
+<pre><code>daemonset &quot;fluentd-elasticsearch&quot; successfully rolled out
+</code></pre><!--
+## Troubleshooting
+
+### DaemonSet rolling update is stuck
+-->
+<h2 id="故障排查">故障排查</h2>
+<h3 id="daemonset-滚动更新卡住">DaemonSet 滚动更新卡住</h3>
+<!--
+Sometimes, a DaemonSet rolling update may be stuck. Here are some possible
+causes:
+
+#### Some nodes run out of resources
+-->
+<p>有时，DaemonSet 滚动更新可能卡住，以下是一些可能的原因：</p>
+<h4 id="一些节点可用资源耗尽">一些节点可用资源耗尽</h4>
+<!--
+The rollout is stuck because new DaemonSet pods can't be scheduled on at least one
+node. This is possible when the node is
+[running out of resources](/docs/concepts/scheduling-eviction/node-pressure-eviction/).
+
+When this happens, find the nodes that don't have the DaemonSet pods scheduled on
+by comparing the output of `kubectl get nodes` and the output of:
+-->
+<p>DaemonSet 滚动更新可能会卡住，其 Pod 至少在某个节点上无法调度运行。
+当节点上<a href="/zh/docs/concepts/scheduling-eviction/node-pressure-eviction/">可用资源耗尽</a>时，
+这是可能的。</p>
+<p>发生这种情况时，通过对 <code>kubectl get nodes</code> 和下面命令行的输出作比较，
+找出没有调度部署 DaemonSet Pods 的节点：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">name</span><span style="color:#666">=</span>fluentd-elasticsearch -o wide -n kube-system
+</code></pre></div><!--
+Once you've found those nodes, delete some non-DaemonSet pods from the node to
+make room for new DaemonSet pods.
+-->
+<p>一旦找到这些节点，从节点上删除一些非 DaemonSet Pod，为新的 DaemonSet Pod 腾出空间。</p>
+<!--
+This will cause service disruption when deleted pods are not controlled by any controllers or pods are not
+replicated. This does not respect [PodDisruptionBudget](/docs/tasks/run-application/configure-pdb/)
+either.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 当所删除的 Pod 不受任何控制器管理，也不是多副本的 Pod时，上述操作将导致服务中断。
+同时，上述操作也不会考虑
+<a href="/zh/docs/tasks/run-application/configure-pdb/">PodDisruptionBudget</a>
+所施加的约束。
+</div>
+<!--
+#### Broken rollout
+
+If the recent DaemonSet template update is broken, for example, the container is
+crash looping, or the container image doesn't exist (often due to a typo),
+DaemonSet rollout won't progress.
+-->
+<h4 id="不完整的滚动更新">不完整的滚动更新</h4>
+<p>如果最近的 DaemonSet 模板更新被破坏了，比如，容器处于崩溃循环状态或者容器镜像不存在
+（通常由于拼写错误），就会发生 DaemonSet 滚动更新中断。</p>
+<!--
+To fix this, update the DaemonSet template again. New rollout won't be
+blocked by previous unhealthy rollouts.
+-->
+<p>要解决此问题，需再次更新 DaemonSet 模板。新的滚动更新不会被以前的不健康的滚动更新阻止。</p>
+<!--
+#### Clock skew
+
+If `.spec.minReadySeconds` is specified in the DaemonSet, clock skew between
+master and nodes will make DaemonSet unable to detect the right rollout
+progress.
+-->
+<h4 id="时钟偏差">时钟偏差</h4>
+<p>如果在 DaemonSet 中指定了 <code>.spec.minReadySeconds</code>，主控节点和工作节点之间的时钟偏差会使
+DaemonSet 无法检测到正确的滚动更新进度。</p>
+<!--
+## Clean up
+
+Delete DaemonSet from a namespace :
+-->
+<h2 id="清理">清理</h2>
+<p>从名字空间中删除 DaemonSet：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete ds fluentd-elasticsearch -n kube-system
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+* See [Performing a rollback on a DaemonSet](/docs/tasks/manage-daemon/rollback-daemon-set/)
+* See [Creating a DaemonSet to adopt existing DaemonSet pods](/docs/concepts/workloads/controllers/daemonset/)
+-->
+<ul>
+<li>查看<a href="/zh/docs/tasks/manage-daemon/rollback-daemon-set/">在 DaemonSet 上执行回滚</a></li>
+<li>查看<a href="/zh/docs/concepts/workloads/controllers/daemonset/">创建 DaemonSet 以收养现有 DaemonSet Pod</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-f1bf7e426f482a85e1a417d1fd9ea7b7">2 - 对 DaemonSet 执行回滚</h1>
+    
+	<!--
+reviewers:
+- janetkuo
+title: Perform a Rollback on a DaemonSet
+content_type: task
+weight: 20
+min-kubernetes-server-version: 1.7
+-->
+<!-- overview -->
+<!--
+This page shows how to perform a rollback on a <a class='glossary-tooltip' title='确保 Pod 的副本在集群中的一组节点上运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/daemonset/' target='_blank' aria-label='DaemonSet'>DaemonSet</a>.
+-->
+<p>本文展示了如何对 <a class='glossary-tooltip' title='确保 Pod 的副本在集群中的一组节点上运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/daemonset/' target='_blank' aria-label='DaemonSet'>DaemonSet</a> 执行回滚。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+
+Your Kubernetes server must be at or later than version 1.7.
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!--
+You should already know how to [perform a rolling update on a
+ DaemonSet](/docs/tasks/manage-daemon/update-daemon-set/).
+-->
+<p>你应该已经了解如何<a href="/zh/docs/tasks/manage-daemon/update-daemon-set/">为 DaemonSet 执行滚东更新</a>。</p>
+<!-- steps -->
+<!--
+## Performing a rollback on a DaemonSet
+
+### Step 1: Find the DaemonSet revision you want to roll back to
+
+You can skip this step if you only want to roll back to the last revision.
+
+List all revisions of a DaemonSet:
+-->
+<h2 id="对-daemonset-执行回滚">对 DaemonSet 执行回滚</h2>
+<h3 id="步骤-1-找到想要-daemonset-回滚到的历史修订版本-revision">步骤 1：找到想要 DaemonSet 回滚到的历史修订版本（revision）</h3>
+<p>如果只想回滚到最后一个版本，可以跳过这一步。</p>
+<p>列出 DaemonSet 的所有版本：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl rollout <span style="color:#a2f">history</span> daemonset &lt;daemonset-name&gt;
+</code></pre></div><!--
+This returns a list of DaemonSet revisions:
+-->
+<p>此命令返回 DaemonSet 版本列表：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">daemonsets <span style="color:#b44">&#34;&lt;daemonset-name&gt;&#34;</span>
+REVISION        CHANGE-CAUSE
+<span style="color:#666">1</span>               ...
+<span style="color:#666">2</span>               ...
+...
+</code></pre></div><!--
+* Change cause is copied from DaemonSet annotation `kubernetes.io/change-cause`
+  to its revisions upon creation. You may specify `-record=true` in `kubectl`
+  to record the command executed in the change cause annotation.
+
+To see the details of a specific revision:
+-->
+<ul>
+<li>在创建时，DaemonSet 的变化原因从 <code>kubernetes.io/change-cause</code> 注解（annotation）
+复制到其修订版本中。用户可以在 <code>kubectl</code> 命令中设置 <code>--record=true</code>，
+将执行的命令记录在变化原因注解中。</li>
+</ul>
+<p>执行以下命令，来查看指定版本的详细信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl rollout <span style="color:#a2f">history</span> daemonset &lt;daemonset-name&gt; --revision<span style="color:#666">=</span><span style="color:#666">1</span>
+</code></pre></div><!--
+This returns the details of that revision:
+-->
+<p>该命令返回相应修订版本的详细信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">daemonsets <span style="color:#b44">&#34;&lt;daemonset-name&gt;&#34;</span> with revision <span style="color:#080;font-style:italic">#1</span>
+Pod Template:
+Labels:       <span style="color:#b8860b">foo</span><span style="color:#666">=</span>bar
+Containers:
+app:
+ Image:       ...
+ Port:        ...
+ Environment: ...
+ Mounts:      ...
+Volumes:       ...
+</code></pre></div><!--
+### Step 2: Roll back to a specific revision
+-->
+<h3 id="步骤-2-回滚到指定版本">步骤 2：回滚到指定版本</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># 在 --to-revision 中指定你从步骤 1 中获取的修订版本</span>
+kubectl rollout undo daemonset &lt;daemonset-name&gt; --to-revision<span style="color:#666">=</span>&lt;revision&gt;
+</code></pre></div><!--
+If it succeeds, the command returns:
+-->
+<p>如果成功，命令会返回：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">daemonset <span style="color:#b44">&#34;&lt;daemonset-name&gt;&#34;</span> rolled back
+</code></pre></div><!--
+If `--to-revision` flag is not specified, kubectl picks the most recent revision.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 如果 <code>--to-revision</code> 参数未指定，将选中最近的版本。
+</div>
+<!--
+### Step 3: Watch the progress of the DaemonSet rollback
+
+`kubectl rollout undo daemonset` tells the server to start rolling back the
+DaemonSet. The real rollback is done asynchronously inside the cluster
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='control plane'>control plane</a>.
+-->
+<h3 id="步骤-3-监视-daemonset-回滚进度">步骤 3：监视 DaemonSet 回滚进度</h3>
+<p><code>kubectl rollout undo daemonset</code> 向服务器表明启动 DaemonSet 回滚。
+真正的回滚是在集群的
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='控制面'>控制面</a>
+异步完成的。</p>
+<!--
+To watch the progress of the rollback:
+-->
+<p>执行以下命令，来监视 DaemonSet 回滚进度：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl rollout status ds/&lt;daemonset-name&gt;
+</code></pre></div><!--
+When the rollback is complete, the output is similar to:
+-->
+<p>回滚完成时，输出形如：</p>
+<pre><code>daemonset &quot;&lt;daemonset-name&gt;&quot; successfully rolled out
+</code></pre><!-- discussion -->
+<!--
+## Understanding DaemonSet revisions
+
+In the previous `kubectl rollout history` step, you got a list of DaemonSet
+revisions. Each revision is stored in a resource named ControllerRevision.
+
+To see what is stored in each revision, find the DaemonSet revision raw
+resources:
+-->
+<h2 id="理解-daemonset-修订版本">理解 DaemonSet 修订版本</h2>
+<p>在前面的 <code>kubectl rollout history</code> 步骤中，你获得了一个修订版本列表，每个修订版本都存储在名为
+<code>ControllerRevision</code> 的资源中。</p>
+<p>要查看每个修订版本中保存的内容，可以找到 DaemonSet 修订版本的原生资源：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get controllerrevision -l &lt;daemonset-selector-key&gt;<span style="color:#666">=</span>&lt;daemonset-selector-value&gt;
+</code></pre></div><!--
+This returns a list of ControllerRevisions:
+-->
+<p>该命令返回 <code>ControllerRevisions</code> 列表：</p>
+<pre><code>NAME                               CONTROLLER                     REVISION   AGE
+&lt;daemonset-name&gt;-&lt;revision-hash&gt;   DaemonSet/&lt;daemonset-name&gt;     1          1h
+&lt;daemonset-name&gt;-&lt;revision-hash&gt;   DaemonSet/&lt;daemonset-name&gt;     2          1h
+</code></pre><!--
+Each ControllerRevision stores the annotations and template of a DaemonSet
+revision.
+-->
+<p>每个 <code>ControllerRevision</code> 中存储了相应 DaemonSet 版本的注解和模板。</p>
+<!--
+`kubectl rollout undo` takes a specific ControllerRevision and replaces
+DaemonSet template with the template stored in the ControllerRevision.
+`kubectl rollout undo` is equivalent to updating DaemonSet template to a
+previous revision through other commands, such as `kubectl edit` or `kubectl
+apply`.
+-->
+<p><code>kubectl rollout undo</code> 选择特定的 <code>ControllerRevision</code>，并用
+<code>ControllerRevision</code> 中存储的模板代替 DaemonSet 的模板。
+<code>kubectl rollout undo</code> 相当于通过其他命令（如 <code>kubectl edit</code> 或 <code>kubectl apply</code>）
+将 DaemonSet 模板更新至先前的版本。</p>
+<!--
+DaemonSet revisions only roll forward. That is to say, after a
+rollback completes, the revision number (`.revision` field) of the
+ControllerRevision being rolled back to will advance. For example, if you
+have revision 1 and 2 in the system, and roll back from revision 2 to revision
+1, the ControllerRevision with `.revision: 1` will become `.revision: 3`.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 注意 DaemonSet 修订版本只会正向变化。也就是说，回滚完成后，所回滚到的
+<code>ControllerRevision</code> 版本号 (<code>.revision</code> 字段) 会增加。
+例如，如果用户在系统中有版本 1 和版本 2，并从版本 2 回滚到版本 1，
+带有 <code>.revision: 1</code> 的<code>ControllerRevision</code> 将变为 <code>.revision: 3</code>。
+</div>
+<!--
+## Troubleshooting
+
+* See [troubleshooting DaemonSet rolling
+  update](/docs/tasks/manage-daemon/update-daemon-set/#troubleshooting).
+-->
+<h2 id="故障排查">故障排查</h2>
+<ul>
+<li>参阅 <a href="/zh/docs/tasks/manage-daemon/update-daemon-set/#troubleshooting">DaemonSet 滚动升级故障排除</a>。</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

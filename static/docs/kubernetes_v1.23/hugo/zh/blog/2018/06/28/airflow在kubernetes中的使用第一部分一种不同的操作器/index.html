@@ -1,0 +1,2129 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/blog/2018/06/28/airflow-on-kubernetes-part-1-a-different-kind-of-operator/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器 | Kubernetes</title><meta property="og:title" content="Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器" />
+<meta property="og:description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2018-06-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-08-27T09:06:41+08:00" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器">
+<meta itemprop="description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。"><meta itemprop="datePublished" content="2018-06-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-08-27T09:06:41+08:00" />
+<meta itemprop="wordCount" content="379">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器"/>
+<meta name="twitter:description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。">
+<meta property="og:description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。">
+<meta name="twitter:description" content="作者: Daniel Imberman (Bloomberg LP)
+介绍 作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; Apache Airflow的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。
+什么是Airflow? Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;
+&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;
+为什么在Kubernetes上使用Airflow? 自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。
+为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。
+Kubernetes运营商 在进一步讨论之前，我们应该澄清Airflow中的Operator是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。
+Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：
+ 提高部署灵活性：  Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。">
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">
+<meta property="og:title" content="Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器">
+<meta name="twitter:title" content="Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+    <title>Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器 | Kubernetes</title>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    
+  </head>
+  <body class="td-page td-blog">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/blog/2018/06/28/airflow-on-kubernetes-part-1-a-different-kind-of-operator/">English</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+      
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+      
+      <section class="header-hero text-center text-white font-bold pb-4">
+        <h1>
+          
+          
+            Kubernetes 博客
+          
+        </h1>
+      </section>
+         
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+
+
+
+
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+  <input
+    type="search"
+    class="form-control td-search-input"
+    name="q"
+    placeholder="&#xf002 Search"
+    aria-label="Search"
+    autocomplete="off"
+  >
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  
+  <nav class="collapse td-sidebar-nav pt-2 pl-4" id="td-section-nav">
+    
+    
+
+
+
+
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2022/05/03/dockershim-historical-context/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2022
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-05-03-dockershim-historical-context" href="/zh/blog/2022/05/03/dockershim-historical-context/">
+                Dockershim：历史背景
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-04-07-upcoming-changes-in-kubernetes-1-24" href="/zh/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/">
+                Kubernetes 1.24 的删除和弃用
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-03-16-meet-our-contributors-au-nz-ep-02" href="/zh/blog/2022/03/16/meet-our-contributors-au-nz-ep-02/">
+                认识我们的贡献者 - 亚太地区（澳大利亚-新西兰地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-17-dockershim-faq" href="/zh/blog/2022/02/17/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-16-sig-node-ci-subproject-celebrates" href="/zh/blog/2022/02/16/sig-node-ci-subproject-celebrates/">
+                SIG Node CI 子项目庆祝测试改进两周年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-19-secure-your-admission-controllers-and-webhooks" href="/zh/blog/2022/01/19/secure-your-admission-controllers-and-webhooks/">
+                确保准入控制器的安全
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-10-meet-our-contributors-india-ep-01" href="/zh/blog/2022/01/10/meet-our-contributors-india-ep-01/">
+                认识我们的贡献者 - 亚太地区（印度地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-07-kubernetes-is-moving-on-from-dockershim" href="/zh/blog/2022/01/07/kubernetes-is-moving-on-from-dockershim/">
+                Kubernetes 即将移除 Dockershim：承诺和下一步
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2022">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2021
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-16-kubernetes-1-23-statefulset-pvc-auto-deletion" href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/">
+                Kubernetes 1.23: StatefulSet PVC 自动删除 (alpha)
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-10-storage-in-tree-to-csi-migration-status-update" href="/zh/blog/2021/12/10/storage-in-tree-to-csi-migration-status-update/">
+                Kubernetes 1.23：树内存储向 CSI 卷迁移工作的进展更新
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-08-dual-stack-networking-ga" href="/zh/blog/2021/12/08/dual-stack-networking-ga/">
+                Kubernetes 1.23：IPv4/IPv6 双协议栈网络达到 GA
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-11-08-steering-committee-results-2021" href="/zh/blog/2021/11/08/steering-committee-results-2021/">
+                公布 2021 年指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-09-27-sig-node-spotlight-2021" href="/zh/blog/2021/09/27/sig-node-spotlight-2021/">
+                关注 SIG Node
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2021">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2020
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-18-kubernetes-1-20-pod-impersonation-short-lived-volumes-in-csi" href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/">
+                Kubernetes 1.20：CSI 驱动程序中的 Pod 身份假扮和短时卷
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-08-kubernetes-1-20-release-announcement" href="/zh/blog/2020/12/08/kubernetes-1-20-release-announcement/">
+                Kubernetes 1.20: 最新版本
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dockershim-faq" href="/zh/blog/2020/12/02/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dont-panic-kubernetes-and-docker" href="/zh/blog/2020/12/02/dont-panic-kubernetes-and-docker/">
+                别慌: Kubernetes 和 Docker
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-10-01-e4-b8-ba-e5-bc-80-e5-8f-91-e6-8c-87-e5-8d-97-e5-81-9a-e8-b4-a1-e7-8c-ae" href="/zh/blog/2020/10/01/%E4%B8%BA%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E5%81%9A%E8%B4%A1%E7%8C%AE/">
+                为开发指南做贡献
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-09-04-kubernetes-1-19-introducing-structured-logs" href="/zh/blog/2020/09/04/kubernetes-1-19-introducing-structured-logs/">
+                结构化日志介绍
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-03-25-kubernetes-1-18-release-announcement" href="/zh/blog/2020/03/25/kubernetes-1-18-release-announcement/">
+                Kubernetes 1.18: Fit &amp; Finish
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-01-15-kubernetes-on-mips" href="/zh/blog/2020/01/15/kubernetes-on-mips/">
+                基于 MIPS 架构的 Kubernetes 方案
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2020">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2019
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-12-09-kubernetes-1-17-release-announcement" href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/">
+                Kubernetes 1.17：稳定
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-e4-bd-bf-e7-94-a8-microk8s-e5-9c-a8-linux-e4-b8-8a-e6-9c-ac-e5-9c-b0-e8-bf-90-e8-a1-8c-kubernetes" href="/zh/blog/2019/11/26/%E4%BD%BF%E7%94%A8-microk8s-%E5%9C%A8-linux-%E4%B8%8A%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C-kubernetes/">
+                使用 Microk8s 在 Linux 上本地运行 Kubernetes
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-develop-a-kubernetes-controller-in-java" href="/zh/blog/2019/11/26/develop-a-kubernetes-controller-in-java/">
+                使用 Java 开发一个 Kubernetes controller
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-29-kubernetes-documentation-end-user-survey" href="/zh/blog/2019/10/29/kubernetes-documentation-end-user-survey/">
+                Kubernetes 文档最终用户调研
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-10-contributor-summit-san-diego-schedule" href="/zh/blog/2019/10/10/contributor-summit-san-diego-schedule/">
+                圣迭戈贡献者峰会日程公布！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-03-2019-steering-committee-election-results" href="/zh/blog/2019/10/03/2019-steering-committee-election-results/">
+                2019 指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-09-24-san-diego-contributor-summit" href="/zh/blog/2019/09/24/san-diego-contributor-summit/">
+                San Diego 贡献者峰会开放注册！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-08-06-opa-gatekeeper-policy-and-governance-for-kubernetes" href="/zh/blog/2019/08/06/opa-gatekeeper-policy-and-governance-for-kubernetes/">
+                OPA Gatekeeper：Kubernetes 的策略和管理
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-06-11-e6-ac-a2-e8-bf-8e-e5-8f-82-e5-8a-a0-e5-9c-a8-e4-b8-8a-e6-b5-b7-e4-b8-be-e8-a1-8c-e7-9a-84-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2019/06/11/%E6%AC%A2%E8%BF%8E%E5%8F%82%E5%8A%A0%E5%9C%A8%E4%B8%8A%E6%B5%B7%E4%B8%BE%E8%A1%8C%E7%9A%84%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                欢迎参加在上海举行的贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-05-14-expanding-our-contributor-workshops" href="/zh/blog/2019/05/14/expanding-our-contributor-workshops/">
+                壮大我们的贡献者研讨会
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2019">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-26-e5-a6-82-e4-bd-95-e5-8f-82-e4-b8-8e-kubernetes-e6-96-87-e6-a1-a3-e7-9a-84-e6-9c-ac-e5-9c-b0-e5-8c-96-e5-b7-a5-e4-bd-9c" href="/zh/blog/2019/04/26/%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E-kubernetes-%E6%96%87%E6%A1%A3%E7%9A%84%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%B7%A5%E4%BD%9C/">
+                如何参与 Kubernetes 文档的本地化工作
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-15-kubernetes-1-14-e7-a8-b3-e5-ae-9a-e6-80-a7-e6-94-b9-e8-bf-9b-e4-b8-ad-e7-9a-84-e8-bf-9b-e7-a8-8bid-e9-99-90-e5-88-b6" href="/zh/blog/2019/04/15/kubernetes-1.14-%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%94%B9%E8%BF%9B%E4%B8%AD%E7%9A%84%E8%BF%9B%E7%A8%8Bid%E9%99%90%E5%88%B6/">
+                Kubernetes 1.14 稳定性改进中的进程ID限制
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-03-07-raw-block-volume-e6-94-af-e6-8c-81-e8-bf-9b-e5-85-a5-beta" href="/zh/blog/2019/03/07/raw-block-volume-%E6%94%AF%E6%8C%81%E8%BF%9B%E5%85%A5-beta/">
+                Raw Block Volume 支持进入 Beta
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">
+          2018
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-12-05-e6-96-b0-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b7-a5-e4-bd-9c-e5-9d-8a-e4-b8-8a-e6-b5-b7-e7-ab-99" href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/">
+                新贡献者工作坊上海站
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-11-08-kubernetes-e6-96-87-e6-a1-a3-e6-9b-b4-e6-96-b0-e5-9b-bd-e9-99-85-e7-89-88" href="/zh/blog/2018/11/08/kubernetes-%E6%96%87%E6%A1%A3%E6%9B%B4%E6%96%B0%E5%9B%BD%E9%99%85%E7%89%88/">
+                Kubernetes 文档更新，国际版
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-16-kubernetes-2018-e5-b9-b4-e5-8c-97-e7-be-8e-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2018/10/16/kubernetes-2018-%E5%B9%B4%E5%8C%97%E7%BE%8E%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                Kubernetes 2018 年北美贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-15-2018-e5-b9-b4-e7-9d-a3-e5-af-bc-e5-a7-94-e5-91-98-e4-bc-9a-e9-80-89-e4-b8-be-e7-bb-93-e6-9e-9c" href="/zh/blog/2018/10/15/2018-%E5%B9%B4%E7%9D%A3%E5%AF%BC%E5%A7%94%E5%91%98%E4%BC%9A%E9%80%89%E4%B8%BE%E7%BB%93%E6%9E%9C/">
+                2018 年督导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-11-kubernetes-e4-b8-ad-e7-9a-84-e6-8b-93-e6-89-91-e6-84-9f-e7-9f-a5-e6-95-b0-e6-8d-ae-e5-8d-b7-e4-be-9b-e5-ba-94" href="/zh/blog/2018/10/11/kubernetes-%E4%B8%AD%E7%9A%84%E6%8B%93%E6%89%91%E6%84%9F%E7%9F%A5%E6%95%B0%E6%8D%AE%E5%8D%B7%E4%BE%9B%E5%BA%94/">
+                Kubernetes 中的拓扑感知数据卷供应
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-10-kubernetes-v1-12-runtimeclass-e7-ae-80-e4-bb-8b" href="/zh/blog/2018/10/10/kubernetes-v1.12-runtimeclass-%E7%AE%80%E4%BB%8B/">
+                Kubernetes v1.12: RuntimeClass 简介
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-03-kubedirector-e5-9c-a8-kubernetes-e4-b8-8a-e8-bf-90-e8-a1-8c-e5-a4-8d-e6-9d-82-e7-8a-b6-e6-80-81-e5-ba-94-e7-94-a8-e7-a8-8b-e5-ba-8f-e7-9a-84-e7-ae-80-e5-8d-95-e6-96-b9-e6-b3-95" href="/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">
+                KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-01-e5-9c-a8-kubernetes-e4-b8-8a-e5-af-b9-grpc-e6-9c-8d-e5-8a-a1-e5-99-a8-e8-bf-9b-e8-a1-8c-e5-81-a5-e5-ba-b7-e6-a3-80-e6-9f-a5" href="/zh/blog/2018/10/01/%E5%9C%A8-kubernetes-%E4%B8%8A%E5%AF%B9-grpc-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+                在 Kubernetes 上对 gRPC 服务器进行健康检查
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-29-the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience" href="/zh/blog/2018/08/29/the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience/">
+                The Machines Can Do the Work, a Story of Kubernetes Testing, CI, and Automating the Contributor Experience
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-02-e4-bd-bf-e7-94-a8-csi-e5-92-8c-kubernetes-e5-ae-9e-e7-8e-b0-e5-8d-b7-e7-9a-84-e5-8a-a8-e6-80-81-e6-89-a9-e5-ae-b9" href="/zh/blog/2018/08/02/%E4%BD%BF%E7%94%A8-csi-%E5%92%8C-kubernetes-%E5%AE%9E%E7%8E%B0%E5%8D%B7%E7%9A%84%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9/">
+                使用 CSI 和 Kubernetes 实现卷的动态扩容
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse show" data-year="2018">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-11-e5-8a-a8-e6-80-81-kubelet-e9-85-8d-e7-bd-ae" href="/zh/blog/2018/07/11/%E5%8A%A8%E6%80%81-kubelet-%E9%85%8D%E7%BD%AE/">
+                动态 Kubelet 配置
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-10-e7-94-a8-e4-ba-8e-kubernetes-e9-9b-86-e7-be-a4-dns-e7-9a-84-coredns-ga-e6-ad-a3-e5-bc-8f-e5-8f-91-e5-b8-83" href="/zh/blog/2018/07/10/%E7%94%A8%E4%BA%8E-kubernetes-%E9%9B%86%E7%BE%A4-dns-%E7%9A%84-coredns-ga-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83/">
+                用于 Kubernetes 集群 DNS 的 CoreDNS GA 正式发布
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-09-ipvs-based-in-cluster-load-balancing-deep-dive" href="/zh/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/">
+                IPVS-Based In-Cluster Load Balancing Deep Dive
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page  active" id="m-zh-blog-2018-06-28-airflow-e5-9c-a8kubernetes-e4-b8-ad-e7-9a-84-e4-bd-bf-e7-94-a8-e7-ac-ac-e4-b8-80-e9-83-a8-e5-88-86-e4-b8-80-e7-a7-8d-e4-b8-8d-e5-90-8c-e7-9a-84-e6-93-8d-e4-bd-9c-e5-99-a8" href="/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">
+                Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-07-dynamic-ingress-kubernetes" href="/zh/blog/2018/06/07/dynamic-ingress-kubernetes/">
+                Kubernetes 内的动态 Ingress
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-06-kubernetes-e8-bf-99-e5-9b-9b-e5-b9-b4" href="/zh/blog/2018/06/06/kubernetes-%E8%BF%99%E5%9B%9B%E5%B9%B4/">
+                Kubernetes 这四年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-30-kubernetes-1-11-e5-90-91-discuss-kubernetes-e9-97-ae-e5-a5-bd" href="/zh/blog/2018/05/30/kubernetes-1-11%E5%90%91-discuss-kubernetes-%E9%97%AE%E5%A5%BD/">
+                Kubernetes 1 11：向 discuss kubernetes 问好
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-01-developing-on-kubernetes" href="/zh/blog/2018/05/01/developing-on-kubernetes/">
+                在 Kubernetes 上开发
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-04-25-open-source-charts-2017" href="/zh/blog/2018/04/25/open-source-charts-2017/">
+                Kubernetes 社区 - 2017 年开源排行榜榜首
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-03-principles-of-container-app-design" href="/zh/blog/2018/03/Principles-Of-Container-App-Design/">
+                “基于容器的应用程序设计原理”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-01-kubernetes-v19-beta-windows-support" href="/zh/blog/2018/01/Kubernetes-V19-Beta-Windows-Support/">
+                Kubernetes 1.9 对 Windows Server 容器提供 Beta 版本支持
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2017
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-11-17-autoscaling-in-kubernetes" href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/">
+                 Kubernetes 中自动缩放 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-24-five-days-of-kubernetes-18" href="/zh/blog/2017/10/24/five-days-of-kubernetes-18/">
+                 Kubernetes 1.8 的五天 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-kubernetes-community-steering-committee-election-results" href="/zh/blog/2017/10/Kubernetes-Community-Steering-Committee-Election-Results/">
+                 Kubernetes 社区指导委员会选举结果 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2017">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2016
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-08-stateful-applications-using-kubernetes-datera" href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/">
+                 使用 Kubernetes Pet Sets 和 Datera Elastic Data Fabric 的 FlexVolume 扩展有状态的应用程序 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-21-oh-the-places-you-will-go" href="/zh/blog/2016/07/21/oh-the-places-you-will-go/">
+                 Kubernetes 生日快乐。哦，这是你要去的地方！ 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-15-dashboard-web-interface-for-kubernetes" href="/zh/blog/2016/07/15/dashboard-web-interface-for-kubernetes/">
+                 Dashboard - Kubernetes 的全功能 Web 界面 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-14-citrix-netscaler-and-kubernetes" href="/zh/blog/2016/07/14/citrix-netscaler-and-kubernetes/">
+                 Citrix &#43; Kubernetes = 全垒打 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-stateful-applications-in-containers-kubernetes" href="/zh/blog/2016/07/stateful-applications-in-containers-kubernetes/">
+                容器中运行有状态的应用！？ Kubernetes 1.3 说 “是！” 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-05-coreosfest2016-kubernetes-community" href="/zh/blog/2016/05/Coreosfest2016-Kubernetes-Community/">
+                 CoreOS Fest 2016: CoreOS 和 Kubernetes 在柏林（和旧金山）社区见面会 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-sig-clusterops-promote-operability-and-interoperability-of-k8s-clusters" href="/zh/blog/2016/04/Sig-Clusterops-Promote-Operability-And-Interoperability-Of-K8S-Clusters/">
+                 SIG-ClusterOps: 提升 Kubernetes 集群的可操作性和互操作性 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-kubernetes-network-policy-apis" href="/zh/blog/2016/04/Kubernetes-Network-Policy-APIs/">
+                “SIG-Networking：1.3 版本引入 Kubernetes 网络策略 API”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-adding-support-for-kubernetes-in-rancher" href="/zh/blog/2016/04/Adding-Support-For-Kubernetes-In-Rancher/">
+                 在 Rancher 中添加对 Kuernetes 的支持 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-24-kubecon-eu-2016-kubernetes-community-in" href="/zh/blog/2016/02/24/kubecon-eu-2016-kubernetes-community-in/">
+                 KubeCon EU 2016：伦敦 Kubernetes 社区 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2016">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-kubernetes-community-meeting-notes-23" href="/zh/blog/2016/02/kubernetes-community-meeting-notes_23/">
+                Kubernetes 社区会议记录 - 20160218
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-09-kubernetes-community-meeting-notes" href="/zh/blog/2016/02/09/kubernetes-community-meeting-notes/">
+                 Kubernetes 社区会议记录 - 20160204 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-state-of-container-world-january-2016" href="/zh/blog/2016/02/State-Of-Container-World-January-2016/">
+                 容器世界现状，2016年1月 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-kubernetes-community-meeting-notes" href="/zh/blog/2016/01/Kubernetes-Community-Meeting-Notes/">
+                 Kubernetes 社区会议记录 - 20160114 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-14-why-kubernetes-doesnt-use-libnetwork" href="/zh/blog/2016/01/14/why-kubernetes-doesnt-use-libnetwork/">
+                 为什么 Kubernetes 不用 libnetwork 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-11-simple-leader-election-with-kubernetes" href="/zh/blog/2016/01/11/simple-leader-election-with-kubernetes/">
+                 Simple leader election with Kubernetes and Docker 
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2015
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-12-17-managing-kubernetes-pods-services-and-replication-controllers-with-puppet" href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/">
+                 使用 Puppet 管理 Kubernetes Pods，Services 和 Replication Controllers 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-11-kubernetes-1-1-performance-upgrades-improved-tooling-and-a-growing-community" href="/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+                 Kubernetes 1.1 性能升级，工具改进和社区不断壮大  
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-08-weekly-kubernetes-community-hangout" href="/zh/blog/2015/08/Weekly-Kubernetes-Community-Hangout/">
+                 Weekly Kubernetes Community Hangout Notes - July 31 2015 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-07-08-announcing-first-kubernetes-enterprise" href="/zh/blog/2015/07/08/announcing-first-kubernetes-enterprise/">
+                宣布首个Kubernetes企业培训课程 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-06-26-slides-cluster-management-with" href="/zh/blog/2015/06/26/slides-cluster-management-with/">
+                幻灯片：Kubernetes 集群管理，爱丁堡大学演讲
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-19-kubernetes-on-openstack" href="/zh/blog/2015/05/19/kubernetes-on-openstack/">
+                 OpenStack 上的 Kubernetes 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-11-weekly-kubernetes-community-hangout" href="/zh/blog/2015/05/11/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记- 2015年5月1日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-appc-support-for-kubernetes-through-rkt" href="/zh/blog/2015/05/Appc-Support-For-Kubernetes-Through-Rkt/">
+                 AppC Support for Kubernetes through RKT 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-30-weekly-kubernetes-community-hangout-29" href="/zh/blog/2015/04/30/weekly-kubernetes-community-hangout_29/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月24日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-borg-predecessor-to-kubernetes" href="/zh/blog/2015/04/Borg-Predecessor-To-Kubernetes/">
+                Borg: Kubernetes 的前身
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2015">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-17-weekly-kubernetes-community-hangout-17" href="/zh/blog/2015/04/17/weekly-kubernetes-community-hangout_17/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月17日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-16-kubernetes-release-0150" href="/zh/blog/2015/04/16/kubernetes-release-0150/">
+                 Kubernetes Release: 0.15.0 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-weekly-kubernetes-community-hangout" href="/zh/blog/2015/04/Weekly-Kubernetes-Community-Hangout/">
+                 每周 Kubernetes 社区例会笔记 - 2015年4月3日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-28-weekly-kubernetes-community-hangout" href="/zh/blog/2015/03/28/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记 - 2015年3月27日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-23-kubernetes-gathering-videos" href="/zh/blog/2015/03/23/kubernetes-gathering-videos/">
+                 Kubernetes 采集视频 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-20-welcome-to-kubernetes-blog" href="/zh/blog/2015/03/20/welcome-to-kubernetes-blog/">
+                欢迎来到 Kubernetes 博客!
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          0001
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=0001>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-bringing-end-to-end-kubernetes-testing-to-azure-2" href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/">
+                
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="0001">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+
+  </nav>
+</div>
+
+
+
+
+<script>
+let morePosts = document.querySelectorAll(".more-posts");
+let year = "";
+morePosts.forEach(link => {
+  link.onclick = (e) => {
+    e.preventDefault();
+    year = link.dataset.year;
+    console.log(year);
+    let hiddenPosts = document.querySelectorAll(`.blog-post.hidden[data-year="${year}"]`);
+    console.log(hiddenPosts);
+    hiddenPosts.forEach(post => {
+      post.classList.add('show');
+      post.classList.remove("hidden");
+    });
+    link.style.display = "none";
+  }
+});
+</script>
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5 pr-md-4" role="main">
+            
+              <section id="deprecation-warning">
+  <div class="content deprecation-warning pageinfo outdated-blog">
+    <p>This article is more than one year old. Older articles may contain outdated content. Check that the information in the page has not become incorrect since its publication.</p>
+  </div>
+</section>
+
+            
+            
+<div class="td-content">
+	<h1>Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器</h1>
+	
+	<div class="td-byline mb-4">
+		
+		<time datetime="2018-06-28" class="text-muted">2018.06.28</time>
+	</div>
+	<header class="article-meta">
+		
+
+  
+    
+
+
+  
+    
+
+
+  
+
+		
+	</header>
+	<!--
+
+Author: Daniel Imberman (Bloomberg LP)
+
+-->
+<p>作者: Daniel Imberman (Bloomberg LP)</p>
+<!--
+
+## Introduction
+
+
+
+As part of Bloomberg's continued commitment to developing the Kubernetes ecosystem, we are excited to announce the Kubernetes Airflow Operator; a mechanism for Apache Airflow, a popular workflow orchestration framework to natively launch arbitrary Kubernetes Pods using the Kubernetes API.
+
+-->
+<h2 id="介绍">介绍</h2>
+<p>作为Bloomberg [继续致力于开发Kubernetes生态系统]的一部分（https://www.techatbloomberg.com/blog/bloomberg-awarded-first-cncf-end-user-award-contributions-kubernetes/），我们很高兴能够宣布Kubernetes Airflow Operator的发布; <a href="https://airflow.apache.org/">Apache Airflow</a>的机制，一种流行的工作流程编排框架，使用Kubernetes API可以在本机启动任意的Kubernetes Pod。</p>
+<!--
+
+## What Is Airflow?
+
+
+
+Apache Airflow is one realization of the DevOps philosophy of "Configuration As Code." Airflow allows users to launch multi-step pipelines using a simple Python object DAG (Directed Acyclic Graph). You can define dependencies, programmatically construct complex workflows, and monitor scheduled jobs in an easy to read UI.
+
+
+
+
+
+
+
+-->
+<h2 id="什么是airflow">什么是Airflow?</h2>
+<p>Apache Airflow是DevOps“Configuration As Code”理念的一种实现。 Airflow允许用户使用简单的Python对象DAG（有向无环图）启动多步骤流水线。 您可以在易于阅读的UI中定义依赖关系，以编程方式构建复杂的工作流，并监视调度的作业。</p>
+<p>&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow_dags.png”width =“85％”alt =“Airflow DAGs”/&gt;</p>
+<p>&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow.png”width =“85％”alt =“Airflow UI”/&gt;</p>
+<!--
+
+## Why Airflow on Kubernetes?
+
+
+
+Since its inception, Airflow's greatest strength has been its flexibility. Airflow offers a wide range of integrations for services ranging from Spark and HBase, to services on various cloud providers. Airflow also offers easy extensibility through its plug-in framework. However, one limitation of the project is that Airflow users are confined to the frameworks and clients that exist on the Airflow worker at the moment of execution. A single organization can have varied Airflow workflows ranging from data science pipelines to application deployments. This difference in use-case creates issues in dependency management as both teams might use vastly different libraries for their workflows.
+
+
+
+To address this issue, we've utilized Kubernetes to allow users to launch arbitrary Kubernetes pods and configurations. Airflow users can now have full power over their run-time environments, resources, and secrets, basically turning Airflow into an "any job you want" workflow orchestrator.
+
+-->
+<h2 id="为什么在kubernetes上使用airflow">为什么在Kubernetes上使用Airflow?</h2>
+<p>自成立以来，Airflow的最大优势在于其灵活性。 Airflow提供广泛的服务集成，包括Spark和HBase，以及各种云提供商的服务。 Airflow还通过其插件框架提供轻松的可扩展性。但是，该项目的一个限制是Airflow用户仅限于执行时Airflow站点上存在的框架和客户端。单个组织可以拥有各种Airflow工作流程，范围从数据科学流到应用程序部署。用例中的这种差异会在依赖关系管理中产生问题，因为两个团队可能会在其工作流程使用截然不同的库。</p>
+<p>为了解决这个问题，我们使Kubernetes允许用户启动任意Kubernetes pod和配置。 Airflow用户现在可以在其运行时环境，资源和机密上拥有全部权限，基本上将Airflow转变为“您想要的任何工作”工作流程协调器。</p>
+<!--
+
+## The Kubernetes Operator
+
+
+
+Before we move any further, we should clarify that an Operator in Airflow is a task definition. When a user creates a DAG, they would use an operator like the "SparkSubmitOperator" or the "PythonOperator" to submit/monitor a Spark job or a Python function respectively. Airflow comes with built-in operators for frameworks like Apache Spark, BigQuery, Hive, and EMR. It also offers a Plugins entrypoint that allows DevOps engineers to develop their own connectors.
+
+
+
+Airflow users are always looking for ways to make deployments and ETL pipelines simpler to manage. Any opportunity to decouple pipeline steps, while increasing monitoring, can reduce future outages and fire-fights. The following is a list of benefits provided by the Airflow Kubernetes Operator:
+
+-->
+<h2 id="kubernetes运营商">Kubernetes运营商</h2>
+<p>在进一步讨论之前，我们应该澄清Airflow中的<a href="https://airflow.apache.org/concepts.html#operators">Operator</a>是一个任务定义。 当用户创建DAG时，他们将使用像“SparkSubmitOperator”或“PythonOperator”这样的operator分别提交/监视Spark作业或Python函数。 Airflow附带了Apache Spark，BigQuery，Hive和EMR等框架的内置运算符。 它还提供了一个插件入口点，允许DevOps工程师开发自己的连接器。</p>
+<p>Airflow用户一直在寻找更易于管理部署和ETL流的方法。 在增加监控的同时，任何解耦流程的机会都可以减少未来的停机等问题。 以下是Airflow Kubernetes Operator提供的好处：</p>
+<!--
+
+ * Increased flexibility for deployments:
+
+Airflow's plugin API has always offered a significant boon to engineers wishing to test new functionalities within their DAGs. On the downside, whenever a developer wanted to create a new operator, they had to develop an entirely new plugin. Now, any task that can be run within a Docker container is accessible through the exact same operator, with no extra Airflow code to maintain.
+
+-->
+<ul>
+<li>提高部署灵活性：</li>
+</ul>
+<p>Airflow的插件API一直为希望在其DAG中测试新功能的工程师提供了重要的福利。 不利的一面是，每当开发人员想要创建一个新的operator时，他们就必须开发一个全新的插件。 现在，任何可以在Docker容器中运行的任务都可以通过完全相同的运算符访问，而无需维护额外的Airflow代码。</p>
+<!--
+
+ * Flexibility of configurations and dependencies:
+
+For operators that are run within static Airflow workers, dependency management can become quite difficult. If a developer wants to run one task that requires SciPy and another that requires NumPy, the developer would have to either maintain both dependencies within all Airflow workers or offload the task to an external machine (which can cause bugs if that external machine changes in an untracked manner). Custom Docker images allow users to ensure that the tasks environment, configuration, and dependencies are completely idempotent.
+
+-->
+<ul>
+<li>配置和依赖的灵活性：</li>
+</ul>
+<p>对于在静态Airflow工作程序中运行的operator，依赖关系管理可能变得非常困难。 如果开发人员想要运行一个需要<a href="https://www.scipy.org">SciPy</a>的任务和另一个需要<a href="http://www.numpy.org">NumPy</a>的任务，开发人员必须维护所有Airflow节点中的依赖关系或将任务卸载到其他计算机（如果外部计算机以未跟踪的方式更改，则可能导致错误）。 自定义Docker镜像允许用户确保任务环境，配置和依赖关系完全是幂等的。</p>
+<!--
+
+ * Usage of kubernetes secrets for added security:
+
+Handling sensitive data is a core responsibility of any DevOps engineer. At every opportunity, Airflow users want to isolate any API keys, database passwords, and login credentials on a strict need-to-know basis. With the Kubernetes operator, users can utilize the Kubernetes Vault technology to store all sensitive data. This means that the Airflow workers will never have access to this information, and can simply request that pods be built with only the secrets they need.
+
+-->
+<ul>
+<li>使用kubernetes Secret以增加安全性：</li>
+</ul>
+<p>处理敏感数据是任何开发工程师的核心职责。 Airflow用户总有机会在严格条款的基础上隔离任何API密钥，数据库密码和登录凭据。 使用Kubernetes运算符，用户可以利用Kubernetes Vault技术存储所有敏感数据。 这意味着Airflow工作人员将永远无法访问此信息，并且可以容易地请求仅使用他们需要的密码信息构建pod。</p>
+<!--
+
+# Architecture
+
+
+
+
+
+
+
+The Kubernetes Operator uses the Kubernetes Python Client to generate a request that is processed by the APIServer (1). Kubernetes will then launch your pod with whatever specs you've defined (2). Images will be loaded with all the necessary environment variables, secrets and dependencies, enacting a single command. Once the job is launched, the operator only needs to monitor the health of track logs (3). Users will have the choice of gathering logs locally to the scheduler or to any distributed logging service currently in their Kubernetes cluster.
+
+-->
+<p>＃架构</p>
+<p>&lt;img src =“/ images / blog / 2018-05-25-Airflow-Kubernetes-Operator / 2018-05-25-airflow-architecture.png”width =“85％”alt =“Airflow Architecture”/&gt;</p>
+<p>Kubernetes Operator使用<a href="https://github.com/kubernetes-client/Python">Kubernetes Python客户端</a>生成由APIServer处理的请求（1）。 然后，Kubernetes将使用您定义的需求启动您的pod（2）。映像文件中将加载环境变量，Secret和依赖项，执行单个命令。 一旦启动作业，operator只需要监视跟踪日志的状况（3）。 用户可以选择将日志本地收集到调度程序或当前位于其Kubernetes集群中的任何分布式日志记录服务。</p>
+<!--
+
+# Using the Kubernetes Operator
+
+
+
+## A Basic Example
+
+
+
+The following DAG is probably the simplest example we could write to show how the Kubernetes Operator works. This DAG creates two pods on Kubernetes: a Linux distro with Python and a base Ubuntu distro without it. The Python pod will run the Python request correctly, while the one without Python will report a failure to the user. If the Operator is working correctly, the passing-task pod should complete, while the failing-task pod returns a failure to the Airflow webserver.
+
+-->
+<p>＃使用Kubernetes Operator</p>
+<p>##一个基本的例子</p>
+<p>以下DAG可能是我们可以编写的最简单的示例，以显示Kubernetes Operator的工作原理。 这个DAG在Kubernetes上创建了两个pod：一个带有Python的Linux发行版和一个没有它的基本Ubuntu发行版。 Python pod将正确运行Python请求，而没有Python的那个将向用户报告失败。 如果Operator正常工作，则应该完成“passing-task”pod，而“falling-task”pod则向Airflow网络服务器返回失败。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python">
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">airflow</span> <span style="color:#a2f;font-weight:bold">import</span> DAG
+
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">datetime</span> <span style="color:#a2f;font-weight:bold">import</span> datetime, timedelta
+
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">airflow.contrib.operators.kubernetes_pod_operator</span> <span style="color:#a2f;font-weight:bold">import</span> KubernetesPodOperator
+
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">airflow.operators.dummy_operator</span> <span style="color:#a2f;font-weight:bold">import</span> DummyOperator
+
+
+default_args <span style="color:#666">=</span> {
+
+    <span style="color:#b44">&#39;owner&#39;</span>: <span style="color:#b44">&#39;airflow&#39;</span>,
+
+    <span style="color:#b44">&#39;depends_on_past&#39;</span>: <span style="color:#a2f;font-weight:bold">False</span>,
+
+    <span style="color:#b44">&#39;start_date&#39;</span>: datetime<span style="color:#666">.</span>utcnow(),
+
+    <span style="color:#b44">&#39;email&#39;</span>: [<span style="color:#b44">&#39;airflow@example.com&#39;</span>],
+
+    <span style="color:#b44">&#39;email_on_failure&#39;</span>: <span style="color:#a2f;font-weight:bold">False</span>,
+
+    <span style="color:#b44">&#39;email_on_retry&#39;</span>: <span style="color:#a2f;font-weight:bold">False</span>,
+
+    <span style="color:#b44">&#39;retries&#39;</span>: <span style="color:#666">1</span>,
+
+    <span style="color:#b44">&#39;retry_delay&#39;</span>: timedelta(minutes<span style="color:#666">=</span><span style="color:#666">5</span>)
+
+}
+
+
+
+dag <span style="color:#666">=</span> DAG(
+
+    <span style="color:#b44">&#39;kubernetes_sample&#39;</span>, default_args<span style="color:#666">=</span>default_args, schedule_interval<span style="color:#666">=</span>timedelta(minutes<span style="color:#666">=</span><span style="color:#666">10</span>))
+
+start <span style="color:#666">=</span> DummyOperator(task_id<span style="color:#666">=</span><span style="color:#b44">&#39;run_this_first&#39;</span>, dag<span style="color:#666">=</span>dag)
+passing <span style="color:#666">=</span> KubernetesPodOperator(namespace<span style="color:#666">=</span><span style="color:#b44">&#39;default&#39;</span>,
+
+                          image<span style="color:#666">=</span><span style="color:#b44">&#34;Python:3.6&#34;</span>,
+
+                          cmds<span style="color:#666">=</span>[<span style="color:#b44">&#34;Python&#34;</span>,<span style="color:#b44">&#34;-c&#34;</span>],
+
+                          arguments<span style="color:#666">=</span>[<span style="color:#b44">&#34;print(&#39;hello world&#39;)&#34;</span>],
+
+                          labels<span style="color:#666">=</span>{<span style="color:#b44">&#34;foo&#34;</span>: <span style="color:#b44">&#34;bar&#34;</span>},
+
+                          name<span style="color:#666">=</span><span style="color:#b44">&#34;passing-test&#34;</span>,
+
+                          task_id<span style="color:#666">=</span><span style="color:#b44">&#34;passing-task&#34;</span>,
+
+                          get_logs<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">True</span>,
+
+                          dag<span style="color:#666">=</span>dag
+
+                          )
+
+ failing <span style="color:#666">=</span> KubernetesPodOperator(namespace<span style="color:#666">=</span><span style="color:#b44">&#39;default&#39;</span>,
+
+                          image<span style="color:#666">=</span><span style="color:#b44">&#34;ubuntu:1604&#34;</span>,
+
+                          cmds<span style="color:#666">=</span>[<span style="color:#b44">&#34;Python&#34;</span>,<span style="color:#b44">&#34;-c&#34;</span>],
+
+                          arguments<span style="color:#666">=</span>[<span style="color:#b44">&#34;print(&#39;hello world&#39;)&#34;</span>],
+
+                          labels<span style="color:#666">=</span>{<span style="color:#b44">&#34;foo&#34;</span>: <span style="color:#b44">&#34;bar&#34;</span>},
+
+                          name<span style="color:#666">=</span><span style="color:#b44">&#34;fail&#34;</span>,
+
+                          task_id<span style="color:#666">=</span><span style="color:#b44">&#34;failing-task&#34;</span>,
+
+                          get_logs<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">True</span>,
+
+                          dag<span style="color:#666">=</span>dag
+
+                          )
+
+passing<span style="color:#666">.</span>set_upstream(start)
+
+failing<span style="color:#666">.</span>set_upstream(start)
+
+</code></pre></div><!--
+
+## But how does this relate to my workflow?
+
+
+
+While this example only uses basic images, the magic of Docker is that this same DAG will work for any image/command pairing you want. The following is a recommended CI/CD pipeline to run production-ready code on an Airflow DAG.
+
+
+
+### 1: PR in github
+
+Use Travis or Jenkins to run unit and integration tests, bribe your favorite team-mate into PR'ing your code, and merge to the master branch to trigger an automated CI build.
+
+
+
+### 2: CI/CD via Jenkins -> Docker Image
+
+
+
+Generate your Docker images and bump release version within your Jenkins build.
+
+
+
+### 3: Airflow launches task
+
+
+
+Finally, update your DAGs to reflect the new release version and you should be ready to go!
+
+-->
+<p>##但这与我的工作流程有什么关系？</p>
+<p>虽然这个例子只使用基本映像，但Docker的神奇之处在于，这个相同的DAG可以用于您想要的任何图像/命令配对。 以下是推荐的CI / CD管道，用于在Airflow DAG上运行生产就绪代码。</p>
+<h3 id="1-github中的pr">1：github中的PR</h3>
+<p>使用Travis或Jenkins运行单元和集成测试，请您的朋友PR您的代码，并合并到主分支以触发自动CI构建。</p>
+<h3 id="2-ci-cd构建jenkins-docker-image">2：CI / CD构建Jenkins - &gt; Docker Image</h3>
+<p><a href="https://getintodevops.com/blog/building-your-first-Docker-image-with-jenkins-2-guide-for-developers">在Jenkins构建中生成Docker镜像和缓冲版本</a>。</p>
+<h3 id="3-airflow启动任务">3：Airflow启动任务</h3>
+<p>最后，更新您的DAG以反映新版本，您应该准备好了！</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python">
+production_task <span style="color:#666">=</span> KubernetesPodOperator(namespace<span style="color:#666">=</span><span style="color:#b44">&#39;default&#39;</span>,
+
+                          <span style="color:#080;font-style:italic"># image=&#34;my-production-job:release-1.0.1&#34;, &lt;-- old release</span>
+
+                          image<span style="color:#666">=</span><span style="color:#b44">&#34;my-production-job:release-1.0.2&#34;</span>,
+
+                          cmds<span style="color:#666">=</span>[<span style="color:#b44">&#34;Python&#34;</span>,<span style="color:#b44">&#34;-c&#34;</span>],
+
+                          arguments<span style="color:#666">=</span>[<span style="color:#b44">&#34;print(&#39;hello world&#39;)&#34;</span>],
+
+                          name<span style="color:#666">=</span><span style="color:#b44">&#34;fail&#34;</span>,
+
+                          task_id<span style="color:#666">=</span><span style="color:#b44">&#34;failing-task&#34;</span>,
+
+                          get_logs<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">True</span>,
+
+                          dag<span style="color:#666">=</span>dag
+
+                          )
+
+</code></pre></div><!--
+
+# Launching a test deployment
+
+
+
+Since the Kubernetes Operator is not yet released, we haven't released an official helm chart or operator (however both are currently in progress). However, we are including instructions for a basic deployment below  and are actively looking for foolhardy beta testers to try this new feature. To try this system out please follow these steps:
+
+
+
+## Step 1: Set your kubeconfig to point to a kubernetes cluster
+
+
+
+## Step 2: Clone the Airflow Repo:
+
+
+
+Run git clone https://github.com/apache/incubator-airflow.git to clone the official Airflow repo.
+
+
+
+## Step 3: Run
+
+
+
+To run this basic deployment, we are co-opting the integration testing script that we currently use for the Kubernetes Executor (which will be explained in the next article of this series). To launch this deployment, run these three commands:
+
+-->
+<p>＃启动测试部署</p>
+<p>由于Kubernetes运营商尚未发布，我们尚未发布官方<a href="https://helm.sh/">helm</a> 图表或operator（但两者目前都在进行中）。 但是，我们在下面列出了基本部署的说明，并且正在积极寻找测试人员来尝试这一新功能。 要试用此系统，请按以下步骤操作：</p>
+<p>##步骤1：将kubeconfig设置为指向kubernetes集群</p>
+<p>##步骤2：clone Airflow 仓库：</p>
+<p>运行git clone https：// github.com / apache / incubator-airflow.git来clone官方Airflow仓库。</p>
+<p>##步骤3：运行</p>
+<p>为了运行这个基本Deployment，我们正在选择我们目前用于Kubernetes Executor的集成测试脚本（将在本系列的下一篇文章中对此进行解释）。 要启动此部署，请运行以下三个命令：</p>
+<pre><code>
+sed -ie &quot;s/KubernetesExecutor/LocalExecutor/g&quot; scripts/ci/kubernetes/kube/configmaps.yaml
+
+./scripts/ci/kubernetes/Docker/build.sh
+
+./scripts/ci/kubernetes/kube/deploy.sh
+
+</code></pre><!--
+
+Before we move on, let's discuss what these commands are doing:
+
+
+
+### sed -ie "s/KubernetesExecutor/LocalExecutor/g" scripts/ci/kubernetes/kube/configmaps.yaml
+
+
+
+The Kubernetes Executor is another Airflow feature that allows for dynamic allocation  of tasks as idempotent pods. The reason we are switching this to the LocalExecutor is simply to introduce one feature at a time. You are more then welcome to skip this step if you would like to try the Kubernetes Executor, however we will go into more detail in a future article.
+
+
+
+### ./scripts/ci/kubernetes/Docker/build.sh
+
+
+
+This script will tar the Airflow master source code build a Docker container based on the Airflow distribution
+
+
+
+### ./scripts/ci/kubernetes/kube/deploy.sh
+
+
+
+Finally, we create a full Airflow deployment on your cluster. This includes Airflow configs, a postgres backend, the webserver + scheduler, and all necessary services between. One thing to note is that the role binding supplied is a cluster-admin, so if you do not have that level of permission on the cluster, you can modify this at scripts/ci/kubernetes/kube/airflow.yaml
+
+
+
+## Step 4: Log into your webserver
+
+
+
+Now that your Airflow instance is running let's take a look at the UI! The UI lives in port 8080 of the Airflow pod, so simply run
+
+-->
+<p>在我们继续之前，让我们讨论这些命令正在做什么：</p>
+<h3 id="sed-ie-s-kubernetesexecutor-localexecutor-g-scripts-ci-kubernetes-kube-configmaps-yaml">sed -ie“s / KubernetesExecutor / LocalExecutor / g”scripts / ci / kubernetes / kube / configmaps.yaml</h3>
+<p>Kubernetes Executor是另一种Airflow功能，允许动态分配任务已解决幂等pod的问题。我们将其切换到LocalExecutor的原因只是一次引入一个功能。如果您想尝试Kubernetes Executor，欢迎您跳过此步骤，但我们将在以后的文章中详细介绍。</p>
+<h3 id="scripts-ci-kubernetes-docker-build-sh">./scripts/ci/kubernetes/Docker/build.sh</h3>
+<p>此脚本将对Airflow主分支代码进行打包，以根据Airflow的发行文件构建Docker容器</p>
+<h3 id="scripts-ci-kubernetes-kube-deploy-sh">./scripts/ci/kubernetes/kube/deploy.sh</h3>
+<p>最后，我们在您的群集上创建完整的Airflow部署。这包括Airflow配置，postgres后端，webserver +调度程序以及之间的所有必要服务。需要注意的一点是，提供的角色绑定是集群管理员，因此如果您没有该集群的权限级别，可以在scripts / ci / kubernetes / kube / airflow.yaml中进行修改。</p>
+<p>##步骤4：登录您的网络服务器</p>
+<p>现在您的Airflow实例正在运行，让我们来看看UI！用户界面位于Airflow pod的8080端口，因此只需运行即可</p>
+<pre><code>
+WEB=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{&quot;\n&quot;}}{{end}}' | grep &quot;airflow&quot; | head -1)
+
+kubectl port-forward $WEB 8080:8080
+
+</code></pre><!--
+
+ Now the Airflow UI will exist on http://localhost:8080. To log in simply enter airflow/airflow and you should have full access to the Airflow web UI.
+
+
+
+## Step 5: Upload a test document
+
+
+
+To modify/add your own DAGs, you can use kubectl cp to upload local files into the DAG folder of the Airflow scheduler. Airflow will then read the new DAG and automatically upload it to its system. The following command will upload any local file into the correct directory:
+
+-->
+<p>现在，Airflow UI将存在于http://localhost:8080上。 要登录，只需输入airflow /airflow，您就可以完全访问Airflow Web UI。</p>
+<p>##步骤5：上传测试文档</p>
+<p>要修改/添加自己的DAG，可以使用kubectl cp将本地文件上传到Airflow调度程序的DAG文件夹中。 然后，Airflow将读取新的DAG并自动将其上传到其系统。 以下命令将任何本地文件上载到正确的目录中：</p>
+<p>kubectl cp <local file> <namespace>/<pod>:/root/airflow/dags -c scheduler</p>
+<!--
+
+## Step 6: Enjoy!
+
+
+
+# So when will I be able to use this?
+
+
+
+ While this feature is still in the early stages, we hope to see it released for wide release in the next few months.
+
+
+
+# Get Involved
+
+
+
+This feature is just the beginning of multiple major efforts to improves Apache Airflow integration into Kubernetes. The Kubernetes Operator has been merged into the 1.10 release branch of Airflow (the executor in experimental mode), along with a fully k8s native scheduler called the Kubernetes Executor (article to come). These features are still in a stage where early adopters/contributors can have a huge influence on the future of these features.
+
+
+
+For those interested in joining these efforts, I'd recommend checkint out these steps:
+
+
+
+ * Join the airflow-dev mailing list at dev@airflow.apache.org.
+
+ * File an issue in Apache Airflow JIRA
+
+ * Join our SIG-BigData meetings on Wednesdays at 10am PST.
+
+ * Reach us on slack at #sig-big-data on kubernetes.slack.com
+
+
+
+Special thanks to the Apache Airflow and Kubernetes communities, particularly Grant Nicholas, Ben Goldberg, Anirudh Ramanathan, Fokko Dreisprong, and Bolke de Bruin, for your awesome help on these features as well as our future efforts.
+
+-->
+<p>##步骤6：使用它！</p>
+<p>#那么我什么时候可以使用它？</p>
+<p>虽然此功能仍处于早期阶段，但我们希望在未来几个月内发布该功能以进行广泛发布。</p>
+<p>#参与其中</p>
+<p>此功能只是将Apache Airflow集成到Kubernetes中的多项主要工作的开始。 Kubernetes Operator已合并到<a href="https://github.com/apache/incubator-airflow/tree/v1-10-test">Airflow的1.10发布分支</a>（实验模式中的执行模块），以及完整的k8s本地调度程序称为Kubernetes Executor（即将发布文章）。这些功能仍处于早期采用者/贡献者可能对这些功能的未来产生巨大影响的阶段。</p>
+<p>对于有兴趣加入这些工作的人，我建议按照以下步骤：</p>
+<p>*加入airflow-dev邮件列表dev@airflow.apache.org。</p>
+<p>*在[Apache Airflow JIRA]中提出问题（https://issues.apache.org/jira/projects/AIRFLOW/issues/）</p>
+<p>*周三上午10点太平洋标准时间加入我们的SIG-BigData会议。</p>
+<p>*在kubernetes.slack.com上的＃sig-big-data找到我们。</p>
+<p>特别感谢Apache Airflow和Kubernetes社区，特别是Grant Nicholas，Ben Goldberg，Anirudh Ramanathan，Fokko Dreisprong和Bolke de Bruin，感谢您对这些功能的巨大帮助以及我们未来的努力。</p>
+
+	
+
+	<ul class="list-unstyled d-flex justify-content-between align-items-center mb-0 pt-5">
+  <li>
+    <a href="/zh/blog/2018/06/07/dynamic-ingress-kubernetes/" aria-label="上一页 - Kubernetes 内的动态 Ingress" class="btn btn-primary"><span class="mr-1">←</span>上一页</a>
+  </li>
+    <a href="/zh/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/" aria-label="下一页 - IPVS-Based In-Cluster Load Balancing Deep Dive" class="btn btn-primary">下一页<span class="ml-1">→</span></a>
+  </li>
+</ul>
+
+</div>
+
+
+          </main>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+            <div class="td-page-blog-meta ml-2 pb-1 pt-2 mb-4">
+  <link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/zh/feed.xml" title="Kubernetes">
+  <a class="widget-link" href="http://localhost:1313/zh/feed.xml"><div> <i class="fas fa-rss fab-icon"> </i> <span class="widget-link-text">RSS Feed</span></div> </a>
+  <a class="widget-link" href="https://kubernetes.io/docs/contribute/new-content/blogs-case-studies/"><div> <i class="fa fa-edit fab-icon"></i> <span class="widget-link-text">Submit a Post</span></div></a>
+  <a class="widget-link" href="https://twitter.com/kubernetesio"><div> <i class="fab fa-twitter-square fab-icon"> </i> <span class="widget-link-text"> @Kubernetesio</span></div></a>
+  <a class="widget-link" href="https://github.com/kubernetes/kubernetes"><div> <i class="fab fa-github-square fab-icon"></i> <span class="widget-link-text"> on GitHub </span></div></a>
+  <a class="widget-link" href="http://slack.k8s.io"><div><i class="fab fa-slack fab-icon"> </i> <span class="widget-link-text">#kubernetes-users </span></div></a>
+  <a class="widget-link" href="https://stackoverflow.com/questions/tagged/kubernetes"><div><i class="fab fa-stack-overflow fab-icon"></i> <span class="widget-link-text"> Overflow</span></div></a>
+  <a class="widget-link" href="https://discuss.kubernetes.io"><div> <i class="fab fa-discourse fab-icon"></i><span class="widget-link-text"> Forum </span></div></a>
+  <a class="widget-link" href="https://kubernetes.io/docs/setup"><div><i class="fa fa-download fab-icon"></i> <span class="widget-link-text"> Kubernetes</span></div></a>
+</div>
+
+          </div>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,2238 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/blog/2018/05/01/developing-on-kubernetes/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>在 Kubernetes 上开发 | Kubernetes</title><meta property="og:title" content="在 Kubernetes 上开发" />
+<meta property="og:description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/05/01/developing-on-kubernetes/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2018-05-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-12-25T08:51:29+08:00" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="在 Kubernetes 上开发">
+<meta itemprop="description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版："><meta itemprop="datePublished" content="2018-05-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-12-25T08:51:29+08:00" />
+<meta itemprop="wordCount" content="1014">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="在 Kubernetes 上开发"/>
+<meta name="twitter:description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版："/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版：">
+<meta property="og:description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版：">
+<meta name="twitter:description" content="作者： Michael Hausenblas (Red Hat), Ilya Dmitrichenko (Weaveworks)
+您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。
+我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。
+在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。
+您的集群运行在哪里？ 作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：
+许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 Eclipse Che 或者 Cloud 9。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。
+Minikube 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 Mac 版和 Windows 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版：">
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/05/01/developing-on-kubernetes/">
+<meta property="og:title" content="在 Kubernetes 上开发">
+<meta name="twitter:title" content="在 Kubernetes 上开发">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+
+<meta property="og:image" content="/images/blog/2018-05-01-developing-on-kubernetes/dok-devmodes_preview.png">
+
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+    <title>在 Kubernetes 上开发 | Kubernetes</title>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    
+  </head>
+  <body class="td-page td-blog">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/blog/2018/05/01/developing-on-kubernetes/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/blog/2018/05/01/developing-on-kubernetes/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/blog/2018/05/01/developing-on-kubernetes/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/blog/2018/05/01/developing-on-kubernetes/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/blog/2018/05/01/developing-on-kubernetes/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/blog/2018/05/01/developing-on-kubernetes/">English</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+      
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+      
+      <section class="header-hero text-center text-white font-bold pb-4">
+        <h1>
+          
+          
+            Kubernetes 博客
+          
+        </h1>
+      </section>
+         
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+
+
+
+
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+  <input
+    type="search"
+    class="form-control td-search-input"
+    name="q"
+    placeholder="&#xf002 Search"
+    aria-label="Search"
+    autocomplete="off"
+  >
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  
+  <nav class="collapse td-sidebar-nav pt-2 pl-4" id="td-section-nav">
+    
+    
+
+
+
+
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2022/05/03/dockershim-historical-context/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2022
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-05-03-dockershim-historical-context" href="/zh/blog/2022/05/03/dockershim-historical-context/">
+                Dockershim：历史背景
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-04-07-upcoming-changes-in-kubernetes-1-24" href="/zh/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/">
+                Kubernetes 1.24 的删除和弃用
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-03-16-meet-our-contributors-au-nz-ep-02" href="/zh/blog/2022/03/16/meet-our-contributors-au-nz-ep-02/">
+                认识我们的贡献者 - 亚太地区（澳大利亚-新西兰地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-17-dockershim-faq" href="/zh/blog/2022/02/17/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-16-sig-node-ci-subproject-celebrates" href="/zh/blog/2022/02/16/sig-node-ci-subproject-celebrates/">
+                SIG Node CI 子项目庆祝测试改进两周年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-19-secure-your-admission-controllers-and-webhooks" href="/zh/blog/2022/01/19/secure-your-admission-controllers-and-webhooks/">
+                确保准入控制器的安全
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-10-meet-our-contributors-india-ep-01" href="/zh/blog/2022/01/10/meet-our-contributors-india-ep-01/">
+                认识我们的贡献者 - 亚太地区（印度地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-07-kubernetes-is-moving-on-from-dockershim" href="/zh/blog/2022/01/07/kubernetes-is-moving-on-from-dockershim/">
+                Kubernetes 即将移除 Dockershim：承诺和下一步
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2022">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2021
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-16-kubernetes-1-23-statefulset-pvc-auto-deletion" href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/">
+                Kubernetes 1.23: StatefulSet PVC 自动删除 (alpha)
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-10-storage-in-tree-to-csi-migration-status-update" href="/zh/blog/2021/12/10/storage-in-tree-to-csi-migration-status-update/">
+                Kubernetes 1.23：树内存储向 CSI 卷迁移工作的进展更新
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-08-dual-stack-networking-ga" href="/zh/blog/2021/12/08/dual-stack-networking-ga/">
+                Kubernetes 1.23：IPv4/IPv6 双协议栈网络达到 GA
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-11-08-steering-committee-results-2021" href="/zh/blog/2021/11/08/steering-committee-results-2021/">
+                公布 2021 年指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-09-27-sig-node-spotlight-2021" href="/zh/blog/2021/09/27/sig-node-spotlight-2021/">
+                关注 SIG Node
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2021">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2020
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-18-kubernetes-1-20-pod-impersonation-short-lived-volumes-in-csi" href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/">
+                Kubernetes 1.20：CSI 驱动程序中的 Pod 身份假扮和短时卷
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-08-kubernetes-1-20-release-announcement" href="/zh/blog/2020/12/08/kubernetes-1-20-release-announcement/">
+                Kubernetes 1.20: 最新版本
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dockershim-faq" href="/zh/blog/2020/12/02/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dont-panic-kubernetes-and-docker" href="/zh/blog/2020/12/02/dont-panic-kubernetes-and-docker/">
+                别慌: Kubernetes 和 Docker
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-10-01-e4-b8-ba-e5-bc-80-e5-8f-91-e6-8c-87-e5-8d-97-e5-81-9a-e8-b4-a1-e7-8c-ae" href="/zh/blog/2020/10/01/%E4%B8%BA%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E5%81%9A%E8%B4%A1%E7%8C%AE/">
+                为开发指南做贡献
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-09-04-kubernetes-1-19-introducing-structured-logs" href="/zh/blog/2020/09/04/kubernetes-1-19-introducing-structured-logs/">
+                结构化日志介绍
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-03-25-kubernetes-1-18-release-announcement" href="/zh/blog/2020/03/25/kubernetes-1-18-release-announcement/">
+                Kubernetes 1.18: Fit &amp; Finish
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-01-15-kubernetes-on-mips" href="/zh/blog/2020/01/15/kubernetes-on-mips/">
+                基于 MIPS 架构的 Kubernetes 方案
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2020">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2019
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-12-09-kubernetes-1-17-release-announcement" href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/">
+                Kubernetes 1.17：稳定
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-e4-bd-bf-e7-94-a8-microk8s-e5-9c-a8-linux-e4-b8-8a-e6-9c-ac-e5-9c-b0-e8-bf-90-e8-a1-8c-kubernetes" href="/zh/blog/2019/11/26/%E4%BD%BF%E7%94%A8-microk8s-%E5%9C%A8-linux-%E4%B8%8A%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C-kubernetes/">
+                使用 Microk8s 在 Linux 上本地运行 Kubernetes
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-develop-a-kubernetes-controller-in-java" href="/zh/blog/2019/11/26/develop-a-kubernetes-controller-in-java/">
+                使用 Java 开发一个 Kubernetes controller
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-29-kubernetes-documentation-end-user-survey" href="/zh/blog/2019/10/29/kubernetes-documentation-end-user-survey/">
+                Kubernetes 文档最终用户调研
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-10-contributor-summit-san-diego-schedule" href="/zh/blog/2019/10/10/contributor-summit-san-diego-schedule/">
+                圣迭戈贡献者峰会日程公布！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-03-2019-steering-committee-election-results" href="/zh/blog/2019/10/03/2019-steering-committee-election-results/">
+                2019 指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-09-24-san-diego-contributor-summit" href="/zh/blog/2019/09/24/san-diego-contributor-summit/">
+                San Diego 贡献者峰会开放注册！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-08-06-opa-gatekeeper-policy-and-governance-for-kubernetes" href="/zh/blog/2019/08/06/opa-gatekeeper-policy-and-governance-for-kubernetes/">
+                OPA Gatekeeper：Kubernetes 的策略和管理
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-06-11-e6-ac-a2-e8-bf-8e-e5-8f-82-e5-8a-a0-e5-9c-a8-e4-b8-8a-e6-b5-b7-e4-b8-be-e8-a1-8c-e7-9a-84-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2019/06/11/%E6%AC%A2%E8%BF%8E%E5%8F%82%E5%8A%A0%E5%9C%A8%E4%B8%8A%E6%B5%B7%E4%B8%BE%E8%A1%8C%E7%9A%84%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                欢迎参加在上海举行的贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-05-14-expanding-our-contributor-workshops" href="/zh/blog/2019/05/14/expanding-our-contributor-workshops/">
+                壮大我们的贡献者研讨会
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2019">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-26-e5-a6-82-e4-bd-95-e5-8f-82-e4-b8-8e-kubernetes-e6-96-87-e6-a1-a3-e7-9a-84-e6-9c-ac-e5-9c-b0-e5-8c-96-e5-b7-a5-e4-bd-9c" href="/zh/blog/2019/04/26/%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E-kubernetes-%E6%96%87%E6%A1%A3%E7%9A%84%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%B7%A5%E4%BD%9C/">
+                如何参与 Kubernetes 文档的本地化工作
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-15-kubernetes-1-14-e7-a8-b3-e5-ae-9a-e6-80-a7-e6-94-b9-e8-bf-9b-e4-b8-ad-e7-9a-84-e8-bf-9b-e7-a8-8bid-e9-99-90-e5-88-b6" href="/zh/blog/2019/04/15/kubernetes-1.14-%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%94%B9%E8%BF%9B%E4%B8%AD%E7%9A%84%E8%BF%9B%E7%A8%8Bid%E9%99%90%E5%88%B6/">
+                Kubernetes 1.14 稳定性改进中的进程ID限制
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-03-07-raw-block-volume-e6-94-af-e6-8c-81-e8-bf-9b-e5-85-a5-beta" href="/zh/blog/2019/03/07/raw-block-volume-%E6%94%AF%E6%8C%81%E8%BF%9B%E5%85%A5-beta/">
+                Raw Block Volume 支持进入 Beta
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">
+          2018
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-12-05-e6-96-b0-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b7-a5-e4-bd-9c-e5-9d-8a-e4-b8-8a-e6-b5-b7-e7-ab-99" href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/">
+                新贡献者工作坊上海站
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-11-08-kubernetes-e6-96-87-e6-a1-a3-e6-9b-b4-e6-96-b0-e5-9b-bd-e9-99-85-e7-89-88" href="/zh/blog/2018/11/08/kubernetes-%E6%96%87%E6%A1%A3%E6%9B%B4%E6%96%B0%E5%9B%BD%E9%99%85%E7%89%88/">
+                Kubernetes 文档更新，国际版
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-16-kubernetes-2018-e5-b9-b4-e5-8c-97-e7-be-8e-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2018/10/16/kubernetes-2018-%E5%B9%B4%E5%8C%97%E7%BE%8E%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                Kubernetes 2018 年北美贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-15-2018-e5-b9-b4-e7-9d-a3-e5-af-bc-e5-a7-94-e5-91-98-e4-bc-9a-e9-80-89-e4-b8-be-e7-bb-93-e6-9e-9c" href="/zh/blog/2018/10/15/2018-%E5%B9%B4%E7%9D%A3%E5%AF%BC%E5%A7%94%E5%91%98%E4%BC%9A%E9%80%89%E4%B8%BE%E7%BB%93%E6%9E%9C/">
+                2018 年督导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-11-kubernetes-e4-b8-ad-e7-9a-84-e6-8b-93-e6-89-91-e6-84-9f-e7-9f-a5-e6-95-b0-e6-8d-ae-e5-8d-b7-e4-be-9b-e5-ba-94" href="/zh/blog/2018/10/11/kubernetes-%E4%B8%AD%E7%9A%84%E6%8B%93%E6%89%91%E6%84%9F%E7%9F%A5%E6%95%B0%E6%8D%AE%E5%8D%B7%E4%BE%9B%E5%BA%94/">
+                Kubernetes 中的拓扑感知数据卷供应
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-10-kubernetes-v1-12-runtimeclass-e7-ae-80-e4-bb-8b" href="/zh/blog/2018/10/10/kubernetes-v1.12-runtimeclass-%E7%AE%80%E4%BB%8B/">
+                Kubernetes v1.12: RuntimeClass 简介
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-03-kubedirector-e5-9c-a8-kubernetes-e4-b8-8a-e8-bf-90-e8-a1-8c-e5-a4-8d-e6-9d-82-e7-8a-b6-e6-80-81-e5-ba-94-e7-94-a8-e7-a8-8b-e5-ba-8f-e7-9a-84-e7-ae-80-e5-8d-95-e6-96-b9-e6-b3-95" href="/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">
+                KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-01-e5-9c-a8-kubernetes-e4-b8-8a-e5-af-b9-grpc-e6-9c-8d-e5-8a-a1-e5-99-a8-e8-bf-9b-e8-a1-8c-e5-81-a5-e5-ba-b7-e6-a3-80-e6-9f-a5" href="/zh/blog/2018/10/01/%E5%9C%A8-kubernetes-%E4%B8%8A%E5%AF%B9-grpc-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+                在 Kubernetes 上对 gRPC 服务器进行健康检查
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-29-the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience" href="/zh/blog/2018/08/29/the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience/">
+                The Machines Can Do the Work, a Story of Kubernetes Testing, CI, and Automating the Contributor Experience
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-02-e4-bd-bf-e7-94-a8-csi-e5-92-8c-kubernetes-e5-ae-9e-e7-8e-b0-e5-8d-b7-e7-9a-84-e5-8a-a8-e6-80-81-e6-89-a9-e5-ae-b9" href="/zh/blog/2018/08/02/%E4%BD%BF%E7%94%A8-csi-%E5%92%8C-kubernetes-%E5%AE%9E%E7%8E%B0%E5%8D%B7%E7%9A%84%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9/">
+                使用 CSI 和 Kubernetes 实现卷的动态扩容
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse show" data-year="2018">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-11-e5-8a-a8-e6-80-81-kubelet-e9-85-8d-e7-bd-ae" href="/zh/blog/2018/07/11/%E5%8A%A8%E6%80%81-kubelet-%E9%85%8D%E7%BD%AE/">
+                动态 Kubelet 配置
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-10-e7-94-a8-e4-ba-8e-kubernetes-e9-9b-86-e7-be-a4-dns-e7-9a-84-coredns-ga-e6-ad-a3-e5-bc-8f-e5-8f-91-e5-b8-83" href="/zh/blog/2018/07/10/%E7%94%A8%E4%BA%8E-kubernetes-%E9%9B%86%E7%BE%A4-dns-%E7%9A%84-coredns-ga-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83/">
+                用于 Kubernetes 集群 DNS 的 CoreDNS GA 正式发布
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-09-ipvs-based-in-cluster-load-balancing-deep-dive" href="/zh/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/">
+                IPVS-Based In-Cluster Load Balancing Deep Dive
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-28-airflow-e5-9c-a8kubernetes-e4-b8-ad-e7-9a-84-e4-bd-bf-e7-94-a8-e7-ac-ac-e4-b8-80-e9-83-a8-e5-88-86-e4-b8-80-e7-a7-8d-e4-b8-8d-e5-90-8c-e7-9a-84-e6-93-8d-e4-bd-9c-e5-99-a8" href="/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">
+                Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-07-dynamic-ingress-kubernetes" href="/zh/blog/2018/06/07/dynamic-ingress-kubernetes/">
+                Kubernetes 内的动态 Ingress
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-06-kubernetes-e8-bf-99-e5-9b-9b-e5-b9-b4" href="/zh/blog/2018/06/06/kubernetes-%E8%BF%99%E5%9B%9B%E5%B9%B4/">
+                Kubernetes 这四年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-30-kubernetes-1-11-e5-90-91-discuss-kubernetes-e9-97-ae-e5-a5-bd" href="/zh/blog/2018/05/30/kubernetes-1-11%E5%90%91-discuss-kubernetes-%E9%97%AE%E5%A5%BD/">
+                Kubernetes 1 11：向 discuss kubernetes 问好
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page  active" id="m-zh-blog-2018-05-01-developing-on-kubernetes" href="/zh/blog/2018/05/01/developing-on-kubernetes/">
+                在 Kubernetes 上开发
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-04-25-open-source-charts-2017" href="/zh/blog/2018/04/25/open-source-charts-2017/">
+                Kubernetes 社区 - 2017 年开源排行榜榜首
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-03-principles-of-container-app-design" href="/zh/blog/2018/03/Principles-Of-Container-App-Design/">
+                “基于容器的应用程序设计原理”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-01-kubernetes-v19-beta-windows-support" href="/zh/blog/2018/01/Kubernetes-V19-Beta-Windows-Support/">
+                Kubernetes 1.9 对 Windows Server 容器提供 Beta 版本支持
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2017
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-11-17-autoscaling-in-kubernetes" href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/">
+                 Kubernetes 中自动缩放 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-24-five-days-of-kubernetes-18" href="/zh/blog/2017/10/24/five-days-of-kubernetes-18/">
+                 Kubernetes 1.8 的五天 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-kubernetes-community-steering-committee-election-results" href="/zh/blog/2017/10/Kubernetes-Community-Steering-Committee-Election-Results/">
+                 Kubernetes 社区指导委员会选举结果 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2017">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2016
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-08-stateful-applications-using-kubernetes-datera" href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/">
+                 使用 Kubernetes Pet Sets 和 Datera Elastic Data Fabric 的 FlexVolume 扩展有状态的应用程序 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-21-oh-the-places-you-will-go" href="/zh/blog/2016/07/21/oh-the-places-you-will-go/">
+                 Kubernetes 生日快乐。哦，这是你要去的地方！ 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-15-dashboard-web-interface-for-kubernetes" href="/zh/blog/2016/07/15/dashboard-web-interface-for-kubernetes/">
+                 Dashboard - Kubernetes 的全功能 Web 界面 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-14-citrix-netscaler-and-kubernetes" href="/zh/blog/2016/07/14/citrix-netscaler-and-kubernetes/">
+                 Citrix &#43; Kubernetes = 全垒打 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-stateful-applications-in-containers-kubernetes" href="/zh/blog/2016/07/stateful-applications-in-containers-kubernetes/">
+                容器中运行有状态的应用！？ Kubernetes 1.3 说 “是！” 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-05-coreosfest2016-kubernetes-community" href="/zh/blog/2016/05/Coreosfest2016-Kubernetes-Community/">
+                 CoreOS Fest 2016: CoreOS 和 Kubernetes 在柏林（和旧金山）社区见面会 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-sig-clusterops-promote-operability-and-interoperability-of-k8s-clusters" href="/zh/blog/2016/04/Sig-Clusterops-Promote-Operability-And-Interoperability-Of-K8S-Clusters/">
+                 SIG-ClusterOps: 提升 Kubernetes 集群的可操作性和互操作性 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-kubernetes-network-policy-apis" href="/zh/blog/2016/04/Kubernetes-Network-Policy-APIs/">
+                “SIG-Networking：1.3 版本引入 Kubernetes 网络策略 API”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-adding-support-for-kubernetes-in-rancher" href="/zh/blog/2016/04/Adding-Support-For-Kubernetes-In-Rancher/">
+                 在 Rancher 中添加对 Kuernetes 的支持 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-24-kubecon-eu-2016-kubernetes-community-in" href="/zh/blog/2016/02/24/kubecon-eu-2016-kubernetes-community-in/">
+                 KubeCon EU 2016：伦敦 Kubernetes 社区 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2016">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-kubernetes-community-meeting-notes-23" href="/zh/blog/2016/02/kubernetes-community-meeting-notes_23/">
+                Kubernetes 社区会议记录 - 20160218
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-09-kubernetes-community-meeting-notes" href="/zh/blog/2016/02/09/kubernetes-community-meeting-notes/">
+                 Kubernetes 社区会议记录 - 20160204 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-state-of-container-world-january-2016" href="/zh/blog/2016/02/State-Of-Container-World-January-2016/">
+                 容器世界现状，2016年1月 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-kubernetes-community-meeting-notes" href="/zh/blog/2016/01/Kubernetes-Community-Meeting-Notes/">
+                 Kubernetes 社区会议记录 - 20160114 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-14-why-kubernetes-doesnt-use-libnetwork" href="/zh/blog/2016/01/14/why-kubernetes-doesnt-use-libnetwork/">
+                 为什么 Kubernetes 不用 libnetwork 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-11-simple-leader-election-with-kubernetes" href="/zh/blog/2016/01/11/simple-leader-election-with-kubernetes/">
+                 Simple leader election with Kubernetes and Docker 
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2015
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-12-17-managing-kubernetes-pods-services-and-replication-controllers-with-puppet" href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/">
+                 使用 Puppet 管理 Kubernetes Pods，Services 和 Replication Controllers 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-11-kubernetes-1-1-performance-upgrades-improved-tooling-and-a-growing-community" href="/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+                 Kubernetes 1.1 性能升级，工具改进和社区不断壮大  
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-08-weekly-kubernetes-community-hangout" href="/zh/blog/2015/08/Weekly-Kubernetes-Community-Hangout/">
+                 Weekly Kubernetes Community Hangout Notes - July 31 2015 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-07-08-announcing-first-kubernetes-enterprise" href="/zh/blog/2015/07/08/announcing-first-kubernetes-enterprise/">
+                宣布首个Kubernetes企业培训课程 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-06-26-slides-cluster-management-with" href="/zh/blog/2015/06/26/slides-cluster-management-with/">
+                幻灯片：Kubernetes 集群管理，爱丁堡大学演讲
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-19-kubernetes-on-openstack" href="/zh/blog/2015/05/19/kubernetes-on-openstack/">
+                 OpenStack 上的 Kubernetes 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-11-weekly-kubernetes-community-hangout" href="/zh/blog/2015/05/11/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记- 2015年5月1日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-appc-support-for-kubernetes-through-rkt" href="/zh/blog/2015/05/Appc-Support-For-Kubernetes-Through-Rkt/">
+                 AppC Support for Kubernetes through RKT 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-30-weekly-kubernetes-community-hangout-29" href="/zh/blog/2015/04/30/weekly-kubernetes-community-hangout_29/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月24日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-borg-predecessor-to-kubernetes" href="/zh/blog/2015/04/Borg-Predecessor-To-Kubernetes/">
+                Borg: Kubernetes 的前身
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2015">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-17-weekly-kubernetes-community-hangout-17" href="/zh/blog/2015/04/17/weekly-kubernetes-community-hangout_17/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月17日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-16-kubernetes-release-0150" href="/zh/blog/2015/04/16/kubernetes-release-0150/">
+                 Kubernetes Release: 0.15.0 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-weekly-kubernetes-community-hangout" href="/zh/blog/2015/04/Weekly-Kubernetes-Community-Hangout/">
+                 每周 Kubernetes 社区例会笔记 - 2015年4月3日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-28-weekly-kubernetes-community-hangout" href="/zh/blog/2015/03/28/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记 - 2015年3月27日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-23-kubernetes-gathering-videos" href="/zh/blog/2015/03/23/kubernetes-gathering-videos/">
+                 Kubernetes 采集视频 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-20-welcome-to-kubernetes-blog" href="/zh/blog/2015/03/20/welcome-to-kubernetes-blog/">
+                欢迎来到 Kubernetes 博客!
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          0001
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=0001>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-bringing-end-to-end-kubernetes-testing-to-azure-2" href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/">
+                
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="0001">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+
+  </nav>
+</div>
+
+
+
+
+<script>
+let morePosts = document.querySelectorAll(".more-posts");
+let year = "";
+morePosts.forEach(link => {
+  link.onclick = (e) => {
+    e.preventDefault();
+    year = link.dataset.year;
+    console.log(year);
+    let hiddenPosts = document.querySelectorAll(`.blog-post.hidden[data-year="${year}"]`);
+    console.log(hiddenPosts);
+    hiddenPosts.forEach(post => {
+      post.classList.add('show');
+      post.classList.remove("hidden");
+    });
+    link.style.display = "none";
+  }
+});
+</script>
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5 pr-md-4" role="main">
+            
+              <section id="deprecation-warning">
+  <div class="content deprecation-warning pageinfo outdated-blog">
+    <p>This article is more than one year old. Older articles may contain outdated content. Check that the information in the page has not become incorrect since its publication.</p>
+  </div>
+</section>
+
+            
+            
+<div class="td-content">
+	<h1>在 Kubernetes 上开发</h1>
+	
+	<div class="td-byline mb-4">
+		
+		<time datetime="2018-05-01" class="text-muted">2018.05.01</time>
+	</div>
+	<header class="article-meta">
+		
+
+  
+    
+
+
+  
+    
+
+
+  
+
+		
+	</header>
+	<!--
+---
+title: Developing on Kubernetes
+date: 2018-05-01
+slug: developing-on-kubernetes
+---
+-->
+<!--**Authors**:-->
+<p><strong>作者</strong>： <a href="https://twitter.com/mhausenblas">Michael Hausenblas</a> (Red Hat), <a href="https://twitter.com/errordeveloper">Ilya Dmitrichenko</a> (Weaveworks)</p>
+<!-- 
+How do you develop a Kubernetes app? That is, how do you write and test an app that is supposed to run on Kubernetes? This article focuses on the challenges, tools and methods you might want to be aware of to successfully write Kubernetes apps alone or in a team setting. 
+-->
+<p>您将如何开发一个 Kubernates 应用？也就是说，您如何编写并测试一个要在 Kubernates 上运行的应用程序？本文将重点介绍在独自开发或者团队协作中，您可能希望了解到的为了成功编写 Kubernetes 应用程序而需面临的挑战，工具和方法。</p>
+<!--
+We’re assuming you are a developer, you have a favorite programming language, editor/IDE, and a testing framework available. The overarching goal is to introduce minimal changes to your current workflow when developing the app for Kubernetes. For example, if you’re a Node.js developer and are used to a hot-reload setup—that is, on save in your editor the running app gets automagically updated—then dealing with containers and container images, with container registries, Kubernetes deployments, triggers, and more can not only be overwhelming but really take all the fun out if it.
+-->
+<p>我们假定您是一位开发人员，有您钟爱的编程语言，编辑器/IDE（集成开发环境），以及可用的测试框架。在针对 Kubernates 开发应用时，最重要的目标是减少对当前工作流程的影响，改变越少越好，尽量做到最小。举个例子，如果您是 Node.js 开发人员，习惯于那种热重载的环境 - 也就是说您在编辑器里一做保存，正在运行的程序就会自动更新 - 那么跟容器、容器镜像或者镜像仓库打交道，又或是跟 Kubernetes 部署、triggers 以及更多头疼东西打交道，不仅会让人难以招架也真的会让开发过程完全失去乐趣。</p>
+<!--
+In the following, we’ll first discuss the overall development setup, then review tools of the trade, and last but not least do a hands-on walkthrough of three exemplary tools that allow for iterative, local app development against Kubernetes.
+-->
+<p>在下文中，我们将首先讨论 Kubernetes 总体开发环境，然后回顾常用工具，最后进行三个示例性工具的实践演练。这些工具允许针对 Kubernetes 进行本地应用程序的开发和迭代。</p>
+<!--
+## Where to run your cluster?
+-->
+<h2 id="您的集群运行在哪里">您的集群运行在哪里？</h2>
+<!--
+As a developer you want to think about where the Kubernetes cluster you’re developing against runs as well as where the development environment sits. Conceptually there are four development modes:
+-->
+<p>作为开发人员，您既需要考虑所针对开发的 Kubernetes 集群运行在哪里，也需要思考开发环境如何配置。概念上，有四种开发模式：</p>
+<p><img src="/images/blog/2018-05-01-developing-on-kubernetes/dok-devmodes_preview.png" alt="Dev Modes"></p>
+<!--
+A number of tools support pure offline development including Minikube, Docker for Mac/Windows, Minishift, and the ones we discuss in detail below. Sometimes, for example, in a microservices setup where certain microservices already run in the cluster, a proxied setup (forwarding traffic into and from the cluster) is preferable and Telepresence is an example tool in this category. The live mode essentially means you’re building and/or deploying against a remote cluster and, finally, the pure online mode means both your development environment and the cluster are remote, as this is the case with, for example, [Eclipse Che](https://www.eclipse.org/che/docs/kubernetes-single-user.html) or [Cloud 9](https://github.com/errordeveloper/k9c). Let’s now have a closer look at the basics of offline development: running Kubernetes locally.
+-->
+<p>许多工具支持纯 offline 开发，包括 Minikube、Docker（Mac 版/Windows 版）、Minishift 以及下文中我们将详细讨论的几种。有时，比如说在一个微服务系统中，已经有若干微服务在运行，proxied 模式（通过转发把数据流传进传出集群）就非常合适，Telepresence 就是此类工具的一个实例。live 模式，本质上是您基于一个远程集群进行构建和部署。最后，纯 online 模式意味着您的开发环境和运行集群都是远程的，典型的例子是 <a href="https://www.eclipse.org/che/docs/kubernetes-single-user.html">Eclipse Che</a> 或者 <a href="https://github.com/errordeveloper/k9c">Cloud 9</a>。现在让我们仔细看看离线开发的基础：在本地运行 Kubernetes。</p>
+<!--
+[Minikube](/docs/getting-started-guides/minikube/) is a popular choice for those who prefer to run Kubernetes in a local VM. More recently Docker for [Mac](https://docs.docker.com/docker-for-mac/kubernetes/) and [Windows](https://docs.docker.com/docker-for-windows/kubernetes/) started shipping Kubernetes as an experimental package (in the “edge” channel). Some reasons why you may want to prefer using Minikube over the Docker desktop option are:
+-->
+<p><a href="/docs/getting-started-guides/minikube/">Minikube</a> 在更加喜欢于本地 VM 上运行 Kubernetes 的开发人员中，非常受欢迎。不久前，Docker 的 <a href="https://docs.docker.com/docker-for-mac/kubernetes/">Mac</a> 版和 <a href="https://docs.docker.com/docker-for-windows/kubernetes/">Windows</a> 版，都试验性地开始自带 Kubernetes（需要下载 “edge” 安装包）。在两者之间，以下原因也许会促使您选择 Minikube 而不是 Docker 桌面版：</p>
+<!--
+* You already have Minikube installed and running
+* You prefer to wait until Docker ships a stable package
+* You’re a Linux desktop user
+* You are a Windows user who doesn’t have Windows 10 Pro with Hyper-V
+-->
+<ul>
+<li>您已经安装了 Minikube 并且它运行良好</li>
+<li>您想等到 Docker 出稳定版本</li>
+<li>您是 Linux 桌面用户</li>
+<li>您是 Windows 用户，但是没有配有 Hyper-V 的 Windows 10 Pro</li>
+</ul>
+<!--
+Running a local cluster allows folks to work offline and that you don’t have to pay for using cloud resources. Cloud provider costs are often rather affordable and free tiers exists, however some folks prefer to avoid having to approve those costs with their manager as well as potentially incur unexpected costs, for example, when leaving cluster running over the weekend.
+-->
+<p>运行一个本地集群，开发人员可以离线工作，不用支付云服务。云服务收费一般不会太高，并且免费的等级也有，但是一些开发人员不喜欢为了使用云服务而必须得到经理的批准，也不愿意支付意想不到的费用，比如说忘了下线而集群在周末也在运转。</p>
+<!--
+Some developers prefer to use a remote Kubernetes cluster, and this is usually to allow for larger compute and storage capacity and also enable collaborative workflows more easily. This means it’s easier for you to pull in a colleague to help with debugging or share access to an app in the team. Additionally, for some developers it can be critical to mirror production environment as closely as possible, especially when it comes down to external cloud services, say,  proprietary databases, object stores, message queues, external load balancer, or mail delivery systems.
+-->
+<p>有些开发人员却更喜欢远程的 Kubernetes 集群，这样他们通常可以获得更大的计算能力和存储容量，也简化了协同工作流程。您可以更容易的拉上一个同事来帮您调试，或者在团队内共享一个应用的使用。再者，对某些开发人员来说，尽可能的让开发环境类似生产环境至关重要，尤其是您依赖外部厂商的云服务时，如：专有数据库、云对象存储、消息队列、外商的负载均衡器或者邮件投递系统。</p>
+<!--
+In summary, there are good reasons for you to develop against a local cluster as well as a remote one. It very much depends on in which phase you are: from early prototyping and/or developing alone to integrating a set of more stable microservices.
+-->
+<p>总之，无论您选择本地或者远程集群，理由都足够多。这很大程度上取决于您所处的阶段：从早期的原型设计/单人开发到后期面对一批稳定微服务的集成。</p>
+<!--
+Now that you have a basic idea of the options around the runtime environment, let’s move on to how to iteratively develop and deploy your app.
+-->
+<p>既然您已经了解到运行环境的基本选项，那么我们就接着讨论如何迭代式的开发并部署您的应用。</p>
+<!--
+## The tools of the trade
+-->
+<h2 id="常用工具">常用工具</h2>
+<!--
+We are now going to review tooling allowing you to develop apps on Kubernetes with the focus on having minimal impact on your existing workflow. We strive to provide an unbiased description including implications of using each of the tools in general terms.
+-->
+<p>我们现在回顾既可以允许您可以在 Kubernetes 上开发应用程序又尽可能最小地改变您现有的工作流程的一些工具。我们致力于提供一份不偏不倚的描述，也会提及使用某个工具将会意味着什么。</p>
+<!--
+Note that this is a tricky area since even for established technologies such as, for example, JSON vs YAML vs XML or REST vs gRPC vs SOAP a lot depends on your background, your preferences and organizational settings. It’s even harder to compare tooling in the Kubernetes ecosystem as things evolve very rapidly and new tools are announced almost on a weekly basis; during the preparation of this post alone, for example, [Gitkube](https://gitkube.sh/) and [Watchpod](https://github.com/MinikubeAddon/watchpod) came out. To cover these new tools as well as related, existing tooling such as [Weave Flux](https://github.com/weaveworks/flux) and OpenShift’s [S2I](https://docs.openshift.com/container-platform/3.9/creating_images/s2i.html) we are planning a follow-up blog post to the one you’re reading.
+-->
+<p>请注意这很棘手，因为即使在成熟定型的技术中做选择，比如说在 JSON、YAML、XML、REST、gRPC 或者 SOAP 之间做选择，很大程度也取决于您的背景、喜好以及公司环境。在 Kubernetes 生态系统内比较各种工具就更加困难，因为技术发展太快，几乎每周都有新工具面市；举个例子，仅在准备这篇博客的期间，<a href="https://gitkube.sh/">Gitkube</a> 和 <a href="https://github.com/MinikubeAddon/watchpod">Watchpod</a> 相继出品。为了进一步覆盖到这些新的，以及一些相关的已推出的工具，例如 <a href="https://github.com/weaveworks/flux">Weave Flux</a> 和 OpenShift 的 <a href="https://docs.openshift.com/container-platform/3.9/creating_images/s2i.html">S2I</a>，我们计划再写一篇跟进的博客。</p>
+<h3 id="draft">Draft</h3>
+<!--
+[Draft](https://github.com/Azure/draft) aims to help you get started deploying any app to Kubernetes. It is capable of applying heuristics as to what programming language your app is written in and generates a Dockerfile along with a Helm chart. It then runs the build for you and deploys resulting image to the target cluster via the Helm chart. It also allows user to setup port forwarding to localhost very easily.
+-->
+<p><a href="https://github.com/Azure/draft">Draft</a> 旨在帮助您将任何应用程序部署到 Kubernetes。它能够检测到您的应用所使用的编程语言，并且生成一份 Dockerfile 和 Helm 图表。然后它替您启动构建并且依照 Helm 图表把所生产的镜像部署到目标集群。它也可以让您很容易地设置到 localhost 的端口映射。</p>
+<!--
+Implications:
+-->
+<p>这意味着：</p>
+<!--
+* User can customise the chart and Dockerfile templates however they like, or even create a [custom pack](https://github.com/Azure/draft/blob/master/docs/reference/dep-003.md) (with Dockerfile, the chart and more) for future use
+-->
+<ul>
+<li>用户可以任意地自定义 Helm 图表和 Dockerfile 模版，或者甚至创建一个 <a href="https://github.com/Azure/draft/blob/master/docs/reference/dep-003.md">custom pack</a>（使用 Dockerfile、Helm 图表以及其他）以备后用</li>
+</ul>
+<!--
+* It’s not very simple to guess how just any app is supposed to be built, in some cases user may need to tweak Dockerfile and the Helm chart that Draft generates
+-->
+<ul>
+<li>要想理解一个应用应该怎么构建并不容易，在某些情况下，用户也许需要修改 Draft 生成的 Dockerfile 和 Heml 图表</li>
+</ul>
+<!--
+* With [Draft version 0.12.0](https://github.com/Azure/draft/releases/tag/v0.12.0) or older, every time user wants to test a change, they need to wait for Draft to copy the code to the cluster, then run the build, push the image and release updated chart; this can timely, but it results in an image being for every single change made by the user (whether it was committed to git or not)
+-->
+<ul>
+<li>如果使用 <a href="https://github.com/Azure/draft/releases/tag/v0.12.0">Draft version 0.12.0</a><sup>1</sup> 或者更老版本，每一次用户想要测试一个改动，他们需要等 Draft 把代码拷贝到集群，运行构建，推送镜像并且发布更新后的图表；这些步骤可能进行得很快，但是每一次用户的改动都会产生一个镜像（无论是否提交到 git ）</li>
+</ul>
+<!--
+* As of Draft version 0.12.0, builds are executed locally
+* User doesn’t have an option to choose something other than Helm for deployment
+* It can watch local changes and trigger deployments, but this feature is not enabled by default
+-->
+<ul>
+<li>在 Draft 0.12.0版本，构建是本地进行的</li>
+<li>用户不能选择 Helm 以外的工具进行部署</li>
+<li>它可以监控本地的改动并且触发部署，但是这个功能默认是关闭的</li>
+</ul>
+<!--
+* It allows developer to use either local or remote Kubernetes cluster
+* Deploying to production is up to the user, Draft authors recommend their other project – Brigade
+* Can be used instead of Skaffold, and along the side of Squash
+-->
+<ul>
+<li>它允许开发人员使用本地或者远程的 Kubernates 集群</li>
+<li>如何部署到生产环境取决于用户， Draft 的作者推荐了他们的另一个项目 - Brigade</li>
+<li>可以代替 Skaffold， 并且可以和 Squash 一起使用</li>
+</ul>
+<!--
+More info:
+-->
+<p>更多信息：</p>
+<ul>
+<li><a href="https://kubernetes.io/blog/2017/05/draft-kubernetes-container-development">Draft: Kubernetes container development made easy</a></li>
+<li><a href="https://github.com/Azure/draft/blob/master/docs/getting-started.md">Getting Started Guide</a></li>
+</ul>
+<p>【1】：此处疑为 0.11.0，因为 0.12.0 已经支持本地构建，见下一条</p>
+<h3 id="skaffold">Skaffold</h3>
+<!--
+[Skaffold](https://github.com/GoogleCloudPlatform/skaffold) is a tool that aims to provide portability for CI integrations with different build system, image registry and deployment tools. It is different from Draft, yet somewhat comparable. It has a basic capability for generating manifests, but it’s not a prominent feature. Skaffold is extendible and lets user pick tools for use in each of the steps in building and deploying their app.
+-->
+<p><a href="https://github.com/GoogleCloudPlatform/skaffold">Skaffold</a> 让 CI 集成具有可移植性的，它允许用户采用不同的构建系统，镜像仓库和部署工具。它不同于 Draft，同时也具有一定的可比性。它具有生成系统清单的基本能力，但那不是一个重要功能。Skaffold 易于扩展，允许用户在构建和部署应用的每一步选取相应的工具。</p>
+<!--
+Implications:
+-->
+<p>这意味着：</p>
+<!--
+* Modular by design
+* Works independently of CI vendor, user doesn’t need Docker or Kubernetes plugin
+* Works without CI as such, i.e. from the developer’s laptop
+* It can watch local changes and trigger deployments
+-->
+<ul>
+<li>模块化设计</li>
+<li>不依赖于 CI，用户不需要 Docker 或者 Kubernetes 插件</li>
+<li>没有 CI 也可以工作，也就是说，可以在开发人员的电脑上工作</li>
+<li>它可以监控本地的改动并且触发部署</li>
+</ul>
+<!--
+* It allows developer to use either local or remote Kubernetes cluster
+* It can be used to deploy to production, user can configure how exactly they prefer to do it and provide different kind of pipeline for each target environment
+* Can be used instead of Draft, and along the side with most other tools
+-->
+<ul>
+<li>它允许开发人员使用本地或者远程的 Kubernetes 集群</li>
+<li>它可以用于部署生产环境，用户可以精确配置，也可以为每一套目标环境提供不同的生产线</li>
+<li>可以代替 Draft，并且和其他工具一起使用</li>
+</ul>
+<!--
+More info:
+-->
+<p>更多信息：</p>
+<ul>
+<li><a href="https://cloudplatform.googleblog.com/2018/03/introducing-Skaffold-Easy-and-repeatable-Kubernetes-development.html">Introducing Skaffold: Easy and repeatable Kubernetes development</a></li>
+<li><a href="https://github.com/GoogleCloudPlatform/skaffold#getting-started-with-local-tooling">Getting Started Guide</a></li>
+</ul>
+<h3 id="squash">Squash</h3>
+<!--
+[Squash](https://github.com/solo-io/squash) consists of a debug server that is fully integrated with Kubernetes, and a IDE plugin. It allows you to insert breakpoints and do all the fun stuff you are used to doing when debugging an application using an IDE. It bridges IDE debugging experience with your Kubernetes cluster by allowing you to attach the debugger to a pod running in your Kubernetes cluster.
+-->
+<p><a href="https://github.com/solo-io/squash">Squash</a> 包含一个与 Kubernetes 全面集成的调试服务器，以及一个 IDE 插件。它允许您插入断点和所有的调试操作，就像您所习惯的使用 IDE 调试一个程序一般。它允许您将调试器应用到 Kubernetes 集群中运行的 pod 上，从而让您可以使用 IDE 调试 Kubernetes 集群。</p>
+<!--
+Implications:
+-->
+<p>这意味着：</p>
+<!--
+* Can be used independently of other tools you chose
+* Requires a privileged DaemonSet
+* Integrates with popular IDEs
+* Supports Go, Python, Node.js, Java and gdb
+-->
+<ul>
+<li>不依赖您选择的其它工具</li>
+<li>需要一组特权 DaemonSet</li>
+<li>可以和流行 IDE 集成</li>
+<li>支持 Go、Python、Node.js、Java 和 gdb</li>
+</ul>
+<!--
+* User must ensure application binaries inside the container image are compiled with debug symbols
+* Can be used in combination with any other tools described here
+* It can be used with either local or remote Kubernetes cluster
+-->
+<ul>
+<li>用户必须确保容器中的应用程序使编译时使用了调试符号</li>
+<li>可与此处描述的任何其他工具结合使用</li>
+<li>它可以与本地或远程 Kubernetes 集群一起使用</li>
+</ul>
+<!--
+More info:
+-->
+<p>更多信息：</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=5TrV3qzXlgI">Squash: A Debugger for Kubernetes Apps</a></li>
+<li><a href="https://github.com/solo-io/squash/blob/master/docs/getting-started.md">Getting Started Guide</a></li>
+</ul>
+<h3 id="telepresence">Telepresence</h3>
+<!--
+[Telepresence](https://www.telepresence.io/) connects containers running on developer’s workstation with a remote Kubernetes cluster using a two-way proxy and emulates in-cluster environment as well as provides access to config maps and secrets. It aims to improve iteration time for container app development by eliminating the need for deploying app to the cluster and leverages local container to abstract network and filesystem interface in order to make it appear as if the app was running in the cluster.
+-->
+<p><a href="https://www.telepresence.io/">Telepresence</a> 使用双向代理将开发人员工作站上运行的容器与远程 Kubernetes 集群连接起来，并模拟集群内环境以及提供对配置映射和机密的访问。它消除了将应用部署到集群的需要，并利用本地容器抽象出网络和文件系统接口，以使其看起来应用好像就在集群中运行，从而改进容器应用程序开发的迭代时间。</p>
+<!--
+Implications:
+-->
+<p>这意味着：</p>
+<!--
+* It can be used independently of other tools you chose
+* Using together with Squash is possible, although Squash would have to be used for pods in the cluster, while conventional/local debugger would need to be used for debugging local container that’s connected to the cluster via Telepresence
+* Telepresence imposes some network latency
+-->
+<ul>
+<li>它不依赖于其它您选取的工具</li>
+<li>可以同 Squash 一起使用，但是 Squash 必须用于调试集群中的 pods，而传统/本地调试器需要用于调试通过 Telepresence 连接到集群的本地容器</li>
+<li>Telepresence 会产生一些网络延迟</li>
+</ul>
+<!--
+* It provides connectivity via a side-car process - sshuttle, which is based on SSH
+* More intrusive dependency injection mode with LD_PRELOAD/DYLD_INSERT_LIBRARIES is also available
+* It is most commonly used with a remote Kubernetes cluster, but can be used with a local one also
+-->
+<ul>
+<li>它通过辅助进程提供连接 -  sshuttle，基于SSH的一个工具</li>
+<li>还提供了使用 LD_PRELOAD/DYLD_INSERT_LIBRARIES 的更具侵入性的依赖注入模式</li>
+<li>它最常用于远程 Kubernetes 集群，但也可以与本地集群一起使用</li>
+</ul>
+<!--
+More info:
+-->
+<p>更多信息：</p>
+<ul>
+<li><a href="https://www.telepresence.io/">Telepresence: fast, realistic local development for Kubernetes microservices</a></li>
+<li><a href="https://www.telepresence.io/tutorials/docker">Getting Started Guide</a></li>
+<li><a href="https://www.telepresence.io/discussion/how-it-works">How It Works</a></li>
+</ul>
+<h3 id="ksync">Ksync</h3>
+<!--
+[Ksync](https://github.com/vapor-ware/ksync) synchronizes application code (and configuration) between your local machine and the container running in Kubernetes, akin to what [oc rsync](https://docs.openshift.com/container-platform/3.9/dev_guide/copy_files_to_container.html) does in OpenShift. It aims to improve iteration time for app development by eliminating build and deployment steps.
+-->
+<p><a href="https://github.com/vapor-ware/ksync">Ksync</a> 在本地计算机和运行在 Kubernetes 中的容器之间同步应用程序代码（和配置），类似于 <a href="https://docs.openshift.com/container-platform/3.9/dev_guide/copy_files_to_container.html">oc rsync</a> 在 OpenShift 中的角色。它旨在通过消除构建和部署步骤来缩短应用程序开发的迭代时间。</p>
+<!--
+Implications:
+-->
+<p>这意味着：</p>
+<!--
+* It bypasses container image build and revision control
+* Compiled language users have to run builds inside the pod (TBC)
+* Two-way sync – remote files are copied to local directory
+* Container is restarted each time remote filesystem is updated
+* No security features – development only
+-->
+<ul>
+<li>它绕过容器图像构建和修订控制</li>
+<li>使用编译语言的用户必须在 pod（TBC）内运行构建</li>
+<li>双向同步 - 远程文件会复制到本地目录</li>
+<li>每次更新远程文件系统时都会重启容器</li>
+<li>无安全功能 - 仅限开发</li>
+</ul>
+<!--
+* Utilizes [Syncthing](https://github.com/syncthing/syncthing), a Go library for peer-to-peer sync
+* Requires a privileged DaemonSet running in the cluster
+* Node has to use Docker with overlayfs2 – no other CRI implementations are supported at the time of writing
+-->
+<ul>
+<li>使用 <a href="https://github.com/syncthing/syncthing">Syncthing</a>，一个用于点对点同步的 Go 语言库</li>
+<li>需要一个在集群中运行的特权 DaemonSet</li>
+<li>Node 必须使用带有 overlayfs2 的 Docker  - 在写作本文时，尚不支持其他 CRI 实现</li>
+</ul>
+<!--
+More info:
+-->
+<p>更多信息：</p>
+<ul>
+<li><a href="https://github.com/vapor-ware/ksync#getting-started">Getting Started Guide</a></li>
+<li><a href="https://github.com/vapor-ware/ksync/blob/master/docs/architecture.md">How It Works</a></li>
+<li><a href="https://www.katacoda.com/vaporio/scenarios/ksync">Katacoda scenario to try out ksync in your browser</a></li>
+<li><a href="https://docs.syncthing.net/specs/">Syncthing Specification</a></li>
+</ul>
+<!--
+## Hands-on walkthroughs
+-->
+<h2 id="实践演练">实践演练</h2>
+<!--
+The app we will be using for the hands-on walkthroughs of the tools in the following is a simple [stock market simulator](https://github.com/kubernauts/dok-example-us), consisting of two microservices:
+-->
+<p>我们接下来用于练习使用工具的应用是一个简单的<a href="https://github.com/kubernauts/dok-example-us">股市模拟器</a>，包含两个微服务：</p>
+<!--
+* The `stock-gen` microservice is written in Go and generates stock data randomly and exposes it via HTTP endpoint `/stockdata`.
+‎* A second microservice, `stock-con` is a Node.js app that consumes the stream of stock data from `stock-gen` and provides an aggregation in form of a moving average via the HTTP endpoint `/average/$SYMBOL` as well as a health-check endpoint at `/healthz`.
+-->
+<ul>
+<li><code>stock-gen</code>（股市数据生成器）微服务是用 Go 编写的，随机生成股票数据并通过 HTTP 端点 <code>/ stockdata</code> 公开</li>
+<li>第二个微服务，<code>stock-con</code>（股市数据消费者）是一个 Node.js 应用程序，它使用来自 <code>stock-gen</code> 的股票数据流，并通过 HTTP 端点 <code>/average/$SYMBOL</code> 提供股价移动平均线，也提供一个健康检查端点 <code>/healthz</code>。</li>
+</ul>
+<!--
+Overall, the default setup of the app looks as follows:
+-->
+<p>总体上，此应用的默认配置如下图所示：</p>
+<p><img src="/images/blog/2018-05-01-developing-on-kubernetes/dok-architecture_preview.png" alt="Default Setup"></p>
+<!--
+In the following we’ll do a hands-on walkthrough for a representative selection of tools discussed above: ksync, Minikube with local build, as well as Skaffold. For each of the tools we do the following:
+-->
+<p>在下文中，我们将选取以上讨论的代表性工具进行实践演练：ksync，具有本地构建的 Minikube 以及 Skaffold。对于每个工具，我们执行以下操作：</p>
+<!--
+* Set up the respective tool incl. preparations for the deployment and local consumption of the `stock-con` microservice.
+* Perform a code update, that is, change the source code of the `/healthz` endpoint in the `stock-con` microservice and observe the updates.
+-->
+<ul>
+<li>设置相应的工具，包括部署准备和 <code>stock-con</code> 微服务数据的本地读取</li>
+<li>执行代码更新，即更改 <code>stock-con</code> 微服务的 <code>/healthz</code> 端点的源代码并观察网页刷新</li>
+</ul>
+<!--
+Note that for the target Kubernetes cluster we’ve been using Minikube locally, but you can also a remote cluster for ksync and Skaffold if you want to follow along.
+-->
+<p>请注意，我们一直使用 Minikube 的本地 Kubernetes 集群，但是您也可以使用 ksync 和 Skaffold 的远程集群跟随练习。</p>
+<!--
+### Walkthrough: ksync
+-->
+<h3 id="实践演练-ksync">实践演练：ksync</h3>
+<!--
+As a preparation, install [ksync](https://vapor-ware.github.io/ksync/#installation) and then carry out the following steps to prepare the development setup:
+-->
+<p>作为准备，安装 <a href="https://vapor-ware.github.io/ksync/#installation">ksync</a>，然后执行以下步骤配置开发环境：</p>
+<pre><code>$ mkdir -p $(pwd)/ksync
+$ kubectl create namespace dok
+$ ksync init -n dok
+</code></pre><!--
+With the basic setup completed we're ready to tell ksync’s local client to watch a certain Kubernetes namespace and then we create a spec to define what we want to sync (the directory `$(pwd)/ksync` locally with `/app` in the container). Note that target pod is specified via the selector parameter:
+-->
+<p>完成基本设置后，我们可以告诉 ksync 的本地客户端监控 Kubernetes 的某个命名空间，然后我们创建一个规范来定义我们想要同步的文件夹（本地的 <code>$(pwd)/ksync</code> 和容器中的 <code>/ app</code> ）。请注意，目标 pod 是用 selector 参数指定：</p>
+<pre><code>$ ksync watch -n dok
+$ ksync create -n dok --selector=app=stock-con $(pwd)/ksync /app
+$ ksync get -n dok
+</code></pre><!--
+Now we deploy the stock generator and the stock consumer microservice:
+-->
+<p>现在我们部署股价数据生成器和股价数据消费者微服务：</p>
+<pre><code>$ kubectl -n=dok apply \
+      -f https://raw.githubusercontent.com/kubernauts/dok-example-us/master/stock-gen/app.yaml
+$ kubectl -n=dok apply \
+      -f https://raw.githubusercontent.com/kubernauts/dok-example-us/master/stock-con/app.yaml
+</code></pre><!--
+Once both deployments are created and the pods are running, we forward the `stock-con` service for local consumption (in a separate terminal session):
+-->
+<p>一旦两个部署建好并且 pod 开始运行，我们转发 <code>stock-con</code> 服务以供本地读取（另开一个终端窗口）：</p>
+<pre><code>$ kubectl get -n dok po --selector=app=stock-con  \
+                     -o=custom-columns=:metadata.name --no-headers |  \
+                     xargs -IPOD kubectl -n dok port-forward POD 9898:9898
+</code></pre><!--
+With that we should be able to consume the `stock-con` service from our local machine; we do this by regularly checking the response of the `healthz` endpoint like so (in a separate terminal session):
+-->
+<p>这样，通过定期查询 <code>healthz</code> 端点，我们就应该能够从本地机器上读取 <code>stock-con</code> 服务，查询命令如下（在一个单独的终端窗口）：</p>
+<pre><code>$ watch curl localhost:9898/healthz
+</code></pre><!--
+Now change the code in the `ksync/stock-con`directory, for example update the [`/healthz` endpoint code in `service.js`](https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52) by adding a field to the JSON response and observe how the pod gets updated and the response of the `curl localhost:9898/healthz` command changes. Overall you should have something like the following in the end:
+-->
+<p>现在，改动 <code>ksync/stock-con</code> 目录中的代码，例如改动 <a href="https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52"><code>service.js</code> 中定义的 <code>/healthz</code> 端点代码</a>，在其 JSON 形式的响应中新添一个字段并观察 pod 如何更新以及 <code>curl localhost：9898/healthz</code> 命令的输出发生何种变化。总的来说，您最后应该看到类似的内容：</p>
+<p><img src="/images/blog/2018-05-01-developing-on-kubernetes/dok-ksync_preview.png" alt="Preview"></p>
+<!--
+### Walkthrough: Minikube with local build
+-->
+<h3 id="实践演练-带本地构建的-minikube">实践演练：带本地构建的 Minikube</h3>
+<!--
+For the following you will need to have Minikube up and running and we will leverage the Minikube-internal Docker daemon for building images, locally. As a preparation, do the following
+-->
+<p>对于以下内容，您需要启动并运行 Minikube，我们将利用 Minikube 自带的 Docker daemon 在本地构建镜像。作为准备，请执行以下操作</p>
+<pre><code>$ git clone https://github.com/kubernauts/dok-example-us.git &amp;&amp; cd dok-example-us
+$ eval $(minikube docker-env)
+$ kubectl create namespace dok
+</code></pre><!--
+Now we deploy the stock generator and the stock consumer microservice:
+-->
+<p>现在我们部署股价数据生成器和股价数据消费者微服务：</p>
+<pre><code>$ kubectl -n=dok apply -f stock-gen/app.yaml
+$ kubectl -n=dok apply -f stock-con/app.yaml
+</code></pre><!--
+Once both deployments are created and the pods are running, we forward the `stock-con` service for local consumption (in a separate terminal session):
+-->
+<p>一旦两个部署建好并且 pod 开始运行，我们转发 <code>stock-con</code> 服务以供本地读取（另开一个终端窗口）：</p>
+<pre><code>$ kubectl get -n dok po --selector=app=stock-con  \
+                     -o=custom-columns=:metadata.name --no-headers |  \
+                     xargs -IPOD kubectl -n dok port-forward POD 9898:9898 &amp;
+$ watch curl localhost:9898/healthz
+</code></pre><!--
+Now change the code in the `stock-con`directory, for example, update the [`/healthz` endpoint code in `service.js`](https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52) by adding a field to the JSON response. Once you’re done with your code update, the last step is to build a new container image and kick off a new deployment like shown below:
+-->
+<p>现在，改一下 <code>ksync/stock-con</code> 目录中的代码，例如修改 <a href="https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52"><code>service.js</code> 中定义的 <code>/healthz</code> 端点代码</a>，在其 JSON 形式的响应中添加一个字段。在您更新完代码后，最后一步是构建新的容器镜像并启动新部署，如下所示：</p>
+<pre><code>$ docker build -t stock-con:dev -f Dockerfile .
+$ kubectl -n dok set image deployment/stock-con *=stock-con:dev
+</code></pre><!--
+Overall you should have something like the following in the end:
+-->
+<p>总的来说，您最后应该看到类似的内容：</p>
+<p><img src="/images/blog/2018-05-01-developing-on-kubernetes/dok-minikube-localdev_preview.png" alt="Local Preview"></p>
+<!--
+### Walkthrough: Skaffold
+-->
+<h3 id="实践演练-skaffold">实践演练：Skaffold</h3>
+<!--
+To perform this walkthrough you first need to install [Skaffold](https://github.com/GoogleContainerTools/skaffold#installation). Once that is done, you can do the following steps to prepare the development setup:
+-->
+<p>要进行此演练，首先需要安装 <a href="https://github.com/GoogleContainerTools/skaffold#installation">Skaffold</a>。完成后，您可以执行以下步骤来配置开发环境：</p>
+<pre><code>$ git clone https://github.com/kubernauts/dok-example-us.git &amp;&amp; cd dok-example-us
+$ kubectl create namespace dok
+</code></pre><!--
+Now we deploy the stock generator (but not the stock consumer microservice, that is done via Skaffold):
+-->
+<p>现在我们部署股价数据生成器（但是暂不部署股价数据消费者，此服务将使用 Skaffold 完成）：</p>
+<pre><code>$ kubectl -n=dok apply -f stock-gen/app.yaml
+</code></pre><!--
+Note that initially we experienced an authentication error when doing `skaffold dev` and needed to apply a fix as described in [Issue 322](https://github.com/GoogleContainerTools/skaffold/issues/322). Essentially it means changing the content of `~/.docker/config.json` to:
+-->
+<p>请注意，最初我们在执行 <code>skaffold dev</code> 时发生身份验证错误，为避免此错误需要安装<a href="https://github.com/GoogleContainerTools/skaffold/issues/322">问题322</a> 中所述的修复。本质上，需要将 <code>〜/.docker/config.json</code> 的内容改为：</p>
+<pre><code>{
+   &quot;auths&quot;: {}
+}
+</code></pre><!--
+Next, we had to patch `stock-con/app.yaml` slightly to make it work with Skaffold:
+-->
+<p>接下来，我们需要略微改动 <code>stock-con/app.yaml</code>，这样 Skaffold 才能正常使用此文件：</p>
+<!--
+Add a `namespace` field to both the `stock-con` deployment and the service with the value of `dok`.
+Change the `image` field of the container spec to `quay.io/mhausenblas/stock-con` since Skaffold manages the container image tag on the fly.
+-->
+<p>在 <code>stock-con</code> 部署和服务中添加一个 <code>namespace</code> 字段，其值为 <code>dok</code></p>
+<p>将容器规范的 <code>image</code> 字段更改为 <code>quay.io/mhausenblas/stock-con</code>，因为 Skaffold 可以即时管理容器镜像标签。</p>
+<!--
+ The resulting `app.yaml` file stock-con looks as follows:
+ -->
+<p>最终的 stock-con 的 <code>app.yaml</code> 文件看起来如下：</p>
+<pre><code>apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: stock-con
+  name: stock-con
+  namespace: dok
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: stock-con
+    spec:
+      containers:
+      - name: stock-con
+        image: quay.io/mhausenblas/stock-con
+        env:
+        - name: DOK_STOCKGEN_HOSTNAME
+          value: stock-gen
+        - name: DOK_STOCKGEN_PORT
+          value: &quot;9999&quot;
+        ports:
+        - containerPort: 9898
+          protocol: TCP
+        livenessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          httpGet:
+            path: /healthz
+            port: 9898
+        readinessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          httpGet:
+            path: /healthz
+            port: 9898
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: stock-con
+  name: stock-con
+  namespace: dok
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 9898
+  selector:
+    app: stock-con
+</code></pre><!--
+The final step before we can start development is to configure Skaffold. So, create a file `skaffold.yaml` in the `stock-con/` directory with the following content:
+ -->
+<p>我们能够开始开发之前的最后一步是配置 Skaffold。因此，在 <code>stock-con/</code> 目录中创建文件 <code>skaffold.yaml</code>，其中包含以下内容：</p>
+<pre><code>apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  artifacts:
+  - imageName: quay.io/mhausenblas/stock-con
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+      - app.yaml
+</code></pre><!--
+Now we’re ready to kick off the development. For that execute the following in the `stock-con/` directory:
+ -->
+<p>现在我们准备好开始开发了。为此，在 <code>stock-con/</code> 目录中执行以下命令：</p>
+<pre><code>$ skaffold dev
+</code></pre><!--
+Above command triggers a build of the `stock-con` image and then a deployment. Once the pod of the `stock-con` deployment is running, we again forward the `stock-con` service for local consumption (in a separate terminal session) and check the response of the `healthz` endpoint:
+ -->
+<p>上面的命令将触发 <code>stock-con</code> 图像的构建和部署。一旦 <code>stock-con</code> 部署的 pod 开始运行，我们再次转发 <code>stock-con</code> 服务以供本地读取（在单独的终端窗口中）并检查 <code>healthz</code> 端点的响应：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ kubectl get -n dok po --selector<span style="color:#666">=</span><span style="color:#b8860b">app</span><span style="color:#666">=</span>stock-con  <span style="color:#b62;font-weight:bold">\
+</span><span style="color:#b62;font-weight:bold"></span>                     -o<span style="color:#666">=</span>custom-columns<span style="color:#666">=</span>:metadata.name --no-headers |  <span style="color:#b62;font-weight:bold">\
+</span><span style="color:#b62;font-weight:bold"></span>                     xargs -IPOD kubectl -n dok port-forward POD 9898:9898 &amp;
+$ watch curl localhost:9898/healthz
+</code></pre></div><!--
+If you now change the code in the `stock-con`directory, for example, by updating the [`/healthz` endpoint code in `service.js`](https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52) by adding a field to the JSON response, you should see Skaffold noticing the change and create a new image as well as deploy it. The resulting screen would look something like this:
+ -->
+<p>现在，如果您修改一下 <code>stock-con</code> 目录中的代码，例如 <a href="https://github.com/kubernauts/dok-example-us/blob/2334ee8fb11f8813370122bd46285cf45bdd4c48/stock-con/service.js#L52"><code>service.js</code> 中定义的 <code>/healthz</code> 端点代码</a>，在其 JSON 形式的响应中添加一个字段，您应该看到 Skaffold 可以检测到代码改动并创建新图像以及部署它。您的屏幕看起来应该类似这样：</p>
+<p><img src="/images/blog/2018-05-01-developing-on-kubernetes/dok-skaffold_preview.png" alt="Skaffold Preview"></p>
+<!--
+By now you should have a feeling how different tools enable you to develop apps on Kubernetes and if you’re interested to learn more about tools and or methods, check out the following resources:
+ -->
+<p>至此，您应该对不同的工具如何帮您在 Kubernetes 上开发应用程序有了一定的概念，如果您有兴趣了解有关工具和/或方法的更多信息，请查看以下资源：</p>
+<ul>
+<li>Blog post by Shahidh K Muhammed on <a href="https://blog.hasura.io/draft-vs-gitkube-vs-helm-vs-ksonnet-vs-metaparticle-vs-skaffold-f5aa9561f948">Draft vs Gitkube vs Helm vs Ksonnet vs Metaparticle vs Skaffold</a> (03/2018)</li>
+<li>Blog post by Gergely Nemeth on <a href="https://nemethgergely.com/using-kubernetes-for-local-development/index.html">Using Kubernetes for Local Development</a>, with a focus on Skaffold (03/2018)</li>
+<li>Blog post by Richard Li on <a href="https://hackernoon.com/locally-developing-kubernetes-services-without-waiting-for-a-deploy-f63995de7b99">Locally developing Kubernetes services (without waiting for a deploy)</a>, with a focus on Telepresence</li>
+<li>Blog post by Abhishek Tiwari on <a href="https://abhishek-tiwari.com/local-development-environment-for-kubernetes-using-minikube/">Local Development Environment for Kubernetes using Minikube</a> (09/2017)</li>
+<li>Blog post by Aymen El Amri on <a href="https://medium.com/devopslinks/using-kubernetes-minikube-for-local-development-c37c6e56e3db">Using Kubernetes for Local Development — Minikube</a> (08/2017)</li>
+<li>Blog post by Alexis Richardson on <a href="https://www.weave.works/blog/gitops-operations-by-pull-request">​GitOps - Operations by Pull Request</a> (08/2017)</li>
+<li>Slide deck <a href="https://docs.google.com/presentation/d/1d3PigRVt_m5rO89Ob2XZ16bW8lRSkHHH5k816-oMzZo/">GitOps: Drive operations through git</a>, with a focus on Gitkube by Tirumarai Selvan (03/2018)</li>
+<li>Slide deck <a href="https://speakerdeck.com/mhausenblas/developing-apps-on-kubernetes">Developing apps on Kubernetes</a>, a talk Michael Hausenblas gave at a CNCF Paris meetup  (04/2018)</li>
+<li>YouTube videos:
+<ul>
+<li><a href="https://www.youtube.com/watch?v=QW85Y0Ug3KY">TGI Kubernetes 029: Developing Apps with Ksync</a></li>
+<li><a href="https://www.youtube.com/watch?v=McwwWhCXMxc">TGI Kubernetes 030: Exploring Skaffold</a></li>
+<li><a href="https://www.youtube.com/watch?v=zezeBAJ_3w8">TGI Kubernetes 031: Connecting with Telepresence</a></li>
+<li><a href="https://www.youtube.com/watch?v=8B1D7cTMPgA">TGI Kubernetes 033: Developing with Draft</a></li>
+</ul>
+</li>
+<li>Raw responses to the <a href="https://docs.google.com/spreadsheets/d/12ilRCly2eHKPuicv1P_BD6z__PXAqpiaR-tDYe2eudE/edit">Kubernetes Application Survey</a> 2018 by SIG Apps</li>
+</ul>
+<!--
+With that we wrap up this post on how to go about developing apps on Kubernetes, we hope you learned something and if you have feedback and/or want to point out a tool that you found useful, please let us know via Twitter: [Ilya](https://twitter.com/errordeveloper) and [Michael](https://twitter.com/mhausenblas).
+-->
+<p>有了这些，我们这篇关于如何在 Kubernetes 上开发应用程序的博客就可以收尾了，希望您有所收获，如果您有反馈和/或想要指出您认为有用的工具，请通过 Twitter 告诉我们：<a href="https://twitter.com/errordeveloper">Ilya</a> 和 <a href="https://twitter.com/mhausenblas">Michael</a></p>
+
+	
+
+	<ul class="list-unstyled d-flex justify-content-between align-items-center mb-0 pt-5">
+  <li>
+    <a href="/zh/blog/2018/04/25/open-source-charts-2017/" aria-label="上一页 - Kubernetes 社区 - 2017 年开源排行榜榜首" class="btn btn-primary"><span class="mr-1">←</span>上一页</a>
+  </li>
+    <a href="/zh/blog/2018/05/30/kubernetes-1-11%E5%90%91-discuss-kubernetes-%E9%97%AE%E5%A5%BD/" aria-label="下一页 - Kubernetes 1 11：向 discuss kubernetes 问好" class="btn btn-primary">下一页<span class="ml-1">→</span></a>
+  </li>
+</ul>
+
+</div>
+
+
+          </main>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+            <div class="td-page-blog-meta ml-2 pb-1 pt-2 mb-4">
+  <link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/zh/feed.xml" title="Kubernetes">
+  <a class="widget-link" href="http://localhost:1313/zh/feed.xml"><div> <i class="fas fa-rss fab-icon"> </i> <span class="widget-link-text">RSS Feed</span></div> </a>
+  <a class="widget-link" href="https://kubernetes.io/docs/contribute/new-content/blogs-case-studies/"><div> <i class="fa fa-edit fab-icon"></i> <span class="widget-link-text">Submit a Post</span></div></a>
+  <a class="widget-link" href="https://twitter.com/kubernetesio"><div> <i class="fab fa-twitter-square fab-icon"> </i> <span class="widget-link-text"> @Kubernetesio</span></div></a>
+  <a class="widget-link" href="https://github.com/kubernetes/kubernetes"><div> <i class="fab fa-github-square fab-icon"></i> <span class="widget-link-text"> on GitHub </span></div></a>
+  <a class="widget-link" href="http://slack.k8s.io"><div><i class="fab fa-slack fab-icon"> </i> <span class="widget-link-text">#kubernetes-users </span></div></a>
+  <a class="widget-link" href="https://stackoverflow.com/questions/tagged/kubernetes"><div><i class="fab fa-stack-overflow fab-icon"></i> <span class="widget-link-text"> Overflow</span></div></a>
+  <a class="widget-link" href="https://discuss.kubernetes.io"><div> <i class="fab fa-discourse fab-icon"></i><span class="widget-link-text"> Forum </span></div></a>
+  <a class="widget-link" href="https://kubernetes.io/docs/setup"><div><i class="fa fa-download fab-icon"></i> <span class="widget-link-text"> Kubernetes</span></div></a>
+</div>
+
+          </div>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

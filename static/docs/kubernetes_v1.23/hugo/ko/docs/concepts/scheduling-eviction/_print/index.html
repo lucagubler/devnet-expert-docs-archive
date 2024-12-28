@@ -1,0 +1,2660 @@
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/concepts/scheduling-eviction/">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/zh/docs/concepts/scheduling-eviction/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/concepts/scheduling-eviction/">
+<link rel="alternate" hreflang="pt-br" href="http://localhost:1313/pt-br/docs/concepts/scheduling-eviction/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/concepts/scheduling-eviction/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/ko/docs/concepts/scheduling-eviction/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>스케줄링, 선점(Preemption), 축출(Eviction) | Kubernetes</title><meta property="og:title" content="스케줄링, 선점(Preemption), 축출(Eviction)" />
+<meta property="og:description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/ko/docs/concepts/scheduling-eviction/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="스케줄링, 선점(Preemption), 축출(Eviction)">
+<meta itemprop="description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="스케줄링, 선점(Preemption), 축출(Eviction)"/>
+<meta name="twitter:description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+">
+<meta property="og:description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+">
+<meta name="twitter:description" content="쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.
+">
+<meta property="og:url" content="http://localhost:1313/ko/docs/concepts/scheduling-eviction/">
+<meta property="og:title" content="스케줄링, 선점(Preemption), 축출(Eviction)">
+<meta name="twitter:title" content="스케줄링, 선점(Preemption), 축출(Eviction)">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/ko/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/ko/docs/" >문서</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/blog/" >쿠버네티스 블로그</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/training/" >교육</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/partners/" >파트너</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/community/" >커뮤니티</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/case-studies/" >사례 연구</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	버전
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/ko/docs/concepts/scheduling-eviction/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/ko/docs/concepts/scheduling-eviction/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/ko/docs/concepts/scheduling-eviction/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/ko/docs/concepts/scheduling-eviction/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/ko/docs/concepts/scheduling-eviction/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	한국어 Korean
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/concepts/scheduling-eviction/">English</a>
+	
+	<a class="dropdown-item" href="/zh/docs/concepts/scheduling-eviction/">中文 Chinese</a>
+	
+	<a class="dropdown-item" href="/ja/docs/concepts/scheduling-eviction/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/pt-br/docs/concepts/scheduling-eviction/">Português</a>
+	
+	<a class="dropdown-item" href="/id/docs/concepts/scheduling-eviction/">Bahasa Indonesia</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+이 섹션의 다중 페이지 출력 화면임.
+<a href="#" onclick="print();return false;">여기를 클릭하여 프린트</a>.
+</p><p>
+<a href="/ko/docs/concepts/scheduling-eviction/">이 페이지의 일반 화면으로 돌아가기</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">스케줄링, 선점(Preemption), 축출(Eviction)</h1>
+<div class="lead">쿠버네티스에서, 스케줄링은 kubelet이 파드를 실행할 수 있도록  파드를 노드에 할당하는 것을 말한다. 선점은 우선순위가 높은 파드가 노드에 스케줄될 수 있도록  우선순위가 낮은 파드를 종료시키는 과정을 말한다. 축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-598f36d691ab197f9d995784574b0a12">쿠버네티스 스케줄러</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-21169f516071aea5d16734a4c27789a5">노드에 파드 할당하기</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-da22fe2278df236f71efbe672f392677">파드 오버헤드</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-ede4960b56a3529ee0bfe7c8fe2d09a5">테인트(Taints)와 톨러레이션(Tolerations)</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-78e0431b4b7516092662a7c289cbb304">노드-압박 축출</a></li>
+
+
+    
+  
+    
+    
+	
+<li>6: <a href="#pg-b87723bf81b079042860f0ebd37b0a64">API를 이용한 축출(Eviction)</a></li>
+
+
+    
+  
+    
+    
+	
+<li>7: <a href="#pg-60e5a2861609e0848d58ce8bf99c4a31">파드 우선순위(priority)와 선점(preemption)</a></li>
+
+
+    
+  
+    
+    
+	
+<li>8: <a href="#pg-961126cd43559012893979e568396a49">확장된 리소스를 위한 리소스 빈 패킹(bin packing)</a></li>
+
+
+    
+  
+    
+    
+	
+<li>9: <a href="#pg-d9574a30fcbc631b0d2a57850e161e89">스케줄러 성능 튜닝</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      <p>쿠버네티스에서, 스케줄링은 <a class='glossary-tooltip' title='클러스터의 각 노드에서 실행되는 에이전트. Kubelet은 파드에서 컨테이너가 확실하게 동작하도록 관리한다.' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a>이 파드를 실행할 수 있도록
+<a class='glossary-tooltip' title='파드는 클러스터에서 실행 중인 컨테이너의 집합을 나타낸다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/pods/' target='_blank' aria-label='파드'>파드</a>를
+<a class='glossary-tooltip' title='노드는 쿠버네티스의 작업 장비(worker machine)이다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/architecture/nodes/' target='_blank' aria-label='노드'>노드</a>에 할당하는 것을 말한다.
+선점은 <a class='glossary-tooltip' title='Pod Priority indicates the importance of a Pod relative to other Pods.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority' target='_blank' aria-label='우선순위'>우선순위</a>가 높은 파드가 노드에 스케줄될 수 있도록
+우선순위가 낮은 파드를 종료시키는 과정을 말한다.
+축출은 리소스가 부족한 노드에서 하나 이상의 파드를 사전에 종료시키는 프로세스이다.</p>
+<h2 id="스케줄링">스케줄링</h2>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/kube-scheduler/">쿠버네티스 스케줄러</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/assign-pod-node/">노드에 파드 할당하기</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-overhead/">파드 오버헤드</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/taint-and-toleration/">테인트(Taints)와 톨러레이션(Tolerations)</a></li>
+<li><a href="/docs/concepts/scheduling-eviction/scheduling-framework/">스케줄링 프레임워크</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/scheduler-perf-tuning/">스케줄러 성능 튜닝</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/resource-bin-packing/">확장된 리소스를 위한 리소스 빈 패킹(bin packing)</a></li>
+</ul>
+<h2 id="파드-중단-disruption">파드 중단(disruption)</h2>
+<p><a href="/ko/docs/concepts/workloads/pods/disruptions/">파드 중단</a>은
+노드에 있는 파드가 자발적 또는 비자발적으로 종료되는 절차이다.</p>
+<p>자발적 중단은 애플리케이션 소유자 또는 클러스터 관리자가 의도적으로 시작한다.
+비자발적 중단은 의도하지 않은 것이며,
+노드의 리소스 부족과 같은 피할 수 없는 문제 또는 우발적인 삭제로 인해 트리거가 될 수 있다.</p>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-priority-preemption/">파드 우선순위와 선점</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/">노드-압박 축출</a></li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/api-eviction/">API를 이용한 축출</a></li>
+</ul>
+
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-598f36d691ab197f9d995784574b0a12">1 - 쿠버네티스 스케줄러</h1>
+    
+	<!-- overview -->
+<p>쿠버네티스에서 <em>스케줄링</em> 은 <a class='glossary-tooltip' title='클러스터의 각 노드에서 실행되는 에이전트. Kubelet은 파드에서 컨테이너가 확실하게 동작하도록 관리한다.' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='Kubelet'>Kubelet</a>이
+파드를 실행할 수 있도록 <a class='glossary-tooltip' title='파드는 클러스터에서 실행 중인 컨테이너의 집합을 나타낸다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/pods/' target='_blank' aria-label='파드'>파드</a>가
+<a class='glossary-tooltip' title='노드는 쿠버네티스의 작업 장비(worker machine)이다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/architecture/nodes/' target='_blank' aria-label='노드'>노드</a>에 적합한지 확인하는 것을 말한다.</p>
+<!-- body -->
+<h2 id="scheduling">스케줄링 개요</h2>
+<p>스케줄러는 노드가 할당되지 않은 새로 생성된 파드를 감시한다.
+스케줄러가 발견한 모든 파드에 대해 스케줄러는 해당 파드가 실행될
+최상의 노드를 찾는 책임을 진다. 스케줄러는
+아래 설명된 스케줄링 원칙을 고려하여 이 배치 결정을
+하게 된다.</p>
+<p>파드가 특정 노드에 배치되는 이유를 이해하려고 하거나
+사용자 정의된 스케줄러를 직접 구현하려는 경우 이
+페이지를 통해서 스케줄링에 대해 배울 수 있을 것이다.</p>
+<h2 id="kube-scheduler">kube-scheduler</h2>
+<p><a href="/docs/reference/command-line-tools-reference/kube-scheduler/">kube-scheduler</a>는
+쿠버네티스의 기본 스케줄러이며 <a class='glossary-tooltip' title='컨테이너의 라이프사이클을 정의, 배포, 관리하기 위한 API와 인터페이스들을 노출하는 컨테이너 오케스트레이션 레이어.' data-toggle='tooltip' data-placement='top' href='/ko/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='컨트롤 플레인'>컨트롤 플레인</a>의
+일부로 실행된다.
+kube-scheduler는 원하거나 필요에 따라 자체 스케줄링 컴포넌트를
+만들고 대신 사용할 수 있도록 설계되었다.</p>
+<p>새로 생성된 모든 파드 또는 예약되지 않은 다른 파드에 대해 kube-scheduler는
+실행할 최적의 노드를 선택한다. 그러나 파드의 모든 컨테이너에는
+리소스에 대한 요구사항이 다르며 모든 파드에도
+요구사항이 다르다. 따라서 기존 노드들은
+특정 스케줄링 요구사항에 따라 필터링 되어야 한다.</p>
+<p>클러스터에서 파드에 대한 스케줄링 요구사항을 충족하는 노드를
+<em>실행 가능한(feasible)</em> 노드라고 한다. 적합한 노드가 없으면 스케줄러가
+배치할 수 있을 때까지 파드가 스케줄 되지 않은 상태로 유지된다.</p>
+<p>스케줄러는 파드가 실행 가능한 노드를 찾은 다음 실행 가능한 노드의
+점수를 측정하는 기능 셋을 수행하고 실행 가능한 노드 중에서 가장 높은 점수를
+가진 노드를 선택하여 파드를 실행한다. 그런 다음 스케줄러는
+<em>바인딩</em> 이라는 프로세스에서 이 결정에 대해 API 서버에 알린다.</p>
+<p>스케줄링 결정을 위해 고려해야 할 요소에는
+개별 및 집단 리소스 요구사항, 하드웨어 / 소프트웨어 /
+정책 제한조건, 어피니티 및 안티-어피니티 명세, 데이터
+지역성(data locality), 워크로드 간 간섭 등이 포함된다.</p>
+<h3 id="kube-scheduler-implementation">kube-scheduler에서 노드 선택</h3>
+<p>kube-scheduler는 2단계 작업에서 파드에 대한 노드를 선택한다.</p>
+<ol>
+<li>필터링</li>
+<li>스코어링(scoring)</li>
+</ol>
+<p><em>필터링</em> 단계는 파드를 스케줄링 할 수 있는 노드 셋을
+찾는다. 예를 들어 PodFitsResources 필터는
+후보 노드가 파드의 특정 리소스 요청을 충족시키기에 충분한 가용 리소스가
+있는지 확인한다. 이 단계 다음에 노드 목록에는 적합한 노드들이
+포함된다. 하나 이상의 노드가 포함된 경우가 종종 있을 것이다. 목록이 비어 있으면
+해당 파드는 (아직) 스케줄링 될 수 없다.</p>
+<p><em>스코어링</em> 단계에서 스케줄러는 목록에 남아있는 노드의 순위를 지정하여
+가장 적합한 파드 배치를 선택한다. 스케줄러는 사용 중인 스코어링 규칙에 따라
+이 점수를 기준으로 필터링에서 통과된 각 노드에 대해 점수를 지정한다.</p>
+<p>마지막으로 kube-scheduler는 파드를 순위가 가장 높은 노드에 할당한다.
+점수가 같은 노드가 두 개 이상인 경우 kube-scheduler는
+이들 중 하나를 임의로 선택한다.</p>
+<p>스케줄러의 필터링 및 스코어링 동작을 구성하는 데 지원되는 두 가지
+방법이 있다.</p>
+<ol>
+<li><a href="/ko/docs/reference/scheduling/config/#%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC">스케줄링 정책</a>을 사용하면 필터링을 위한 <em>단정(Predicates)</em> 및 스코어링을 위한 <em>우선순위(Priorities)</em> 를 구성할 수 있다.</li>
+<li><a href="/ko/docs/reference/scheduling/config/#%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC">스케줄링 프로파일</a>을 사용하면 <code>QueueSort</code>, <code>Filter</code>, <code>Score</code>, <code>Bind</code>, <code>Reserve</code>, <code>Permit</code> 등의 다른 스케줄링 단계를 구현하는 플러그인을 구성할 수 있다. 다른 프로파일을 실행하도록 kube-scheduler를 구성할 수도 있다.</li>
+</ol>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/scheduler-perf-tuning/">스케줄러 성능 튜닝</a>에 대해 읽기</li>
+<li><a href="/ko/docs/concepts/workloads/pods/pod-topology-spread-constraints/">파드 토폴로지 분배 제약 조건</a>에 대해 읽기</li>
+<li>kube-scheduler의 <a href="/docs/reference/command-line-tools-reference/kube-scheduler/">레퍼런스 문서</a> 읽기</li>
+<li><a href="/docs/reference/config-api/kube-scheduler-config.v1beta3/">kube-scheduler 구성(v1beta3)</a> 레퍼런스 읽기</li>
+<li><a href="/docs/tasks/extend-kubernetes/configure-multiple-schedulers/">멀티 스케줄러 구성하기</a>에 대해 배우기</li>
+<li><a href="/docs/tasks/administer-cluster/topology-manager/">토폴로지 관리 정책</a>에 대해 배우기</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-overhead/">파드 오버헤드</a>에 대해 배우기</li>
+<li>볼륨을 사용하는 파드의 스케줄링에 대해 배우기
+<ul>
+<li><a href="/ko/docs/concepts/storage/storage-classes/#%EB%B3%BC%EB%A5%A8-%EB%B0%94%EC%9D%B8%EB%94%A9-%EB%AA%A8%EB%93%9C">볼륨 토폴리지 지원</a></li>
+<li><a href="/ko/docs/concepts/storage/storage-capacity/">스토리지 용량 추적</a></li>
+<li><a href="/ko/docs/concepts/storage/storage-limits/">노드별 볼륨 한도</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-21169f516071aea5d16734a4c27789a5">2 - 노드에 파드 할당하기</h1>
+    
+	<!-- overview -->
+<p>특정한 <a class='glossary-tooltip' title='노드는 쿠버네티스의 작업 장비(worker machine)이다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/architecture/nodes/' target='_blank' aria-label='노드(들)'>노드(들)</a> 집합에서만 동작하도록
+<a class='glossary-tooltip' title='파드는 클러스터에서 실행 중인 컨테이너의 집합을 나타낸다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/pods/' target='_blank' aria-label='파드'>파드</a>를 제한할 수 있다.
+이를 수행하는 방법에는 여러 가지가 있으며 권장되는 접근 방식은 모두
+<a href="/ko/docs/concepts/overview/working-with-objects/labels/">레이블 셀렉터</a>를 사용하여 선택을 용이하게 한다.
+보통 스케줄러가 자동으로 합리적인 배치(예: 자원이 부족한 노드에 파드를 배치하지 않도록
+노드 간에 파드를 분배하는 등)를 수행하기에 이러한 제약 조건은 필요하지 않지만
+간혹 파드가 배포될 노드를 제어해야 하는 경우가 있다.
+예를 들어 SSD가 장착된 머신에 파드가 배포되도록 하거나 또는 많은 통신을 하는 두 개의 서로 다른 서비스의 파드를
+동일한 가용성 영역(availability zone)에 배치할 수 있다.</p>
+<!-- body -->
+<h2 id="노드-셀렉터-nodeselector">노드 셀렉터(nodeSelector)</h2>
+<p><code>nodeSelector</code> 는 가장 간단하고 권장되는 노드 선택 제약 조건의 형태이다.
+<code>nodeSelector</code> 는 PodSpec의 필드이다. 이는 키-값 쌍의 매핑으로 지정한다. 파드가 노드에서 동작할 수 있으려면,
+노드는 키-값의 쌍으로 표시되는 레이블을 각자 가지고 있어야 한다(이는 추가 레이블을 가지고 있을 수 있다).
+일반적으로 하나의 키-값 쌍이 사용된다.</p>
+<p><code>nodeSelector</code> 를 어떻게 사용하는지 예시를 통해 알아보도록 하자.</p>
+<h3 id="0-단계-사전-준비">0 단계: 사전 준비</h3>
+<p>이 예시는 쿠버네티스 파드에 대한 기본적인 이해를 하고 있고 <a href="/ko/docs/setup/">쿠버네티스 클러스터가 설정</a>되어 있다고 가정한다.</p>
+<h3 id="1-단계-노드에-레이블-붙이기">1 단계: 노드에 레이블 붙이기</h3>
+<p><code>kubectl get nodes</code> 를 실행해서 클러스터 노드 이름을 가져온다. 이 중에 레이블을 추가하기 원하는 것 하나를 선택한 다음에 <code>kubectl label nodes &lt;노드 이름&gt; &lt;레이블 키&gt;=&lt;레이블 값&gt;</code> 을 실행해서 선택한 노드에 레이블을 추가한다. 예를 들어 노드의 이름이 'kubernetes-foo-node-1.c.a-robinson.internal' 이고, 원하는 레이블이 'disktype=ssd' 라면, <code>kubectl label nodes kubernetes-foo-node-1.c.a-robinson.internal disktype=ssd</code> 를 실행한다.</p>
+<p><code>kubectl get nodes --show-labels</code> 를 다시 실행해서 노드가 현재 가진 레이블을 확인하여, 이 작업을 검증할 수 있다. 또한 <code>kubectl describe node &quot;노드 이름&quot;</code> 을 사용해서 노드에 주어진 레이블의 전체 목록을 확인할 수 있다.</p>
+<h3 id="2-단계-파드-설정에-nodeselector-필드-추가하기">2 단계: 파드 설정에 nodeSelector 필드 추가하기</h3>
+<p>실행하고자 하는 파드의 설정 파일을 가져오고, 이처럼 nodeSelector 섹션을 추가한다. 예를 들어 이것이 파드 설정이라면,</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">env</span>:<span style="color:#bbb"> </span>test<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span></code></pre></div><p>이 다음에 nodeSelector 를 다음과 같이 추가한다.</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ko/examples/pods/pod-nginx.yaml" download="pods/pod-nginx.yaml"><code>pods/pod-nginx.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('pods-pod-nginx-yaml')" title="Copy pods/pod-nginx.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="pods-pod-nginx-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">env</span>:<span style="color:#bbb"> </span>test<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">imagePullPolicy</span>:<span style="color:#bbb"> </span>IfNotPresent<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodeSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">disktype</span>:<span style="color:#bbb"> </span>ssd<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>그런 다음에 <code>kubectl apply -f https://k8s.io/examples/pods/pod-nginx.yaml</code> 을
+실행하면, 레이블이 붙여진 노드에 파드가 스케줄된다.
+<code>kubectl get pods -o wide</code> 를 실행해서 파드가 할당된
+&quot;NODE&quot; 를 보면 작동하는지 검증할 수 있다.</p>
+<h2 id="built-in-node-labels">넘어가기 전에: 내장 노드 레이블들</h2>
+<p><a href="#1-%EB%8B%A8%EA%B3%84-%EB%85%B8%EB%93%9C%EC%97%90-%EB%A0%88%EC%9D%B4%EB%B8%94-%EB%B6%99%EC%9D%B4%EA%B8%B0">붙인</a> 레이블뿐만 아니라, 노드에는
+표준 레이블 셋이 미리 채워져 있다. 이들 목록은 <a href="/ko/docs/reference/labels-annotations-taints/">잘 알려진 레이블, 어노테이션 및 테인트</a>를 참고한다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 이 레이블들의 값은 클라우드 공급자에 따라 다르고 신뢰성이 보장되지 않는다.
+예를 들어 <code>kubernetes.io/hostname</code> 은 어떤 환경에서는 노드 이름과 같지만,
+다른 환경에서는 다른 값일 수 있다.
+</div>
+<h2 id="노드-격리-isolation-제한-restriction">노드 격리(isolation)/제한(restriction)</h2>
+<p>노드 오브젝트에 레이블을 추가하면 파드가 특정 노드 또는 노드 그룹을 목표 대상으로 할 수 있게 된다.
+이는 특정 파드가 어떤 격리, 보안, 또는 규제 속성이 있는 노드에서만 실행되도록 사용할 수 있다.
+이 목적으로 레이블을 사용하는 경우, 노드에서 kubelet 프로세스로 수정할 수 없는 레이블 키를 선택하는 것을 권장한다.
+이렇게 하면 손상된 노드가 해당 kubelet 자격 증명을 사용해서 해당 레이블을 자체 노드 오브젝트에 설정하고,
+스케줄러가 손상된 노드로 워크로드를 스케줄 하는 것을 방지할 수 있다.</p>
+<p><code>NodeRestriction</code> 어드미션 플러그인은 kubelet이 <code>node-restriction.kubernetes.io/</code> 접두사로 레이블을 설정 또는 수정하지 못하게 한다.
+노드 격리에 해당 레이블 접두사를 사용하려면 다음과 같이 한다.</p>
+<ol>
+<li><a href="/docs/reference/access-authn-authz/node/">노드 권한부여자</a>를 사용하고 있고, <a href="/docs/reference/access-authn-authz/admission-controllers/#noderestriction">NodeRestriction 어드미션 플러그인</a>을 <em>활성화</em> 해야 한다.</li>
+<li>노드 오브젝트의 <code>node-restriction.kubernetes.io/</code> 접두사 아래에 레이블을 추가하고, 해당 레이블을 노드 셀렉터에서 사용한다.
+예를 들어, <code>example.com.node-restriction.kubernetes.io/fips=true</code> 또는 <code>example.com.node-restriction.kubernetes.io/pci-dss=true</code> 이다.</li>
+</ol>
+<h2 id="어피니티-affinity-와-안티-어피니티-anti-affinity">어피니티(affinity)와 안티-어피니티(anti-affinity)</h2>
+<p><code>nodeSelector</code> 는 파드를 특정 레이블이 있는 노드로 제한하는 매우 간단한 방법을 제공한다.
+어피니티/안티-어피니티 기능은 표현할 수 있는 제약 종류를 크게 확장한다. 주요 개선 사항은 다음과 같다.</p>
+<ol>
+<li>어피니티/안티-어피니티 언어가 더 표현적이다. 언어는 논리 연산자인 AND 연산으로 작성된
+정확한 매칭 항목 이외에 더 많은 매칭 규칙을 제공한다.</li>
+<li>규칙이 엄격한 요구 사항이 아니라 &quot;유연한(soft)&quot;/&quot;선호(preference)&quot; 규칙을 나타낼 수 있기에 스케줄러가 규칙을 만족할 수 없더라도,
+파드가 계속 스케줄되도록 한다.</li>
+<li>노드 자체에 레이블을 붙이기보다는 노드(또는 다른 토폴로지 도메인)에서 실행 중인 다른 파드의 레이블을 제한할 수 있다.
+이를 통해 어떤 파드가 함께 위치할 수 있는지와 없는지에 대한 규칙을 적용할 수 있다.</li>
+</ol>
+<p>어피니티 기능은 &quot;노드 어피니티&quot; 와 &quot;파드 간 어피니티/안티-어피니티&quot; 두 종류의 어피니티로 구성된다.
+노드 어피니티는 기존 <code>nodeSelector</code> 와 비슷하지만(그러나 위에서 나열된 첫째와 두 번째 이점이 있다.),
+파드 간 어피니티/안티-어피니티는 위에서 나열된 세번째 항목에 설명된 대로
+노드 레이블이 아닌 파드 레이블에 대해 제한되고 위에서 나열된 첫 번째와 두 번째 속성을 가진다.</p>
+<h3 id="노드-어피니티">노드 어피니티</h3>
+<p>노드 어피니티는 개념적으로 <code>nodeSelector</code> 와 비슷하다 -- 이는 노드의 레이블을 기반으로 파드를
+스케줄할 수 있는 노드를 제한할 수 있다.</p>
+<p>여기에 현재 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 와 <code>preferredDuringSchedulingIgnoredDuringExecution</code> 로 부르는
+두 가지 종류의 노드 어피니티가 있다. 전자는 파드가 노드에 스케줄되도록 <em>반드시</em>
+규칙을 만족해야 하는 것(<code>nodeSelector</code> 와 비슷하나 보다 표현적인 구문을 사용해서)을 지정하고,
+후자는 스케줄러가 시도하려고는 하지만, 보증하지 않는 <em>선호(preferences)</em> 를 지정한다는 점에서
+이를 각각 &quot;엄격함(hard)&quot; 과 &quot;유연함(soft)&quot; 으로 생각할 수 있다.
+이름의 &quot;IgnoredDuringExecution&quot; 부분은 <code>nodeSelector</code> 작동 방식과 유사하게 노드의
+레이블이 런타임 중에 변경되어 파드의 어피니티 규칙이 더 이상 충족되지 않으면 파드가 그 노드에서
+동작한다는 의미이다. 향후에는 파드의 노드 어피니티 요구 사항을 충족하지 않는 노드에서 파드를 제거한다는
+점을 제외하고는 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 와 동일한 <code>requiredDuringSchedulingRequiredDuringExecution</code> 를 제공할 계획이다.</p>
+<p>따라서 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 의 예로는 &quot;인텔 CPU가 있는 노드에서만 파드 실행&quot;이
+될 수 있고, <code>preferredDuringSchedulingIgnoredDuringExecution</code> 의 예로는 &quot;장애 조치 영역 XYZ에 파드 집합을 실행하려고
+하지만, 불가능하다면 다른 곳에서 일부를 실행하도록 허용&quot;이 있을 것이다.</p>
+<p>노드 어피니티는 PodSpec의 <code>affinity</code> 필드의 <code>nodeAffinity</code> 필드에서 지정된다.</p>
+<p>여기에 노드 어피니티를 사용하는 파드 예시가 있다.</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ko/examples/pods/pod-with-node-affinity.yaml" download="pods/pod-with-node-affinity.yaml"><code>pods/pod-with-node-affinity.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('pods-pod-with-node-affinity-yaml')" title="Copy pods/pod-with-node-affinity.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="pods-pod-with-node-affinity-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>with-node-affinity<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">affinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">nodeAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">nodeSelectorTerms</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>kubernetes.io/e2e-az-name<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>- e2e-az1<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>- e2e-az2<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">preferredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">preference</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>another-node-label-key<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>- another-node-label-value<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>with-node-affinity<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>k8s.gcr.io/pause:2.0</code></pre></div>
+    </div>
+</div>
+
+
+<p>이 노드 어피니티 규칙은 키가 <code>kubernetes.io/e2e-az-name</code> 이고 값이 <code>e2e-az1</code> 또는 <code>e2e-az2</code> 인
+레이블이 있는 노드에만 파드를 배치할 수 있다고 말한다. 또한, 이 기준을 충족하는 노드들
+중에서 키가 <code>another-node-label-key</code> 이고 값이 <code>another-node-label-value</code> 인 레이블이 있는 노드를
+선호하도록 한다.</p>
+<p>예시에서 연산자 <code>In</code> 이 사용되고 있는 것을 볼 수 있다. 새로운 노드 어피니티 구문은 다음의 연산자들을 지원한다. <code>In</code>, <code>NotIn</code>, <code>Exists</code>, <code>DoesNotExist</code>, <code>Gt</code>, <code>Lt</code>.
+<code>NotIn</code> 과 <code>DoesNotExist</code> 를 사용해서 안티-어피니티를 수행하거나,
+특정 노드에서 파드를 쫓아내는 <a href="/ko/docs/concepts/scheduling-eviction/taint-and-toleration/">노드 테인트(taint)</a>를 설정할 수 있다.</p>
+<p><code>nodeSelector</code> 와 <code>nodeAffinity</code> 를 모두 지정한다면 파드가 후보 노드에 스케줄되기 위해서는
+<em>둘 다</em> 반드시 만족해야 한다.</p>
+<p><code>nodeAffinity</code> 유형과 연관된 <code>nodeSelectorTerms</code> 를 지정하면, <code>nodeSelectorTerms</code> 중 <strong>하나라도</strong> 만족시키는 노드에 파드가 스케줄된다.</p>
+<p><code>nodeSelectorTerms</code> 와 연관된 여러 <code>matchExpressions</code> 를 지정하면, 파드는 <code>matchExpressions</code> 를 <strong>모두</strong> 만족하는 노드에만 스케줄된다.</p>
+<p>파드가 스케줄된 노드의 레이블을 지우거나 변경해도 파드는 제거되지 않는다. 다시 말해서 어피니티 선택은 파드를 스케줄링 하는 시점에만 작동한다.</p>
+<p><code>preferredDuringSchedulingIgnoredDuringExecution</code> 의 <code>weight</code> 필드의 범위는 1-100이다. 모든 스케줄링 요구 사항 (리소스 요청, RequiredDuringScheduling 어피니티 표현식 등)을 만족하는 각 노드들에 대해 스케줄러는 이 필드의 요소들을 반복해서 합계를 계산하고 노드가 MatchExpressions 에 일치하는 경우 합계에 &quot;가중치(weight)&quot;를 추가한다. 이후에 이 점수는 노드에 대한 다른 우선순위 함수의 점수와 합쳐진다. 전체 점수가 가장 높은 노드를 가장 선호한다.</p>
+<h4 id="스케줄링-프로파일당-노드-어피니티">스케줄링 프로파일당 노드 어피니티</h4>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.20 [beta]</code>
+</div>
+
+
+<p>여러 <a href="/ko/docs/reference/scheduling/config/#%EC%97%AC%EB%9F%AC-%ED%94%84%EB%A1%9C%ED%8C%8C%EC%9D%BC">스케줄링 프로파일</a>을 구성할 때
+노드 어피니티가 있는 프로파일을 연결할 수 있는데, 이는 프로파일이 특정 노드 집합에만 적용되는 경우 유용하다.
+이렇게 하려면 <a href="/ko/docs/reference/scheduling/config/">스케줄러 구성</a>에 있는
+<a href="/ko/docs/reference/scheduling/config/#%EC%8A%A4%EC%BC%80%EC%A4%84%EB%A7%81-%ED%94%8C%EB%9F%AC%EA%B7%B8%EC%9D%B8-1"><code>NodeAffinity</code> 플러그인</a>의 인수에 <code>addedAffinity</code>를 추가한다. 예를 들면</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubescheduler.config.k8s.io/v1beta1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>KubeSchedulerConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">profiles</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">schedulerName</span>:<span style="color:#bbb"> </span>default-scheduler<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">schedulerName</span>:<span style="color:#bbb"> </span>foo-scheduler<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">pluginConfig</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>NodeAffinity<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">args</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">addedAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">nodeSelectorTerms</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span>- <span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>scheduler-profile<span style="color:#bbb">
+</span><span style="color:#bbb">                  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">                  </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">                  </span>- foo<span style="color:#bbb">
+</span></code></pre></div><p><code>addedAffinity</code>는 <code>.spec.schedulerName</code>을 <code>foo-scheduler</code>로 설정하는 모든 파드에 적용되며
+PodSpec에 지정된 NodeAffinity도 적용된다.
+즉, 파드를 매칭시키려면, 노드가 <code>addedAffinity</code>와 파드의 <code>.spec.NodeAffinity</code>를 충족해야 한다.</p>
+<p><code>addedAffinity</code>는 엔드 유저에게 표시되지 않으므로, 예상치 못한 동작이 일어날 수 있다. 프로파일의
+스케줄러 이름과 명확한 상관 관계가 있는 노드 레이블을 사용하는 것이 좋다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <a href="/ko/docs/concepts/workloads/controllers/daemonset/#%EA%B8%B0%EB%B3%B8-%EC%8A%A4%EC%BC%80%EC%A4%84%EB%9F%AC%EB%A1%9C-%EC%8A%A4%EC%BC%80%EC%A4%84">데몬셋용 파드를 생성</a>하는 데몬셋 컨트롤러는
+스케줄링 프로파일을 인식하지 못한다.
+따라서 <code>addedAffinity</code>없이 <code>default-scheduler</code>와 같은 스케줄러 프로파일을 유지하는 것이 좋다. 그런 다음 데몬셋의 파드 템플릿이 스케줄러 이름을 사용해야 한다.
+그렇지 않으면, 데몬셋 컨트롤러에 의해 생성된 일부 파드가 스케줄되지 않은 상태로 유지될 수 있다.
+</div>
+<h3 id="파드간-어피니티와-안티-어피니티">파드간 어피니티와 안티-어피니티</h3>
+<p>파드간 어피니티와 안티-어피니티를 사용하면 노드의 레이블을 기반으로 하지 않고, <em>노드에서 이미 실행 중인 파드 레이블을 기반으로</em>
+파드가 스케줄될 수 있는 노드를 제한할 수 있다. 규칙은 &quot;X가 규칙 Y를 충족하는 하나 이상의 파드를 이미 실행중인 경우
+이 파드는 X에서 실행해야 한다(또는 안티-어피니티가 없는 경우에는 동작하면 안된다)&quot;는 형태이다. Y는
+선택적으로 연관된 네임스페이스 목록을 가진 LabelSelector로 표현된다. 노드와는 다르게 파드는 네임스페이스이기에
+(그리고 따라서 파드의 레이블은 암암리에 네임스페이스이다) 파드 레이블위의 레이블 셀렉터는 반드시
+셀렉터가 적용될 네임스페이스를 지정해야만 한다. 개념적으로 X는 노드, 랙,
+클라우드 공급자 영역, 클라우드 공급자 지역 등과 같은 토폴로지 도메인이다. 시스템이 이런 토폴로지
+도메인을 나타내는 데 사용하는 노드 레이블 키인 <code>topologyKey</code> 를 사용하여 이를 표현한다.
+예: <a href="#built-in-node-labels">넘어가기 전에: 빌트인 노드 레이블</a> 섹션 위에 나열된 레이블 키를 본다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 파드간 어피니티와 안티-어피니티에는 상당한 양의 프로세싱이 필요하기에
+대규모 클러스터에서는 스케줄링 속도가 크게 느려질 수 있다.
+수백 개의 노드를 넘어가는 클러스터에서 이를 사용하는 것은 추천하지 않는다.
+</div>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 파드 안티-어피니티에서는 노드에 일관된 레이블을 지정해야 한다. 즉, 클러스터의 모든 노드는 <code>topologyKey</code> 와 매칭되는 적절한 레이블을 가지고 있어야 한다. 일부 또는 모든 노드에 지정된 <code>topologyKey</code> 레이블이 없는 경우에는 의도하지 않은 동작이 발생할 수 있다.
+</div>
+<p>노드 어피니티와 마찬가지로 현재 파드 어피니티와 안티-어피니티로 부르는 &quot;엄격함&quot; 대 &quot;유연함&quot;의 요구사항을 나타내는 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 와
+<code>preferredDuringSchedulingIgnoredDuringExecution</code> 두 가지 종류가 있다.
+앞의 노드 어피니티 섹션의 설명을 본다.
+<code>requiredDuringSchedulingIgnoredDuringExecution</code> 어피니티의 예시는
+&quot;서로 많은 통신을 하기 때문에 서비스 A와 서비스 B를 같은 영역에 함께 위치시키는 것&quot;이고,
+<code>preferredDuringSchedulingIgnoredDuringExecution</code> 안티-어피니티의 예시는 &quot;서비스를 여러 영역에 걸쳐서 분배하는 것&quot;이다
+(엄격한 요구사항은 영역보다 파드가 더 많을 수 있기 때문에 엄격한 요구사항은 의미가 없다).</p>
+<p>파드간 어피니티는 PodSpec에서 <code>affinity</code> 필드 중 <code>podAffinity</code> 필드로 지정한다.
+그리고 파드간 안티-어피니티는 PodSpec에서 <code>affinity</code> 필드 중 <code>podAntiAffinity</code> 필드로 지정한다.</p>
+<h4 id="파드-어피니티를-사용하는-파드의-예시">파드 어피니티를 사용하는 파드의 예시</h4>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ko/examples/pods/pod-with-pod-affinity.yaml" download="pods/pod-with-pod-affinity.yaml"><code>pods/pod-with-pod-affinity.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('pods-pod-with-pod-affinity-yaml')" title="Copy pods/pod-with-pod-affinity.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="pods-pod-with-pod-affinity-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>with-pod-affinity<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">affinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">podAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">labelSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>security<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>- S1<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">topologyKey</span>:<span style="color:#bbb"> </span>topology.kubernetes.io/zone<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">podAntiAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">preferredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">100</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">podAffinityTerm</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">labelSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>security<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span>- S2<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">topologyKey</span>:<span style="color:#bbb"> </span>topology.kubernetes.io/zone<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>with-pod-affinity<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>k8s.gcr.io/pause:2.0<span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>이 파드의 어피니티는 하나의 파드 어피니티 규칙과 하나의 파드 안티-어피니티 규칙을 정의한다.
+이 예시에서 <code>podAffinity</code> 는 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 이고 <code>podAntiAffinity</code> 는
+<code>preferredDuringSchedulingIgnoredDuringExecution</code> 이다. 파드 어피니티 규칙에 의하면 키 &quot;security&quot; 와 값
+&quot;S1&quot;인 레이블이 있는 하나 이상의 이미 실행 중인 파드와 동일한 영역에 있는 경우에만 파드를 노드에 스케줄할 수 있다.
+(보다 정확하게는, 클러스터에 키 &quot;security&quot;와 값 &quot;S1&quot;인 레이블을 가지고 있는 실행 중인 파드가 있는 키
+<code>topology.kubernetes.io/zone</code> 와 값 V인 노드가 최소 하나 이상 있고,
+노드 N이 키 <code>topology.kubernetes.io/zone</code> 와
+일부 값이 V인 레이블을 가진다면 파드는 노드 N에서 실행할 수 있다.)
+파드 안티-어피니티 규칙에 의하면 파드는 키 &quot;security&quot;와 값 &quot;S2&quot;인 레이블을 가진 파드와
+동일한 영역의 노드에 스케줄되지 않는다.
+<a href="https://git.k8s.io/community/contributors/design-proposals/scheduling/podaffinity.md">디자인 문서</a>를 통해
+<code>requiredDuringSchedulingIgnoredDuringExecution</code> 와 <code>preferredDuringSchedulingIgnoredDuringExecution</code> 의
+파드 어피니티와 안티-어피니티에 대한 많은 예시를 맛볼 수 있다.</p>
+<p>파드 어피니티와 안티-어피니티의 적합한 연산자는 <code>In</code>, <code>NotIn</code>, <code>Exists</code>, <code>DoesNotExist</code> 이다.</p>
+<p>원칙적으로, <code>topologyKey</code> 는 적법한 어느 레이블-키도 될 수 있다.
+하지만, 성능과 보안상의 이유로 topologyKey에는 몇 가지 제약조건이 있다.</p>
+<ol>
+<li>파드 어피니티에서 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 와 <code>preferredDuringSchedulingIgnoredDuringExecution</code> 는
+<code>topologyKey</code> 의 빈 값을 허용하지 않는다.</li>
+<li>파드 안티-어피니티에서도 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 와 <code>preferredDuringSchedulingIgnoredDuringExecution</code> 는
+<code>topologyKey</code> 의 빈 값을 허용하지 않는다.</li>
+<li><code>requiredDuringSchedulingIgnoredDuringExecution</code> 파드 안티-어피니티에서 <code>topologyKey</code> 를 <code>kubernetes.io/hostname</code> 로 제한하기 위해 어드미션 컨트롤러 <code>LimitPodHardAntiAffinityTopology</code> 가 도입되었다. 사용자 지정 토폴로지를 사용할 수 있도록 하려면, 어드미션 컨트롤러를 수정하거나 아니면 이를 비활성화해야 한다.</li>
+<li>위의 경우를 제외하고, <code>topologyKey</code> 는 적법한 어느 레이블-키도 가능하다.</li>
+</ol>
+<p><code>labelSelector</code> 와 <code>topologyKey</code> 외에도 <code>labelSelector</code> 와 일치해야 하는 네임스페이스 목록 <code>namespaces</code> 를
+선택적으로 지정할 수 있다(이것은 <code>labelSelector</code> 와 <code>topologyKey</code> 와 같은 수준의 정의이다).
+생략되어 있거나 비어있을 경우 어피니티/안티-어피니티 정의가 있는 파드의 네임스페이스가 기본 값이다.</p>
+<p>파드를 노드에 스케줄하려면 <code>requiredDuringSchedulingIgnoredDuringExecution</code> 어피니티와 안티-어피니티와
+연관된 <code>matchExpressions</code> 가 모두 충족되어야 한다.</p>
+<h4 id="네임스페이스-셀렉터">네임스페이스 셀렉터</h4>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.22 [beta]</code>
+</div>
+
+
+<p>사용자는 네임스페이스 집합에 대한 레이블 쿼리인 <code>namespaceSelector</code> 를 사용하여 일치하는 네임스페이스를 선택할 수도 있다.
+어피니티 용어는 <code>namespaceSelector</code> 에서 선택한 네임스페이스와 <code>namespaces</code> 필드에 나열된 네임스페이스의 결합에 적용된다.
+빈 <code>namespaceSelector</code> ({})는 모든 네임스페이스와 일치하는 반면, null 또는 빈 <code>namespaces</code> 목록과
+null <code>namespaceSelector</code> 는 &quot;이 파드의 네임스페이스&quot;를 의미한다.</p>
+<p>이 기능은 베타이며 기본으로 활성화되어 있다. kube-apiserver 및 kube-scheduler 모두에서
+<a href="/ko/docs/reference/command-line-tools-reference/feature-gates/">기능 게이트</a>
+<code>PodAffinityNamespaceSelector</code> 를 사용하여 비활성화할 수 있다.</p>
+<h4 id="더-실용적인-유스케이스">더 실용적인 유스케이스</h4>
+<p>파드간 어피니티와 안티-어피니티는 레플리카셋, 스테이트풀셋, 디플로이먼트 등과 같은
+상위 레벨 모음과 함께 사용할 때 더욱 유용할 수 있다. 워크로드 집합이 동일한 노드와 같이
+동일하게 정의된 토폴로지와 같은 위치에 배치되도록 쉽게 구성할 수 있다.</p>
+<h5 id="항상-같은-노드에-위치시키기">항상 같은 노드에 위치시키기</h5>
+<p>세 개의 노드가 있는 클러스터에서 웹 애플리케이션에는 redis와 같은 인-메모리 캐시가 있다. 웹 서버가 가능한 캐시와 함께 위치하기를 원한다.</p>
+<p>다음은 세 개의 레플리카와 셀렉터 레이블이 <code>app=store</code> 가 있는 간단한 redis 디플로이먼트의 yaml 스니펫이다. 디플로이먼트에는 스케줄러가 단일 노드에서 레플리카를 함께 배치하지 않도록 <code>PodAntiAffinity</code> 가 구성되어 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-cache<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>store<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>store<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">affinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">podAntiAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">labelSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>app<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>- store<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">topologyKey</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;kubernetes.io/hostname&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-server<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>redis:3.2-alpine<span style="color:#bbb">
+</span></code></pre></div><p>아래 yaml 스니펫의 웹서버 디플로이먼트는 <code>podAntiAffinity</code> 와 <code>podAffinity</code> 설정을 가지고 있다. 이렇게 하면 스케줄러에 모든 레플리카는 셀렉터 레이블이 <code>app=store</code> 인 파드와 함께 위치해야 한다. 또한 각 웹 서버 레플리카가 단일 노드의 같은 위치에 있지 않도록 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>web-server<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>web-store<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>web-store<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">affinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">podAntiAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">labelSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>app<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>- web-store<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">topologyKey</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;kubernetes.io/hostname&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">podAffinity</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requiredDuringSchedulingIgnoredDuringExecution</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span>- <span style="color:#008000;font-weight:bold">labelSelector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span><span style="color:#008000;font-weight:bold">matchExpressions</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">              </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span>app<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span>In<span style="color:#bbb">
+</span><span style="color:#bbb">                </span><span style="color:#008000;font-weight:bold">values</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">                </span>- store<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">topologyKey</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;kubernetes.io/hostname&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>web-app<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx:1.16-alpine<span style="color:#bbb">
+</span></code></pre></div><p>만약 위의 두 디플로이먼트를 생성하면 세 개의 노드가 있는 클러스터는 다음과 같아야 한다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">node-1</th>
+<th style="text-align:center">node-2</th>
+<th style="text-align:center">node-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><em>webserver-1</em></td>
+<td style="text-align:center"><em>webserver-2</em></td>
+<td style="text-align:center"><em>webserver-3</em></td>
+</tr>
+<tr>
+<td style="text-align:center"><em>cache-1</em></td>
+<td style="text-align:center"><em>cache-2</em></td>
+<td style="text-align:center"><em>cache-3</em></td>
+</tr>
+</tbody>
+</table>
+<p>여기서 볼 수 있듯이 <code>web-server</code> 의 세 레플리카들이 기대했던 것처럼 자동으로 캐시와 함께 위치하게 된다.</p>
+<pre><code>kubectl get pods -o wide
+</code></pre><p>출력은 다음과 유사할 것이다.</p>
+<pre><code>NAME                           READY     STATUS    RESTARTS   AGE       IP           NODE
+redis-cache-1450370735-6dzlj   1/1       Running   0          8m        10.192.4.2   kube-node-3
+redis-cache-1450370735-j2j96   1/1       Running   0          8m        10.192.2.2   kube-node-1
+redis-cache-1450370735-z73mh   1/1       Running   0          8m        10.192.3.1   kube-node-2
+web-server-1287567482-5d4dz    1/1       Running   0          7m        10.192.2.3   kube-node-1
+web-server-1287567482-6f7v5    1/1       Running   0          7m        10.192.4.3   kube-node-3
+web-server-1287567482-s330j    1/1       Running   0          7m        10.192.3.2   kube-node-2
+</code></pre><h5 id="절대-동일한-노드에-위치시키지-않게-하기">절대 동일한 노드에 위치시키지 않게 하기</h5>
+<p>위의 예시에서 <code>topologyKey:&quot;kubernetes.io/hostname&quot;</code> 과 함께 <code>PodAntiAffinity</code> 규칙을 사용해서
+두 개의 인스터스가 동일한 호스트에 있지 않도록 redis 클러스터를 배포한다.
+같은 기술을 사용해서 고 가용성을 위해 안티-어피니티로 구성된 스테이트풀셋의 예시는
+<a href="/ko/docs/tutorials/stateful-application/zookeeper/#%EB%85%B8%EB%93%9C-%EC%8B%A4%ED%8C%A8-%EB%B0%A9%EC%A7%80">ZooKeeper 튜토리얼</a>을 본다.</p>
+<h2 id="nodename">nodeName</h2>
+<p><code>nodeName</code> 은 가장 간단한 형태의 노트 선택 제약 조건이지만,
+한계로 인해 일반적으로는 사용하지 않는다.
+<code>nodeName</code> 은 PodSpec의 필드이다. 만약 비어있지 않으면, 스케줄러는
+파드를 무시하고 명명된 노드에서 실행 중인 kubelet이
+파드를 실행하려고 한다. 따라서 만약 PodSpec에 <code>nodeName</code> 가
+제공된 경우, 노드 선택을 위해 위의 방법보다 우선한다.</p>
+<p><code>nodeName</code> 을 사용해서 노드를 선택할 때의 몇 가지 제한은 다음과 같다.</p>
+<ul>
+<li>만약 명명된 노드가 없으면, 파드가 실행되지 않고
+따라서 자동으로 삭제될 수 있다.</li>
+<li>만약 명명된 노드에 파드를 수용할 수 있는
+리소스가 없는 경우 파드가 실패하고, 그 이유는 다음과 같이 표시된다.
+예: OutOfmemory 또는 OutOfcpu.</li>
+<li>클라우드 환경의 노드 이름은 항상 예측 가능하거나
+안정적인 것은 아니다.</li>
+</ul>
+<p>여기에 <code>nodeName</code> 필드를 사용하는 파드 설정 파일 예시가 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodeName</span>:<span style="color:#bbb"> </span>kube-01<span style="color:#bbb">
+</span></code></pre></div><p>위 파드는 kube-01 노드에서 실행될 것이다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<p><a href="/ko/docs/concepts/scheduling-eviction/taint-and-toleration/">테인트</a>는 노드가 특정 파드들을 <em>쫓아낼</em> 수 있다.</p>
+<p><a href="https://git.k8s.io/community/contributors/design-proposals/scheduling/nodeaffinity.md">노드 어피니티</a>와
+<a href="https://git.k8s.io/community/contributors/design-proposals/scheduling/podaffinity.md">파드간 어피니티/안티-어피니티</a>에 대한 디자인 문서에는
+이러한 기능에 대한 추가 배경 정보가 있다.</p>
+<p>파드가 노드에 할당되면 kubelet은 파드를 실행하고 노드의 로컬 리소스를 할당한다.
+<a href="/docs/tasks/administer-cluster/topology-manager/">토폴로지 매니저</a>는
+노드 수준의 리소스 할당 결정에 참여할 수 있다.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-da22fe2278df236f71efbe672f392677">3 - 파드 오버헤드</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<p>노드 위에서 파드를 구동할 때, 파드는 그 자체적으로 많은 시스템 리소스를 사용한다.
+이러한 리소스는 파드 내의 컨테이너들을 구동하기 위한 리소스 이외에 추가적으로 필요한 것이다.
+<em>파드 오버헤드</em> 는 컨테이너 리소스 요청과 상한 위에서 파드의 인프라에 의해
+소비되는 리소스를 계산하는 기능이다.</p>
+<!-- body -->
+<p>쿠버네티스에서 파드의 오버헤드는 파드의
+<a href="/ko/docs/concepts/containers/runtime-class/">런타임클래스</a> 와 관련된 오버헤드에 따라
+<a href="/docs/reference/access-authn-authz/extensible-admission-controllers/#what-are-admission-webhooks">어드미션</a>
+이 수행될 때 지정된다.</p>
+<p>파드 오버헤드가 활성화 되면, 파드를 노드에 스케줄링 할 때 컨테이너 리소스 요청의 합에
+파드의 오버헤드를 추가해서 스케줄링을 고려한다. 마찬가지로, kubelet은 파드의 cgroups 크기를 변경하거나
+파드의 축출 등급을 부여할 때에도 파드의 오버헤드를 포함하여 고려한다.</p>
+<h2 id="set-up">파드 오버헤드 활성화하기</h2>
+<p>기능 활성화를 위해 클러스터에서
+<code>PodOverhead</code> <a href="/ko/docs/reference/command-line-tools-reference/feature-gates/">기능 게이트</a>가 활성화되어 있고(1.18 버전에서는 기본적으로 활성화),
+<code>overhead</code> 필드를 정의하는 <code>RuntimeClass</code> 가 사용되고 있는지 확인해야 한다.</p>
+<h2 id="사용-예제">사용 예제</h2>
+<p>파드 오버헤드 기능을 사용하기 위하여, <code>overhead</code> 필드를 정의하는 런타임클래스가 필요하다.
+예를 들어, 가상 머신 및 게스트 OS에 대하여 파드 당 120 MiB를 사용하는
+가상화 컨테이너 런타임의 런타임클래스의 경우 다음과 같이 정의 할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#00f;font-weight:bold">---</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>RuntimeClass<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>node.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>kata-fc<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">handler</span>:<span style="color:#bbb"> </span>kata-fc<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">overhead</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">podFixed</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;120Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;250m&#34;</span><span style="color:#bbb">
+</span></code></pre></div><p><code>kata-fc</code> 런타임클래스 핸들러를 지정하는 워크로드는 리소스 쿼터 계산,
+노드 스케줄링 및 파드 cgroup 크기 조정을 위하여 메모리와 CPU 오버헤드를 고려한다.</p>
+<p>주어진 예제 워크로드 test-pod의 구동을 고려해보자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>test-pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">runtimeClassName</span>:<span style="color:#bbb"> </span>kata-fc<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>busybox-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>busybox<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">stdin</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tty</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>500m<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>100Mi<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx-ctr<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">limits</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>1500m<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>100Mi<span style="color:#bbb">
+</span></code></pre></div><p>어드미션 수행 시에, <a href="/docs/reference/access-authn-authz/admission-controllers/">어드미션 컨트롤러</a>는
+런타임클래스에 기술된 <code>overhead</code> 를 포함하기 위하여 워크로드의 PodSpec 항목을 갱신한다. 만약 PodSpec이 이미 해당 필드에 정의되어 있으면,
+파드는 거부된다. 주어진 예제에서, 오직 런타임클래스의 이름만이 정의되어 있기 때문에, 어드미션 컨트롤러는 파드가
+<code>overhead</code> 를 포함하도록 변경한다.</p>
+<p>런타임클래스의 어드미션 수행 후에, 파드의 스펙이 갱신된 것을 확인할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl get pod test-pod -o <span style="color:#b8860b">jsonpath</span><span style="color:#666">=</span><span style="color:#b44">&#39;{.spec.overhead}&#39;</span>
+</code></pre></div><p>명령 실행 결과는 다음과 같다.</p>
+<pre><code>map[cpu:250m memory:120Mi]
+</code></pre><p>만약 리소스쿼터 항목이 정의되어 있다면, 컨테이너의 리소스 요청의 합에는
+<code>overhead</code> 필드도 추가된다.</p>
+<p>kube-scheduler 는 어떤 노드에 파드가 기동 되어야 할지를 정할 때, 파드의 <code>overhead</code> 와
+해당 파드에 대한 컨테이너의 리소스 요청의 합을 고려한다. 이 예제에서, 스케줄러는
+리소스 요청과 파드의 오버헤드를 더하고, 2.25 CPU와 320 MiB 메모리가 사용 가능한 노드를 찾는다.</p>
+<p>일단 파드가 특정 노드에 스케줄링 되면, 해당 노드에 있는 kubelet 은 파드에 대한 새로운 <a class='glossary-tooltip' title='선택적으로 리소스를 격리, 관리, 제한하는 리눅스 프로세스의 그룹.' data-toggle='tooltip' data-placement='top' href='/ko/docs/reference/glossary/?all=true#term-cgroup' target='_blank' aria-label='cgroup'>cgroup</a>을 생성한다.
+기본 컨테이너 런타임이 만들어내는 컨테이너들은 이 파드 안에 존재한다.</p>
+<p>만약 각 컨테이너에 대하여 QoS가 보장되었거나 향상이 가능하도록 QoS 의 리소스 상한 제한이 걸려있으면,
+kubelet 은 해당 리소스(CPU의 경우 cpu.cfs_quota_us, 메모리의 경우 memory.limit_in_bytes)와 연관된 파드의
+cgroup 의 상한선을 설정한다. 이 상한선은 컨테이너 리소스 상한과 PodSpec에
+정의된 <code>overhead</code> 의 합에 기반한다.</p>
+<p>CPU의 경우, 만약 파드가 보장형 또는 버스트형 QoS로 설정되었으면, kubelet은 PodSpec에 정의된 <code>overhead</code> 에 컨테이너의
+리소스 요청의 합을 더한 값을 <code>cpu.shares</code> 로 설정한다.</p>
+<p>다음의 예제를 참고하여, 워크로드에 대하여 컨테이너의 리소스 요청을 확인하자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl get pod test-pod -o <span style="color:#b8860b">jsonpath</span><span style="color:#666">=</span><span style="color:#b44">&#39;{.spec.containers[*].resources.limits}&#39;</span>
+</code></pre></div><p>컨테이너 리소스 요청의 합은 각각 CPU 2000m 와 메모리 200MiB 이다.</p>
+<pre><code>map[cpu: 500m memory:100Mi] map[cpu:1500m memory:100Mi]
+</code></pre><p>노드에서 측정된 내용과 비교하여 확인해보자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl describe node | grep test-pod -B2
+</code></pre></div><p>CPU 2250m와 메모리 320MiB 가 리소스로 요청되었으며, 이 결과는 파드의 오버헤드를 포함한다.</p>
+<pre><code>  Namespace                   Name                CPU Requests  CPU Limits   Memory Requests  Memory Limits  AGE
+  ---------                   ----                ------------  ----------   ---------------  -------------  ---
+  default                     test-pod            2250m (56%)   2250m (56%)  320Mi (1%)       320Mi (1%)     36m
+</code></pre><h2 id="파드-cgroup-상한-확인하기">파드 cgroup 상한 확인하기</h2>
+<p>워크로드가 실행 중인 노드에서 파드의 메모리 cgroup들을 확인 해보자. 다음의 예제에서, <a href="https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md"><code>crictl</code></a>은 노드에서 사용되며,
+CRI-호환 컨테이너 런타임을 위해서 노드에서 사용할 수 있는 CLI 를 제공한다.
+파드의 오버헤드 동작을 보여주는 좋은 예이며,
+사용자가 노드에서 직접 cgroup들을 확인하지 않아도 된다.</p>
+<p>먼저 특정 노드에서 파드의 식별자를 확인해 보자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#080;font-style:italic"># 파드가 스케줄 된 노드에서 이것을 실행</span>
+<span style="color:#b8860b">POD_ID</span><span style="color:#666">=</span><span style="color:#b44">&#34;</span><span style="color:#a2f;font-weight:bold">$(</span>sudo crictl pods --name test-pod -q<span style="color:#a2f;font-weight:bold">)</span><span style="color:#b44">&#34;</span>
+</code></pre></div><p>여기에서, 파드의 cgroup 경로를 확인할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#080;font-style:italic"># 파드가 스케줄 된 노드에서 이것을 실행</span>
+sudo crictl inspectp -o<span style="color:#666">=</span>json <span style="color:#b8860b">$POD_ID</span> | grep cgroupsPath
+</code></pre></div><p>명령의 결과로 나온 cgroup 경로는 파드의 <code>pause</code> 컨테이너를 포함한다. 파드 레벨의 cgroup은 하나의 디렉터리이다.</p>
+<pre><code>        &quot;cgroupsPath&quot;: &quot;/kubepods/podd7f4b509-cf94-4951-9417-d1087c92a5b2/7ccf55aee35dd16aca4189c952d83487297f3cd760f1bbf09620e206e7d0c27a&quot;
+</code></pre><p>아래의 특정한 경우에, 파드 cgroup 경로는 <code>kubepods/podd7f4b509-cf94-4951-9417-d1087c92a5b2</code> 이다. 메모리의 파드 레벨 cgroup 설정을 확인하자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#080;font-style:italic"># 파드가 스케줄 된 노드에서 이것을 실행.</span>
+<span style="color:#080;font-style:italic"># 또한 사용자의 파드에 할당된 cgroup 이름에 맞춰 해당 이름을 수정.</span>
+ cat /sys/fs/cgroup/memory/kubepods/podd7f4b509-cf94-4951-9417-d1087c92a5b2/memory.limit_in_bytes
+</code></pre></div><p>예상대로 320 MiB 이다.</p>
+<pre><code>335544320
+</code></pre><h3 id="관찰성">관찰성</h3>
+<p><code>kube_pod_overhead</code> 항목은 <a href="https://github.com/kubernetes/kube-state-metrics">kube-state-metrics</a>
+에서 사용할 수 있어, 파드 오버헤드가 사용되는 시기를 식별하고,
+정의된 오버헤드로 실행되는 워크로드의 안정성을 관찰할 수 있다.
+이 기능은 kube-state-metrics 의 1.9 릴리스에서는 사용할 수 없지만, 다음 릴리스에서는 가능할 예정이다.
+그 전까지는 소스로부터 kube-state-metric 을 빌드해야 한다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/concepts/containers/runtime-class/">런타임클래스</a></li>
+<li><a href="https://github.com/kubernetes/enhancements/tree/master/keps/sig-node/688-pod-overhead">파드오버헤드 디자인</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-ede4960b56a3529ee0bfe7c8fe2d09a5">4 - 테인트(Taints)와 톨러레이션(Tolerations)</h1>
+    
+	<!-- overview -->
+<p><a href="/ko/docs/concepts/scheduling-eviction/assign-pod-node/#%EC%96%B4%ED%94%BC%EB%8B%88%ED%8B%B0-affinity-%EC%99%80-%EC%95%88%ED%8B%B0-%EC%96%B4%ED%94%BC%EB%8B%88%ED%8B%B0-anti-affinity"><em>노드 어피니티</em></a>는
+<a class='glossary-tooltip' title='노드는 쿠버네티스의 작업 장비(worker machine)이다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/architecture/nodes/' target='_blank' aria-label='노드'>노드</a> 셋을
+(기본 설정 또는 어려운 요구 사항으로) <em>끌어들이는</em> <a class='glossary-tooltip' title='파드는 클러스터에서 실행 중인 컨테이너의 집합을 나타낸다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/pods/' target='_blank' aria-label='파드'>파드</a>의 속성이다.
+<em>테인트</em> 는 그 반대로, 노드가 파드 셋을 제외할 수 있다.</p>
+<p><em>톨러레이션</em> 은 파드에 적용되며, 파드를 일치하는 테인트가 있는 노드에
+스케줄되게 하지만 필수는 아니다.</p>
+<p>테인트와 톨러레이션은 함께 작동하여 파드가 부적절한 노드에 스케줄되지
+않게 한다. 하나 이상의 테인트가 노드에 적용된다. 이것은
+노드가 테인트를 용인하지 않는 파드를 수용해서는 안 되는 것을 나타낸다.</p>
+<!-- body -->
+<h2 id="개요">개요</h2>
+<p><a href="/docs/reference/generated/kubectl/kubectl-commands#taint">kubectl taint</a>를 사용하여 노드에 테인트을 추가한다.
+예를 들면 다음과 같다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl taint nodes node1 <span style="color:#b8860b">key1</span><span style="color:#666">=</span>value1:NoSchedule
+</code></pre></div><p><code>node1</code> 노드에 테인트을 배치한다. 테인트에는 키 <code>key1</code>, 값 <code>value1</code> 및 테인트 이펙트(effect) <code>NoSchedule</code> 이 있다.
+이는 일치하는 톨러레이션이 없으면 파드를 <code>node1</code> 에 스케줄할 수 없음을 의미한다.</p>
+<p>위의 명령으로 추가한 테인트를 제거하려면, 다음을 실행한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl taint nodes node1 <span style="color:#b8860b">key1</span><span style="color:#666">=</span>value1:NoSchedule-
+</code></pre></div><p>PodSpec에서 파드에 대한 톨러레이션를 지정한다. 다음의 톨러레이션은
+위의 <code>kubectl taint</code> 라인에 의해 생성된 테인트와 &quot;일치&quot;하므로, 어느 쪽 톨러레이션을 가진 파드이던
+<code>node1</code> 에 스케줄 될 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;key1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Equal&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;value1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoSchedule&#34;</span><span style="color:#bbb">
+</span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;key1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Exists&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoSchedule&#34;</span><span style="color:#bbb">
+</span></code></pre></div><p>톨러레이션을 사용하는 파드의 예는 다음과 같다.</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/ko/examples/pods/pod-with-toleration.yaml" download="pods/pod-with-toleration.yaml"><code>pods/pod-with-toleration.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('pods-pod-with-toleration-yaml')" title="Copy pods/pod-with-toleration.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="pods-pod-with-toleration-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">env</span>:<span style="color:#bbb"> </span>test<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">imagePullPolicy</span>:<span style="color:#bbb"> </span>IfNotPresent<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;example-key&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Exists&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoSchedule&#34;</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<p>지정하지 않으면 <code>operator</code> 의 기본값은 <code>Equal</code> 이다.</p>
+<p>톨러레이션은 키가 동일하고 이펙트가 동일한 경우, 테인트와 &quot;일치&quot;한다. 그리고 다음의 경우에도 마찬가지다.</p>
+<ul>
+<li><code>operator</code> 가 <code>Exists</code> 인 경우(이 경우 <code>value</code> 를 지정하지 않아야 함), 또는</li>
+<li><code>operator</code> 는 <code>Equal</code> 이고 <code>value</code> 는 <code>value</code> 로 같다.</li>
+</ul>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>두 가지 특별한 경우가 있다.</p>
+<p>operator <code>Exists</code> 가 있는 비어있는 <code>key</code> 는 모든 키, 값 및 이펙트와 일치하므로
+모든 것이 톨러레이션 된다.</p>
+<p>비어있는 <code>effect</code> 는 모든 이펙트를 키 <code>key1</code> 와 일치시킨다.</p>
+
+</div>
+<p>위의 예는 <code>NoSchedule</code> 의 <code>effect</code> 를 사용했다. 또는, <code>PreferNoSchedule</code> 의 <code>effect</code> 를 사용할 수 있다.
+이것은 <code>NoSchedule</code> 의 &quot;기본 설정(preference)&quot; 또는 &quot;소프트(soft)&quot; 버전이다. 시스템은 노드의 테인트를 허용하지 않는
+파드를 배치하지 않으려고 <em>시도</em> 하지만, 필요하지는 않다. 세 번째 종류의 <code>effect</code> 는
+나중에 설명할 <code>NoExecute</code> 이다.</p>
+<p>동일한 노드에 여러 테인트를, 동일한 파드에 여러 톨러레이션을 둘 수 있다.
+쿠버네티스가 여러 테인트 및 톨러레이션을 처리하는 방식은 필터와 같다.
+모든 노드의 테인트로 시작한 다음, 파드에 일치하는 톨러레이션이 있는 것을 무시한다.
+무시되지 않은 나머지 테인트는 파드에 표시된 이펙트를 가진다. 특히,</p>
+<ul>
+<li><code>NoSchedule</code> 이펙트가 있는 무시되지 않은 테인트가 하나 이상 있으면 쿠버네티스는 해당 노드에
+파드를 스케줄하지 않는다.</li>
+<li><code>NoSchedule</code> 이펙트가 있는 무시되지 않은 테인트가 없지만 <code>PreferNoSchedule</code> 이펙트가 있는
+무시되지 않은 테인트가 하나 이상 있으면 쿠버네티스는 파드를 노드에 스케쥴하지 않으려고 <em>시도</em> 한다</li>
+<li><code>NoExecute</code> 이펙트가 있는 무시되지 않은 테인트가 하나 이상 있으면
+파드가 노드에서 축출되고(노드에서 이미 실행 중인 경우), 노드에서
+스케줄되지 않는다(아직 실행되지 않은 경우).</li>
+</ul>
+<p>예를 들어, 이와 같은 노드를 테인트하는 경우는 다음과 같다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl taint nodes node1 <span style="color:#b8860b">key1</span><span style="color:#666">=</span>value1:NoSchedule
+kubectl taint nodes node1 <span style="color:#b8860b">key1</span><span style="color:#666">=</span>value1:NoExecute
+kubectl taint nodes node1 <span style="color:#b8860b">key2</span><span style="color:#666">=</span>value2:NoSchedule
+</code></pre></div><p>그리고 파드에는 두 가지 톨러레이션이 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;key1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Equal&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;value1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoSchedule&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;key1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Equal&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;value1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoExecute&#34;</span><span style="color:#bbb">
+</span></code></pre></div><p>이 경우, 세 번째 테인트와 일치하는 톨러레이션이 없기 때문에, 파드는
+노드에 스케줄 될 수 없다. 그러나 세 번째 테인트가 파드에서 용인되지 않는 세 가지 중
+하나만 있기 때문에, 테인트가 추가될 때 노드에서 이미 실행 중인 경우,
+파드는 계속 실행할 수 있다.</p>
+<p>일반적으로, <code>NoExecute</code> 이펙트가 있는 테인트가 노드에 추가되면, 테인트를
+용인하지 않는 파드는 즉시 축출되고, 테인트를 용인하는 파드는
+축출되지 않는다. 그러나 <code>NoExecute</code> 이펙트가 있는 톨러레이션은
+테인트가 추가된 후 파드가 노드에 바인딩된 시간을 지정하는
+선택적 <code>tolerationSeconds</code> 필드를 지정할 수 있다. 예를 들어,</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;key1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Equal&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;value1&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoExecute&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">tolerationSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">3600</span><span style="color:#bbb">
+</span></code></pre></div><p>이것은 이 파드가 실행 중이고 일치하는 테인트가 노드에 추가되면,
+파드는 3600초 동안 노드에 바인딩된 후, 축출된다는 것을 의미한다. 그 전에
+테인트를 제거하면, 파드가 축출되지 않는다.</p>
+<h2 id="유스케이스-예시">유스케이스 예시</h2>
+<p>테인트 및 톨러레이션은 파드를 노드에서 <em>멀어지게</em> 하거나 실행되지 않아야 하는
+파드를 축출할 수 있는 유연한 방법이다. 유스케이스 중 일부는 다음과 같다.</p>
+<ul>
+<li>
+<p><strong>전용 노드</strong>: 특정 사용자들이 독점적으로 사용하도록
+노드 셋을 전용하려면, 해당 노드에 테인트를 추가(예:
+<code>kubectl taint nodes nodename dedicated=groupName:NoSchedule</code>)한 다음 해당
+톨러레이션을 그들의 파드에 추가할 수 있다(사용자 정의 [어드미션 컨트롤러]
+(/docs/reference/access-authn-authz/admission-controllers/)를 작성하면 가장 쉽게 수행할 수 있음).
+그런 다음 톨러레이션이 있는 파드는 테인트된(전용) 노드와
+클러스터의 다른 노드를 사용할 수 있다. 노드를 특정 사용자들에게 전용으로 지정하고 <em>그리고</em>
+그 사용자들이 전용 노드 <em>만</em> 사용하려면, 동일한 노드 셋에
+테인트와 유사한 레이블을 추가해야 하고(예: <code>dedicated=groupName</code>),
+어드미션 컨트롤러는 추가로 파드가 <code>dedicated=groupName</code> 으로 레이블이 지정된 노드에만
+스케줄될 수 있도록 노드 어피니티를 추가해야 한다.</p>
+</li>
+<li>
+<p><strong>특별한 하드웨어가 있는 노드</strong>: 작은 서브셋의 노드에 특별한
+하드웨어(예: GPU)가 있는 클러스터에서는, 특별한 하드웨어가 필요하지 않는 파드를
+해당 노드에서 분리하여, 나중에 도착하는 특별한 하드웨어가 필요한 파드를 위한 공간을
+남겨두는 것이 바람직하다. 이는 특별한 하드웨어가 있는
+노드(예: <code>kubectl taint nodes nodename special=true:NoSchedule</code> 또는
+<code>kubectl taint nodes nodename special=true:PreferNoSchedule</code>)에 테인트를 추가하고
+특별한 하드웨어를 사용하는 파드에 해당 톨러레이션을 추가하여 수행할 수 있다. 전용 노드 유스케이스에서와 같이,
+사용자 정의 <a href="/docs/reference/access-authn-authz/admission-controllers/">어드미션 컨트롤러</a>를
+사용하여 톨러레이션를 적용하는 것이 가장 쉬운 방법이다.
+예를 들어, <a href="/ko/docs/concepts/configuration/manage-resources-containers/#%ED%99%95%EC%9E%A5%EB%90%9C-%EB%A6%AC%EC%86%8C%EC%8A%A4">확장된
+리소스</a>를
+사용하여 특별한 하드웨어를 나타내고, 확장된 리소스 이름으로
+특별한 하드웨어 노드를 테인트시키고
+<a href="/docs/reference/access-authn-authz/admission-controllers/#extendedresourcetoleration">ExtendedResourceToleration</a>
+어드미션 컨트롤러를 실행하는 것을 권장한다. 이제, 노드가 테인트되었으므로, 톨러레이션이 없는
+파드는 스케줄되지 않는다. 그러나 확장된 리소스를 요청하는 파드를 제출하면,
+<code>ExtendedResourceToleration</code> 어드미션 컨트롤러가
+파드에 올바른 톨러레이션을 자동으로 추가하고 해당 파드는
+특별한 하드웨어 노드에서 스케줄된다. 이렇게 하면 이러한 특별한 하드웨어 노드가
+해당 하드웨어를 요청하는 파드가 전용으로 사용하며 파드에 톨러레이션을
+수동으로 추가할 필요가 없다.</p>
+</li>
+<li>
+<p><strong>테인트 기반 축출</strong>: 노드 문제가 있을 때 파드별로
+구성 가능한 축출 동작은 다음 섹션에서 설명한다.</p>
+</li>
+</ul>
+<h2 id="테인트-기반-축출">테인트 기반 축출</h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [stable]</code>
+</div>
+
+
+<p>앞에서 우리는 노드에서 이미 실행 중인 파드에 영향을 주는 <code>NoExecute</code> 테인트 이펙트를
+다음과 같이 언급했다.</p>
+<ul>
+<li>테인트를 용인하지 않는 파드는 즉시 축출된다.</li>
+<li>톨러레이션 명세에 <code>tolerationSeconds</code> 를 지정하지 않고
+테인트를 용인하는 파드는 계속 바인딩된다.</li>
+<li><code>tolerationSeconds</code> 가 지정된 테인트를 용인하는 파드는 지정된
+시간 동안 바인딩된 상태로 유지된다.</li>
+</ul>
+<p>노드 컨트롤러는 특정 컨디션이 참일 때 자동으로
+노드를 테인트시킨다. 다음은 빌트인 테인트이다.</p>
+<ul>
+<li><code>node.kubernetes.io/not-ready</code>: 노드가 준비되지 않았다. 이는 NodeCondition
+<code>Ready</code> 가 &quot;<code>False</code>&quot;로 됨에 해당한다.</li>
+<li><code>node.kubernetes.io/unreachable</code>: 노드가 노드 컨트롤러에서 도달할 수 없다. 이는
+NodeCondition <code>Ready</code> 가 &quot;<code>Unknown</code>&quot;로 됨에 해당한다.</li>
+<li><code>node.kubernetes.io/memory-pressure</code>: 노드에 메모리 할당 압박이 있다.</li>
+<li><code>node.kubernetes.io/disk-pressure</code>: 노드에 디스크 할당 압박이 있다.</li>
+<li><code>node.kubernetes.io/pid-pressure</code>: 노드에 PID 할당 압박이 있다.</li>
+<li><code>node.kubernetes.io/network-unavailable</code>: 노드의 네트워크를 사용할 수 없다.</li>
+<li><code>node.kubernetes.io/unschedulable</code>: 노드를 스케줄할 수 없다.</li>
+<li><code>node.cloudprovider.kubernetes.io/uninitialized</code>: &quot;외부&quot; 클라우드 공급자로
+kubelet을 시작하면, 이 테인트가 노드에서 사용 불가능으로 표시되도록
+설정된다. 클라우드-컨트롤러-관리자의 컨트롤러가 이 노드를 초기화하면,
+kubelet이 이 테인트를 제거한다.</li>
+</ul>
+<p>노드가 축출될 경우, 노드 컨트롤러 또는 kubelet은 <code>NoExecute</code> 이펙트로 관련
+테인트를 추가한다. 장애 상태가 정상으로 돌아오면 kubelet 또는 노드 컨트롤러가
+관련 테인트를 제거할 수 있다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 콘트롤 플레인은 노드에 새 테인트를 추가하는 비율을 제한한다.
+이 비율-제한은 많은 노드가 동시에 도달할 수 없을 때(예를 들어, 네트워크 중단으로)
+트리거될 축출 개수를 관리한다.
+</div>
+<p>이 기능을 <code>tolerationSeconds</code> 와 함께 사용하면, 파드에서
+이러한 문제 중 하나 또는 둘 다가 있는 노드에 바인딩된 기간을 지정할 수 있다.</p>
+<p>예를 들어, 로컬 상태가 많은 애플리케이션은 네트워크 분할의 장애에서
+네트워크가 복구된 후에 파드가 축출되는 것을 피하기 위해
+오랫동안 노드에 바인딩된 상태를 유지하려고 할 수 있다.
+이 경우 파드가 사용하는 톨러레이션은 다음과 같다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">tolerations</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">key</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;node.kubernetes.io/unreachable&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">operator</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;Exists&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">effect</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;NoExecute&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">tolerationSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">6000</span><span style="color:#bbb">
+</span></code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>쿠버네티스는 사용자나 컨트롤러에서 명시적으로 설정하지 않았다면, 자동으로
+<code>node.kubernetes.io/not-ready</code> 와 <code>node.kubernetes.io/unreachable</code> 에 대해
+<code>tolerationSeconds=300</code> 으로
+톨러레이션을 추가한다.</p>
+<p>자동으로 추가된 이 톨러레이션은 이러한 문제 중 하나가 감지된 후 5분 동안
+파드가 노드에 바인딩된 상태를 유지함을 의미한다.</p>
+
+</div>
+<p><a href="/ko/docs/concepts/workloads/controllers/daemonset/">데몬셋</a> 파드는 <code>tolerationSeconds</code> 가 없는
+다음 테인트에 대해 <code>NoExecute</code> 톨러레이션를 가지고 생성된다.</p>
+<ul>
+<li><code>node.kubernetes.io/unreachable</code></li>
+<li><code>node.kubernetes.io/not-ready</code></li>
+</ul>
+<p>이렇게 하면 이러한 문제로 인해 데몬셋 파드가 축출되지 않는다.</p>
+<h2 id="컨디션-condition-을-기준으로-노드-테인트하기">컨디션(condition)을 기준으로 노드 테인트하기</h2>
+<p>컨트롤 플레인은 노드 <a class='glossary-tooltip' title='API 서버를 통해 클러스터의 공유된 상태를 감시하고, 현재 상태를 원하는 상태로 이행시키는 컨트롤 루프.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/architecture/controller/' target='_blank' aria-label='컨트롤러'>컨트롤러</a>를 이용하여
+<a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/#node-conditions">노드 컨디션</a>에 대한 <code>NoSchedule</code> 효과를 사용하여 자동으로 테인트를 생성한다.</p>
+<p>스케줄러는 스케줄링 결정을 내릴 때 노드 컨디션을 확인하는 것이 아니라 테인트를 확인한다.
+이렇게 하면 노드 컨디션이 스케줄링에 직접적인 영향을 주지 않는다.
+예를 들어 <code>DiskPressure</code> 노드 컨디션이 활성화된 경우
+컨트롤 플레인은 <code>node.kubernetes.io/disk-pressure</code> 테인트를 추가하고 영향을 받는 노드에 새 파드를 할당하지 않는다.
+<code>MemoryPressure</code> 노드 컨디션이 활성화되면
+컨트롤 플레인이 <code>node.kubernetes.io/memory-pressure</code> 테인트를 추가한다.</p>
+<p>새로 생성된 파드에 파드 톨러레이션을 추가하여 노드 컨디션을 무시하도록 할 수 있다.
+또한 컨트롤 플레인은 <code>BestEffort</code> 이외의
+<a class='glossary-tooltip' title='QoS 클래스(서비스 품질 클래스)는 쿠버네티스가 클러스터 안의 파드들을 여러 클래스로 구분하고, 스케줄링과 축출(eviction)에 대한 결정을 내리는 방법을 제공한다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/reference/glossary/?all=true#term-qos-class' target='_blank' aria-label='QoS 클래스'>QoS 클래스</a>를 가지는 파드에
+<code>node.kubernetes.io/memory-pressure</code> 톨러레이션을 추가한다.
+이는 쿠버네티스가 <code>Guaranteed</code> 또는 <code>Burstable</code> QoS 클래스를 갖는 파드(메모리 요청이 설정되지 않은 파드 포함)를
+마치 그 파드들이 메모리 압박에 대처 가능한 것처럼 다루는 반면,
+새로운 <code>BestEffort</code> 파드는 영향을 받는 노드에 할당하지 않기 때문이다.</p>
+<p>데몬셋 컨트롤러는 다음의 <code>NoSchedule</code> 톨러레이션을
+모든 데몬에 자동으로 추가하여, 데몬셋이 중단되는 것을 방지한다.</p>
+<ul>
+<li><code>node.kubernetes.io/memory-pressure</code></li>
+<li><code>node.kubernetes.io/disk-pressure</code></li>
+<li><code>node.kubernetes.io/pid-pressure</code> (1.14 이상)</li>
+<li><code>node.kubernetes.io/unschedulable</code> (1.10 이상)</li>
+<li><code>node.kubernetes.io/network-unavailable</code> (<em>호스트 네트워크만 해당</em>)</li>
+</ul>
+<p>이러한 톨러레이션을 추가하면 이전 버전과의 호환성이 보장된다. 데몬셋에
+임의의 톨러레이션을 추가할 수도 있다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/">노드-압박(node-pressure) 축출</a>과 어떻게 구성하는지에 대해 알아보기</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-priority-preemption/">파드 우선순위</a>에 대해 알아보기</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-78e0431b4b7516092662a7c289cbb304">5 - 노드-압박 축출</h1>
+    
+	<p>노드-압박 축출은 <a class='glossary-tooltip' title='클러스터의 각 노드에서 실행되는 에이전트. Kubelet은 파드에서 컨테이너가 확실하게 동작하도록 관리한다.' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a>이 노드의 자원을 회수하기 위해
+파드를 능동적으로 중단시키는 절차이다.</br></p>
+<p><a class='glossary-tooltip' title='클러스터의 각 노드에서 실행되는 에이전트. Kubelet은 파드에서 컨테이너가 확실하게 동작하도록 관리한다.' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a>은
+클러스터 노드의 CPU, 메모리, 디스크 공간, 파일시스템 inode와 같은 자원을 모니터링한다.
+이러한 자원 중 하나 이상이 특정 소모 수준에 도달하면,
+kubelet은 하나 이상의 파드를 능동적으로 중단시켜
+자원을 회수하고 고갈 상황을 방지할 수 있다.</p>
+<p>노드-압박 축출 과정에서, kubelet은 축출할 파드의 <code>PodPhase</code>를
+<code>Failed</code>로 설정한다. 이로써 파드가 종료된다.</p>
+<p>노드-압박 축출은
+<a href="/ko/docs/concepts/scheduling-eviction/api-eviction/">API를 이용한 축출</a>과는 차이가 있다.</p>
+<p>kubelet은 이전에 설정된 <code>PodDisruptionBudget</code> 값이나 파드의 <code>terminationGracePeriodSeconds</code> 값을 따르지 않는다.
+<a href="#soft-eviction-thresholds">소프트 축출 임계값</a>을 사용하는 경우,
+kubelet은 이전에 설정된 <code>eviction-max-pod-grace-period</code> 값을 따른다.
+<a href="#hard-eviction-thresholds">하드 축출 임계값</a>을 사용하는 경우, 파드 종료 시 <code>0s</code> 만큼 기다린 후 종료한다(즉, 기다리지 않고 바로 종료한다).</p>
+<p>실패한 파드를 새로운 파드로 교체하는
+<a class='glossary-tooltip' title='워크로드는 클러스터의 컨테이너를 동작시키고 관리하기 위해 사용하는 오브젝트이다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/' target='_blank' aria-label='워크로드'>워크로드</a> 리소스(예:
+<a class='glossary-tooltip' title='내구성이 있는 스토리지와 파드별로 지속성 식별자를 사용해서 파드 집합의 디플로이먼트와 스케일링을 관리한다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/controllers/statefulset/' target='_blank' aria-label='스테이트풀셋(StatefulSet)'>스테이트풀셋(StatefulSet)</a> 또는
+<a class='glossary-tooltip' title='클러스터에서 복제된 애플리케이션을 관리한다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/concepts/workloads/controllers/deployment/' target='_blank' aria-label='디플로이먼트(Deployment)'>디플로이먼트(Deployment)</a>)가 파드를 관리하는 경우,
+컨트롤 플레인이나 <code>kube-controller-manager</code>가 축출된 파드를 대신할 새 파드를 생성한다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> kubelet은 최종 사용자 파드를 종료하기 전에
+먼저 <a href="#reclaim-node-resources">노드 수준 자원을 회수</a>하려고 시도한다.
+예를 들어, 디스크 자원이 부족하면 먼저 사용하지 않는 컨테이너 이미지를 제거한다.
+</div>
+<p>kubelet은 축출 결정을 내리기 위해 다음과 같은 다양한 파라미터를 사용한다.</p>
+<ul>
+<li>축출 신호</li>
+<li>축출 임계값</li>
+<li>모니터링 간격</li>
+</ul>
+<h3 id="eviction-signals">축출 신호</h3>
+<p>축출 신호는 특정 시점에서 특정 자원의 현재 상태이다.
+Kubelet은 노드에서 사용할 수 있는 리소스의 최소량인
+축출 임계값과 축출 신호를 비교하여
+축출 결정을 내린다.</p>
+<p>Kubelet은 다음과 같은 축출 신호를 사용한다.</p>
+<table>
+<thead>
+<tr>
+<th>축출 신호</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>memory.available</code></td>
+<td><code>memory.available</code> := <code>node.status.capacity[memory]</code> - <code>node.stats.memory.workingSet</code></td>
+</tr>
+<tr>
+<td><code>nodefs.available</code></td>
+<td><code>nodefs.available</code> := <code>node.stats.fs.available</code></td>
+</tr>
+<tr>
+<td><code>nodefs.inodesFree</code></td>
+<td><code>nodefs.inodesFree</code> := <code>node.stats.fs.inodesFree</code></td>
+</tr>
+<tr>
+<td><code>imagefs.available</code></td>
+<td><code>imagefs.available</code> := <code>node.stats.runtime.imagefs.available</code></td>
+</tr>
+<tr>
+<td><code>imagefs.inodesFree</code></td>
+<td><code>imagefs.inodesFree</code> := <code>node.stats.runtime.imagefs.inodesFree</code></td>
+</tr>
+<tr>
+<td><code>pid.available</code></td>
+<td><code>pid.available</code> := <code>node.stats.rlimit.maxpid</code> - <code>node.stats.rlimit.curproc</code></td>
+</tr>
+</tbody>
+</table>
+<p>이 표에서, <code>설명</code> 열은 kubelet이 축출 신호 값을 계산하는 방법을 나타낸다.
+각 축출 신호는 백분율 또는 숫자값을 지원한다.
+Kubelet은 총 용량 대비 축출 신호의 백분율 값을
+계산한다.</p>
+<p><code>memory.available</code> 값은 <code>free -m</code>과 같은 도구가 아니라 cgroupfs로부터 도출된다.
+이는 <code>free -m</code>이 컨테이너 안에서는 동작하지 않고, 또한 사용자가
+<a href="/docs/tasks/administer-cluster/reserve-compute-resources/#node-allocatable">node allocatable</a>
+기능을 사용하는 경우 자원 부족에 대한 결정은 루트 노드뿐만 아니라
+cgroup 계층 구조의 최종 사용자 파드 부분에서도 지역적으로 이루어지기 때문에 중요하다.
+이 <a href="/examples/admin/resource/memory-available.sh">스크립트</a>는
+kubelet이 <code>memory.available</code>을 계산하기 위해 수행하는 동일한 단계들을 재현한다.
+kubelet은 메모리 압박 상황에서 메모리가 회수 가능하다고 가정하므로,
+inactive_file(즉, 비활성 LRU 목록의 파일 기반 메모리 바이트 수)을
+계산에서 제외한다.</p>
+<p>kubelet은 다음과 같은 파일시스템 파티션을 지원한다.</p>
+<ol>
+<li><code>nodefs</code>: 노드의 메인 파일시스템이며, 로컬 디스크 볼륨, emptyDir,
+로그 스토리지 등에 사용된다. 예를 들어 <code>nodefs</code>는 <code>/var/lib/kubelet/</code>을 포함한다.</li>
+<li><code>imagefs</code>: 컨테이너 런타임이 컨테이너 이미지 및
+컨테이너 쓰기 가능 레이어를 저장하는 데 사용하는 선택적 파일시스템이다.</li>
+</ol>
+<p>Kubelet은 이러한 파일시스템을 자동으로 검색하고 다른 파일시스템은 무시한다.
+Kubelet은 다른 구성은 지원하지 않는다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 일부 kubelet 가비지 수집 기능은 더 이상 사용되지 않으며 축출로 대체되었다.
+사용 중지된 기능의 목록은 <a href="/ko/docs/concepts/architecture/garbage-collection/#containers-images">kubelet 가비지 수집 사용 중단</a>을 참조한다.
+</div>
+<h3 id="축출-임계값">축출 임계값</h3>
+<p>kubelet이 축출 결정을 내릴 때 사용하는 축출 임계값을
+사용자가 임의로 설정할 수 있다.</p>
+<p>축출 임계값은 <code>[eviction-signal][operator][quantity]</code> 형태를 갖는다.</p>
+<ul>
+<li><code>eviction-signal</code>에는 사용할 <a href="#eviction-signals">축출 신호</a>를 적는다.</li>
+<li><code>operator</code>에는 <a href="https://ko.wikipedia.org/wiki/%EA%B4%80%EA%B3%84%EC%97%B0%EC%82%B0%EC%9E%90#%ED%91%9C%EC%A4%80_%EA%B4%80%EA%B3%84%EC%97%B0%EC%82%B0%EC%9E%90">관계연산자</a>를
+적는다(예: <code>&lt;</code> - 미만)</li>
+<li><code>quantity</code>에는 <code>1Gi</code>와 같이 축출 임계값 수치를 적는다.
+<code>quantity</code>에 들어가는 값은 쿠버네티스가 사용하는 수치 표현 방식과 맞아야 한다.
+숫자값 또는 백분율(<code>%</code>)을 사용할 수 있다.</li>
+</ul>
+<p>예를 들어, 노드에 총 <code>10Gi</code>의 메모리가 있고
+<code>1Gi</code> 아래로 내려갔을 때 축출이 시작되도록 만들고 싶으면, 축출 임계값을
+<code>memory.available&lt;10%</code> 또는 <code>memory.available&lt;1Gi</code> 형태로 정할 수 있다. 둘을 동시에 사용할 수는 없다.</p>
+<p>소프트 축출 임계값과 하드 축출 임계값을 설정할 수 있다.</p>
+<h4 id="soft-eviction-thresholds">소프트 축출 임계값</h4>
+<p>소프트 축출 임계값은 관리자가 설정하는 유예 시간(필수)과 함께 정의된다.
+kubelet은 유예 시간이 초과될 때까지 파드를 제거하지 않는다.
+유예 시간이 지정되지 않으면 kubelet 시작 시
+오류가 반환된다.</p>
+<p>kubelet이 축출 과정에서 사용할 수 있도록,
+'소프트 축출 임계값'과 '최대 허용 파드 종료 유예 시간' 둘 다를 설정할 수 있다.
+'최대 허용 파드 종료 유예 시간'이 설정되어 있는 상태에서 '소프트 축출 임계값'에 도달하면,
+kubelet은 두 유예 시간 중 작은 쪽을 적용한다.
+'최대 허용 파드 종료 유예 시간'을 설정하지 않으면,
+kubelet은 축출된 파드를 유예 시간 없이 즉시 종료한다.</p>
+<p>소프트 축출 임계값을 설정할 때 다음과 같은 플래그를 사용할 수 있다.</p>
+<ul>
+<li><code>eviction-soft</code>: 축출 임계값(예: <code>memory.available&lt;1.5Gi</code>)의 집합이며,
+지정된 유예 시간동안 이 축출 임계값 조건이 충족되면 파드 축출이 트리거된다.</li>
+<li><code>eviction-soft-grace-period</code>: 축출 유예 시간의 집합이며,
+소프트 축출 임계값 조건이 이 유예 시간동안 충족되면 파드 축출이 트리거된다.</li>
+<li><code>eviction-max-pod-grace-period</code>: '최대 허용 파드 종료 유예 시간(단위: 초)'이며,
+소프트 축출 임계값 조건이 충족되어 파드를 종료할 때 사용한다.</li>
+</ul>
+<h4 id="hard-eviction-thresholds">하드 축출 임계값</h4>
+<p>하드 축출 임계값에는 유예 시간이 없다. 하드 축출 임계값 조건이 충족되면,
+kubelet은 고갈된 자원을 회수하기 위해 파드를 유예 시간 없이
+즉시 종료한다.</p>
+<p><code>eviction-hard</code> 플래그를 사용하여 하드 축출
+임계값(예: <code>memory.available&lt;1Gi</code>)을 설정할 수 있다.</p>
+<p>kubelet은 다음과 같은 하드 축출 임계값을 기본적으로 설정하고 있다.</p>
+<ul>
+<li><code>memory.available&lt;100Mi</code></li>
+<li><code>nodefs.available&lt;10%</code></li>
+<li><code>imagefs.available&lt;15%</code></li>
+<li><code>nodefs.inodesFree&lt;5%</code> (리눅스 노드)</li>
+</ul>
+<h3 id="축출-모니터링-시간-간격">축출 모니터링 시간 간격</h3>
+<p>kubelet은 <code>housekeeping-interval</code>에 설정된 시간 간격(기본값: <code>10s</code>)마다
+축출 임계값을 확인한다.</p>
+<h3 id="node-conditions">노드 컨디션</h3>
+<p>kubelet은 하드/소프트 축출 임계값 조건이 충족되어
+노드 압박이 발생했다는 것을 알리기 위해,
+설정된 유예 시간과는 관계없이 노드 컨디션을 보고한다.</p>
+<p>kubelet은 다음과 같이 노드 컨디션과 축출 신호를 매핑한다.</p>
+<table>
+<thead>
+<tr>
+<th>노드 컨디션</th>
+<th>축출 신호</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MemoryPressure</code></td>
+<td><code>memory.available</code></td>
+<td>노드의 가용 메모리 양이 축출 임계값에 도달함</td>
+</tr>
+<tr>
+<td><code>DiskPressure</code></td>
+<td><code>nodefs.available</code>, <code>nodefs.inodesFree</code>, <code>imagefs.available</code>, 또는 <code>imagefs.inodesFree</code></td>
+<td>노드의 루트 파일시스템 또는 이미지 파일시스템의 가용 디스크 공간 또는 inode의 수가 축출 임계값에 도달함</td>
+</tr>
+<tr>
+<td><code>PIDPressure</code></td>
+<td><code>pid.available</code></td>
+<td>(리눅스) 노드의 가용 프로세스 ID(PID)가 축출 임계값 이하로 내려옴</td>
+</tr>
+</tbody>
+</table>
+<p>kubelet은 <code>--node-status-update-frequency</code>에 설정된
+시간 간격(기본값: <code>10s</code>)마다 노드 컨디션을 업데이트한다.</p>
+<h4 id="노드-컨디션-진동-oscillation">노드 컨디션 진동(oscillation)</h4>
+<p>경우에 따라, 노드의 축출 신호값이 사전에 설정된 유예 시간 동안 유지되지 않고
+소프트 축출 임계값을 중심으로 진동할 수 있다. 이로 인해 노드 컨디션이 계속
+<code>true</code>와 <code>false</code>로 바뀌며, 잘못된 축출 결정을 야기할 수 있다.</p>
+<p>이러한 진동을 방지하기 위해, <code>eviction-pressure-transition-period</code> 플래그를
+사용하여 kubelet이 노드 컨디션을 다른 상태로 바꾸기 위해 기다려야 하는 시간을
+설정할 수 있다. 기본값은 <code>5m</code>이다.</p>
+<h3 id="reclaim-node-resources">노드-수준 자원 회수하기</h3>
+<p>kubelet은 최종 사용자 파드를 축출하기 전에 노드-수준 자원 회수를 시도한다.</p>
+<p><code>DiskPressure</code> 노드 컨디션이 보고되면,
+kubelet은 노드의 파일시스템을 기반으로 노드-수준 자원을 회수한다.</p>
+<h4 id="imagefs-가-있는-경우"><code>imagefs</code>가 있는 경우</h4>
+<p>컨테이너 런타임이 사용할 전용 <code>imagefs</code> 파일시스템이 노드에 있으면,
+kubelet은 다음 작업을 수행한다.</p>
+<ul>
+<li><code>nodefs</code> 파일시스템이 축출 임계값 조건을 충족하면,
+kubelet은 종료된 파드와 컨테이너에 대해 가비지 수집을 수행한다.</li>
+<li><code>imagefs</code> 파일시스템이 축출 임계값 조건을 충족하면,
+kubelet은 모든 사용중이지 않은 이미지를 삭제한다.</li>
+</ul>
+<h4 id="imagefs-가-없는-경우"><code>imagefs</code>가 없는 경우</h4>
+<p>노드에 <code>nodefs</code> 파일시스템만 있고 이것이 축출 임계값 조건을 충족한 경우,
+kubelet은 다음 순서로 디스크 공간을 확보한다.</p>
+<ol>
+<li>종료된 파드와 컨테이너에 대해 가비지 수집을 수행한다.</li>
+<li>사용중이지 않은 이미지를 삭제한다.</li>
+</ol>
+<h3 id="kubelet-축출을-위한-파드-선택">kubelet 축출을 위한 파드 선택</h3>
+<p>kubelet이 노드-수준 자원을 회수했음에도 축출 신호가 임계값 아래로 내려가지 않으면,
+kubelet은 최종 사용자 파드 축출을 시작한다.</p>
+<p>kubelet은 파드 축출 순서를 결정하기 위해 다음의 파라미터를 활용한다.</p>
+<ol>
+<li>파드의 자원 사용량이 요청량을 초과했는지 여부</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-priority-preemption/">파드 우선순위</a></li>
+<li>파드의 자원 요청량 대비 자원 사용량</li>
+</ol>
+<p>결과적으로, kubelet은 다음과 같은 순서로 파드의 축출 순서를 정하고 축출을 수행한다.</p>
+<ol>
+<li><code>BestEffort</code> 또는 <code>Burstable</code> 파드 중 자원 사용량이 요청량을 초과한 파드.
+이 파드들은 파드들의 우선순위, 그리고 자원 사용량이 요청량을
+얼마나 초과했는지에 따라 축출된다.</li>
+<li><code>Guaranteed</code>, <code>Burstable</code> 파드 중 자원 사용량이 요청량보다 낮은 파드는
+우선순위에 따라 후순위로 축출된다.</li>
+</ol>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> kubelet이 파드 축출 순서를 결정할 때 파드의 QoS 클래스는 이용하지 않는다.
+메모리 등의 자원을 회수할 때, QoS 클래스를 이용하여 가장 가능성이 높은 파드 축출 순서를 예측할 수는 있다.
+QoS는 EphemeralStorage 요청에 적용되지 않으므로,
+노드가 예를 들어 <code>DiskPressure</code> 아래에 있는 경우 위의 시나리오가 적용되지 않는다.
+</div>
+<p><code>Guaranteed</code> 파드는 모든 컨테이너에 대해 자원 요청량과 제한이 명시되고
+그 둘이 동일할 때에만 보장(guaranteed)된다. 다른 파드의 자원 사용으로 인해
+<code>Guaranteed</code> 파드가 축출되는 일은 발생하지 않는다. 만약 시스템 데몬(예:
+<code>kubelet</code>, <code>journald</code>)이 <code>system-reserved</code> 또는 <code>kube-reserved</code>
+할당을 통해 예약된 것보다 더 많은 자원을 소비하고, 노드에는 요청량보다 적은 양의
+자원을 사용하고 있는 <code>Guaranteed</code> / <code>Burstable</code> 파드만 존재한다면,
+kubelet은 노드 안정성을 유지하고 자원 고갈이 다른 파드에 미칠 영향을 통제하기 위해
+이러한 파드 중 하나를 골라 축출해야 한다.
+이 경우, 가장 낮은 <code>Priority</code>를 갖는 파드가 선택된다.</p>
+<p><code>inodes</code>와 <code>PIDs</code>에 대한 요청량은 정의하고 있지 않기 때문에, kubelet이 <code>inode</code>
+또는 <code>PID</code> 고갈 때문에 파드를 축출할 때에는 파드의 <code>Priority</code>를 이용하여 축출
+순위를 정한다.</p>
+<p>노드에 전용 <code>imagefs</code> 파일시스템이 있는지 여부에 따라 kubelet이 파드 축출 순서를
+정하는 방식에 차이가 있다.</p>
+<h4 id="imagefs-가-있는-경우-1"><code>imagefs</code>가 있는 경우</h4>
+<p><code>nodefs</code>로 인한 축출의 경우, kubelet은 <code>nodefs</code>
+사용량(<code>모든 컨테이너의 로컬 볼륨 + 로그</code>)을 기준으로 축출 순서를 정한다.</p>
+<p><code>imagefs</code>로 인한 축출의 경우, kubelet은 모든 컨테이너의
+쓰기 가능한 레이어(writable layer) 사용량을 기준으로 축출 순서를 정한다.</p>
+<h4 id="imagefs-가-없는-경우-1"><code>imagefs</code>가 없는 경우</h4>
+<p><code>nodefs</code>로 인한 축출의 경우, kubelet은 각 파드의 총
+디스크 사용량(<code>모든 컨테이너의 로컬 볼륨 + 로그 + 쓰기 가능한 레이어</code>)을 기준으로 축출 순서를 정한다.</p>
+<h3 id="최소-축출-회수량">최소 축출 회수량</h3>
+<p>경우에 따라, 파드를 축출했음에도 적은 양의 자원만이 회수될 수 있다.
+이로 인해 kubelet이 반복적으로 축출 임계값 도달을 감지하고
+여러 번의 축출을 수행할 수 있다.</p>
+<p><code>--eviction-minimum-reclaim</code> 플래그 또는
+<a href="/docs/tasks/administer-cluster/kubelet-config-file/">kubelet 설정 파일</a>을 이용하여
+각 자원에 대한 최소 회수량을 설정할 수 있다. kubelet이 자원 부족 상황을 감지하면,
+앞서 설정한 최소 회수량에 도달할때까지 회수를 계속 진행한다.</p>
+<p>예를 들어, 다음 YAML은 최소 회수량을 정의하고 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubelet.config.k8s.io/v1beta1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>KubeletConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">evictionHard</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">memory.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;500Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodefs.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;1Gi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">imagefs.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;100Gi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">evictionMinimumReclaim</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">memory.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;0Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">nodefs.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;500Mi&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">imagefs.available</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;2Gi&#34;</span><span style="color:#bbb">
+</span></code></pre></div><p>이 예제에서, 만약 <code>nodefs.available</code> 축출 신호가 축출 임계값 조건에 도달하면,
+kubelet은 축출 신호가 임계값인 <code>1Gi</code>에 도달할 때까지 자원을 회수하며,
+이어서 축출 신호가 <code>1.5Gi</code>에 도달할 때까지 최소 <code>500Mi</code> 이상의 자원을
+회수한다.</p>
+<p>유사한 방식으로, kubelet은 <code>imagefs.available</code> 축출 신호가
+<code>102Gi</code>에 도달할 때까지 <code>imagefs</code> 자원을 회수한다.</p>
+<p>모든 자원에 대해 <code>eviction-minimum-reclaim</code>의 기본값은 <code>0</code>이다.</p>
+<h3 id="노드-메모리-부족-시의-동작">노드 메모리 부족 시의 동작</h3>
+<p>kubelet의 메모리 회수가 가능하기 이전에
+노드에 메모리 부족(out of memory, 이하 OOM) 이벤트가 발생하면,
+노드는 <a href="https://lwn.net/Articles/391222/">oom_killer</a>에 의존한다.</p>
+<p>kubelet은 각 파드에 설정된 QoS를 기반으로 각 컨테이너에 <code>oom_score_adj</code> 값을 설정한다.</p>
+<table>
+<thead>
+<tr>
+<th>서비스 품질(Quality of Service)</th>
+<th>oom_score_adj</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Guaranteed</code></td>
+<td>-997</td>
+</tr>
+<tr>
+<td><code>BestEffort</code></td>
+<td>1000</td>
+</tr>
+<tr>
+<td><code>Burstable</code></td>
+<td>min(max(2, 1000 - (1000 * memoryRequestBytes) / machineMemoryCapacityBytes), 999)</td>
+</tr>
+</tbody>
+</table>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 또한, kubelet은 <code>system-node-critical</code> <a class='glossary-tooltip' title='Pod Priority indicates the importance of a Pod relative to other Pods.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority' target='_blank' aria-label='파드 우선 순위(Priority)'>파드 우선 순위(Priority)</a>를 갖는 파드의 컨테이너에
+<code>oom_score_adj</code> 값을 <code>-997</code>로 설정한다.
+</div>
+<p>노드가 OOM을 겪기 전에 kubelet이 메모리를 회수하지 못하면, <code>oom_killer</code>가 노드의
+메모리 사용률 백분율을 이용하여 <code>oom_score</code>를 계산하고, 각 컨테이너의 실질
+<code>oom_score</code>를 구하기 위해 <code>oom_score_adj</code>를 더한다. 그 뒤 <code>oom_score</code>가 가장 높은
+컨테이너부터 종료시킨다.</p>
+<p>이는 곧, 스케줄링 요청에 비해 많은 양의 메모리를 사용하면서
+QoS가 낮은 파드에 속한 컨테이너가 먼저 종료됨을 의미한다.</p>
+<p>파드 축출과 달리, 컨테이너가 OOM으로 인해 종료되면,
+<code>kubelet</code>이 컨테이너의 <code>RestartPolicy</code>를 기반으로 컨테이너를 다시 실행할 수 있다.</p>
+<h3 id="node-pressure-eviction-good-practices">추천 예시</h3>
+<p>아래 섹션에서 축출 설정에 대한 추천 예시를 소개한다.</p>
+<h4 id="스케줄-가능한-자원과-축출-정책">스케줄 가능한 자원과 축출 정책</h4>
+<p>kubelet에 축출 정책을 설정할 때, 만약 어떤 파드 배치가 즉시 메모리 압박을
+야기하기 때문에 축출을 유발한다면 스케줄러가 그 파드 배치를 수행하지 않도록
+설정해야 한다.</p>
+<p>다음 시나리오를 가정한다.</p>
+<ul>
+<li>노드 메모리 용량: <code>10Gi</code></li>
+<li>운영자는 시스템 데몬(커널, <code>kubelet</code> 등)을 위해 메모리 용량의 10%를 확보해 놓고 싶어 한다.</li>
+<li>운영자는 시스템 OOM 발생을 줄이기 위해 메모리 사용률이 95%인 상황에서 파드를 축출하고 싶어한다.</li>
+</ul>
+<p>이것이 실현되도록, kubelet이 다음과 같이 실행된다.</p>
+<pre><code>--eviction-hard=memory.available&lt;500Mi
+--system-reserved=memory=1.5Gi
+</code></pre><p>이 환경 설정에서, <code>--system-reserved</code> 플래그는 시스템 용으로 <code>1.5Gi</code> 메모리를
+확보하는데, 이는 <code>총 메모리의 10% + 축출 임계값</code>에 해당된다.</p>
+<p>파드가 요청량보다 많은 메모리를 사용하거나 시스템이 <code>1Gi</code> 이상의 메모리를
+사용하여, <code>memory.available</code> 축출 신호가 <code>500Mi</code> 아래로 내려가면 노드가 축출
+임계값에 도달할 수 있다.</p>
+<h4 id="데몬셋-daemonset">데몬셋(DaemonSet)</h4>
+<p>파드 우선 순위(Priority)는 파드 축출 결정을 내릴 때의 주요 요소이다.
+kubelet이 <code>DaemonSet</code>에 속하는 파드를 축출하지 않도록 하려면
+해당 파드의 파드 스펙에 충분히 높은 <code>priorityClass</code>를 지정한다.
+또는 낮은 <code>priorityClass</code>나 기본값을 사용하여
+리소스가 충분할 때만 <code>DaemonSet</code> 파드가 실행되도록 허용할 수도 있다.</p>
+<h3 id="알려진-이슈">알려진 이슈</h3>
+<p>다음 섹션에서는 리소스 부족 처리와 관련된 알려진 이슈에 대해 다룬다.</p>
+<h4 id="kubelet이-메모리-압박을-즉시-감지하지-못할-수-있음">kubelet이 메모리 압박을 즉시 감지하지 못할 수 있음</h4>
+<p>기본적으로 kubelet은 <code>cAdvisor</code>를 폴링하여
+일정한 간격으로 메모리 사용량 통계를 수집한다.
+해당 타임 윈도우 내에서 메모리 사용량이 빠르게 증가하면 kubelet이
+<code>MemoryPressure</code>를 충분히 빠르게 감지하지 못해 <code>OOMKiller</code>가 계속 호출될 수 있다.</p>
+<p><code>--kernel-memcg-notification</code> 플래그를 사용하여
+kubelet의 <code>memcg</code> 알림 API가 임계값을 초과할 때 즉시 알림을 받도록
+할 수 있다.</p>
+<p>사용률(utilization)을 극단적으로 높이려는 것이 아니라 오버커밋(overcommit)에 대한 합리적인 조치만 원하는 경우,
+이 문제에 대한 현실적인 해결 방법은 <code>--kube-reserved</code> 및
+<code>--system-reserved</code> 플래그를 사용하여 시스템에 메모리를 할당하는 것이다.</p>
+<h4 id="active-file-메모리가-사용-가능한-메모리로-간주되지-않음"><code>active_file</code> 메모리가 사용 가능한 메모리로 간주되지 않음</h4>
+<p>리눅스에서, 커널은 활성 LRU 목록의 파일 지원 메모리 바이트 수를 <code>active_file</code>
+통계로 추적한다. kubelet은 <code>active_file</code> 메모리 영역을 회수할 수 없는 것으로
+취급한다. 임시 로컬 스토리지를 포함하여 블록 지원 로컬 스토리지를 집중적으로
+사용하는 워크로드의 경우 파일 및 블록 데이터의 커널 수준 캐시는 최근에 액세스한
+많은 캐시 페이지가 <code>active_file</code>로 계산될 가능성이 있음을 의미한다. 활성 LRU
+목록에 이러한 커널 블록 버퍼가 충분히 많으면, kubelet은 이를 높은 자원 사용
+상태로 간주하고 노드가 메모리 압박을 겪고 있다고 테인트를 표시할 수 있으며, 이는
+파드 축출을 유발한다.</p>
+<p>더 자세한 사항은 <a href="https://github.com/kubernetes/kubernetes/issues/43916">https://github.com/kubernetes/kubernetes/issues/43916</a>를 참고한다.</p>
+<p>집중적인 I/O 작업을 수행할 가능성이 있는 컨테이너에 대해 메모리 제한량 및 메모리
+요청량을 동일하게 설정하여 이 문제를 해결할 수 있다. 해당 컨테이너에 대한 최적의
+메모리 제한량을 추정하거나 측정해야 한다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/api-eviction/">API를 이용한 축출</a>에 대해 알아본다.</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-priority-preemption/">파드 우선순위와 선점</a>에 대해 알아본다.</li>
+<li><a href="/docs/tasks/run-application/configure-pdb/">PodDisruptionBudgets</a>에 대해 알아본다.</li>
+<li><a href="/ko/docs/tasks/configure-pod-container/quality-service-pod/">서비스 품질</a>(QoS)에 대해 알아본다.</li>
+<li><a href="/docs/reference/generated/kubernetes-api/v1.23/#create-eviction-pod-v1-core">축출 API</a>를 확인한다.</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-b87723bf81b079042860f0ebd37b0a64">6 - API를 이용한 축출(Eviction)</h1>
+    
+	<p>API를 이용한 축출은 <a href="/docs/reference/generated/kubernetes-api/v1.23/#create-eviction-pod-v1-core">축출 API</a>를 사용하여
+생성된 <code>Eviction</code> 오브젝트로 파드를 정상 종료한다. </br></p>
+<p><code>kubectl drain</code> 명령과 같은 kube-apiserver의 클라이언트를 사용하여,
+축출 API를 직접 호출해 축출 요청을 할 수 있다.
+그러면 API 서버가 파드를 종료하는 <code>Eviction</code> 오브젝트가 생성된다.</p>
+<p>API를 이용한 축출은 구성된 <a href="/docs/tasks/run-application/configure-pdb/"><code>PodDisruptionBudgets</code></a> 및 <a href="/ko/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination"><code>terminationGracePeriodSeconds</code></a>를 준수한다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/">노드-압박 축출</a>에 대해 더 배우기</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/pod-priority-preemption/">파드 우선순위와 선점</a>에 대해 더 배우기</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-60e5a2861609e0848d58ce8bf99c4a31">7 - 파드 우선순위(priority)와 선점(preemption)</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.14 [stable]</code>
+</div>
+
+
+<p><a href="/ko/docs/concepts/workloads/pods/">파드</a>는 <em>우선순위</em> 를 가질 수 있다. 우선순위는
+다른 파드에 대한 상대적인 파드의 중요성을 나타낸다. 파드를 스케줄링할 수 없는 경우,
+스케줄러는 우선순위가 낮은 파드를 선점(축출)하여 보류 중인 파드를
+스케줄링할 수 있게 한다.</p>
+<!-- body -->
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>경고:</strong> <p>모든 사용자를 신뢰할 수 없는 클러스터에서, 악의적인 사용자가 우선순위가
+가장 높은 파드를 생성하여 다른 파드가 축출되거나 스케줄링되지
+않을 수 있다.
+관리자는 리소스쿼터를 사용하여 사용자가 우선순위가 높은 파드를 생성하지
+못하게 할 수 있다.</p>
+<p>자세한 내용은 <a href="/ko/docs/concepts/policy/resource-quotas/#%EA%B8%B0%EB%B3%B8%EC%A0%81%EC%9C%BC%EB%A1%9C-%EC%9A%B0%EC%84%A0-%EC%88%9C%EC%9C%84-%ED%81%B4%EB%9E%98%EC%8A%A4-%EC%86%8C%EB%B9%84-%EC%A0%9C%ED%95%9C">기본적으로 프라이어리티클래스(Priority Class) 소비 제한</a>을
+참고한다.</p>
+
+</div>
+
+
+<h2 id="우선순위와-선점을-사용하는-방법">우선순위와 선점을 사용하는 방법</h2>
+<p>우선순위와 선점을 사용하려면 다음을 참고한다.</p>
+<ol>
+<li>
+<p>하나 이상의 <a href="#%ED%94%84%EB%9D%BC%EC%9D%B4%EC%96%B4%EB%A6%AC%ED%8B%B0%ED%81%B4%EB%9E%98%EC%8A%A4">프라이어리티클래스</a>를 추가한다.</p>
+</li>
+<li>
+<p>추가된 프라이어리티클래스 중 하나에 <a href="#%ED%8C%8C%EB%93%9C-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84"><code>priorityClassName</code></a>이 설정된
+파드를 생성한다. 물론 파드를 직접 생성할 필요는 없다.
+일반적으로 디플로이먼트와 같은 컬렉션 오브젝트의 파드 템플릿에 <code>priorityClassName</code>
+을 추가한다.</p>
+</li>
+</ol>
+<p>이 단계에 대한 자세한 내용은 계속 읽어보자.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 쿠버네티스는 이미 <code>system-cluster-critical</code> 과 <code>system-node-critical</code>,
+두 개의 프라이어리티클래스를 제공한다.
+이들은 일반적인 클래스이며 <a href="/ko/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/">중요한(critical) 컴포넌트가 항상 먼저 스케줄링이 되도록 하는 데</a> 사용된다.
+</div>
+<h2 id="프라이어리티클래스">프라이어리티클래스</h2>
+<p>프라이어리티클래스는 프라이어리티클래스 이름에서 우선순위의 정수 값으로의 매핑을
+정의하는 네임스페이스가 아닌(non-namespaced) 오브젝트이다. 이름은
+프라이어리티클래스 오브젝트의 메타데이터의 <code>name</code> 필드에 지정된다. 값은
+필수 <code>value</code> 필드에 지정되어 있다. 값이 클수록, 우선순위가
+높다.
+프라이어리티클래스 오브젝트의 이름은 유효한
+<a href="/ko/docs/concepts/overview/working-with-objects/names/#dns-%EC%84%9C%EB%B8%8C%EB%8F%84%EB%A9%94%EC%9D%B8-%EC%9D%B4%EB%A6%84">DNS 서브 도메인 이름</a>이어야 하며,
+<code>system-</code> 접두사를 붙일 수 없다.</p>
+<p>프라이어리티클래스 오브젝트는 10억 이하의 32비트 정수 값을 가질
+수 있다. 일반적으로 선점하거나 축출해서는 안되는 중요한 시스템 파드에는 더 큰 숫자가
+예약되어 있다. 클러스터 관리자는 원하는 각 매핑에 대해 프라이어리티클래스 오브젝트를
+하나씩 생성해야 한다.</p>
+<p>프라이어리티클래스에는 <code>globalDefault</code> 와 <code>description</code> 두 개의 선택적인 필드도 있다.
+<code>globalDefault</code> 필드는 이 프라이어리티클래스의 값을 <code>priorityClassName</code> 이 없는
+파드에 사용해야 함을 나타낸다. 시스템에서 <code>globalDefault</code> 가 <code>true</code> 로 설정된
+프라이어리티클래스는 하나만 존재할 수 있다. <code>globalDefault</code> 가 설정된
+프라이어리티클래스가 없을 경우, <code>priorityClassName</code> 이 없는 파드의
+우선순위는 0이다.</p>
+<p><code>description</code> 필드는 임의의 문자열이다. 이 필드는 이 프라이어리티클래스를 언제
+사용해야 하는지를 클러스터 사용자에게 알려주기 위한 것이다.</p>
+<h3 id="podpriority와-기존-클러스터에-대한-참고-사항">PodPriority와 기존 클러스터에 대한 참고 사항</h3>
+<ul>
+<li>
+<p>이 기능없이 기존 클러스터를 업그레이드 하는 경우, 기존 파드의
+우선순위는 사실상 0이다.</p>
+</li>
+<li>
+<p><code>globalDefault</code> 가 <code>true</code> 로 설정된 프라이어리티클래스를 추가해도 기존 파드의
+우선순위는 변경되지 않는다. 이러한 프라이어리티클래스의 값은
+프라이어리티클래스를 추가한 후 생성된 파드에만 사용된다.</p>
+</li>
+<li>
+<p>프라이어리티클래스를 삭제하면, 삭제된 프라이어리티클래스의 이름을 사용하는
+기존 파드는 변경되지 않고 남아있지만, 삭제된 프라이어리티클래스의 이름을
+사용하는 파드는 더 이상 생성할 수 없다.</p>
+</li>
+</ul>
+<h3 id="프라이어리티클래스-예제">프라이어리티클래스 예제</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>scheduling.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>PriorityClass<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>high-priority<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#666">1000000</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">globalDefault</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">false</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">description</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;이 프라이어리티클래스는 XYZ 서비스 파드에만 사용해야 한다.&#34;</span><span style="color:#bbb">
+</span></code></pre></div><h2 id="non-preempting-priority-class">비-선점 프라이어리티클래스</h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.19 [beta]</code>
+</div>
+
+
+<p><code>preemptionPolicy: Never</code> 를 가진 파드는 낮은 우선순위 파드의 스케줄링 대기열의
+앞쪽에 배치되지만,
+그 파드는 다른 파드를 축출할 수 없다.
+스케줄링 대기 중인 비-선점 파드는 충분한 리소스가 확보되고
+스케줄링될 수 있을 때까지
+스케줄링 대기열에 대기한다.
+다른 파드와 마찬가지로,
+비-선점 파드는
+스케줄러 백오프(back-off)에 종속된다.
+이는 스케줄러가 이러한 파드를 스케줄링하려고 시도하고 스케줄링할 수 없는 경우,
+더 적은 횟수로 재시도하여,
+우선순위가 낮은 다른 파드를 미리 스케줄링할 수 있음을 의미한다.</p>
+<p>비-선점 파드는 다른 우선순위가 높은 파드에 의해
+축출될 수 있다.</p>
+<p><code>preemptionPolicy</code> 는 기본값으로 <code>PreemptLowerPriority</code> 로 설정되어,
+해당 프라이어리티클래스의 파드가 우선순위가 낮은 파드를 축출할 수
+있다(기존의 기본 동작과 동일).
+<code>preemptionPolicy</code> 가 <code>Never</code> 로 설정된 경우,
+해당 프라이어리티클래스의 파드는 비-선점될 것이다.</p>
+<p>예제 유스케이스는 데이터 과학 관련 워크로드이다.
+사용자는 다른 워크로드보다 우선순위가 높은 잡(job)을 제출할 수 있지만,
+실행 중인 파드를 축출하여 기존의 작업을 삭제하지는 않을 것이다.
+클러스터 리소스가 &quot;자연스럽게&quot; 충분히 사용할 수 있게 되면,
+<code>preemptionPolicy: Never</code> 의 우선순위가 높은 잡이
+다른 대기 중인 파드보다 먼저 스케줄링된다.</p>
+<h3 id="비-선점-프라이어리티클래스-예제">비-선점 프라이어리티클래스 예제</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>scheduling.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>PriorityClass<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>high-priority-nonpreempting<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#666">1000000</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">preemptionPolicy</span>:<span style="color:#bbb"> </span>Never<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">globalDefault</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">false</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">description</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;이 프라이어리티클래스는 다른 파드를 축출하지 않는다.&#34;</span><span style="color:#bbb">
+</span></code></pre></div><h2 id="파드-우선순위">파드 우선순위</h2>
+<p>프라이어리티클래스가 하나 이상 있으면, 그것의 명세에서 이들 프라이어리티클래스 이름 중 하나를
+지정하는 파드를 생성할 수 있다. 우선순위 어드미션
+컨트롤러는 <code>priorityClassName</code> 필드를 사용하고 우선순위의 정수 값을
+채운다. 프라이어리티클래스를 찾을 수 없으면, 파드가 거부된다.</p>
+<p>다음의 YAML은 이전 예제에서 생성된 프라이어리티클래스를
+사용하는 파드 구성의 예이다. 우선순위 어드미션 컨트롤러는
+명세를 확인하고 파드의 우선순위를 1000000으로
+해석한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Pod<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">env</span>:<span style="color:#bbb"> </span>test<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>nginx<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">imagePullPolicy</span>:<span style="color:#bbb"> </span>IfNotPresent<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">priorityClassName</span>:<span style="color:#bbb"> </span>high-priority<span style="color:#bbb">
+</span></code></pre></div><h3 id="스케줄링-순서에-대한-파드-우선순위의-영향">스케줄링 순서에 대한 파드 우선순위의 영향</h3>
+<p>파드 우선순위가 활성화되면, 스케줄러가 우선순위에 따라 보류 중인
+파드를 주문하고 보류 중인 파드는 스케줄링 대기열에서
+우선순위가 낮은 다른 보류 중인 파드보다 우선한다. 결과적으로, 스케줄링
+요구 사항이 충족되는 경우 우선순위가 더 낮은 파드보다 우선순위가 높은 파드가
+더 빨리 스케줄링될 수 있다. 이러한 파드를 스케줄링할 수 없는 경우,
+스케줄러는 계속 진행하고 우선순위가 낮은 다른 파드를 스케줄링하려고 한다.</p>
+<h2 id="선점">선점</h2>
+<p>파드가 생성되면, 대기열로 이동하여 스케줄링을 기다린다.
+스케줄러가 대기열에서 파드를 선택하여 노드에 스케줄링하려고 한다.
+파드의 지정된 모든 요구 사항을 충족하는 노드가 없으면,
+보류 중인 파드에 대해 선점 로직이 트리거된다. 보류 중인 파드를 P라 하자.
+선점 로직은 P보다 우선순위가 낮은 하나 이상의 파드를 제거하면
+해당 노드에서 P를 스케줄링할 수 있는 노드를 찾는다. 이러한
+노드가 발견되면, 하나 이상의 우선순위가 낮은 파드가 노드에서 축출된다.
+파드가 축출된 후, P는 노드에 스케줄링될 수 있다.</p>
+<h3 id="사용자-노출-정보">사용자 노출 정보</h3>
+<p>파드 P가 노드 N에서 하나 이상의 파드를 축출할 경우, 파드 P의 상태 <code>nominatedNodeName</code>
+필드는 노드 N의 이름으로 설정된다. 이 필드는 스케줄러가 파드 P에
+예약된 리소스를 추적하는 데 도움이 되고 사용자에게 클러스터의 선점에 대한
+정보를 제공한다.</p>
+<p>파드 P는 반드시 &quot;지정된 노드&quot;로 스케줄링되지는 않는다.
+피해자 파드가 축출된 후, 그것은 정상적(graceful)으로 종료되는 기간을 갖는다.
+스케줄러가 종료될 피해자 파드를 기다리는 동안 다른 노드를 사용할 수
+있게 되면, 스케줄러는 파드 P를 스케줄링하기 위해 다른 노드를 사용한다. 그 결과,
+파드 스펙의 <code>nominatedNodeName</code> 과 <code>nodeName</code> 은 항상 동일하지 않다. 또한,
+스케줄러가 노드 N에서 파드를 축출했지만, 파드 P보다 우선순위가 높은 파드가
+도착하면, 스케줄러가 노드 N에 새로운 우선순위가 높은 파드를 제공할 수 있다. 이러한
+경우, 스케줄러는 파드 P의 <code>nominatedNodeName</code> 을 지운다. 이렇게하면, 스케줄러는
+파드 P가 다른 노드에서 파드를 축출할 수 있도록 한다.</p>
+<h3 id="선점의-한계">선점의 한계</h3>
+<h4 id="선점-피해자의-정상적인-종료">선점 피해자의 정상적인 종료</h4>
+<p>파드가 축출되면, 축출된 피해자 파드는
+<a href="/ko/docs/concepts/workloads/pods/pod-lifecycle/#%ED%8C%8C%EB%93%9C%EC%9D%98-%EC%A2%85%EB%A3%8C">정상적인 종료 기간</a>을 가진다.
+피해자 파드는 작업을 종료하고 빠져나가는 데(exit) 많은 시간을 가진다. 그렇지 않으면,
+파드는 강제종료(kill) 된다. 이 정상적인 종료 기간은 스케줄러가 파드를 축출하는
+지점과 보류 중인 파드(P)를 노드(N)에서 스케줄링할 수 있는 시점 사이의
+시간 간격을 만든다. 그 동안, 스케줄러는 보류 중인 다른 파드를
+계속 스케줄링한다. 피해자 파드가 빠져나가거나 종료되면, 스케줄러는 보류 대기열에서
+파드를 스케줄하려고 한다. 따라서, 일반적으로 스케줄러가 피해자 파드를 축출하는 시점과
+파드 P가 스케줄링된 시점 사이에 시간 간격이 있다.
+이러한 차이를 최소화하기 위해, 우선순위가 낮은 파드의 정상적인 종료 기간을 0 또는
+작은 수로 설정할 수 있다.</p>
+<h4 id="poddisruptionbudget을-지원하지만-보장하지-않음">PodDisruptionBudget을 지원하지만, 보장하지 않음</h4>
+<p><a href="/ko/docs/concepts/workloads/pods/disruptions/">Pod Disruption Budget</a>(PDB)은
+애플리케이션 소유자가 자발적 중단에서 동시에 다운된 복제된
+애플리케이션의 파드 수를 제한할 수 있다. 쿠버네티스는 파드를
+선점할 때 PDB를 지원하지만, PDB를 따르는 것이 최선의 노력이다. 스케줄러는
+선점에 의해 PDB를 위반하지 않은 피해자 파드를 찾으려고 하지만, 그러한 피해자 파드가
+발견되지 않으면, 선점은 여전히 발생하며, PDB를 위반하더라도 우선순위가
+낮은 파드는 제거된다.</p>
+<h4 id="우선순위가-낮은-파드에-대한-파드-간-어피니티">우선순위가 낮은 파드에 대한 파드-간 어피니티</h4>
+<p>이 질문에 대한 답변이 '예'인 경우에만 노드가 선점 대상으로 간주된다.
+&quot;대기 중인 파드보다 우선순위가 낮은 모든 파드가 노드에서
+제거되면, 보류 중인 파드를 노드에 스케줄링할 수 있습니까?&quot;</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 선점으로 우선순위가 낮은 모든 파드를 반드시 제거할 필요는
+없다. 우선순위가 낮은 모든 파드보다 적은 수를 제거하여 보류 중인 파드를
+스케줄링할 수 있는 경우, 우선순위가 낮은 파드의 일부만 제거된다.
+그럼에도 불구하고, 앞의 질문에 대한 대답은 '예'여야 한다. 답변이 '아니오'인 경우,
+노드가 선점 대상으로 간주되지 않는다.
+</div>
+<p>보류 중인 파드가 노드에 있는 하나 이상의 우선순위가 낮은 파드에 대한 파드-간 어피니티를
+가진 경우에, 우선순위가 낮은 파드가 없을 때 파드-간 어피니티 규칙을
+충족할 수 없다. 이 경우, 스케줄러는 노드의 파드를 축출하지
+않는다. 대신, 다른 노드를 찾는다. 스케줄러가
+적합한 노드를 찾거나 찾지 못할 수 있다. 보류 중인 파드를 스케줄링할 수 있다는
+보장은 없다.</p>
+<p>이 문제에 대한 권장 솔루션은 우선순위가 같거나 높은 파드에 대해서만 파드-간 어피니티를
+생성하는 것이다.</p>
+<h4 id="교차-노드-선점">교차 노드 선점</h4>
+<p>보류 중인 파드 P가 노드 N에 스케줄링될 수 있도록 노드 N이 선점 대상으로 고려되고
+있다고 가정한다. 다른 노드의 파드가 축출된 경우에만 P가 N에서 실행 가능해질 수
+있다. 예를 들면 다음과 같다.</p>
+<ul>
+<li>파드 P는 노드 N에 대해 고려된다.</li>
+<li>파드 Q는 노드 N과 동일한 영역의 다른 노드에서 실행 중이다.</li>
+<li>파드 P는 파드 Q(<code>topologyKey: topology.kubernetes.io/zone</code>)와 영역(zone) 전체의 안티-어피니티를 갖는다.</li>
+<li>영역에서 파드 P와 다른 파드 간의 안티-어피니티에 대한 다른 경우는
+없다.</li>
+<li>노드 N에서 파드 P를 스케줄링하기 위해, 파드 Q를 축출할 수 있지만, 스케줄러는
+교차-노드 선점을 수행하지 않는다. 따라서, 파드 P가 노드 N에서
+스케줄링할 수 없는 것으로 간주된다.</li>
+</ul>
+<p>파드 Q가 노드에서 제거되면, 파드 안티-어피니티 위반이
+사라지고, 파드 P는 노드 N에서 스케줄링될 수 있다.</p>
+<p>수요가 충분하고 합리적인 성능의 알고리즘을 찾을 경우
+향후 버전에서 교차 노드 선점의 추가를 고려할 수 있다.</p>
+<h2 id="문제-해결">문제 해결</h2>
+<p>파드 우선순위와 선점은 원하지 않는 부작용을 가질 수 있다. 다음은
+잠재적 문제의 예시와 이를 해결하는 방법이다.</p>
+<h3 id="파드가-불필요하게-선점-축출-됨">파드가 불필요하게 선점(축출)됨</h3>
+<p>선점은 우선순위가 높은 보류 중인 파드를 위한 공간을 만들기 위해 리소스 압박을 받고 있는
+클러스터에서 기존 파드를 제거한다. 실수로 특정 파드에 높은 우선순위를
+부여하면, 의도하지 않은 높은 우선순위 파드가 클러스터에서
+선점을 유발할 수 있다. 파드 우선순위는 파드 명세에서
+<code>priorityClassName</code> 필드를 설정하여 지정한다. 그런 다음
+우선순위의 정수 값이 분석되어 <code>podSpec</code> 의 <code>priority</code> 필드에 채워진다.</p>
+<p>문제를 해결하기 위해, 해당 파드가 우선순위가 낮은 클래스를 사용하도록 <code>priorityClassName</code> 을
+변경하거나, 해당 필드를 비워둘 수 있다. 빈
+<code>priorityClassName</code> 은 기본값이 0으로 해석된다.</p>
+<p>파드가 축출되면, 축출된 파드에 대한 이벤트가 기록된다.
+선점은 클러스터가 파드에 대한 리소스를 충분히 가지지 못한 경우에만
+발생한다. 이러한 경우, 선점은 보류 중인 파드(선점자)의 우선순위가
+피해자 파드보다 높은 경우에만 발생한다. 보류 중인 파드가 없거나,
+보류 중인 파드의 우선순위가 피해자 파드와 같거나 낮은 경우
+선점이 발생하지 않아야 한다. 그러한 시나리오에서 선점이 발생하면, 이슈를 올리기 바란다.</p>
+<h3 id="파드가-축출되었지만-선점자는-스케줄링되지-않음">파드가 축출되었지만, 선점자는 스케줄링되지 않음</h3>
+<p>파드가 축출되면, 요청된 정상적인 종료
+기간(기본적으로 30초)이 주어진다. 이 기간 내에 대상 파드가
+종료되지 않으면, 강제 종료된다. 모든 피해자 파드가 사라지면,
+선점자 파드를 스케줄링할 수 있다.</p>
+<p>선점자 파드가 피해자 파드가 없어지기를 기다리는 동안, 동일한 노드에
+적합한 우선순위가 높은 파드가 생성될 수 있다. 이 경우, 스케줄러는
+선점자 대신 우선순위가 높은 파드를 스케줄링한다.</p>
+<p>이것은 예상된 동작이다. 우선순위가 높은 파드는 우선순위가 낮은 파드를
+대체해야 한다.</p>
+<h3 id="우선순위가-높은-파드는-우선순위가-낮은-파드보다-우선함">우선순위가 높은 파드는 우선순위가 낮은 파드보다 우선함</h3>
+<p>스케줄러가 보류 중인 파드를 실행할 수 있는 노드를 찾으려고 한다. 노드를 찾지
+못하면, 스케줄러는 임의의 노드에서 우선순위가 낮은 파드를 제거하여
+보류 중인 파드를 위한 공간을 만든다.
+우선순위가 낮은 파드가 있는 노드가 보류 중인 파드를 실행할 수 없는 경우, 스케줄러는
+선점을 위해 우선순위가 높은 다른 노드(다른 노드의 파드와 비교)를
+선택할 수 있다. 피해자 파드는 여전히 선점자 파드보다 우선순위가
+낮아야 한다.</p>
+<p>선점할 수 있는 여러 노드가 있는 경우, 스케줄러는
+우선순위가 가장 낮은 파드 세트를 가진 노드를 선택하려고 한다. 그러나,
+이러한 파드가 위반될 PodDisruptionBudget을 가지고 있고 축출된 경우
+스케줄러는 우선순위가 높은 파드를 가진 다른 노드를 선택할 수 있다.</p>
+<p>선점을 위해 여러 개의 노드가 존재하고 위의 시나리오 중 어느 것도 적용되지 않는 경우,
+스케줄러는 우선순위가 가장 낮은 노드를 선택한다.</p>
+<h2 id="interactions-of-pod-priority-and-qos">파드 우선순위와 서비스 품질 간의 상호 작용</h2>
+<p>파드 우선순위와 <a class='glossary-tooltip' title='QoS 클래스(서비스 품질 클래스)는 쿠버네티스가 클러스터 안의 파드들을 여러 클래스로 구분하고, 스케줄링과 축출(eviction)에 대한 결정을 내리는 방법을 제공한다.' data-toggle='tooltip' data-placement='top' href='/ko/docs/reference/glossary/?all=true#term-qos-class' target='_blank' aria-label='QoS 클래스'>QoS 클래스</a>는
+상호 작용이 거의 없고 QoS 클래스를 기반으로 파드 우선순위를 설정하는 데 대한
+기본 제한이 없는 두 개의 직교(orthogonal) 기능이다. 스케줄러의
+선점 로직은 선점 대상을 선택할 때 QoS를 고려하지 않는다.
+선점은 파드 우선순위를 고려하고 우선순위가 가장 낮은 대상 세트를
+선택하려고 한다. 우선순위가 가장 높은 파드는 스케줄러가
+선점자 파드를 스케줄링할 수 없거나 우선순위가 가장 낮은 파드가
+<code>PodDisruptionBudget</code> 으로 보호되는 경우에만, 우선순위가 가장 낮은 파드를
+축출 대상으로 고려한다.</p>
+<p>kubelet은 우선순위를 사용하여 파드의 <a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/">노드-압박(node-pressure) 축출</a> 순서를 결정한다.
+사용자는 QoS 클래스를 사용하여 어떤 파드가 축출될 것인지
+예상할 수 있다. kubelet은 다음의 요소들을 통해서 파드의 축출 순위를 매긴다.</p>
+<ol>
+<li>기아(starved) 리소스 사용량이 요청을 초과하는지 여부</li>
+<li>파드 우선순위</li>
+<li>요청 대비 리소스 사용량</li>
+</ol>
+<p>더 자세한 내용은 <a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/#kubelet-%EC%B6%95%EC%B6%9C%EC%9D%84-%EC%9C%84%ED%95%9C-%ED%8C%8C%EB%93%9C-%EC%84%A0%ED%83%9D">kubelet 축출을 위한 파드 선택</a>을
+참조한다.</p>
+<p>kubelet 노드-압박 축출은 사용량이 요청을 초과하지 않는 경우
+파드를 축출하지 않는다. 우선순위가 낮은 파드가 요청을
+초과하지 않으면, 축출되지 않는다. 요청을 초과하는 우선순위가
+더 높은 다른 파드가 축출될 수 있다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li>프라이어리티클래스와 함께 리소스쿼터 사용에 대해 읽기: <a href="/ko/docs/concepts/policy/resource-quotas/#%EA%B8%B0%EB%B3%B8%EC%A0%81%EC%9C%BC%EB%A1%9C-%EC%9A%B0%EC%84%A0-%EC%88%9C%EC%9C%84-%ED%81%B4%EB%9E%98%EC%8A%A4-%EC%86%8C%EB%B9%84-%EC%A0%9C%ED%95%9C">기본으로 프라이어리티 클래스 소비 제한</a></li>
+<li><a href="/ko/docs/concepts/workloads/pods/disruptions/">파드 중단(disruption)</a>에 대해 학습한다.</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/api-eviction/">API를 이용한 축출</a>에 대해 학습한다.</li>
+<li><a href="/ko/docs/concepts/scheduling-eviction/node-pressure-eviction/">노드-압박(node-pressure) 축출</a>에 대해 학습한다.</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-961126cd43559012893979e568396a49">8 - 확장된 리소스를 위한 리소스 빈 패킹(bin packing)</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.16 [alpha]</code>
+</div>
+
+
+<p>kube-scheduler는 <code>RequestedToCapacityRatioResourceAllocation</code>
+우선 순위 기능을 사용해서 확장된 리소스와 함께 리소스의 빈 패킹이 가능하도록
+구성할 수 있다. 우선 순위 기능을 사용해서 맞춤 요구에 따라
+kube-scheduler를 미세 조정할 수 있다.</p>
+<!-- body -->
+<h2 id="requestedtocapacityratioresourceallocation을-사용해서-빈-패킹-활성화하기">RequestedToCapacityRatioResourceAllocation을 사용해서 빈 패킹 활성화하기</h2>
+<p>쿠버네티스를 사용하면 사용자가 각 리소스에 대한 가중치와 함께 리소스를 지정하여
+용량 대비 요청 비율을 기반으로 노드의 점수를 매기는 것을 허용한다. 이를
+통해 사용자는 적절한 파라미터를 사용해서 확장된 리소스를 빈 팩으로 만들 수 있어
+대규모의 클러스터에서 부족한 리소스의 활용도가 향상된다.
+<code>RequestedToCapacityRatioResourceAllocation</code> 우선 순위 기능의
+동작은 <code>RequestedToCapacityRatioArgs</code>라는
+구성 옵션으로 제어할 수 있다. 이 인수는 <code>shape</code>와 <code>resources</code>
+두 개의 파라미터로 구성된다. <code>shape</code> 파라미터는 사용자가 <code>utilization</code>과
+<code>score</code> 값을 기반으로 최소 요청 또는 최대 요청된 대로 기능을
+조정할 수 있게 한다. <code>resources</code> 파라미터는 점수를 매길 때 고려할
+리소스의 <code>name</code> 과 각 리소스의 가중치를 지정하는 <code>weight</code> 로
+구성된다.</p>
+<p>다음은 확장된 리소스 <code>intel.com/foo</code> 와 <code>intel.com/bar</code> 에 대한
+<code>requestedToCapacityRatioArguments</code> 를 빈 패킹 동작으로
+설정하는 구성의 예시이다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubescheduler.config.k8s.io/v1beta1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>KubeSchedulerConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">profiles</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#080;font-style:italic"># ...</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">pluginConfig</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>RequestedToCapacityRatio<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">args</span>:<span style="color:#bbb"> 
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">shape</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">10</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">100</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>intel.com/foo<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>intel.com/bar<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">5</span><span style="color:#bbb">
+</span></code></pre></div><p>kube-scheduler 플래그 <code>--config=/path/to/config/file</code> 을 사용하여
+<code>KubeSchedulerConfiguration</code> 파일을 참조하면 구성이 스케줄러에
+전달된다.</p>
+<p><strong>이 기능은 기본적으로 비활성화되어 있다.</strong></p>
+<h3 id="우선-순위-기능-튜닝하기">우선 순위 기능 튜닝하기</h3>
+<p><code>shape</code> 는 <code>RequestedToCapacityRatioPriority</code> 기능의
+동작을 지정하는 데 사용된다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">shape</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"> </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">   </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb"> </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">100</span><span style="color:#bbb">
+</span><span style="color:#bbb">   </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">10</span><span style="color:#bbb">
+</span></code></pre></div><p>위의 인수는 <code>utilization</code> 이 0%인 경우 <code>score</code> 는 0, <code>utilization</code> 이
+100%인 경우 10으로 하여, 빈 패킹 동작을 활성화한다. 최소 요청을
+활성화하려면 점수 값을 다음과 같이 변경해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">shape</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">10</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">utilization</span>:<span style="color:#bbb"> </span><span style="color:#666">100</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">score</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span></code></pre></div><p><code>resources</code> 는 기본적으로 다음과 같이 설정되는 선택적인 파라미터이다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cpu<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>memory<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span></code></pre></div><p>다음과 같이 확장된 리소스를 추가하는 데 사용할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>intel.com/foo<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">5</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cpu<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>memory<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">weight</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span></code></pre></div><p><code>weight</code> 파라미터는 선택 사항이며 지정되지 않은 경우 1로 설정 된다. 또한,
+<code>weight</code> 는 음수로 설정할 수 없다.</p>
+<h3 id="용량-할당을-위해-노드에-점수-매기기">용량 할당을 위해 노드에 점수 매기기</h3>
+<p>이 섹션은 이 기능 내부의 세부적인 사항을 이해하려는 사람들을
+위한 것이다.
+아래는 주어진 값의 집합에 대해 노드 점수가 계산되는 방법의 예시이다.</p>
+<p>요청된 리소스는 다음과 같다.</p>
+<pre><code>intel.com/foo : 2
+memory: 256MB
+cpu: 2
+</code></pre><p>리소스의 가중치는 다음과 같다.</p>
+<pre><code>intel.com/foo : 5
+memory: 1
+cpu: 3
+</code></pre><p>FunctionShapePoint {{0, 0}, {100, 10}}</p>
+<p>노드 1의 사양은 다음과 같다.</p>
+<pre><code>Available:
+  intel.com/foo: 4
+  memory: 1 GB
+  cpu: 8
+
+Used:
+  intel.com/foo: 1
+  memory: 256MB
+  cpu: 1
+</code></pre><p>노드 점수는 다음과 같다.</p>
+<pre><code>intel.com/foo  = resourceScoringFunction((2+1),4)
+               = (100 - ((4-3)*100/4)
+               = (100 - 25)
+               = 75                       # requested + used = 75% * available
+               = rawScoringFunction(75) 
+               = 7                        # floor(75/10) 
+
+memory         = resourceScoringFunction((256+256),1024)
+               = (100 -((1024-512)*100/1024))
+               = 50                       # requested + used = 50% * available
+               = rawScoringFunction(50)
+               = 5                        # floor(50/10)
+
+cpu            = resourceScoringFunction((2+1),8)
+               = (100 -((8-3)*100/8))
+               = 37.5                     # requested + used = 37.5% * available
+               = rawScoringFunction(37.5)
+               = 3                        # floor(37.5/10)
+
+NodeScore   =  (7 * 5) + (5 * 1) + (3 * 3) / (5 + 1 + 3)
+            =  5
+</code></pre><p>노드 2의 사양은 다음과 같다.</p>
+<pre><code>Available:
+  intel.com/foo: 8
+  memory: 1GB
+  cpu: 8
+Used:
+  intel.com/foo: 2
+  memory: 512MB
+  cpu: 6
+</code></pre><p>노드 점수는 다음과 같다.</p>
+<pre><code>intel.com/foo  = resourceScoringFunction((2+2),8)
+               =  (100 - ((8-4)*100/8)
+               =  (100 - 50)
+               =  50
+               =  rawScoringFunction(50)
+               = 5
+
+Memory         = resourceScoringFunction((256+512),1024)
+               = (100 -((1024-768)*100/1024))
+               = 75
+               = rawScoringFunction(75)
+               = 7
+
+cpu            = resourceScoringFunction((2+6),8)
+               = (100 -((8-8)*100/8))
+               = 100
+               = rawScoringFunction(100)
+               = 10
+
+NodeScore   =  (5 * 5) + (7 * 1) + (10 * 3) / (5 + 1 + 3)
+            =  7
+
+</code></pre><h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/docs/concepts/scheduling-eviction/scheduling-framework/">스케줄링 프레임워크</a>에 대해 더 읽어본다.</li>
+<li><a href="/ko/docs/reference/scheduling/config/">스케줄러 구성</a>에 대해 더 읽어본다.</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-d9574a30fcbc631b0d2a57850e161e89">9 - 스케줄러 성능 튜닝</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes 1.14 [beta]</code>
+</div>
+
+
+<p><a href="/ko/docs/concepts/scheduling-eviction/kube-scheduler/#kube-scheduler">kube-scheduler</a>는
+쿠버네티스의 기본 스케줄러이다. 그것은 클러스터의
+노드에 파드를 배치하는 역할을 한다.</p>
+<p>파드의 스케줄링 요건을 충족하는
+클러스터의 노드를 파드에 <em>적합한(feasible)</em> 노드라고 한다. 스케줄러는
+파드에 대해 적합한 노드를 찾고 기능 셋을 실행하여 해당 노드의 점수를
+측정한다. 그리고 스케줄러는 파드를 실행하는데 적합한 모든 노드 중 가장
+높은 점수를 가진 노드를 선택한다. 이후 스케줄러는 <em>바인딩</em> 이라는 프로세스로
+API 서버에 해당 결정을 통지한다.</p>
+<p>본 페이지에서는 상대적으로 큰 규모의 쿠버네티스 클러스터에 대한 성능 튜닝
+최적화에 대해 설명한다.</p>
+<!-- body -->
+<p>큰 규모의 클러스터에서는 스케줄러의 동작을 튜닝하여 응답 시간
+(새 파드가 빠르게 배치됨)과 정확도(스케줄러가 배치 결정을 잘 못하는 경우가 드물게 됨)
+사이에서의 스케줄링 결과를 균형 잡을 수 있다.</p>
+<p>kube-scheduler 의 <code>percentageOfNodesToScore</code> 설정을 통해
+이 튜닝을 구성 한다. 이 KubeSchedulerConfiguration 설정에 따라 클러스터의
+노드를 스케줄링할 수 있는 임계값이 결정된다.</p>
+<h3 id="임계값-설정하기">임계값 설정하기</h3>
+<p><code>percentageOfNodesToScore</code> 옵션은 0과 100 사이의 값을
+허용한다. 값 0은 kube-scheduler가 컴파일 된 기본값을
+사용한다는 것을 나타내는 특별한 숫자이다.
+<code>percentageOfNodesToScore</code> 를 100 보다 높게 설정해도 kube-scheduler는
+마치 100을 설정한 것처럼 작동한다.</p>
+<p>값을 변경하려면,
+<a href="/docs/reference/config-api/kube-scheduler-config.v1beta3/">kube-scheduler 구성 파일</a>을
+편집한 다음 스케줄러를 재시작한다.
+대부분의 경우, 구성 파일은 <code>/etc/kubernetes/config/kube-scheduler.yaml</code> 에서 찾을 수 있다.</p>
+<p>이를 변경한 후에 다음을 실행해서</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl get pods -n kube-system | grep kube-scheduler
+</code></pre></div><p>kube-scheduler 컴포넌트가 정상인지 확인할 수 있다.</p>
+<h2 id="percentage-of-nodes-to-score">노드 스코어링(scoring) 임계값</h2>
+<p>스케줄링 성능을 향상시키기 위해 kube-scheduler는 실행 가능한
+노드가 충분히 발견되면 이를 찾는 것을 중단할 수 있다. 큰 규모의 클러스터에서는
+모든 노드를 고려하는 고지식한 접근 방식에 비해 시간이 절약된다.</p>
+<p>클러스터에 있는 모든 노드의 정수 백분율로 충분한 노두의 수에
+대한 임계값을 지정한다. kube-scheduler는 이 값을 노드의
+정수 값(숫자)로 변환 한다. 스케줄링 중에 kube-scheduler가 구성된
+비율을 초과 할만큼 충분히 실행 가능한 노드를 식별한 경우, kube-scheduler는
+더 실행 가능한 노드를 찾는 검색을 중지하고
+<a href="/ko/docs/concepts/scheduling-eviction/kube-scheduler/#kube-scheduler-implementation">스코어링 단계</a>를 진행한다.</p>
+<p><a href="#%EC%8A%A4%EC%BC%80%EC%A4%84%EB%9F%AC%EA%B0%80-%EB%85%B8%EB%93%9C-%ED%83%90%EC%83%89%EC%9D%84-%EB%B0%98%EB%B3%B5-iterate-%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95">스케줄러가 노드 탐색을 반복(iterate)하는 방법</a>
+은 이 프로세스를 자세히 설명한다.</p>
+<h3 id="기본-임계값">기본 임계값</h3>
+<p>임계값을 지정하지 않으면 쿠버네티스는 100 노드 클러스터인
+경우 50%, 5000 노드 클러스터인 경우 10%를 산출하는
+선형 공식을 사용하여 수치를 계산한다. 자동 값의 하한선은 5% 이다.</p>
+<p>즉, <code>percentageOfNodesToScore</code> 를 명시적으로 5보다 작게 설정하지
+않은 경우 클러스터가 아무리 크더라도 kube-scheduler는
+항상 클러스터의 최소 5%를 스코어링을 한다.</p>
+<p>스케줄러가 클러스터의 모든 노드에 스코어링을 하려면
+<code>percentageOfNodesToScore</code> 를 100으로 설정 한다.</p>
+<h2 id="예시">예시</h2>
+<p>아래는 <code>percentageOfNodesToScore</code>를 50%로 설정하는 구성 예시이다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubescheduler.config.k8s.io/v1alpha1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>KubeSchedulerConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">algorithmSource</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">provider</span>:<span style="color:#bbb"> </span>DefaultProvider<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#00f;font-weight:bold">...</span><span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">percentageOfNodesToScore</span>:<span style="color:#bbb"> </span><span style="color:#666">50</span><span style="color:#bbb">
+</span></code></pre></div><h3 id="percentageofnodestoscore-튜닝">percentageOfNodesToScore 튜닝</h3>
+<p><code>percentageOfNodesToScore</code>는 1과 100 사이의 값이어야 하며
+기본값은 클러스터 크기에 따라 계산된다. 또한 50 노드로 하드 코딩된
+최솟값도 있다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>클러스터에서 적합한 노드가 50 미만인 경우, 스케줄러는 여전히
+모든 노드를 확인한다. 그 이유는 스케줄러가 탐색을 조기 중단하기에는 적합한
+노드의 수가 충분하지 않기 때문이다.</p>
+<p>규모가 작은 클러스터에서는 <code>percentageOfNodesToScore</code> 에 낮은 값을 설정하면,
+비슷한 이유로 변경 사항이 거의 또는 전혀 영향을 미치지 않게 된다.</p>
+<p>클러스터에 수백 개 이하의 노드가 있는 경우 이 구성 옵션을
+기본값으로 둔다. 이는 변경사항을 적용하더라도 스케줄러의
+성능이 크게 향상되지 않는다.</p>
+
+</div>
+<p>이 값을 세팅할 때 중요하고 자세한 사항은, 클러스터에서
+적은 수의 노드에 대해서만 적합성을 확인하면, 주어진 파드에 대해서
+일부 노드의 점수는 측정이되지 않는다는 것이다. 결과적으로, 주어진 파드를 실행하는데
+가장 높은 점수를 가질 가능성이 있는 노드가 점수 측정 단계로 조차 넘어가지
+않을 수 있다. 이것은 파드의 이상적인 배치보다 낮은 결과를 초래할 것이다.</p>
+<p><code>percentageOfNodesToScore</code> 를 매우 낮게 설정해서 kube-scheduler가
+파드 배치 결정을 잘못 내리지 않도록 해야 한다. 스케줄러의 처리량에
+대해 애플리케이션이 중요하고 노드 점수가 중요하지 않은 경우가 아니라면
+백분율을 10% 미만으로 설정하지 말아야 한다. 즉, 가능한 한
+모든 노드에서 파드를 실행하는 것이 좋다.</p>
+<h2 id="스케줄러가-노드-탐색을-반복-iterate-하는-방법">스케줄러가 노드 탐색을 반복(iterate)하는 방법</h2>
+<p>이 섹션은 이 특징의 상세한 내부 방식을 이해하고 싶은 사람들을
+위해 작성되었다.</p>
+<p>클러스터의 모든 노드가 파드 실행 대상으로 고려되어 공정한 기회를
+가지도록, 스케줄러는 라운드 로빈(round robin) 방식으로 모든 노드에 대해서 탐색을
+반복한다. 모든 노드가 배열에 나열되어 있다고 생각해보자. 스케줄러는 배열의
+시작부터 시작하여 <code>percentageOfNodesToScore</code>에 명시된 충분한 수의 노드를
+찾을 때까지 적합성을 확인한다. 그 다음 파드에 대해서는, 스케줄러가
+이전 파드를 위한 노드 적합성 확인이 마무리된 지점인 노드 배열의 마지막
+포인트부터 확인을 재개한다.</p>
+<p>만약 노드들이 다중의 영역(zone)에 있다면, 다른 영역에 있는 노드들이 적합성
+확인의 대상이 되도록 스케줄러는 다양한 영역에 있는 노드에 대해서
+탐색을 반복한다. 예제로, 2개의 영역에 있는 6개의 노드를 생각해보자.</p>
+<pre><code>영역 1: 노드 1, 노드 2, 노드 3, 노드 4
+영역 2: 노드 5, 노드 6
+</code></pre><p>스케줄러는 노드의 적합성 평가를 다음의 순서로 실행한다.</p>
+<pre><code>노드 1, 노드 5, 노드 2, 노드 6, 노드 3, 노드 4
+</code></pre><p>모든 노드를 검토한 후, 노드 1로 돌아간다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/docs/reference/config-api/kube-scheduler-config.v1beta3/">kube-scheduler 구성 레퍼런스(v1beta3)</a> 확인</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/ko/docs/home/">홈</a>
+      
+      <a class="text-white" href="/ko/blog/">블로그</a>
+      
+      <a class="text-white" href="/ko/training/">교육</a>
+      
+      <a class="text-white" href="/ko/partners/">파트너</a>
+      
+      <a class="text-white" href="/ko/community/">커뮤니티</a>
+      
+      <a class="text-white" href="/ko/case-studies/">사례 연구</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

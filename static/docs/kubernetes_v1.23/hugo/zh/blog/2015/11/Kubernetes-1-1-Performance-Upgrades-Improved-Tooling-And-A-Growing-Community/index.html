@@ -1,0 +1,1796 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title> Kubernetes 1.1 性能升级，工具改进和社区不断壮大   | Kubernetes</title><meta property="og:title" content=" Kubernetes 1.1 性能升级，工具改进和社区不断壮大  " />
+<meta property="og:description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2015-11-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-03-02T16:24:18+00:00" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content=" Kubernetes 1.1 性能升级，工具改进和社区不断壮大  ">
+<meta itemprop="description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo."><meta itemprop="datePublished" content="2015-11-09T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-03-02T16:24:18+00:00" />
+<meta itemprop="wordCount" content="373">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=" Kubernetes 1.1 性能升级，工具改进和社区不断壮大  "/>
+<meta name="twitter:description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo."/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo.">
+<meta property="og:description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo.">
+<meta name="twitter:description" content="自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。 我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。 我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。 一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。
+在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。
+我们想强调的一些工作包括:
+ 实质性的性能提升 ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。 在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行； 本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。   网络吞吐量显着提高 : 运行 Google 规模的工作负载也需要 Google 规模的网络。 在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。   水平 Pod 自动缩放 (测试版)：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。 Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。 阅读有关水平 Pod 自动缩放的更多信息。   HTTP 负载均衡器 (测试版)：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。 这意味着您可以让 ‘http://foo.">
+<meta property="og:url" content="http://localhost:1313/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+<meta property="og:title" content=" Kubernetes 1.1 性能升级，工具改进和社区不断壮大  ">
+<meta name="twitter:title" content=" Kubernetes 1.1 性能升级，工具改进和社区不断壮大  ">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+    <title> Kubernetes 1.1 性能升级，工具改进和社区不断壮大   | Kubernetes</title>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    
+  </head>
+  <body class="td-page td-blog">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">English</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+      
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+      
+      <section class="header-hero text-center text-white font-bold pb-4">
+        <h1>
+          
+          
+            Kubernetes 博客
+          
+        </h1>
+      </section>
+         
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+
+
+
+
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+  <input
+    type="search"
+    class="form-control td-search-input"
+    name="q"
+    placeholder="&#xf002 Search"
+    aria-label="Search"
+    autocomplete="off"
+  >
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  
+  <nav class="collapse td-sidebar-nav pt-2 pl-4" id="td-section-nav">
+    
+    
+
+
+
+
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2022/05/03/dockershim-historical-context/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2022
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-05-03-dockershim-historical-context" href="/zh/blog/2022/05/03/dockershim-historical-context/">
+                Dockershim：历史背景
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-04-07-upcoming-changes-in-kubernetes-1-24" href="/zh/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/">
+                Kubernetes 1.24 的删除和弃用
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-03-16-meet-our-contributors-au-nz-ep-02" href="/zh/blog/2022/03/16/meet-our-contributors-au-nz-ep-02/">
+                认识我们的贡献者 - 亚太地区（澳大利亚-新西兰地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-17-dockershim-faq" href="/zh/blog/2022/02/17/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-16-sig-node-ci-subproject-celebrates" href="/zh/blog/2022/02/16/sig-node-ci-subproject-celebrates/">
+                SIG Node CI 子项目庆祝测试改进两周年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-19-secure-your-admission-controllers-and-webhooks" href="/zh/blog/2022/01/19/secure-your-admission-controllers-and-webhooks/">
+                确保准入控制器的安全
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-10-meet-our-contributors-india-ep-01" href="/zh/blog/2022/01/10/meet-our-contributors-india-ep-01/">
+                认识我们的贡献者 - 亚太地区（印度地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-07-kubernetes-is-moving-on-from-dockershim" href="/zh/blog/2022/01/07/kubernetes-is-moving-on-from-dockershim/">
+                Kubernetes 即将移除 Dockershim：承诺和下一步
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2022">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2021
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-16-kubernetes-1-23-statefulset-pvc-auto-deletion" href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/">
+                Kubernetes 1.23: StatefulSet PVC 自动删除 (alpha)
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-10-storage-in-tree-to-csi-migration-status-update" href="/zh/blog/2021/12/10/storage-in-tree-to-csi-migration-status-update/">
+                Kubernetes 1.23：树内存储向 CSI 卷迁移工作的进展更新
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-08-dual-stack-networking-ga" href="/zh/blog/2021/12/08/dual-stack-networking-ga/">
+                Kubernetes 1.23：IPv4/IPv6 双协议栈网络达到 GA
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-11-08-steering-committee-results-2021" href="/zh/blog/2021/11/08/steering-committee-results-2021/">
+                公布 2021 年指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-09-27-sig-node-spotlight-2021" href="/zh/blog/2021/09/27/sig-node-spotlight-2021/">
+                关注 SIG Node
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2021">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2020
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-18-kubernetes-1-20-pod-impersonation-short-lived-volumes-in-csi" href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/">
+                Kubernetes 1.20：CSI 驱动程序中的 Pod 身份假扮和短时卷
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-08-kubernetes-1-20-release-announcement" href="/zh/blog/2020/12/08/kubernetes-1-20-release-announcement/">
+                Kubernetes 1.20: 最新版本
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dockershim-faq" href="/zh/blog/2020/12/02/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dont-panic-kubernetes-and-docker" href="/zh/blog/2020/12/02/dont-panic-kubernetes-and-docker/">
+                别慌: Kubernetes 和 Docker
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-10-01-e4-b8-ba-e5-bc-80-e5-8f-91-e6-8c-87-e5-8d-97-e5-81-9a-e8-b4-a1-e7-8c-ae" href="/zh/blog/2020/10/01/%E4%B8%BA%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E5%81%9A%E8%B4%A1%E7%8C%AE/">
+                为开发指南做贡献
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-09-04-kubernetes-1-19-introducing-structured-logs" href="/zh/blog/2020/09/04/kubernetes-1-19-introducing-structured-logs/">
+                结构化日志介绍
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-03-25-kubernetes-1-18-release-announcement" href="/zh/blog/2020/03/25/kubernetes-1-18-release-announcement/">
+                Kubernetes 1.18: Fit &amp; Finish
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-01-15-kubernetes-on-mips" href="/zh/blog/2020/01/15/kubernetes-on-mips/">
+                基于 MIPS 架构的 Kubernetes 方案
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2020">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2019
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-12-09-kubernetes-1-17-release-announcement" href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/">
+                Kubernetes 1.17：稳定
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-e4-bd-bf-e7-94-a8-microk8s-e5-9c-a8-linux-e4-b8-8a-e6-9c-ac-e5-9c-b0-e8-bf-90-e8-a1-8c-kubernetes" href="/zh/blog/2019/11/26/%E4%BD%BF%E7%94%A8-microk8s-%E5%9C%A8-linux-%E4%B8%8A%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C-kubernetes/">
+                使用 Microk8s 在 Linux 上本地运行 Kubernetes
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-develop-a-kubernetes-controller-in-java" href="/zh/blog/2019/11/26/develop-a-kubernetes-controller-in-java/">
+                使用 Java 开发一个 Kubernetes controller
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-29-kubernetes-documentation-end-user-survey" href="/zh/blog/2019/10/29/kubernetes-documentation-end-user-survey/">
+                Kubernetes 文档最终用户调研
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-10-contributor-summit-san-diego-schedule" href="/zh/blog/2019/10/10/contributor-summit-san-diego-schedule/">
+                圣迭戈贡献者峰会日程公布！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-03-2019-steering-committee-election-results" href="/zh/blog/2019/10/03/2019-steering-committee-election-results/">
+                2019 指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-09-24-san-diego-contributor-summit" href="/zh/blog/2019/09/24/san-diego-contributor-summit/">
+                San Diego 贡献者峰会开放注册！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-08-06-opa-gatekeeper-policy-and-governance-for-kubernetes" href="/zh/blog/2019/08/06/opa-gatekeeper-policy-and-governance-for-kubernetes/">
+                OPA Gatekeeper：Kubernetes 的策略和管理
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-06-11-e6-ac-a2-e8-bf-8e-e5-8f-82-e5-8a-a0-e5-9c-a8-e4-b8-8a-e6-b5-b7-e4-b8-be-e8-a1-8c-e7-9a-84-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2019/06/11/%E6%AC%A2%E8%BF%8E%E5%8F%82%E5%8A%A0%E5%9C%A8%E4%B8%8A%E6%B5%B7%E4%B8%BE%E8%A1%8C%E7%9A%84%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                欢迎参加在上海举行的贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-05-14-expanding-our-contributor-workshops" href="/zh/blog/2019/05/14/expanding-our-contributor-workshops/">
+                壮大我们的贡献者研讨会
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2019">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-26-e5-a6-82-e4-bd-95-e5-8f-82-e4-b8-8e-kubernetes-e6-96-87-e6-a1-a3-e7-9a-84-e6-9c-ac-e5-9c-b0-e5-8c-96-e5-b7-a5-e4-bd-9c" href="/zh/blog/2019/04/26/%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E-kubernetes-%E6%96%87%E6%A1%A3%E7%9A%84%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%B7%A5%E4%BD%9C/">
+                如何参与 Kubernetes 文档的本地化工作
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-15-kubernetes-1-14-e7-a8-b3-e5-ae-9a-e6-80-a7-e6-94-b9-e8-bf-9b-e4-b8-ad-e7-9a-84-e8-bf-9b-e7-a8-8bid-e9-99-90-e5-88-b6" href="/zh/blog/2019/04/15/kubernetes-1.14-%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%94%B9%E8%BF%9B%E4%B8%AD%E7%9A%84%E8%BF%9B%E7%A8%8Bid%E9%99%90%E5%88%B6/">
+                Kubernetes 1.14 稳定性改进中的进程ID限制
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-03-07-raw-block-volume-e6-94-af-e6-8c-81-e8-bf-9b-e5-85-a5-beta" href="/zh/blog/2019/03/07/raw-block-volume-%E6%94%AF%E6%8C%81%E8%BF%9B%E5%85%A5-beta/">
+                Raw Block Volume 支持进入 Beta
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2018
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-12-05-e6-96-b0-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b7-a5-e4-bd-9c-e5-9d-8a-e4-b8-8a-e6-b5-b7-e7-ab-99" href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/">
+                新贡献者工作坊上海站
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-11-08-kubernetes-e6-96-87-e6-a1-a3-e6-9b-b4-e6-96-b0-e5-9b-bd-e9-99-85-e7-89-88" href="/zh/blog/2018/11/08/kubernetes-%E6%96%87%E6%A1%A3%E6%9B%B4%E6%96%B0%E5%9B%BD%E9%99%85%E7%89%88/">
+                Kubernetes 文档更新，国际版
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-16-kubernetes-2018-e5-b9-b4-e5-8c-97-e7-be-8e-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2018/10/16/kubernetes-2018-%E5%B9%B4%E5%8C%97%E7%BE%8E%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                Kubernetes 2018 年北美贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-15-2018-e5-b9-b4-e7-9d-a3-e5-af-bc-e5-a7-94-e5-91-98-e4-bc-9a-e9-80-89-e4-b8-be-e7-bb-93-e6-9e-9c" href="/zh/blog/2018/10/15/2018-%E5%B9%B4%E7%9D%A3%E5%AF%BC%E5%A7%94%E5%91%98%E4%BC%9A%E9%80%89%E4%B8%BE%E7%BB%93%E6%9E%9C/">
+                2018 年督导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-11-kubernetes-e4-b8-ad-e7-9a-84-e6-8b-93-e6-89-91-e6-84-9f-e7-9f-a5-e6-95-b0-e6-8d-ae-e5-8d-b7-e4-be-9b-e5-ba-94" href="/zh/blog/2018/10/11/kubernetes-%E4%B8%AD%E7%9A%84%E6%8B%93%E6%89%91%E6%84%9F%E7%9F%A5%E6%95%B0%E6%8D%AE%E5%8D%B7%E4%BE%9B%E5%BA%94/">
+                Kubernetes 中的拓扑感知数据卷供应
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-10-kubernetes-v1-12-runtimeclass-e7-ae-80-e4-bb-8b" href="/zh/blog/2018/10/10/kubernetes-v1.12-runtimeclass-%E7%AE%80%E4%BB%8B/">
+                Kubernetes v1.12: RuntimeClass 简介
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-03-kubedirector-e5-9c-a8-kubernetes-e4-b8-8a-e8-bf-90-e8-a1-8c-e5-a4-8d-e6-9d-82-e7-8a-b6-e6-80-81-e5-ba-94-e7-94-a8-e7-a8-8b-e5-ba-8f-e7-9a-84-e7-ae-80-e5-8d-95-e6-96-b9-e6-b3-95" href="/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">
+                KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-01-e5-9c-a8-kubernetes-e4-b8-8a-e5-af-b9-grpc-e6-9c-8d-e5-8a-a1-e5-99-a8-e8-bf-9b-e8-a1-8c-e5-81-a5-e5-ba-b7-e6-a3-80-e6-9f-a5" href="/zh/blog/2018/10/01/%E5%9C%A8-kubernetes-%E4%B8%8A%E5%AF%B9-grpc-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+                在 Kubernetes 上对 gRPC 服务器进行健康检查
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-29-the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience" href="/zh/blog/2018/08/29/the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience/">
+                The Machines Can Do the Work, a Story of Kubernetes Testing, CI, and Automating the Contributor Experience
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-02-e4-bd-bf-e7-94-a8-csi-e5-92-8c-kubernetes-e5-ae-9e-e7-8e-b0-e5-8d-b7-e7-9a-84-e5-8a-a8-e6-80-81-e6-89-a9-e5-ae-b9" href="/zh/blog/2018/08/02/%E4%BD%BF%E7%94%A8-csi-%E5%92%8C-kubernetes-%E5%AE%9E%E7%8E%B0%E5%8D%B7%E7%9A%84%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9/">
+                使用 CSI 和 Kubernetes 实现卷的动态扩容
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2018">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-11-e5-8a-a8-e6-80-81-kubelet-e9-85-8d-e7-bd-ae" href="/zh/blog/2018/07/11/%E5%8A%A8%E6%80%81-kubelet-%E9%85%8D%E7%BD%AE/">
+                动态 Kubelet 配置
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-10-e7-94-a8-e4-ba-8e-kubernetes-e9-9b-86-e7-be-a4-dns-e7-9a-84-coredns-ga-e6-ad-a3-e5-bc-8f-e5-8f-91-e5-b8-83" href="/zh/blog/2018/07/10/%E7%94%A8%E4%BA%8E-kubernetes-%E9%9B%86%E7%BE%A4-dns-%E7%9A%84-coredns-ga-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83/">
+                用于 Kubernetes 集群 DNS 的 CoreDNS GA 正式发布
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-09-ipvs-based-in-cluster-load-balancing-deep-dive" href="/zh/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/">
+                IPVS-Based In-Cluster Load Balancing Deep Dive
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-28-airflow-e5-9c-a8kubernetes-e4-b8-ad-e7-9a-84-e4-bd-bf-e7-94-a8-e7-ac-ac-e4-b8-80-e9-83-a8-e5-88-86-e4-b8-80-e7-a7-8d-e4-b8-8d-e5-90-8c-e7-9a-84-e6-93-8d-e4-bd-9c-e5-99-a8" href="/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">
+                Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-07-dynamic-ingress-kubernetes" href="/zh/blog/2018/06/07/dynamic-ingress-kubernetes/">
+                Kubernetes 内的动态 Ingress
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-06-kubernetes-e8-bf-99-e5-9b-9b-e5-b9-b4" href="/zh/blog/2018/06/06/kubernetes-%E8%BF%99%E5%9B%9B%E5%B9%B4/">
+                Kubernetes 这四年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-30-kubernetes-1-11-e5-90-91-discuss-kubernetes-e9-97-ae-e5-a5-bd" href="/zh/blog/2018/05/30/kubernetes-1-11%E5%90%91-discuss-kubernetes-%E9%97%AE%E5%A5%BD/">
+                Kubernetes 1 11：向 discuss kubernetes 问好
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-01-developing-on-kubernetes" href="/zh/blog/2018/05/01/developing-on-kubernetes/">
+                在 Kubernetes 上开发
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-04-25-open-source-charts-2017" href="/zh/blog/2018/04/25/open-source-charts-2017/">
+                Kubernetes 社区 - 2017 年开源排行榜榜首
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-03-principles-of-container-app-design" href="/zh/blog/2018/03/Principles-Of-Container-App-Design/">
+                “基于容器的应用程序设计原理”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-01-kubernetes-v19-beta-windows-support" href="/zh/blog/2018/01/Kubernetes-V19-Beta-Windows-Support/">
+                Kubernetes 1.9 对 Windows Server 容器提供 Beta 版本支持
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2017
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-11-17-autoscaling-in-kubernetes" href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/">
+                 Kubernetes 中自动缩放 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-24-five-days-of-kubernetes-18" href="/zh/blog/2017/10/24/five-days-of-kubernetes-18/">
+                 Kubernetes 1.8 的五天 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-kubernetes-community-steering-committee-election-results" href="/zh/blog/2017/10/Kubernetes-Community-Steering-Committee-Election-Results/">
+                 Kubernetes 社区指导委员会选举结果 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2017">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2016
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-08-stateful-applications-using-kubernetes-datera" href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/">
+                 使用 Kubernetes Pet Sets 和 Datera Elastic Data Fabric 的 FlexVolume 扩展有状态的应用程序 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-21-oh-the-places-you-will-go" href="/zh/blog/2016/07/21/oh-the-places-you-will-go/">
+                 Kubernetes 生日快乐。哦，这是你要去的地方！ 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-15-dashboard-web-interface-for-kubernetes" href="/zh/blog/2016/07/15/dashboard-web-interface-for-kubernetes/">
+                 Dashboard - Kubernetes 的全功能 Web 界面 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-14-citrix-netscaler-and-kubernetes" href="/zh/blog/2016/07/14/citrix-netscaler-and-kubernetes/">
+                 Citrix &#43; Kubernetes = 全垒打 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-stateful-applications-in-containers-kubernetes" href="/zh/blog/2016/07/stateful-applications-in-containers-kubernetes/">
+                容器中运行有状态的应用！？ Kubernetes 1.3 说 “是！” 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-05-coreosfest2016-kubernetes-community" href="/zh/blog/2016/05/Coreosfest2016-Kubernetes-Community/">
+                 CoreOS Fest 2016: CoreOS 和 Kubernetes 在柏林（和旧金山）社区见面会 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-sig-clusterops-promote-operability-and-interoperability-of-k8s-clusters" href="/zh/blog/2016/04/Sig-Clusterops-Promote-Operability-And-Interoperability-Of-K8S-Clusters/">
+                 SIG-ClusterOps: 提升 Kubernetes 集群的可操作性和互操作性 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-kubernetes-network-policy-apis" href="/zh/blog/2016/04/Kubernetes-Network-Policy-APIs/">
+                “SIG-Networking：1.3 版本引入 Kubernetes 网络策略 API”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-adding-support-for-kubernetes-in-rancher" href="/zh/blog/2016/04/Adding-Support-For-Kubernetes-In-Rancher/">
+                 在 Rancher 中添加对 Kuernetes 的支持 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-24-kubecon-eu-2016-kubernetes-community-in" href="/zh/blog/2016/02/24/kubecon-eu-2016-kubernetes-community-in/">
+                 KubeCon EU 2016：伦敦 Kubernetes 社区 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2016">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-kubernetes-community-meeting-notes-23" href="/zh/blog/2016/02/kubernetes-community-meeting-notes_23/">
+                Kubernetes 社区会议记录 - 20160218
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-09-kubernetes-community-meeting-notes" href="/zh/blog/2016/02/09/kubernetes-community-meeting-notes/">
+                 Kubernetes 社区会议记录 - 20160204 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-state-of-container-world-january-2016" href="/zh/blog/2016/02/State-Of-Container-World-January-2016/">
+                 容器世界现状，2016年1月 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-kubernetes-community-meeting-notes" href="/zh/blog/2016/01/Kubernetes-Community-Meeting-Notes/">
+                 Kubernetes 社区会议记录 - 20160114 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-14-why-kubernetes-doesnt-use-libnetwork" href="/zh/blog/2016/01/14/why-kubernetes-doesnt-use-libnetwork/">
+                 为什么 Kubernetes 不用 libnetwork 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-11-simple-leader-election-with-kubernetes" href="/zh/blog/2016/01/11/simple-leader-election-with-kubernetes/">
+                 Simple leader election with Kubernetes and Docker 
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">
+          2015
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-12-17-managing-kubernetes-pods-services-and-replication-controllers-with-puppet" href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/">
+                 使用 Puppet 管理 Kubernetes Pods，Services 和 Replication Controllers 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page  active" id="m-zh-blog-2015-11-kubernetes-1-1-performance-upgrades-improved-tooling-and-a-growing-community" href="/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+                 Kubernetes 1.1 性能升级，工具改进和社区不断壮大  
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-08-weekly-kubernetes-community-hangout" href="/zh/blog/2015/08/Weekly-Kubernetes-Community-Hangout/">
+                 Weekly Kubernetes Community Hangout Notes - July 31 2015 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-07-08-announcing-first-kubernetes-enterprise" href="/zh/blog/2015/07/08/announcing-first-kubernetes-enterprise/">
+                宣布首个Kubernetes企业培训课程 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-06-26-slides-cluster-management-with" href="/zh/blog/2015/06/26/slides-cluster-management-with/">
+                幻灯片：Kubernetes 集群管理，爱丁堡大学演讲
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-19-kubernetes-on-openstack" href="/zh/blog/2015/05/19/kubernetes-on-openstack/">
+                 OpenStack 上的 Kubernetes 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-11-weekly-kubernetes-community-hangout" href="/zh/blog/2015/05/11/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记- 2015年5月1日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-appc-support-for-kubernetes-through-rkt" href="/zh/blog/2015/05/Appc-Support-For-Kubernetes-Through-Rkt/">
+                 AppC Support for Kubernetes through RKT 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-30-weekly-kubernetes-community-hangout-29" href="/zh/blog/2015/04/30/weekly-kubernetes-community-hangout_29/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月24日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-borg-predecessor-to-kubernetes" href="/zh/blog/2015/04/Borg-Predecessor-To-Kubernetes/">
+                Borg: Kubernetes 的前身
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse show" data-year="2015">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-17-weekly-kubernetes-community-hangout-17" href="/zh/blog/2015/04/17/weekly-kubernetes-community-hangout_17/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月17日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-16-kubernetes-release-0150" href="/zh/blog/2015/04/16/kubernetes-release-0150/">
+                 Kubernetes Release: 0.15.0 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-weekly-kubernetes-community-hangout" href="/zh/blog/2015/04/Weekly-Kubernetes-Community-Hangout/">
+                 每周 Kubernetes 社区例会笔记 - 2015年4月3日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-28-weekly-kubernetes-community-hangout" href="/zh/blog/2015/03/28/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记 - 2015年3月27日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-23-kubernetes-gathering-videos" href="/zh/blog/2015/03/23/kubernetes-gathering-videos/">
+                 Kubernetes 采集视频 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-20-welcome-to-kubernetes-blog" href="/zh/blog/2015/03/20/welcome-to-kubernetes-blog/">
+                欢迎来到 Kubernetes 博客!
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          0001
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=0001>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-bringing-end-to-end-kubernetes-testing-to-azure-2" href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/">
+                
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="0001">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+
+  </nav>
+</div>
+
+
+
+
+<script>
+let morePosts = document.querySelectorAll(".more-posts");
+let year = "";
+morePosts.forEach(link => {
+  link.onclick = (e) => {
+    e.preventDefault();
+    year = link.dataset.year;
+    console.log(year);
+    let hiddenPosts = document.querySelectorAll(`.blog-post.hidden[data-year="${year}"]`);
+    console.log(hiddenPosts);
+    hiddenPosts.forEach(post => {
+      post.classList.add('show');
+      post.classList.remove("hidden");
+    });
+    link.style.display = "none";
+  }
+});
+</script>
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5 pr-md-4" role="main">
+            
+              <section id="deprecation-warning">
+  <div class="content deprecation-warning pageinfo outdated-blog">
+    <p>This article is more than one year old. Older articles may contain outdated content. Check that the information in the page has not become incorrect since its publication.</p>
+  </div>
+</section>
+
+            
+            
+<div class="td-content">
+	<h1> Kubernetes 1.1 性能升级，工具改进和社区不断壮大  </h1>
+	
+	<div class="td-byline mb-4">
+		
+		<time datetime="2015-11-09" class="text-muted">2015.11.09</time>
+	</div>
+	<header class="article-meta">
+		
+
+  
+    
+
+
+  
+    
+
+
+  
+
+		
+	</header>
+	<!--
+---
+title: " Kubernetes 1.1 Performance upgrades, improved tooling and a growing community  "
+date: 2015-11-09
+slug: kubernetes-1-1-performance-upgrades-improved-tooling-and-a-growing-community
+url: /zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community
+---
+-->
+<!--
+Since the Kubernetes 1.0 release in July, we’ve seen tremendous adoption by companies building distributed systems to manage their container clusters. We’re also been humbled by the rapid growth of the community who help make Kubernetes better everyday. We have seen commercial offerings such as Tectonic by CoreOS and RedHat Atomic Host emerge to deliver deployment and support of Kubernetes. And a growing ecosystem has added Kubernetes support including tool vendors such as Sysdig and Project Calico. 
+-->
+<p>自从 Kubernetes 1.0 在七月发布以来，我们已经看到大量公司采用建立分布式系统来管理其容器集群。
+我们也对帮助 Kubernetes 社区变得更好，迅速发展的人感到钦佩。
+我们已经看到诸如 CoreOS 的 Tectonic 和 RedHat Atomic Host 之类的商业产品应运而生，用以提供 Kubernetes 的部署和支持。
+一个不断发展的生态系统增加了 Kubernetes 的支持，包括 Sysdig 和 Project Calico 等工具供应商。</p>
+<!--
+With the help of hundreds of contributors, we’re proud to announce the availability of Kubernetes 1.1, which offers major performance upgrades, improved tooling, and new features that make applications even easier to build and deploy.  
+-->
+<p>在数百名贡献者的帮助下，我们自豪地宣布 Kubernetes 1.1 的可用性，它提供了主要的性能升级、改进的工具和新特性，使应用程序更容易构建和部署。</p>
+<!--
+Some of the work we’d like to highlight includes:
+-->
+<p>我们想强调的一些工作包括:</p>
+<!--
+- **Substantial performance improvements** : We have architected Kubernetes from day one to handle Google-scale workloads, and our customers have put it through their paces. In Kubernetes 1.1, we have made further investments to ensure that you can run in extremely high-scale environments; later this week, we will be sharing examples of running thousand node clusters, and running over a million QPS against a single cluster.&nbsp;
+-->
+<ul>
+<li><strong>实质性的性能提升</strong> ：从第一天开始，我们就设计了 Kubernetes 来处理 Google 规模的工作负载，而我们的客户已经按照自己的进度进行了调整。
+在 Kubernetes 1.1 中，我们进行了进一步的投资，以确保您可以在超大规模环境中运行；
+本周晚些时候，我们将分享运行数千个节点集群，并针对单个集群运行超过一百万个 QPS 的示例。</li>
+</ul>
+<!--
+- **Significant improvement in network throughput** : Running Google-scale workloads also requires Google-scale networking. In Kubernetes 1.1, we have included an option to use native IP tables offering an 80% reduction in tail latency, an almost complete elimination of CPU overhead and improvements in reliability and system architecture ensuring Kubernetes can handle high-scale throughput well into the future.&nbsp;
+-->
+<ul>
+<li><strong>网络吞吐量显着提高</strong> : 运行 Google 规模的工作负载也需要 Google 规模的网络。
+在 Kubernetes 1.1 中，我们提供了使用本机IP表的选项，可将尾部延迟减少80％，几乎完全消除了CPU开销，并提高了可靠性和系统架构，从而确保Kubernetes可以很好地处理未来的大规模吞吐量。</li>
+</ul>
+<!--
+- **Horizontal pod autoscaling (Beta)**: Many workloads can go through spiky periods of utilization, resulting in uneven experiences for your users. Kubernetes now has support for horizontal pod autoscaling, meaning your pods can scale up and down based on CPU usage. Read more about [Horizontal pod autoscaling](http://kubernetes.io/v1.1/docs/user-guide/horizontal-pod-autoscaler.html).&nbsp;
+-->
+<ul>
+<li><strong>水平 Pod 自动缩放 (测试版)</strong>：许多工作负载可能会经历尖峰的使用期，从而给用户带来不均匀的体验。
+Kubernetes 现在支持水平 Pod 自动缩放，这意味着您的 Pod 可以根据 CPU 使用率进行缩放。
+阅读有关<a href="http://kubernetes.io/v1.1/docs/user-guide/horizontal-pod-autoscaler.html">水平 Pod 自动缩放</a>的更多信息。</li>
+</ul>
+<!--
+- **HTTP load balancer (Beta)**: Kubernetes now has the built-in ability to route HTTP traffic based on the packets introspection. This means you can have ‘http://foo.com/bar’ go to one service, and ‘http://foo.com/meep’ go to a completely independent service. Read more about the [Ingress object](http://kubernetes.io/v1.1/docs/user-guide/ingress.html).&nbsp;
+-->
+<ul>
+<li><strong>HTTP 负载均衡器 (测试版)</strong>：Kubernetes 现在具有基于数据包自省功能来路由 HTTP 流量的内置功能。
+这意味着您可以让 ‘http://foo.com/bar’ 使用一项服务，而 ‘http://foo.com/meep’ 使用一项完全独立的服务。
+阅读有关<a href="http://kubernetes.io/v1.1/docs/user-guide/ingress.html">Ingress对象</a>的更多信息。</li>
+</ul>
+<!--
+- **Job objects (Beta)**: We’ve also had frequent request for integrated batch jobs, such as processing a batch of images to create thumbnails or a particularly large data file that has been broken down into many chunks. [Job objects](https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/jobs.md#writing-a-job-spec) introduces a new API object that runs a workload, restarts it if it fails, and keeps trying until it’s successfully completed. Read more about the[Job object](http://kubernetes.io/v1.1/docs/user-guide/jobs.html).&nbsp;
+-->
+<ul>
+<li><strong>Job 对象 (测试版)</strong>：我们也经常需要集成的批处理 Job ，例如处理一批图像以创建缩略图，或者将特别大的数据文件分解成很多块。
+<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/jobs.md#writing-a-job-spec">Job 对象</a>引入了一个新的 API 对象，该对象运行工作负载，
+如果失败，则重新启动它，并继续尝试直到成功完成。
+阅读有关<a href="http://kubernetes.io/v1.1/docs/user-guide/jobs.html">Job 对象</a>的更多信息。</li>
+</ul>
+<!--
+- **New features to shorten the test cycle for developers** : We continue to work on making developing for applications for Kubernetes quick and easy. Two new features that speeds developer’s workflows include the ability to run containers interactively, and improved schema validation to let you know if there are any issues with your configuration files before you deploy them.&nbsp;
+-->
+<ul>
+<li><strong>新功能可缩短开发人员的测试周期</strong> :我们将继续致力于快速便捷地为 Kubernetes 开发应用程序。
+加快开发人员工作流程的两项新功能包括以交互方式运行容器的功能，以及改进的架构验证功能，可在部署配置文件之前让您知道配置文件是否存在任何问题。</li>
+</ul>
+<!--
+- **Rolling update improvements** : Core to the DevOps movement is being able to release new updates without any affect on a running service. Rolling updates now ensure that updated pods are healthy before continuing the update.&nbsp;
+-->
+<ul>
+<li><strong>滚动更新改进</strong> : DevOps 运动的核心是能够发布新更新，而不会影响正在运行的服务。
+滚动更新现在可确保在继续更新之前，已更新的 Pod 状况良好。</li>
+</ul>
+<!--
+- And many more. For a complete list of updates, see the [1.1. release](https://github.com/kubernetes/kubernetes/releases) notes on GitHub&nbsp;
+-->
+<ul>
+<li>还有很多。有关更新的完整列表，请参见<a href="https://github.com/kubernetes/kubernetes/releases">1.1. 发布</a>在GitHub上的笔记</li>
+</ul>
+<!--
+Today, we’re also proud to mark the inaugural Kubernetes conference, [KubeCon](https://kubecon.io/), where some 400 community members along with dozens of vendors are in attendance supporting the Kubernetes project.  
+-->
+<p>今天，我们也很荣幸地庆祝首届Kubernetes会议<a href="https://kubecon.io/">KubeCon</a>，约有400个社区成员以及数十个供应商参加支持 Kubernetes 项目的会议。</p>
+<!--
+We’d love to highlight just a few of the many partners making Kubernetes better:  
+-->
+<p>我们想强调几个使 Kuberbetes 变得更好的众多合作伙伴中的几位：</p>
+<!--
+> “We are betting our major product, Tectonic – which enables any company to deploy, manage and secure its containers anywhere – on Kubernetes because we believe it is the future of the data center. The release of Kubernetes 1.1 is another major milestone that will create more widespread adoption of distributed systems and containers, and puts us on a path that will inevitably lead to a whole new generation of products and services.” – Alex Polvi, CEO, CoreOS.
+-->
+<blockquote>
+<p>“我们押注我们的主要产品 Tectonic-它能使任何公司都能在任何地方部署、管理和保护其容器-在 Kubernetes 上使用，因为我们认为这是数据中心的未来。
+Kubernetes 1.1 的发布是另一个重要的里程碑，它将使分布式系统和容器得到更广泛的采用，并使我们走上一条必将导致新一代产品和服务的道路。” – CoreOS 首席执行官Alex Polvi</p>
+</blockquote>
+<!--
+> “Univa’s customers are looking for scalable, enterprise-caliber solutions to simplify managing container and non-container workloads in the enterprise. We selected Kubernetes as a foundational element of our new Navops suite which will help IT and DevOps rapidly integrate containerized workloads into their production systems and extend these workloads into cloud services.” – Gary Tyreman, CEO, Univa.
+-->
+<blockquote>
+<p>“Univa 的客户正在寻找可扩展的企业级解决方案，以简化企业中容器和非容器工作负载的管理。
+我们选择Kubernetes作为我们新的 Navops 套件的基础，它将帮助 IT 和 DevOps 将容器化工作负载快速集成到他们的生产系统中，并将这些工作负载扩展到云服务中。” – Univa 首席执行官 Gary Tyreman</p>
+</blockquote>
+<!--
+> “The tremendous customer demand we’re seeing to run containers at scale with Kubernetes is a critical element driving growth in our professional services business at Redapt. As a trusted advisor, it’s great to have a tool like Kubernetes in our tool belt to help our customers achieve their objectives.” – Paul Welch, SR VP Cloud Solutions, Redapt
+-->
+<blockquote>
+<p>“我们看到通过 Kubernetes 大规模运行容器的巨大客户需求是推动 Redapt 专业服务业务增长的关键因素。
+作为值得信赖的顾问，在我们的工具带中有像 Kubernetes 这样的工具能够帮助我们的客户实现他们的目标，这是非常棒的。“ – Redapt SR 云解决方案副总裁 Paul Welch</p>
+</blockquote>
+<!--
+As we mentioned above, we would love your help:  
+-->
+<p>如上所述，我们希望得到您的帮助:</p>
+<!--
+- Get involved with the Kubernetes project on [GitHub](https://github.com/kubernetes/kubernetes)&nbsp;
+- Connect with the community on [Slack](http://slack.kubernetes.io/)
+- Follow us on Twitter [@Kubernetesio](https://twitter.com/kubernetesio) for latest updates&nbsp;
+- Post questions (or answer questions) on Stackoverflow&nbsp;
+- Get started running, deploying, and using Kubernetes [guides](/docs/tutorials/kubernetes-basics/);
+-->
+<ul>
+<li>在 <a href="https://github.com/kubernetes/kubernetes">GitHub</a>上参与 Kubernetes 项目；</li>
+<li>通过 <a href="http://slack.kubernetes.io/">Slack</a> 与社区联系；</li>
+<li>关注我们的 Twitter <a href="https://twitter.com/kubernetesio">@Kubernetesio</a> 获取最新信息；</li>
+<li>在 Stackoverflow 上发布问题（或回答问题）</li>
+<li>开始运行，部署和使用 Kubernetes <a href="/docs/tutorials/kubernetes-basics/">指南</a>；</li>
+</ul>
+<!--
+But, most of all, just let us know how you are transforming your business using Kubernetes, and how we can help you do it even faster. Thank you for your support!  
+-->
+<p>但是，最重要的是，请让我们知道您是如何使用 Kubernetes 改变您的业务的，以及我们如何可以帮助您更快地做到这一点。谢谢您的支持!</p>
+<!--
+&nbsp;- David Aronchick, Senior Product Manager for Kubernetes and Google Container Engine
+-->
+<p> - David Aronchick, Kubernetes 和谷歌容器引擎的高级产品经理</p>
+
+	
+
+	<ul class="list-unstyled d-flex justify-content-between align-items-center mb-0 pt-5">
+  <li>
+    <a href="/zh/blog/2015/08/Weekly-Kubernetes-Community-Hangout/" aria-label="上一页 -  Weekly Kubernetes Community Hangout Notes - July 31 2015 " class="btn btn-primary"><span class="mr-1">←</span>上一页</a>
+  </li>
+    <a href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/" aria-label="下一页 -  使用 Puppet 管理 Kubernetes Pods，Services 和 Replication Controllers " class="btn btn-primary">下一页<span class="ml-1">→</span></a>
+  </li>
+</ul>
+
+</div>
+
+
+          </main>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+            <div class="td-page-blog-meta ml-2 pb-1 pt-2 mb-4">
+  <link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/zh/feed.xml" title="Kubernetes">
+  <a class="widget-link" href="http://localhost:1313/zh/feed.xml"><div> <i class="fas fa-rss fab-icon"> </i> <span class="widget-link-text">RSS Feed</span></div> </a>
+  <a class="widget-link" href="https://kubernetes.io/docs/contribute/new-content/blogs-case-studies/"><div> <i class="fa fa-edit fab-icon"></i> <span class="widget-link-text">Submit a Post</span></div></a>
+  <a class="widget-link" href="https://twitter.com/kubernetesio"><div> <i class="fab fa-twitter-square fab-icon"> </i> <span class="widget-link-text"> @Kubernetesio</span></div></a>
+  <a class="widget-link" href="https://github.com/kubernetes/kubernetes"><div> <i class="fab fa-github-square fab-icon"></i> <span class="widget-link-text"> on GitHub </span></div></a>
+  <a class="widget-link" href="http://slack.k8s.io"><div><i class="fab fa-slack fab-icon"> </i> <span class="widget-link-text">#kubernetes-users </span></div></a>
+  <a class="widget-link" href="https://stackoverflow.com/questions/tagged/kubernetes"><div><i class="fab fa-stack-overflow fab-icon"></i> <span class="widget-link-text"> Overflow</span></div></a>
+  <a class="widget-link" href="https://discuss.kubernetes.io"><div> <i class="fab fa-discourse fab-icon"></i><span class="widget-link-text"> Forum </span></div></a>
+  <a class="widget-link" href="https://kubernetes.io/docs/setup"><div><i class="fa fa-download fab-icon"></i> <span class="widget-link-text"> Kubernetes</span></div></a>
+</div>
+
+          </div>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

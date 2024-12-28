@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="pt-br" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/concepts/architecture/">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/zh/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/concepts/architecture/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/concepts/architecture/">
+<link rel="alternate" hreflang="it" href="http://localhost:1313/it/docs/concepts/architecture/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/concepts/architecture/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/concepts/architecture/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/concepts/architecture/">
+<link rel="alternate" hreflang="vi" href="http://localhost:1313/vi/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ru" href="http://localhost:1313/ru/docs/concepts/architecture/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/pt-br/docs/concepts/architecture/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>Arquitetura do Kubernetes | Kubernetes</title><meta property="og:title" content="Arquitetura do Kubernetes" />
+<meta property="og:description" content="Orquestração de contêineres em nível de produção" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/pt-br/docs/concepts/architecture/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="Arquitetura do Kubernetes">
+<meta itemprop="description" content="Orquestração de contêineres em nível de produção"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Arquitetura do Kubernetes"/>
+<meta name="twitter:description" content="Orquestração de contêineres em nível de produção"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="">
+<meta property="og:description" content="">
+<meta name="twitter:description" content="">
+<meta property="og:url" content="http://localhost:1313/pt-br/docs/concepts/architecture/">
+<meta property="og:title" content="Arquitetura do Kubernetes">
+<meta name="twitter:title" content="Arquitetura do Kubernetes">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/pt-br/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/pt-br/docs/" >Documentação</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/pt-br/blog/" >Kubernetes Blog</a>
+			</li>
+			
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/pt-br/partners/" >Parceiros</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/pt-br/community/" >Comunidade</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/pt-br/case-studies/" >Casos de estudo</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versões
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/pt-br/docs/concepts/architecture/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/pt-br/docs/concepts/architecture/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/pt-br/docs/concepts/architecture/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/pt-br/docs/concepts/architecture/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/pt-br/docs/concepts/architecture/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Português
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/concepts/architecture/">English</a>
+	
+	<a class="dropdown-item" href="/zh/docs/concepts/architecture/">中文 Chinese</a>
+	
+	<a class="dropdown-item" href="/ko/docs/concepts/architecture/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/ja/docs/concepts/architecture/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/fr/docs/concepts/architecture/">Français</a>
+	
+	<a class="dropdown-item" href="/it/docs/concepts/architecture/">Italiano</a>
+	
+	<a class="dropdown-item" href="/de/docs/concepts/architecture/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/es/docs/concepts/architecture/">Español</a>
+	
+	<a class="dropdown-item" href="/id/docs/concepts/architecture/">Bahasa Indonesia</a>
+	
+	<a class="dropdown-item" href="/vi/docs/concepts/architecture/">Tiếng Việt</a>
+	
+	<a class="dropdown-item" href="/ru/docs/concepts/architecture/">Русский</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+Essa é a versão completa de impressão dessa seção
+<a href="#" onclick="print();return false;">Clique aqui para imprimir</a>.
+</p><p>
+<a href="/pt-br/docs/concepts/architecture/">Retornar à visualização normal</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">Arquitetura do Kubernetes</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-c0251def6da29b30afebfb04549f1703">Comunicação entre Nó e Control Plane</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-bc804b02614d67025b4c788f1ca87fbc">Conceitos sobre Cloud Controller Manager</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-ca8819042a505291540e831283da66df">Controladores</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-c0251def6da29b30afebfb04549f1703">1 - Comunicação entre Nó e Control Plane</h1>
+    
+	<!-- overview -->
+<p>Este documento cataloga os caminhos de comunicação entre o control plane (o
+apiserver) e o cluster Kubernetes. A intenção é permitir que os usuários
+personalizem sua instalação para proteger a configuração de rede
+então o cluster pode ser executado em uma rede não confiável (ou em IPs totalmente públicos em um
+provedor de nuvem).</p>
+<!-- body -->
+<h2 id="nó-para-o-control-plane">Nó para o Control Plane</h2>
+<p>Todos os caminhos de comunicação do cluster para o control plane terminam no
+apiserver (nenhum dos outros componentes do control plane são projetados para expor
+Serviços remotos). Em uma implantação típica, o apiserver é configurado para escutar
+conexões remotas em uma porta HTTPS segura (443) com uma ou mais clientes <a href="/docs/reference/access-authn-authz/authentication/">autenticação</a> habilitado.
+Uma ou mais formas de <a href="/docs/reference/access-authn-authz/authorization/">autorização</a>
+deve ser habilitado, especialmente se <a href="/docs/reference/access-authn-authz/authentication/#anonymous-requests">requisições anônimas</a>
+ou <a href="/docs/reference/access-authn-authz/authentication/#service-account-tokens">tokens da conta de serviço</a>
+são autorizados.</p>
+<p>Os nós devem ser provisionados com o certificado root público para o cluster
+de tal forma que eles podem se conectar de forma segura ao apiserver junto com o cliente válido
+credenciais. Por exemplo, em uma implantação padrão do GKE, as credenciais do cliente
+fornecidos para o kubelet estão na forma de um certificado de cliente. Vejo
+<a href="/docs/reference/command-line-tools-reference/kubelet-tls-bootstrapping/">bootstrapping TLS do kubelet</a>
+para provisionamento automatizado de certificados de cliente kubelet.</p>
+<p>Os pods que desejam se conectar ao apiserver podem fazê-lo com segurança, aproveitando
+conta de serviço para que o Kubernetes injetará automaticamente o certificado raiz público
+certificado e um token de portador válido no pod quando ele é instanciado.
+O serviço <code>kubernetes</code> (no namespace <code>default</code>) é configurado com um IP virtual
+endereço que é redirecionado (via kube-proxy) para o endpoint com HTTPS no
+apiserver.</p>
+<p>Os componentes do control plane também se comunicam com o apiserver do cluster através da porta segura.</p>
+<p>Como resultado, o modo de operação padrão para conexões do cluster
+(nodes e pods em execução nos Nodes) para o control plane é protegido por padrão
+e pode passar por redes não confiáveis ​​e/ou públicas.</p>
+<h2 id="control-plane-para-o-nó">Control Plane para o nó</h2>
+<p>Existem dois caminhos de comunicação primários do control plane (apiserver) para os nós.
+O primeiro é do apiserver para o processo do kubelet que é executado em
+cada nó no cluster. O segundo é do apiserver para qualquer nó, pod,
+ou serviço através da funcionalidade de proxy do apiserver.</p>
+<h3 id="apiserver-para-o-kubelet">apiserver para o kubelet</h3>
+<p>As conexões do apiserver ao kubelet são usadas para:</p>
+<ul>
+<li>Buscar logs para pods.</li>
+<li>Anexar (através de kubectl) pods em execução.</li>
+<li>Fornecer a funcionalidade de encaminhamento de porta do kubelet.</li>
+</ul>
+<p>Essas conexões terminam no endpoint HTTPS do kubelet. Por padrão,
+o apiserver não verifica o certificado de serviço do kubelet,
+o que torna a conexão sujeita a ataques man-in-the-middle, o que o torna
+<strong>inseguro</strong> para passar por redes não confiáveis ​​e / ou públicas.</p>
+<p>Para verificar essa conexão, use a flag <code>--kubelet-certificate-authority</code> para
+fornecer o apiserver com um pacote de certificado raiz para usar e verificar o
+certificado de serviço da kubelet.</p>
+<p>Se isso não for possível, use o <a href="/docs/concepts/architecture/master-node-communication/#ssh-tunnels">SSH túnel</a>
+entre o apiserver e kubelet se necessário para evitar a conexão ao longo de um
+rede não confiável ou pública.</p>
+<p>Finalmente, <a href="/docs/admin/kubelet-authentication-authorization/">Autenticação e/ou autorização do Kubelet</a>
+deve ser ativado para proteger a API do kubelet.</p>
+<h3 id="apiserver-para-nós-pods-e-serviços">apiserver para nós, pods e serviços</h3>
+<p>As conexões a partir do apiserver para um nó, pod ou serviço padrão para simples
+conexões HTTP não são autenticadas nem criptografadas. Eles
+podem ser executados em uma conexão HTTPS segura prefixando <code>https:</code> no nó,
+pod, ou nome do serviço no URL da API, mas eles não validarão o certificado
+fornecido pelo ponto de extremidade HTTPS, nem fornece credenciais de cliente, enquanto
+a conexão será criptografada, não fornecerá nenhuma garantia de integridade.
+Estas conexões <strong>não são atualmente seguras</strong> para serem usados por redes não confiáveis ​​e/ou públicas.</p>
+<h3 id="ssh-túnel">SSH Túnel</h3>
+<p>O Kubernetes suporta túneis SSH para proteger os caminhos de comunicação do control plane para os nós. Nesta configuração, o apiserver inicia um túnel SSH para cada nó
+no cluster (conectando ao servidor ssh escutando na porta 22) e passa
+todo o tráfego destinado a um kubelet, nó, pod ou serviço através do túnel.
+Este túnel garante que o tráfego não seja exposto fora da rede aos quais
+os nós estão sendo executados.</p>
+<p>Atualmente, os túneis SSH estão obsoletos, portanto, você não deve optar por usá-los, a menos que saiba o que está fazendo. O serviço Konnectivity é um substituto para este canal de comunicação.</p>
+<h3 id="konnectivity-service">Konnectivity service</h3>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<p>Como uma substituição aos túneis SSH, o serviço Konnectivity fornece proxy de nível TCP para a comunicação do control plane para o cluster. O serviço Konnectivity consiste em duas partes: o servidor Konnectivity na rede control plane e os agentes Konnectivity na rede dos nós. Os agentes Konnectivity iniciam conexões com o servidor Konnectivity e mantêm as conexões de rede. Depois de habilitar o serviço Konnectivity, todo o tráfego do control plane para os nós passa por essas conexões.</p>
+<p>Veja a <a href="docs/tasks/extend-kubernetes/setup-konnectivity/">tarefa do Konnectivity</a> para configurar o serviço Konnectivity no seu cluster.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-bc804b02614d67025b4c788f1ca87fbc">2 - Conceitos sobre Cloud Controller Manager</h1>
+    
+	<!-- overview -->
+<p>O conceito do Cloud Controller Manager (CCM) (não confundir com o binário) foi originalmente criado para permitir que o código específico de provedor de nuvem e o núcleo do Kubernetes evoluíssem independentemente um do outro. O Cloud Controller Manager é executado junto com outros componentes principais, como o Kubernetes controller manager, o servidor de API e o scheduler. Também pode ser iniciado como um addon do Kubernetes, caso em que é executado em cima do Kubernetes.</p>
+<p>O design do Cloud Controller Manager é baseado em um mecanismo de plug-in que permite que novos provedores de nuvem se integrem facilmente ao Kubernetes usando plug-ins. Existem planos para integrar novos provedores de nuvem no Kubernetes e para migrar provedores de nuvem que estão utilizando o modelo antigo para o novo modelo de CCM.</p>
+<p>Este documento discute os conceitos por trás do Cloud Controller Manager e fornece detalhes sobre suas funções associadas.</p>
+<p>Aqui está a arquitetura de um cluster Kubernetes sem o Cloud Controller Manager:</p>
+<p><img src="/images/docs/pre-ccm-arch.png" alt="Pre CCM Kube Arch"></p>
+<!-- body -->
+<h2 id="projeto-de-arquitetura-design">Projeto de Arquitetura (Design)</h2>
+<p>No diagrama anterior, o Kubernetes e o provedor de nuvem são integrados através de vários componentes diferentes:</p>
+<ul>
+<li>Kubelet</li>
+<li>Kubernetes controller manager</li>
+<li>Kubernetes API server</li>
+</ul>
+<p>O CCM consolida toda a lógica que depende da nuvem dos três componentes anteriores para criar um único ponto de integração com a nuvem. A nova arquitetura com o CCM se parece com isso:</p>
+<p><img src="/images/docs/post-ccm-arch.png" alt="CCM Kube Arch"></p>
+<h2 id="componentes-do-ccm">Componentes do CCM</h2>
+<p>O CCM separa algumas das funcionalidades do KCM (Kubernetes Controller Manager) e o executa como um processo separado. Especificamente, isso elimina os controladores no KCM que dependem da nuvem. O KCM tem os seguintes loops de controlador dependentes de nuvem:</p>
+<ul>
+<li>Node controller</li>
+<li>Volume controller</li>
+<li>Route controller</li>
+<li>Service controller</li>
+</ul>
+<p>Na versão 1.9, o CCM executa os seguintes controladores da lista anterior:</p>
+<ul>
+<li>Node controller</li>
+<li>Route controller</li>
+<li>Service controller</li>
+</ul>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Nota:</strong> O Volume Controller foi deliberadamente escolhido para não fazer parte do CCM. Devido à complexidade envolvida e devido aos esforços existentes para abstrair a lógica de volume específica do fornecedor, foi decidido que o Volume Controller não será movido para o CCM.
+</div>
+<p>O plano original para suportar volumes usando o CCM era usar volumes Flex para suportar volumes plugáveis. No entanto, um esforço concorrente conhecido como CSI está sendo planejado para substituir o Flex.</p>
+<p>Considerando essas dinâmicas, decidimos ter uma medida de intervalo intermediário até que o CSI esteja pronto.</p>
+<h2 id="funções-do-ccm">Funções do CCM</h2>
+<p>O CCM herda suas funções de componentes do Kubernetes que são dependentes de um provedor de nuvem. Esta seção é estruturada com base nesses componentes.</p>
+<h3 id="1-kubernetes-controller-manager">1. Kubernetes Controller Manager</h3>
+<p>A maioria das funções do CCM é derivada do KCM. Conforme mencionado na seção anterior, o CCM executa os seguintes ciclos de controle:</p>
+<ul>
+<li>Node Controller</li>
+<li>Route Controller</li>
+<li>Service Controller</li>
+</ul>
+<h4 id="node-controller">Node Controller</h4>
+<p>O Node Controller é responsável por inicializar um nó obtendo informações sobre os nós em execução no cluster do provedor de nuvem. O Node Controller executa as seguintes funções:</p>
+<ol>
+<li>Inicializar um node com labels de região/zona específicos para a nuvem.</li>
+<li>Inicialize um node com detalhes de instância específicos da nuvem, por exemplo, tipo e tamanho.</li>
+<li>Obtenha os endereços de rede e o nome do host do node.</li>
+<li>No caso de um node não responder, verifique a nuvem para ver se o node foi excluído da nuvem.
+Se o node foi excluído da nuvem, exclua o objeto Node do Kubernetes.</li>
+</ol>
+<h4 id="route-controller">Route Controller</h4>
+<p>O Route Controller é responsável por configurar as rotas na nuvem apropriadamente, de modo que os contêineres em diferentes nodes no cluster do Kubernetes possam se comunicar entre si. O Route Controller é aplicável apenas para clusters do Google Compute Engine.</p>
+<h4 id="service-controller">Service controller</h4>
+<p>O Service controller é responsável por ouvir os eventos de criação, atualização e exclusão do serviço. Com base no estado atual dos serviços no Kubernetes, ele configura os balanceadores de carga da nuvem (como o ELB, o Google LB ou o Oracle Cloud Infrastrucutre LB) para refletir o estado dos serviços no Kubernetes. Além disso, garante que os back-ends de serviço para balanceadores de carga da nuvem estejam atualizados.</p>
+<h3 id="2-kubelet">2. Kubelet</h3>
+<p>O Node Controller contém a funcionalidade dependente da nuvem do kubelet. Antes da introdução do CCM, o kubelet era responsável por inicializar um nó com detalhes específicos da nuvem, como endereços IP, rótulos de região / zona e informações de tipo de instância. A introdução do CCM mudou esta operação de inicialização do kubelet para o CCM.</p>
+<p>Nesse novo modelo, o kubelet inicializa um nó sem informações específicas da nuvem. No entanto, ele adiciona uma marca (taint) ao nó recém-criado que torna o nó não programável até que o CCM inicialize o nó com informações específicas da nuvem. Em seguida, remove essa mancha (taint).</p>
+<h2 id="mecanismo-de-plugins">Mecanismo de plugins</h2>
+<p>O Cloud Controller Manager usa interfaces Go para permitir implementações de qualquer nuvem a ser conectada. Especificamente, ele usa a Interface CloudProvider definida<a href="https://github.com/kubernetes/cloud-provider/blob/9b77dc1c384685cb732b3025ed5689dd597a5971/cloud.go#L42-L62">aqui</a>.</p>
+<p>A implementação dos quatro controladores compartilhados destacados acima, e algumas estruturas que ficam junto com a interface compartilhada do provedor de nuvem, permanecerão no núcleo do Kubernetes. Implementações específicas para provedores de nuvem serão construídas fora do núcleo e implementarão interfaces definidas no núcleo.</p>
+<p>Para obter mais informações sobre o desenvolvimento de plug-ins, consulte<a href="/docs/tasks/administer-cluster/developing-cloud-controller-manager/">Desenvolvendo o Cloud Controller Manager</a>.</p>
+<h2 id="autorização">Autorização</h2>
+<p>Esta seção divide o acesso necessário em vários objetos da API pelo CCM para executar suas operações.</p>
+<h3 id="node-controller-1">Node Controller</h3>
+<p>O Node Controller só funciona com objetos Node. Ele requer acesso total para obter, listar, criar, atualizar, corrigir, assistir e excluir objetos Node.</p>
+<p>v1/Node:</p>
+<ul>
+<li>Get</li>
+<li>List</li>
+<li>Create</li>
+<li>Update</li>
+<li>Patch</li>
+<li>Watch</li>
+<li>Delete</li>
+</ul>
+<h3 id="rote-controller">Rote Controller</h3>
+<p>O Rote Controller escuta a criação do objeto Node e configura as rotas apropriadamente. Isso requer acesso a objetos Node.</p>
+<p>v1/Node:</p>
+<ul>
+<li>Get</li>
+</ul>
+<h3 id="service-controller-1">Service Controller</h3>
+<p>O Service Controller escuta eventos de criação, atualização e exclusão de objeto de serviço e, em seguida, configura pontos de extremidade para esses serviços de forma apropriada.</p>
+<p>Para acessar os Serviços, é necessário listar e monitorar o acesso. Para atualizar os Serviços, ele requer patch e atualização de acesso.</p>
+<p>Para configurar endpoints para os Serviços, é necessário acesso para criar, listar, obter, assistir e atualizar.</p>
+<p>v1/Service:</p>
+<ul>
+<li>List</li>
+<li>Get</li>
+<li>Watch</li>
+<li>Patch</li>
+<li>Update</li>
+</ul>
+<h3 id="outros">Outros</h3>
+<p>A implementação do núcleo do CCM requer acesso para criar eventos e, para garantir a operação segura, requer acesso para criar ServiceAccounts.</p>
+<p>v1/Event:</p>
+<ul>
+<li>Create</li>
+<li>Patch</li>
+<li>Update</li>
+</ul>
+<p>v1/ServiceAccount:</p>
+<ul>
+<li>Create</li>
+</ul>
+<p>O RBAC ClusterRole para o CCM se parece com isso:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>rbac.authorization.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ClusterRole<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cloud-controller-manager<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">rules</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- events<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- nodes<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#39;*&#39;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- nodes/status<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- services<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- serviceaccounts<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- persistentvolumes<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- get<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- endpoints<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- get<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span></code></pre></div><h2 id="implementações-de-provedores-de-nuvem">Implementações de Provedores de Nuvem</h2>
+<p>Os seguintes provedores de nuvem implementaram CCMs:</p>
+<ul>
+<li><a href="https://github.com/digitalocean/digitalocean-cloud-controller-manager">Digital Ocean</a></li>
+<li><a href="https://github.com/oracle/oci-cloud-controller-manager">Oracle</a></li>
+<li><a href="https://github.com/kubernetes/cloud-provider-azure">Azure</a></li>
+<li><a href="https://github.com/kubernetes/cloud-provider-gcp">GCP</a></li>
+<li><a href="https://github.com/kubernetes/cloud-provider-aws">AWS</a></li>
+<li><a href="https://github.com/baidu/cloud-provider-baiducloud">BaiduCloud</a></li>
+<li><a href="https://github.com/linode/linode-cloud-controller-manager">Linode</a></li>
+</ul>
+<h2 id="administração-de-cluster">Administração de Cluster</h2>
+<p>Voce vai encontrar instruções completas para configurar e executar o CCM
+<a href="/docs/tasks/administer-cluster/running-cloud-controller/#cloud-controller-manager">aqui</a>.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-ca8819042a505291540e831283da66df">3 - Controladores</h1>
+    
+	<!-- overview -->
+<p>Em robótica e automação um <em>control loop</em>, ou em português <em>ciclo de controle</em>, é
+um ciclo não terminado que regula o estado de um sistema.</p>
+<p>Um exemplo de ciclo de controle é um termostato de uma sala.</p>
+<p>Quando você define a temperatura, isso indica ao termostato
+sobre o seu <em>estado desejado</em>. A temperatura ambiente real é o
+<em>estado atual</em>. O termostato atua de forma a trazer o estado atual
+mais perto do estado desejado, ligando ou desligando o equipamento.</p>
+No Kubernetes, controladores são ciclos de controle que observam o estado do seu
+<a class='glossary-tooltip' title='Um conjunto de servidores de processamento, também chamados de nós, que executam aplicações containerizadas. Todo cluster possui ao menos um servidor de processamento (worker node).' data-toggle='tooltip' data-placement='top' href='/pt-br/docs/reference/glossary/?all=true#term-cluster' target='_blank' aria-label='cluster'>cluster</a>, e então fazer ou requisitar
+mudanças onde necessário.
+Cada controlador tenta mover o estado atual do cluster mais perto do estado desejado.
+<!-- body -->
+<h2 id="padrão-controlador-controller-pattern">Padrão Controlador (Controller pattern)</h2>
+<p>Um controlador rastreia pelo menos um tipo de recurso Kubernetes.
+Estes <a href="/docs/concepts/overview/working-with-objects/kubernetes-objects/#kubernetes-objects">objetos</a>
+têm um campo <em>spec</em> que representa o <em>estado desejado</em>.
+O(s) controlador(es) para aquele recurso são responsáveis por trazer o <em>estado atual</em>
+mais perto do <em>estado desejado</em>.</p>
+<p>O controlador pode executar uma ação ele próprio, ou,
+o que é mais comum, no Kubernetes, o controlador envia uma mensagem para o
+<a class='glossary-tooltip' title='O componente da camada de gerenciamento que serve a API do Kubernetes.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/overview/components/#kube-apiserver' target='_blank' aria-label='API server'>API server</a> (servidor de API) que tem
+efeitos colaterais úteis. Você vai ver exemplos disto abaixo.</p>
+<h3 id="controlador-via-api-server">Controlador via API server</h3>
+<p>O controlador <a class='glossary-tooltip' title='Uma tarefa finita ou em lotes que executa até finalizar.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/controllers/job' target='_blank' aria-label='Job'>Job</a> é um exemplo de um
+controlador Kubernetes embutido. Controladores embutidos gerem estados através da
+interação com o <em>cluster API server</em>.</p>
+<p><em>Job</em> é um recurso do Kubernetes que é executado em um
+<em><a class='glossary-tooltip' title='O menor e mais simples objeto Kubernetes. Um Pod representa um conjunto de contêineres em execução no seu cluster.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/' target='_blank' aria-label='Pod'>Pod</a></em>, ou talvez vários <em>Pods</em>, com o objetivo de
+executar uma tarefa e depois parar.</p>
+<p>(Uma vez <a href="/docs/concepts/scheduling/">agendado</a>, objetos <em>Pod</em> passam a fazer parte
+do <em>estado desejado</em> para um kubelet.</p>
+<p>Quando o controlador <em>Job</em> observa uma nova tarefa ele garante que,
+algures no seu <em>cluster</em>, os kubelets num conjunto de nós (<em>Nodes</em>) estão correndo o número
+correto de <em>Pods</em> para completar o trabalho.
+O controlador <em>Job</em> não corre <em>Pods</em> ou <em>containers</em> ele próprio.
+Em vez disso, o controlador <em>Job</em> informa o <em>API server</em> para criar ou remover <em>Pods</em>.
+Outros componentes do plano de controle
+(<a class='glossary-tooltip' title='A camada de gerenciamento de contêiner que expõe a API e as interfaces para definir, implantar e gerenciar o ciclo de vida dos contêineres.' data-toggle='tooltip' data-placement='top' href='/pt-br/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='control plane'>control plane</a>)
+atuam na nova informação (existem novos <em>Pods</em> para serem agendados e executados),
+e eventualmente o trabalho é feito.</p>
+<p>Após ter criado um novo <em>Job</em>, o <em>estado desejado</em> é que esse Job seja completado.
+O controlador <em>Job</em> faz com que o <em>estado atual</em> para esse <em>Job</em> esteja mais perto do seu
+<em>estado desejado</em>: criando <em>Pods</em> que fazem o trabalho desejado para esse <em>Job</em> para que
+o <em>Job</em> fique mais perto de ser completado.</p>
+<p>Controladores também atualizam os objetos que os configuram.
+Por exemplo: assim que o trabalho de um <em>Job</em> está completo,
+o controlador <em>Job</em> atualiza esse objeto <em>Job</em> para o marcar como <code>Finished</code> (terminado).</p>
+<p>(Isto é um pouco como alguns termostatos desligam uma luz para
+indicar que a temperatura da sala está agora na temperatura que foi introduzida).</p>
+<h3 id="controle-direto">Controle direto</h3>
+<p>Em contraste com <em>Job</em>, alguns controladores necessitam de efetuar
+mudanças fora do <em>cluster</em>.</p>
+<p>Por exemplo, se usar um ciclo de controle para garantir que existem
+<em><a class='glossary-tooltip' title='Um Nó é uma máquina de trabalho no Kubernetes.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/architecture/nodes/' target='_blank' aria-label='Nodes'>Nodes</a></em> suficientes
+no seu <em>cluster</em>, então esse controlador necessita de algo exterior ao
+<em>cluster</em> atual para configurar novos <em>Nodes</em> quando necessário.</p>
+<p>Controladores que interagem com estados externos encontram o seu estado desejado
+a partir do <em>API server</em>, e então comunicam diretamente com o sistema externo para
+trazer o <em>estado atual</em> mais próximo do desejado.</p>
+<p>(Existe um controlador que escala horizontalmente nós no seu <em>cluster</em>.
+Veja <a href="/docs/tasks/administer-cluster/cluster-management/#cluster-autoscaling">Escalamento automático do cluster</a>)</p>
+<h2 id="desired-vs-current">Estado desejado versus atual</h2>
+<p>Kubernetes tem uma visão <em>cloud-native</em> de sistemas e é capaz de manipular
+mudanças constantes.</p>
+<p>O seu <em>cluster</em> pode mudar em qualquer momento à medida que as ações acontecem e
+os ciclos de controle corrigem falhas automaticamente. Isto significa que,
+potencialmente, o seu <em>cluster</em> nunca atinge um estado estável.</p>
+<p>Enquanto os controladores no seu <em>cluster</em> estiverem rodando e forem capazes de
+fazer alterações úteis, não importa se o estado é estável ou se é instável.</p>
+<h2 id="design">Design</h2>
+<p>Como um princípio do seu desenho, o Kubernetes usa muitos controladores onde cada
+um gerencia um aspecto particular do estado do <em>cluster</em>. Comumente, um particular
+ciclo de controle (controlador) usa uma espécie de recurso como o seu <em>estado desejado</em>,
+e tem uma espécie diferente de recurso que o mesmo gere para garantir que esse <em>estado desejado</em>
+é cumprido.</p>
+<p>É útil que haja controladores simples em vez de um conjunto monolítico de ciclos de controle
+que estão interligados. Controladores podem falhar, então o Kubernetes foi desenhado para
+permitir isso.</p>
+<p>Por exemplo: um controlador de <em>Jobs</em> rastreia objetos <em>Job</em> (para
+descobrir novos trabalhos) e objetos <em>Pod</em> (para correr o <em>Jobs</em>, e então
+ver quando o trabalho termina). Neste caso outra coisa cria os <em>Jobs</em>,
+enquanto o controlador <em>Job</em> cria <em>Pods</em>.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Nota:</strong> <p>Podem existir vários controladores que criam ou atualizam a mesma espécie (kind) de objeto.
+Atrás das cortinas, os controladores do Kubernetes garantem que eles apenas tomam
+atenção aos recursos ligados aos seus recursos controladores.</p>
+<p>Por exemplo, você pode ter <em>Deployments</em> e <em>Jobs</em>; ambos criam <em>Pods</em>.
+O controlador de <em>Job</em> não apaga os <em>Pods</em> que o seu <em>Deployment</em> criou,
+porque existe informação (<a class='glossary-tooltip' title='Tags objects with identifying attributes that are meaningful and relevant to users.' data-toggle='tooltip' data-placement='top' href='/docs/concepts/overview/working-with-objects/labels' target='_blank' aria-label='labels'>labels</a>)
+que os controladores podem usar para diferenciar esses <em>Pods</em>.</p>
+
+</div>
+<h2 id="running-controllers">Formas de rodar controladores</h2>
+<p>O Kubernetes vem com um conjunto de controladores embutidos que correm
+dentro do <a class='glossary-tooltip' title='Componente da camada de gerenciamento que executa os processos de controle.' data-toggle='tooltip' data-placement='top' href='/docs/reference/command-line-tools-reference/kube-controller-manager/' target='_blank' aria-label='kube-controller-manager'>kube-controller-manager</a>.
+Estes controladores embutidos providenciam comportamentos centrais importantes.</p>
+<p>O controlador <em>Deployment</em> e o controlador <em>Job</em> são exemplos de controladores
+que veem como parte do próprio Kubernetes (controladores &quot;embutidos&quot;).
+O Kubernetes deixa você correr o plano de controle resiliente, para que se qualquer
+um dos controladores embutidos falhar, outra parte do plano de controle assume
+o trabalho.</p>
+<p>Pode encontrar controladores fora do plano de controle, para extender o Kubernetes.
+Ou, se quiser, pode escrever um novo controlador você mesmo.
+Pode correr o seu próprio controlador como um conjunto de <em>Pods</em>,
+ou externo ao Kubernetes. O que encaixa melhor vai depender no que esse
+controlador faz em particular.</p>
+<h2 id="próximos-passos">Próximos passos</h2>
+<ul>
+<li>Leia mais sobre o <a href="/docs/concepts/#kubernetes-control-plane">plano de controle do Kubernetes</a></li>
+<li>Descubra alguns dos <a href="/docs/concepts/#kubernetes-objects">objetos Kubernetes</a> básicos.</li>
+<li>Aprenda mais sobre <a href="/docs/concepts/overview/kubernetes-api/">API do Kubernetes</a></li>
+<li>Se pretender escrever o seu próprio controlador, veja <a href="/docs/concepts/extend-kubernetes/extend-cluster/#extension-patterns">Padrões de Extensão</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/pt-br/docs/home/">Home</a>
+      
+      <a class="text-white" href="/pt-br/blog/">Blog</a>
+      
+      
+      
+      <a class="text-white" href="/pt-br/partners/">Parceiros</a>
+      
+      <a class="text-white" href="/pt-br/community/">Comunidade</a>
+      
+      <a class="text-white" href="/pt-br/case-studies/">Casos de estudo</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 Os autores do Kubernetes | Documentação Distribuída sob <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 A Fundação Linux &reg;. Todos os direitos reservados. A Linux Foundation tem marcas registradas e usa marcas registradas. Para uma lista de marcas registradas da The Linux Foundation, por favor, veja nossa <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Página de uso de marca registrada</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

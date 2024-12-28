@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tasks/administer-cluster/kubeadm/">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/zh/docs/tasks/administer-cluster/kubeadm/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/tasks/administer-cluster/kubeadm/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tasks/administer-cluster/kubeadm/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/tasks/administer-cluster/kubeadm/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tasks/administer-cluster/kubeadm/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/ko/docs/tasks/administer-cluster/kubeadm/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>kubeadm으로 관리하기 | Kubernetes</title><meta property="og:title" content="kubeadm으로 관리하기" />
+<meta property="og:description" content="운영 수준의 컨테이너 오케스트레이션" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/ko/docs/tasks/administer-cluster/kubeadm/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="kubeadm으로 관리하기">
+<meta itemprop="description" content="운영 수준의 컨테이너 오케스트레이션"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kubeadm으로 관리하기"/>
+<meta name="twitter:description" content="운영 수준의 컨테이너 오케스트레이션"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="">
+<meta property="og:description" content="">
+<meta name="twitter:description" content="">
+<meta property="og:url" content="http://localhost:1313/ko/docs/tasks/administer-cluster/kubeadm/">
+<meta property="og:title" content="kubeadm으로 관리하기">
+<meta name="twitter:title" content="kubeadm으로 관리하기">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/ko/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/ko/docs/" >문서</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/blog/" >쿠버네티스 블로그</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/training/" >교육</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/partners/" >파트너</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/community/" >커뮤니티</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/ko/case-studies/" >사례 연구</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	버전
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	한국어 Korean
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tasks/administer-cluster/kubeadm/">English</a>
+	
+	<a class="dropdown-item" href="/zh/docs/tasks/administer-cluster/kubeadm/">中文 Chinese</a>
+	
+	<a class="dropdown-item" href="/ja/docs/tasks/administer-cluster/kubeadm/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tasks/administer-cluster/kubeadm/">Français</a>
+	
+	<a class="dropdown-item" href="/de/docs/tasks/administer-cluster/kubeadm/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/es/docs/tasks/administer-cluster/kubeadm/">Español</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+이 섹션의 다중 페이지 출력 화면임.
+<a href="#" onclick="print();return false;">여기를 클릭하여 프린트</a>.
+</p><p>
+<a href="/ko/docs/tasks/administer-cluster/kubeadm/">이 페이지의 일반 화면으로 돌아가기</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">kubeadm으로 관리하기</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-f62fba1de4084f3be070785757c8079c">kubeadm을 사용한 인증서 관리</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-2e173356df5179cab9eec90a606f0aa4">kubeadm 클러스터 업그레이드</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-9133578f1e75663bb031e5a377ca896d">윈도우 노드 추가</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-e805c7d8d4ad6195cb82dbbc843bfc29">윈도우 노드 업그레이드</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-f62fba1de4084f3be070785757c8079c">1 - kubeadm을 사용한 인증서 관리</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.15 [stable]</code>
+</div>
+
+
+<p><a href="/ko/docs/reference/setup-tools/kubeadm/">kubeadm</a>으로 생성된 클라이언트 인증서는 1년 후에 만료된다. 이 페이지는 kubeadm으로 인증서 갱신을 관리하는 방법을 설명한다.</p>
+<h2 id="시작하기-전에">시작하기 전에</h2>
+<p><a href="/ko/docs/setup/best-practices/certificates/">쿠버네티스의 PKI 인증서와 요구 조건</a>에 익숙해야 한다.</p>
+<!-- steps -->
+<h2 id="custom-certificates">사용자 정의 인증서 사용</h2>
+<p>기본적으로, kubeadm은 클러스터를 실행하는 데 필요한 모든 인증서를 생성한다.
+사용자는 자체 인증서를 제공하여 이 동작을 무시할 수 있다.</p>
+<p>이렇게 하려면, <code>--cert-dir</code> 플래그 또는 kubeadm <code>ClusterConfiguration</code> 의
+<code>certificatesDir</code> 필드에 지정된 디렉터리에 배치해야 한다.
+기본적으로  <code>/etc/kubernetes/pki</code> 이다.</p>
+<p><code>kubeadm init</code> 을 실행하기 전에 지정된 인증서와 개인 키(private key) 쌍이 존재하면,
+kubeadm은 이를 덮어 쓰지 않는다. 이는 예를 들어, 기존 CA를
+<code>/etc/kubernetes/pki/ca.crt</code> 와 <code>/etc/kubernetes/pki/ca.key</code> 에
+복사할 수 있고, kubeadm은 이 CA를 사용하여 나머지 인증서에 서명한다는 걸 의미한다.</p>
+<h2 id="external-ca-mode">외부 CA 모드</h2>
+<p><code>ca.key</code> 파일이 아닌 <code>ca.crt</code> 파일만 제공할
+수도 있다(이는 다른 인증서 쌍이 아닌 루트 CA 파일에만 사용 가능함).
+다른 모든 인증서와 kubeconfig 파일이 있으면, kubeadm은 이 조건을
+인식하고 &quot;외부 CA&quot; 모드를 활성화한다. kubeadm은 디스크에
+CA 키없이 진행한다.</p>
+<p>대신, <code>--controllers=csrsigner</code> 사용하여 controller-manager를
+독립적으로 실행하고 CA 인증서와 키를 가리킨다.</p>
+<p><a href="/ko/docs/setup/best-practices/certificates/">PKI 인증서와 요구 조건</a>은 외부 CA를
+사용하도록 클러스터 설정에 대한 지침을 포함한다.</p>
+<h2 id="인증서-만료-확인">인증서 만료 확인</h2>
+<p><code>check-expiration</code> 하위 명령을 사용하여 인증서가 만료되는 시기를 확인할 수 있다.</p>
+<pre><code>kubeadm certs check-expiration
+</code></pre><p>출력 결과는 다음과 비슷하다.</p>
+<pre><code>CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
+admin.conf                 Dec 30, 2020 23:36 UTC   364d                                    no
+apiserver                  Dec 30, 2020 23:36 UTC   364d            ca                      no
+apiserver-etcd-client      Dec 30, 2020 23:36 UTC   364d            etcd-ca                 no
+apiserver-kubelet-client   Dec 30, 2020 23:36 UTC   364d            ca                      no
+controller-manager.conf    Dec 30, 2020 23:36 UTC   364d                                    no
+etcd-healthcheck-client    Dec 30, 2020 23:36 UTC   364d            etcd-ca                 no
+etcd-peer                  Dec 30, 2020 23:36 UTC   364d            etcd-ca                 no
+etcd-server                Dec 30, 2020 23:36 UTC   364d            etcd-ca                 no
+front-proxy-client         Dec 30, 2020 23:36 UTC   364d            front-proxy-ca          no
+scheduler.conf             Dec 30, 2020 23:36 UTC   364d                                    no
+
+CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED
+ca                      Dec 28, 2029 23:36 UTC   9y              no
+etcd-ca                 Dec 28, 2029 23:36 UTC   9y              no
+front-proxy-ca          Dec 28, 2029 23:36 UTC   9y              no
+</code></pre><p>이 명령은 <code>/etc/kubernetes/pki</code> 폴더의 클라이언트 인증서와 kubeadm이 사용하는 KUBECONFIG 파일(<code>admin.conf</code>, <code>controller-manager.conf</code> 및 <code>scheduler.conf</code>)에 포함된 클라이언트 인증서의 만료/잔여 기간을 표시한다.</p>
+<p>또한, kubeadm은 인증서가 외부에서 관리되는지를 사용자에게 알린다. 이 경우 사용자는 수동으로 또는 다른 도구를 사용해서 인증서 갱신 관리를 해야 한다.</p>
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>경고:</strong> <code>kubeadm</code> 은 외부 CA가 서명한 인증서를 관리할 수 없다.
+</div>
+
+
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <code>kubelet.conf</code> 는 위 목록에 포함되어 있지 않은데, 이는
+kubeadm이 <a href="/ko/docs/tasks/tls/certificate-rotation/">자동 인증서 갱신</a>을 위해
+<code>/var/lib/kubelet/pki</code>에 있는 갱신 가능한 인증서를 이용하여 kubelet을 구성하기 때문이다.
+만료된 kubelet 클라이언트 인증서를 갱신하려면
+<a href="/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/#kubelet-client-cert">kubelet 클라이언트 갱신 실패</a> 섹션을 확인한다.
+</div>
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>경고:</strong> <p>kubeadm 1.17 이전의 버전에서 <code>kubeadm init</code> 으로 작성된 노드에는
+<code>kubelet.conf</code> 의 내용을 수동으로 수정해야 하는 <a href="https://github.com/kubernetes/kubeadm/issues/1753">버그</a>가 있다. <code>kubeadm init</code> 수행 완료 후, <code>client-certificate-data</code> 및 <code>client-key-data</code> 를 다음과 같이 교체하여,
+로테이트된 kubelet 클라이언트 인증서를 가리키도록 <code>kubelet.conf</code> 를 업데이트해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">client-certificate</span>:<span style="color:#bbb"> </span>/var/lib/kubelet/pki/kubelet-client-current.pem<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">client-key</span>:<span style="color:#bbb"> </span>/var/lib/kubelet/pki/kubelet-client-current.pem<span style="color:#bbb">
+</span></code></pre></div>
+</div>
+
+
+<h2 id="자동-인증서-갱신">자동 인증서 갱신</h2>
+<p>kubeadm은 컨트롤 플레인 <a href="/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">업그레이드</a> 동안 모든 인증서를 갱신한다.</p>
+<p>이 기능은 가장 간단한 유스케이스를 해결하기 위해 설계되었다.
+인증서 갱신에 대해 특별한 요구 사항이 없고 쿠버네티스 버전 업그레이드를 정기적으로(매 1년 이내 업그레이드 수행) 수행하는 경우, kubeadm은 클러스터를 최신 상태로 유지하고 합리적으로 보안을 유지한다.</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 보안을 유지하려면 클러스터를 자주 업그레이드하는 것이 가장 좋다.
+</div>
+<p>인증서 갱신에 대해 보다 복잡한 요구 사항이 있는 경우, <code>--certificate-renewal=false</code> 를 <code>kubeadm upgrade apply</code> 또는 <code>kubeadm upgrade node</code> 와 함께 사용하여 기본 동작이 수행되지 않도록 할 수 있다.</p>
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>경고:</strong> kubeadm 1.17 이전 버전에는 <code>kubeadm upgrade node</code> 명령에서
+<code>--certificate-renewal</code> 의 기본값이 <code>false</code> 인 <a href="https://github.com/kubernetes/kubeadm/issues/1818">버그</a>가
+있다. 이 경우 <code>--certificate-renewal=true</code> 를 명시적으로 설정해야 한다.
+</div>
+
+
+<h2 id="수동-인증서-갱신">수동 인증서 갱신</h2>
+<p><code>kubeadm certs renew</code> 명령을 사용하여 언제든지 인증서를 수동으로 갱신할 수 있다.</p>
+<p>이 명령은 <code>/etc/kubernetes/pki</code> 에 저장된 CA(또는 프론트 프록시 CA) 인증서와 키를 사용하여 갱신을 수행한다.</p>
+<p>명령을 실행한 후에는 컨트롤 플레인 파드를 재시작해야 한다.
+이는 현재 일부 구성 요소 및 인증서에 대해 인증서를 동적으로 다시 로드하는 것이 지원되지 않기 때문이다.
+<a href="/ko/docs/tasks/configure-pod-container/static-pod/">스태틱(static) 파드</a>는 API 서버가 아닌 로컬 kubelet에서 관리되므로
+kubectl을 사용하여 삭제 및 재시작할 수 없다.
+스태틱 파드를 다시 시작하려면 <code>/etc/kubernetes/manifests/</code>에서 매니페스트 파일을 일시적으로 제거하고
+20초를 기다리면 된다 (<a href="/docs/reference/config-api/kubelet-config.v1beta1/">KubeletConfiguration struct</a>의 <code>fileCheckFrequency</code> 값을 참고한다).
+파드가 매니페스트 디렉터리에 더 이상 없는 경우 kubelet은 파드를 종료한다.
+그런 다음 파일을 다시 이동할 수 있으며 또 다른 <code>fileCheckFrequency</code> 기간이 지나면,
+kubelet은 파드를 생성하고 구성 요소에 대한 인증서 갱신을 완료할 수 있다.</p>
+<div class="alert alert-danger warning callout" role="alert">
+  <strong>경고:</strong> HA 클러스터를 실행 중인 경우, 모든 컨트롤 플레인 노드에서 이 명령을 실행해야 한다.
+</div>
+
+
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <code>certs renew</code> 는 기존 인증서를 kubeadm-config 컨피그맵(ConfigMap) 대신 속성(공통 이름, 조직, SAN 등)의 신뢰할 수 있는 소스로 사용한다. 둘 다 동기화 상태를 유지하는 것을 강력히 권장한다.
+</div>
+<p><code>kubeadm certs renew</code> 는 다음의 옵션을 제공한다.</p>
+<p>쿠버네티스 인증서는 일반적으로 1년 후 만료일에 도달한다.</p>
+<ul>
+<li>
+<p><code>--csr-only</code> 는 실제로 인증서를 갱신하지 않고 인증서 서명 요청을 생성하여 외부 CA로 인증서를 갱신하는 데 사용할 수 있다. 자세한 내용은 다음 단락을 참고한다.</p>
+</li>
+<li>
+<p>모든 인증서 대신 단일 인증서를 갱신할 수도 있다.</p>
+</li>
+</ul>
+<h2 id="쿠버네티스-인증서-api를-사용하여-인증서-갱신">쿠버네티스 인증서 API를 사용하여 인증서 갱신</h2>
+<p>이 섹션에서는 쿠버네티스 인증서 API를 사용하여 수동 인증서 갱신을 실행하는 방법에 대한 자세한 정보를 제공한다.</p>
+<div class="alert alert-warning caution callout" role="alert">
+  <strong>주의:</strong> 조직의 인증서 인프라를 kubeadm으로 생성된 클러스터에 통합해야 하는 사용자를 위한 고급 주제이다. 기본 kubeadm 구성이 요구 사항을 충족하면 kubeadm이 인증서를 대신 관리하도록 해야 한다.
+</div>
+
+<h3 id="서명자-설정">서명자 설정</h3>
+<p>쿠버네티스 인증 기관(Certificate Authority)은 기본적으로 작동하지 않는다.
+<a href="https://cert-manager.io/docs/configuration/ca/">cert-manager</a>와 같은 외부 서명자를 설정하거나, 빌트인 서명자를 사용할 수 있다.</p>
+<p>빌트인 서명자는 <a href="/docs/reference/command-line-tools-reference/kube-controller-manager/"><code>kube-controller-manager</code></a>의 일부이다.</p>
+<p>빌트인 서명자를 활성화하려면, <code>--cluster-signing-cert-file</code> 와 <code>--cluster-signing-key-file</code> 플래그를 전달해야 한다.</p>
+<p>새 클러스터를 생성하는 경우, kubeadm <a href="https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta3">구성 파일</a>을 사용할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubeadm.k8s.io/v1beta3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ClusterConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">controllerManager</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">extraArgs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cluster-signing-cert-file</span>:<span style="color:#bbb"> </span>/etc/kubernetes/pki/ca.crt<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">cluster-signing-key-file</span>:<span style="color:#bbb"> </span>/etc/kubernetes/pki/ca.key<span style="color:#bbb">
+</span></code></pre></div><h3 id="인증서-서명-요청-csr-생성">인증서 서명 요청(CSR) 생성</h3>
+<p>쿠버네티스 API로 CSR을 작성하려면 <a href="/docs/reference/access-authn-authz/certificate-signing-requests/#create-certificatesigningrequest">CertificateSigningRequest 생성</a>을 본다.</p>
+<h2 id="외부-ca로-인증서-갱신">외부 CA로 인증서 갱신</h2>
+<p>이 섹션에서는 외부 CA를 사용하여 수동 인증서 갱신을 실행하는 방법에 대한 자세한 정보를 제공한다.</p>
+<p>외부 CA와 보다 효과적으로 통합하기 위해 kubeadm은 인증서 서명 요청(CSR)을 생성할 수도 있다.
+CSR은 클라이언트의 서명된 인증서에 대한 CA 요청을 나타낸다.
+kubeadm 관점에서, 일반적으로 온-디스크(on-disk) CA에 의해 서명되는 모든 인증서는 CSR로 생성될 수 있다. 그러나 CA는 CSR로 생성될 수 없다.</p>
+<h3 id="인증서-서명-요청-csr-생성-1">인증서 서명 요청(CSR) 생성</h3>
+<p><code>kubeadm certs renew --csr-only</code> 로 인증서 서명 요청을 만들 수 있다.</p>
+<p>CSR과 함께 제공되는 개인 키가 모두 출력된다.
+<code>--csr-dir</code> 로 사용할 디텍터리를 전달하여 지정된 위치로 CSR을 출력할 수 있다.
+<code>--csr-dir</code> 을 지정하지 않으면, 기본 인증서 디렉터리(<code>/etc/kubernetes/pki</code>)가 사용된다.</p>
+<p><code>kubeadm certs renew --csr-only</code> 로 인증서를 갱신할 수 있다.
+<code>kubeadm init</code> 과 마찬가지로 출력 디렉터리를 <code>--csr-dir</code> 플래그로 지정할 수 있다.</p>
+<p>CSR에는 인증서 이름, 도메인 및 IP가 포함되지만, 용도를 지정하지는 않는다.
+인증서를 발행할 때 <a href="/ko/docs/setup/best-practices/certificates/#%EB%AA%A8%EB%93%A0-%EC%9D%B8%EC%A6%9D%EC%84%9C">올바른 인증서 용도</a>를
+지정하는 것은 CA의 책임이다.</p>
+<ul>
+<li><code>openssl</code> 의 경우
+<a href="https://superuser.com/questions/738612/openssl-ca-keyusage-extension"><code>openssl ca</code> 명령</a>으로 수행한다.</li>
+<li><code>cfssl</code> 의 경우
+<a href="https://github.com/cloudflare/cfssl/blob/master/doc/cmd/cfssl.txt#L170">설정 파일에 용도</a>를 지정한다.</li>
+</ul>
+<p>선호하는 방법으로 인증서에 서명한 후, 인증서와 개인 키를 PKI 디렉터리(기본적으로 <code>/etc/kubernetes/pki</code>)에 복사해야 한다.</p>
+<h2 id="certificate-authority-rotation">인증 기관(CA) 순환(rotation)</h2>
+<p>Kubeadm은 CA 인증서의 순환이나 교체 기능을 기본적으로 지원하지 않는다.</p>
+<p>CA의 수동 순환이나 교체에 대한 보다 상세한 정보는 <a href="/docs/tasks/tls/manual-rotation-of-ca-certificates/">CA 인증서 수동 순환</a> 문서를 참조한다.</p>
+<h2 id="kubelet-serving-certs">서명된 kubelet 인증서 활성화하기</h2>
+<p>기본적으로 kubeadm에 의해서 배포된 kubelet 인증서는 자가 서명된(self-signed) 것이다.
+이것은 <a href="https://github.com/kubernetes-sigs/metrics-server">metrics-server</a>와
+같은 외부 서비스의 kubelet에 대한 연결은
+TLS로 보안되지 않음을 의미한다.</p>
+<p>제대로 서명된 인증서를 얻기 위해서 신규 kubeadm 클러스터의 kubelet을 구성하려면
+다음의 최소 구성을 <code>kubeadm init</code> 에 전달해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubeadm.k8s.io/v1beta3<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ClusterConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#00f;font-weight:bold">---</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>kubelet.config.k8s.io/v1beta1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>KubeletConfiguration<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">serverTLSBootstrap</span>:<span style="color:#bbb"> </span><span style="color:#a2f;font-weight:bold">true</span><span style="color:#bbb">
+</span></code></pre></div><p>만약 이미 클러스터를 생성했다면 다음을 따라 이를 조정해야 한다.</p>
+<ul>
+<li><code>kube-system</code> 네임스페이스에서 <code>kubelet-config-1.23</code> 컨피그맵을 찾아서 수정한다.
+해당 컨피그맵에는 <code>kubelet</code> 키가
+<a href="/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration">KubeletConfiguration</a>
+문서를 값으로 가진다. <code>serverTLSBootstrap: true</code> 가 되도록 KubeletConfiguration 문서를 수정한다.</li>
+<li>각 노드에서, <code>serverTLSBootstrap: true</code> 필드를 <code>/var/lib/kubelet/config.yaml</code> 에 추가한다.
+그리고 <code>systemctl restart kubelet</code> 로 kubelet을 재시작한다.</li>
+</ul>
+<p><code>serverTLSBootstrap: true</code> 필드는 kubelet 인증서를 이용한 부트스트랩을
+<code>certificates.k8s.io</code> API에 요청함으로써 활성화할 것이다. 한 가지 알려진 제약은
+이 인증서들에 대한 CSR(인증서 서명 요청)들이 kube-controller-manager -
+<a href="/docs/reference/access-authn-authz/certificate-signing-requests/#kubernetes-signers"><code>kubernetes.io/kubelet-serving</code></a>의
+기본 서명자(default signer)에 의해서 자동으로 승인될 수 없다는 점이다.
+이것은 사용자나 제 3의 컨트롤러의 액션을 필요로 할 것이다.</p>
+<p>이 CSR들은 다음을 통해 볼 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get csr
+NAME        AGE     SIGNERNAME                        REQUESTOR                      CONDITION
+csr-9wvgt   112s    kubernetes.io/kubelet-serving     system:node:worker-1           Pending
+csr-lz97v   1m58s   kubernetes.io/kubelet-serving     system:node:control-plane-1    Pending
+</code></pre></div><p>이를 승인하기 위해서는 다음을 수행한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl certificate approve &lt;CSR-name&gt;
+</code></pre></div><p>기본적으로, 이 인증서는 1년 후에 만기될 것이다. Kubeadm은
+<code>KubeletConfiguration</code> 필드의 <code>rotateCertificates</code> 를 <code>true</code> 로 설정한다. 이것은 만기가
+다가오면 인증서를 위한 신규 CSR 세트가 생성되는 것을 의미하며,
+해당 순환(rotation)을 완료하기 위해서는 승인이 되어야 한다는 것을 의미한다. 더 상세한 이해를 위해서는
+<a href="/docs/reference/command-line-tools-reference/kubelet-tls-bootstrapping/#certificate-rotation">인증서 순환</a>를 확인한다.</p>
+<p>만약 이 CSR들의 자동 승인을 위한 솔루션을 찾고 있다면 클라우드 제공자와
+연락하여 대역 외 메커니즘(out of band mechanism)을 통해 노드의 신분을 검증할 수 있는
+CSR 서명자를 가지고 있는지 문의하는 것을 추천한다.</p>
+<div class="alert alert-secondary callout third-party-content" role="alert"><strong>참고:</strong>
+  이 섹션은 쿠버네티스에 필요한 기능을 제공하는 써드파티 프로젝트와 관련이 있다. 쿠버네티스 프로젝트 작성자는 써드파티 프로젝트에 책임이 없다. 이 페이지는 <a href="https://github.com/cncf/foundation/blob/master/website-guidelines.md" target="_blank">CNCF 웹사이트 가이드라인</a>에 따라 프로젝트를 알파벳 순으로 나열한다. 이 목록에 프로젝트를 추가하려면 변경사항을 제출하기 전에 <a href="/contribute/style/content-guide/#third-party-content">콘텐츠 가이드</a>를 읽어본다.</div>
+<p>써드파티 커스텀 컨트롤러도 사용될 수 있다.</p>
+<ul>
+<li><a href="https://github.com/postfinance/kubelet-csr-approver">kubelet-csr-approver</a></li>
+</ul>
+<p>이러한 컨트롤러는 CSR의 CommonName과 요청된 IPs 및 도메인 네임을
+모두 검증하지 않는 한, 보안이 되는 메커니즘이 아니다. 이것을 통해 악의적 행위자가
+kubelet 인증서(클라이언트 인증)를 사용하여 아무 IP나 도메인 네임에 대해 인증서를
+요청하는 CSR의 생성을 방지할 수 있을 것이다.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-2e173356df5179cab9eec90a606f0aa4">2 - kubeadm 클러스터 업그레이드</h1>
+    
+	<!-- overview -->
+<p>이 페이지는 kubeadm으로 생성된 쿠버네티스 클러스터를
+1.22.x 버전에서 1.23.x 버전으로,
+1.23.x 버전에서 1.23.y(여기서 <code>y &gt; x</code>) 버전으로 업그레이드하는 방법을 설명한다.  업그레이드가 지원되지 않는 경우
+마이너 버전을 건너뛴다.</p>
+<p>이전 버전의 kubeadm을 사용하여 생성된 클러스터 업그레이드에 대한 정보를 보려면,
+이 페이지 대신 다음의 페이지들을 참고한다.</p>
+<ul>
+<li><a href="https://v1-22.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">kubeadm 클러스터를 1.21에서 1.22로 업그레이드</a></li>
+<li><a href="https://v1-21.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">kubeadm 클러스터를 1.20에서 1.21로 업그레이드</a></li>
+<li><a href="https://v1-20.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">kubeadm 클러스터를 1.19에서 1.20로 업그레이드</a></li>
+<li><a href="https://v1-19.docs.kubernetes.io/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">kubeadm 클러스터를 1.18에서 1.19으로 업그레이드</a></li>
+</ul>
+<p>추상적인 업그레이드 작업 절차는 다음과 같다.</p>
+<ol>
+<li>기본 컨트롤 플레인 노드를 업그레이드한다.</li>
+<li>추가 컨트롤 플레인 노드를 업그레이드한다.</li>
+<li>워커(worker) 노드를 업그레이드한다.</li>
+</ol>
+<h2 id="시작하기-전에">시작하기 전에</h2>
+<ul>
+<li><a href="https://git.k8s.io/kubernetes/CHANGELOG/CHANGELOG-1.23.md
+">릴리스 노트</a>를 주의 깊게 읽어야 한다.</li>
+<li>클러스터는 정적 컨트롤 플레인 및 etcd 파드 또는 외부 etcd를 사용해야 한다.</li>
+<li>데이터베이스에 저장된 앱-레벨 상태와 같은 중요한 컴포넌트를 반드시 백업한다.
+<code>kubeadm upgrade</code> 는 워크로드에 영향을 미치지 않고, 쿠버네티스 내부의 컴포넌트만 다루지만, 백업은 항상 모범 사례일 정도로 중요하다.</li>
+<li><a href="https://serverfault.com/questions/684771/best-way-to-disable-swap-in-linux">스왑을 비활성화해야 한다</a>.</li>
+</ul>
+<h3 id="추가-정보">추가 정보</h3>
+<ul>
+<li>아래의 지침은 업그레이드 과정 중 언제 각 노드를 드레인해야 하는지를 제시한다.
+kubelet에 대해 <strong>마이너</strong> 버전 업그레이드를 하는 경우,
+먼저 업그레이드할 노드(들)을 드레인<strong>해야 한다</strong>.
+컨트롤 플레인 노드의 경우, CoreDNS 파드 또는 다른 중요한 워크로드를 실행 중일 수 있다.
+더 많은 정보는 <a href="/docs/tasks/administer-cluster/safely-drain-node/">노드 드레인하기</a>를 참조한다.</li>
+<li>컨테이너 사양 해시 값이 변경되므로, 업그레이드 후 모든 컨테이너가 다시 시작된다.</li>
+</ul>
+<!-- steps -->
+<h2 id="업그레이드할-버전-결정">업그레이드할 버전 결정</h2>
+<p>OS 패키지 관리자를 사용하여 쿠버네티스의 최신 패치 릴리스 버전(1.23)을 찾는다.</p>
+<ul class="nav nav-tabs" id="k8s-install-versions" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#k8s-install-versions-0" role="tab" aria-controls="k8s-install-versions-0" aria-selected="true">Ubuntu, Debian 또는 HypriotOS</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#k8s-install-versions-1" role="tab" aria-controls="k8s-install-versions-1">CentOS, RHEL 또는 Fedora</a></li></ul>
+<div class="tab-content" id="k8s-install-versions"><div id="k8s-install-versions-0" class="tab-pane show active" role="tabpanel" aria-labelledby="k8s-install-versions-0">
+
+<p><pre><code>apt update
+apt-cache madison kubeadm
+# 목록에서 최신 버전(1.23)을 찾는다
+# 1.23.x-00과 같아야 한다. 여기서 x는 최신 패치이다.
+</code></pre>
+</div>
+  <div id="k8s-install-versions-1" class="tab-pane" role="tabpanel" aria-labelledby="k8s-install-versions-1">
+
+<p><pre><code>yum list --showduplicates kubeadm --disableexcludes=kubernetes
+# 목록에서 최신 버전(1.23)을 찾는다
+# 1.23.x-0과 같아야 한다. 여기서 x는 최신 패치이다.
+</code></pre>
+</div></div>
+
+<h2 id="컨트롤-플레인-노드-업그레이드">컨트롤 플레인 노드 업그레이드</h2>
+<p>컨트롤 플레인 노드의 업그레이드 절차는 한 번에 한 노드씩 실행해야 한다.
+먼저 업그레이드할 컨트롤 플레인 노드를 선택한다. <code>/etc/kubernetes/admin.conf</code> 파일이 있어야 한다.</p>
+<h3 id="kubeadm-upgrade-호출">&quot;kubeadm upgrade&quot; 호출</h3>
+<p><strong>첫 번째 컨트롤 플레인 노드의 경우</strong></p>
+<ul>
+<li>kubeadm 업그레이드</li>
+</ul>
+<p><ul class="nav nav-tabs" id="k8s-install-kubeadm-first-cp" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#k8s-install-kubeadm-first-cp-0" role="tab" aria-controls="k8s-install-kubeadm-first-cp-0" aria-selected="true">Ubuntu, Debian 또는 HypriotOS</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#k8s-install-kubeadm-first-cp-1" role="tab" aria-controls="k8s-install-kubeadm-first-cp-1">CentOS, RHEL 또는 Fedora</a></li></ul>
+<div class="tab-content" id="k8s-install-kubeadm-first-cp"><div id="k8s-install-kubeadm-first-cp-0" class="tab-pane show active" role="tabpanel" aria-labelledby="k8s-install-kubeadm-first-cp-0">
+
+<p><pre><code># 1.23.x-00에서 x를 최신 패치 버전으로 바꾼다.
+apt-mark unhold kubeadm &amp;&amp; \
+apt-get update &amp;&amp; apt-get install -y kubeadm=1.23.x-00 &amp;&amp; \
+apt-mark hold kubeadm
+</code></pre>
+</div>
+  <div id="k8s-install-kubeadm-first-cp-1" class="tab-pane" role="tabpanel" aria-labelledby="k8s-install-kubeadm-first-cp-1">
+
+<p><pre><code># 1.23.x-0에서 x를 최신 패치 버전으로 바꾼다.
+yum install -y kubeadm-1.23.x-0 --disableexcludes=kubernetes
+</code></pre>
+</div></div>
+
+<br /></p>
+<ul>
+<li>
+<p>다운로드하려는 버전이 잘 받아졌는지 확인한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubeadm version
+</code></pre></div></li>
+<li>
+<p>업그레이드 계획을 확인한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubeadm upgrade plan
+</code></pre></div><p>이 명령은 클러스터를 업그레이드할 수 있는지를 확인하고, 업그레이드할 수 있는 버전을 가져온다.
+또한 컴포넌트 구성 버전 상태가 있는 표를 보여준다.</p>
+</li>
+</ul>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 또한 <code>kubeadm upgrade</code> 는 이 노드에서 관리하는 인증서를 자동으로 갱신한다.
+인증서 갱신을 하지 않으려면 <code>--certificate-renewal=false</code> 플래그를 사용할 수 있다.
+자세한 내용은 <a href="/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-certs">인증서 관리 가이드</a>를 참고한다.
+</div>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <code>kubeadm upgrade plan</code> 이 수동 업그레이드가 필요한 컴포넌트 구성을 표시하는 경우, 사용자는
+<code>--config</code> 커맨드 라인 플래그를 통해 대체 구성이 포함된 구성 파일을 <code>kubeadm upgrade apply</code> 에 제공해야 한다.
+그렇게 하지 않으면 <code>kubeadm upgrade apply</code> 가 오류와 함께 종료되고 업그레이드를 수행하지 않는다.
+</div>
+<ul>
+<li>
+<p>업그레이드할 버전을 선택하고, 적절한 명령을 실행한다. 예를 들면 다음과 같다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># 이 업그레이드를 위해 선택한 패치 버전으로 x를 바꾼다.</span>
+sudo kubeadm upgrade apply v1.23.x
+</code></pre></div><p>명령이 완료되면 다음을 확인해야 한다.</p>
+<pre><code>[upgrade/successful] SUCCESS! Your cluster was upgraded to &quot;v1.23.x&quot;. Enjoy!
+
+[upgrade/kubelet] Now that your control plane is upgraded, please proceed with upgrading your kubelets if you haven't already done so.
+</code></pre></li>
+<li>
+<p>CNI 제공자 플러그인을 수동으로 업그레이드한다.</p>
+<p>CNI(컨테이너 네트워크 인터페이스) 제공자는 자체 업그레이드 지침을 따를 수 있다.
+<a href="/ko/docs/concepts/cluster-administration/addons/">애드온</a> 페이지에서
+사용하는 CNI 제공자를 찾고 추가 업그레이드 단계가 필요한지 여부를 확인한다.</p>
+<p>CNI 제공자가 데몬셋(DaemonSet)으로 실행되는 경우 추가 컨트롤 플레인 노드에는 이 단계가 필요하지 않다.</p>
+</li>
+</ul>
+<p><strong>다른 컨트롤 플레인 노드의 경우</strong></p>
+<p>첫 번째 컨트롤 플레인 노드와 동일하지만 다음을 사용한다.</p>
+<pre><code>sudo kubeadm upgrade node
+</code></pre><p>아래 명령 대신 위의 명령을 사용한다.</p>
+<pre><code>sudo kubeadm upgrade apply
+</code></pre><p><code>kubeadm upgrade plan</code> 을 호출하고 CNI 공급자 플러그인을 업그레이드할 필요가 없다.</p>
+<h3 id="노드-드레인">노드 드레인</h3>
+<ul>
+<li>
+<p>Prepare the node for maintenance by marking it unschedulable and evicting the workloads:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 드레인하는 노드의 이름으로 바꾼다.</span>
+kubectl drain &lt;node-to-drain&gt; --ignore-daemonsets
+</code></pre></div></li>
+</ul>
+<h3 id="kubelet과-kubectl-업그레이드">kubelet과 kubectl 업그레이드</h3>
+<ul>
+<li>모든 컨트롤 플레인 노드에서 kubelet 및 kubectl을 업그레이드한다.</li>
+</ul>
+<p><ul class="nav nav-tabs" id="k8s-install-kubelet" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#k8s-install-kubelet-0" role="tab" aria-controls="k8s-install-kubelet-0" aria-selected="true">Ubuntu, Debian 또는 HypriotOS</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#k8s-install-kubelet-1" role="tab" aria-controls="k8s-install-kubelet-1">CentOS, RHEL 또는 Fedora</a></li></ul>
+<div class="tab-content" id="k8s-install-kubelet"><div id="k8s-install-kubelet-0" class="tab-pane show active" role="tabpanel" aria-labelledby="k8s-install-kubelet-0">
+
+<p><pre><code># replace x in 1.23.x-00의 x를 최신 패치 버전으로 바꾼다
+apt-mark unhold kubelet kubectl &amp;&amp; \
+apt-get update &amp;&amp; apt-get install -y kubelet=1.23.x-00 kubectl=1.23.x-00 &amp;&amp; \
+apt-mark hold kubelet kubectl
+</code></pre>
+</div>
+  <div id="k8s-install-kubelet-1" class="tab-pane" role="tabpanel" aria-labelledby="k8s-install-kubelet-1">
+
+<p><pre><code># 1.23.x-0에서 x를 최신 패치 버전으로 바꾼다
+yum install -y kubelet-1.23.x-0 kubectl-1.23.x-0 --disableexcludes=kubernetes
+</code></pre>
+</div></div>
+
+<br /></p>
+<ul>
+<li>kubelet을 다시 시작한다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+</code></pre></div><h3 id="노드-uncordon">노드 uncordon</h3>
+<ul>
+<li>
+<p>노드를 스케줄 가능으로 표시하여 노드를 다시 온라인 상태로 전환한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 드레인하는 노드의 이름으로 바꾼다.</span>
+kubectl uncordon &lt;node-to-drain&gt;
+</code></pre></div></li>
+</ul>
+<h2 id="워커-노드-업그레이드">워커 노드 업그레이드</h2>
+<p>워커 노드의 업그레이드 절차는 워크로드를 실행하는 데 필요한 최소 용량을 보장하면서,
+한 번에 하나의 노드 또는 한 번에 몇 개의 노드로 실행해야 한다.</p>
+<h3 id="kubeadm-업그레이드">kubeadm 업그레이드</h3>
+<ul>
+<li>모든 워커 노드에서 kubeadm을 업그레이드한다.</li>
+</ul>
+<ul class="nav nav-tabs" id="k8s-install-kubeadm-worker-nodes" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#k8s-install-kubeadm-worker-nodes-0" role="tab" aria-controls="k8s-install-kubeadm-worker-nodes-0" aria-selected="true">Ubuntu, Debian 또는 HypriotOS</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#k8s-install-kubeadm-worker-nodes-1" role="tab" aria-controls="k8s-install-kubeadm-worker-nodes-1">CentOS, RHEL 또는 Fedora</a></li></ul>
+<div class="tab-content" id="k8s-install-kubeadm-worker-nodes"><div id="k8s-install-kubeadm-worker-nodes-0" class="tab-pane show active" role="tabpanel" aria-labelledby="k8s-install-kubeadm-worker-nodes-0">
+
+<p><pre><code># 1.23.x-00의 x를 최신 패치 버전으로 바꾼다
+apt-mark unhold kubeadm &amp;&amp; \
+apt-get update &amp;&amp; apt-get install -y kubeadm=1.23.x-00 &amp;&amp; \
+apt-mark hold kubeadm
+</code></pre>
+</div>
+  <div id="k8s-install-kubeadm-worker-nodes-1" class="tab-pane" role="tabpanel" aria-labelledby="k8s-install-kubeadm-worker-nodes-1">
+
+<p><pre><code># 1.23.x-0에서 x를 최신 패치 버전으로 바꾼다
+yum install -y kubeadm-1.23.x-0 --disableexcludes=kubernetes
+</code></pre>
+</div></div>
+
+<h3 id="kubeadm-upgrade-호출-1">&quot;kubeadm upgrade&quot; 호출</h3>
+<ul>
+<li>
+<p>워커 노드의 경우 로컬 kubelet 구성을 업그레이드한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo kubeadm upgrade node
+</code></pre></div></li>
+</ul>
+<h3 id="노드-드레인-1">노드 드레인</h3>
+<ul>
+<li>
+<p>스케줄 불가능(unschedulable)으로 표시하고 워크로드를 축출하여 유지 보수할 노드를 준비한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 드레이닝하려는 노드 이름으로 바꾼다.</span>
+kubectl drain &lt;node-to-drain&gt; --ignore-daemonsets
+</code></pre></div></li>
+</ul>
+<h3 id="kubelet과-kubectl-업그레이드-1">kubelet과 kubectl 업그레이드</h3>
+<ul>
+<li>kubelet 및 kubectl을 업그레이드한다.</li>
+</ul>
+<p><ul class="nav nav-tabs" id="k8s-kubelet-and-kubectl" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#k8s-kubelet-and-kubectl-0" role="tab" aria-controls="k8s-kubelet-and-kubectl-0" aria-selected="true">Ubuntu, Debian 또는 HypriotOS</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#k8s-kubelet-and-kubectl-1" role="tab" aria-controls="k8s-kubelet-and-kubectl-1">CentOS, RHEL 또는 Fedora</a></li></ul>
+<div class="tab-content" id="k8s-kubelet-and-kubectl"><div id="k8s-kubelet-and-kubectl-0" class="tab-pane show active" role="tabpanel" aria-labelledby="k8s-kubelet-and-kubectl-0">
+
+<p><pre><code># 1.23.x-00의 x를 최신 패치 버전으로 바꾼다
+apt-mark unhold kubelet kubectl &amp;&amp; \
+apt-get update &amp;&amp; apt-get install -y kubelet=1.23.x-00 kubectl=1.23.x-00 &amp;&amp; \
+apt-mark hold kubelet kubectl
+</code></pre>
+</div>
+  <div id="k8s-kubelet-and-kubectl-1" class="tab-pane" role="tabpanel" aria-labelledby="k8s-kubelet-and-kubectl-1">
+
+<p><pre><code># 1.23.x-0에서 x를 최신 패치 버전으로 바꾼다
+yum install -y kubelet-1.23.x-0 kubectl-1.23.x-0 --disableexcludes=kubernetes
+</code></pre>
+</div></div>
+
+<br /></p>
+<ul>
+<li>
+<p>kubelet을 다시 시작한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+</code></pre></div></li>
+</ul>
+<h3 id="노드에-적용된-cordon-해제">노드에 적용된 cordon 해제</h3>
+<ul>
+<li>
+<p>스케줄 가능(schedulable)으로 표시하여 노드를 다시 온라인 상태로 만든다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 노드의 이름으로 바꾼다.</span>
+kubectl uncordon &lt;node-to-drain&gt;
+</code></pre></div></li>
+</ul>
+<h2 id="클러스터-상태-확인">클러스터 상태 확인</h2>
+<p>모든 노드에서 kubelet을 업그레이드한 후 kubectl이 클러스터에 접근할 수 있는 곳에서 다음의 명령을 실행하여
+모든 노드를 다시 사용할 수 있는지 확인한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get nodes
+</code></pre></div><p>모든 노드에 대해 <code>STATUS</code> 열에 <code>Ready</code> 가 표시되어야 하고, 버전 번호가 업데이트되어 있어야 한다.</p>
+<h2 id="장애-상태에서의-복구">장애 상태에서의 복구</h2>
+<p>예를 들어 <code>kubeadm upgrade</code> 를 실행하는 중에 예기치 못한 종료로 인해 업그레이드가 실패하고 롤백하지 않는다면, <code>kubeadm upgrade</code> 를 다시 실행할 수 있다.
+이 명령은 멱등성을 보장하며 결국 실제 상태가 선언한 의도한 상태인지 확인한다.</p>
+<p>잘못된 상태에서 복구하기 위해, 클러스터가 실행 중인 버전을 변경하지 않고 <code>kubeadm upgrade apply --force</code> 를 실행할 수도 있다.</p>
+<p>업그레이드하는 동안 kubeadm은 <code>/etc/kubernetes/tmp</code> 아래에 다음과 같은 백업 폴더를 작성한다.</p>
+<ul>
+<li><code>kubeadm-backup-etcd-&lt;date&gt;-&lt;time&gt;</code></li>
+<li><code>kubeadm-backup-manifests-&lt;date&gt;-&lt;time&gt;</code></li>
+</ul>
+<p><code>kubeadm-backup-etcd</code> 는 컨트롤 플레인 노드에 대한 로컬 etcd 멤버 데이터의 백업을 포함한다.
+etcd 업그레이드가 실패하고 자동 롤백이 작동하지 않으면, 이 폴더의 내용을
+<code>/var/lib/etcd</code> 에서 수동으로 복원할 수 있다. 외부 etcd를 사용하는 경우 이 백업 폴더는 비어있다.</p>
+<p><code>kubeadm-backup-manifests</code> 는 컨트롤 플레인 노드에 대한 정적 파드 매니페스트 파일의 백업을 포함한다.
+업그레이드가 실패하고 자동 롤백이 작동하지 않으면, 이 폴더의 내용을
+<code>/etc/kubernetes/manifests</code> 에서 수동으로 복원할 수 있다. 어떤 이유로 특정 컴포넌트의 업그레이드 전
+매니페스트 파일과 업그레이드 후 매니페스트 파일 간에 차이가 없는 경우, 백업 파일은 기록되지 않는다.</p>
+<h2 id="작동-원리">작동 원리</h2>
+<p><code>kubeadm upgrade apply</code> 는 다음을 수행한다.</p>
+<ul>
+<li>클러스터가 업그레이드 가능한 상태인지 확인한다.
+<ul>
+<li>API 서버에 접근할 수 있다</li>
+<li>모든 노드가 <code>Ready</code> 상태에 있다</li>
+<li>컨트롤 플레인이 정상적으로 동작한다</li>
+</ul>
+</li>
+<li>버전 차이(skew) 정책을 적용한다.</li>
+<li>컨트롤 플레인 이미지가 사용 가능한지 또는 머신으로 가져올 수 있는지 확인한다.</li>
+<li>컴포넌트 구성에 버전 업그레이드가 필요한 경우 대체 구성을 생성하거나 사용자가 제공한 것으로 덮어 쓰기한다.</li>
+<li>컨트롤 플레인 컴포넌트 또는 롤백 중 하나라도 나타나지 않으면 업그레이드한다.</li>
+<li>새로운 <code>CoreDNS</code> 와 <code>kube-proxy</code> 매니페스트를 적용하고 필요한 모든 RBAC 규칙이 생성되도록 한다.</li>
+<li>API 서버의 새 인증서와 키 파일을 작성하고 180일 후에 만료될 경우 이전 파일을 백업한다.</li>
+</ul>
+<p><code>kubeadm upgrade node</code> 는 추가 컨트롤 플레인 노드에서 다음을 수행한다.</p>
+<ul>
+<li>클러스터에서 kubeadm <code>ClusterConfiguration</code> 을 가져온다.</li>
+<li>선택적으로 kube-apiserver 인증서를 백업한다.</li>
+<li>컨트롤 플레인 컴포넌트에 대한 정적 파드 매니페스트를 업그레이드한다.</li>
+<li>이 노드의 kubelet 구성을 업그레이드한다.</li>
+</ul>
+<p><code>kubeadm upgrade node</code> 는 워커 노드에서 다음을 수행한다.</p>
+<ul>
+<li>클러스터에서 kubeadm <code>ClusterConfiguration</code> 을 가져온다.</li>
+<li>이 노드의 kubelet 구성을 업그레이드한다.</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-9133578f1e75663bb031e5a377ca896d">3 - 윈도우 노드 추가</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<p>쿠버네티스를 사용하여 리눅스와 윈도우 노드를 혼합하여 실행할 수 있으므로, 리눅스에서 실행되는 파드와 윈도우에서 실행되는 파드를 혼합할 수 있다. 이 페이지는 윈도우 노드를 클러스터에 등록하는 방법을 보여준다.</p>
+<h2 id="시작하기-전에">시작하기 전에</h2>
+
+
+쿠버네티스 서버의 버전은 다음과 같거나 더 높아야 함. 버전: 1.17.
+ 버전 확인을 위해서, 다음 커맨드를 실행 <code>kubectl version</code>.
+
+<ul>
+<li>
+<p>윈도우 컨테이너를 호스팅하는 윈도우 노드를 구성하려면
+<a href="https://www.microsoft.com/en-us/cloud-platform/windows-server-pricing">윈도우 서버 2019 라이선스</a> 이상이 필요하다.
+VXLAN/오버레이 네트워킹을 사용하는 경우 <a href="https://support.microsoft.com/help/4489899">KB4489899</a>도 설치되어 있어야 한다.</p>
+</li>
+<li>
+<p>컨트롤 플레인에 접근할 수 있는 리눅스 기반의 쿠버네티스 kubeadm 클러스터(<a href="/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/">kubeadm을 사용하여 단일 컨트롤 플레인 클러스터 생성</a> 참고)가 필요하다.</p>
+</li>
+</ul>
+<h2 id="목적">목적</h2>
+<ul>
+<li>클러스터에 윈도우 노드 등록</li>
+<li>리눅스 및 윈도우의 파드와 서비스가 서로 통신할 수 있도록 네트워킹 구성</li>
+</ul>
+<!-- lessoncontent -->
+<h2 id="시작하기-클러스터에-윈도우-노드-추가">시작하기: 클러스터에 윈도우 노드 추가</h2>
+<h3 id="네트워킹-구성">네트워킹 구성</h3>
+<p>리눅스 기반 쿠버네티스 컨트롤 플레인 노드가 있으면 네트워킹 솔루션을 선택할 수 있다. 이 가이드는 VXLAN 모드의 플란넬(Flannel)을 사용하는 방법을 짧막하게 보여준다.</p>
+<h4 id="플란넬-구성">플란넬 구성</h4>
+<ol>
+<li>
+<p>플란넬을 위한 쿠버네티스 컨트롤 플레인 준비</p>
+<p>클러스터의 쿠버네티스 컨트롤 플레인에서 약간의 준비가 필요하다. 플란넬을 사용할 때 iptables 체인에 브릿지된 IPv4 트래픽을 활성화하는 것을 권장한다. 아래 명령을 모든 리눅스 노드에서 실행해야만 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo sysctl net.bridge.bridge-nf-call-iptables<span style="color:#666">=</span><span style="color:#666">1</span>
+</code></pre></div></li>
+<li>
+<p>리눅스용 플란넬 다운로드 및 구성</p>
+<p>가장 최근의 플란넬 매니페스트를 다운로드한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+</code></pre></div><p>VNI를 4096으로 설정하고 포트를 4789로 설정하려면 플란넬 매니페스트의 <code>net-conf.json</code> 섹션을 수정한다. 다음과 같을 것이다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="">net-conf.json:</span> <span style="">|</span>
+    {
+      <span style="color:#008000;font-weight:bold">&#34;Network&#34;</span>: <span style="color:#b44">&#34;10.244.0.0/16&#34;</span>,
+      <span style="color:#008000;font-weight:bold">&#34;Backend&#34;</span>: {
+        <span style="color:#008000;font-weight:bold">&#34;Type&#34;</span>: <span style="color:#b44">&#34;vxlan&#34;</span>,
+        <span style="color:#008000;font-weight:bold">&#34;VNI&#34;</span>: <span style="color:#666">4096</span>,
+        <span style="color:#008000;font-weight:bold">&#34;Port&#34;</span>: <span style="color:#666">4789</span>
+      }
+    }
+</code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 리눅스의 플란넬이 윈도우의 플란넬과 상호 운용되도록 하려면 VNI를 4096으로, 포트를 4789로 설정해야 한다. 이 필드들에 대한 설명은 <a href="https://github.com/coreos/flannel/blob/master/Documentation/backends.md#vxlan">VXLAN 문서</a>를
+참고한다.
+</div>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> L2Bridge/Host-gateway 모드를 대신 사용하려면 <code>Type</code> 의 값을 <code>&quot;host-gw&quot;</code> 로 변경하고 <code>VNI</code> 와 <code>Port</code> 를 생략한다.
+</div>
+</li>
+<li>
+<p>플란넬 매니페스트 적용 및 유효성 검사</p>
+<p>플란넬 구성을 적용해보자.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl apply -f kube-flannel.yml
+</code></pre></div><p>몇 분 후에, 플란넬 파드 네트워크가 배포되었다면 모든 파드가 실행 중인 것으로 표시된다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl get pods -n kube-system
+</code></pre></div><p>출력 결과에 리눅스 flannel 데몬셋(DaemonSet)이 실행 중인 것으로 나와야 한다.</p>
+<pre><code>NAMESPACE     NAME                                      READY        STATUS    RESTARTS   AGE
+...
+kube-system   kube-flannel-ds-54954                     1/1          Running   0          1m
+</code></pre></li>
+<li>
+<p>윈도우 플란넬 및 kube-proxy 데몬셋 추가</p>
+<p>이제 윈도우 호환 버전의 플란넬과 kube-proxy를 추가할 수 있다. 호환 가능한
+kube-proxy 버전을 얻으려면, 이미지의 태그를
+대체해야 한다. 다음의 예시는 쿠버네티스 v1.23.0의 사용법을 보여주지만,
+사용자의 배포에 맞게 버전을 조정해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">curl -L https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/kube-proxy.yml | sed <span style="color:#b44">&#39;s/VERSION/v1.23.0/g&#39;</span> | kubectl apply -f -
+kubectl apply -f https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/flannel-overlay.yml
+</code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> host-gateway를 사용하는 경우 <a href="https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/flannel-host-gw.yml">https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/flannel-host-gw.yml</a> 을 대신 사용한다.
+</div>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>윈도우 노드에서 이더넷이 아닌 다른 인터페이스(예: &quot;Ethernet0 2&quot;)를 사용하는 경우, flannel-host-gw.yml이나 flannel-overlay.yml 파일에서 다음 라인을 수정한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">wins <span style="color:#a2f">cli </span><span style="color:#a2f;font-weight:bold">process</span> run --path /k/flannel/setup.exe --args <span style="color:#b44">&#34;--mode=overlay --interface=Ethernet&#34;</span>
+</code></pre></div><p>그리고, 이에 따라 인터페이스를 지정해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#080;font-style:italic"># 예시</span>
+curl -L https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/flannel-overlay.yml | sed <span style="color:#b44">&#39;s/Ethernet/Ethernet0 2/g&#39;</span> | kubectl apply -f -
+</code></pre></div>
+</div>
+</li>
+</ol>
+<h3 id="윈도우-워커-노드-조인-joining">윈도우 워커 노드 조인(joining)</h3>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> 윈도우 섹션의 모든 코드 스니펫(snippet)은 윈도우 워커 노드의
+높은 권한(관리자)이 있는 PowerShell 환경에서 실행해야 한다.
+</div>
+<ul class="nav nav-tabs" id="tab-windows-kubeadm-runtime-installation" role="tablist"><li class="nav-item"><a data-toggle="tab" class="nav-link active" href="#tab-windows-kubeadm-runtime-installation-0" role="tab" aria-controls="tab-windows-kubeadm-runtime-installation-0" aria-selected="true">Docker EE</a></li>
+	  
+		<li class="nav-item"><a data-toggle="tab" class="nav-link" href="#tab-windows-kubeadm-runtime-installation-1" role="tab" aria-controls="tab-windows-kubeadm-runtime-installation-1">CRI-containerD</a></li></ul>
+<div class="tab-content" id="tab-windows-kubeadm-runtime-installation"><div id="tab-windows-kubeadm-runtime-installation-0" class="tab-pane show active" role="tabpanel" aria-labelledby="tab-windows-kubeadm-runtime-installation-0">
+
+<p><h4 id="docker-ee-설치">Docker EE 설치</h4>
+<p><code>컨테이너</code> 기능 설치</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#a2f">Install-WindowsFeature</span> -Name containers
+</code></pre></div><p>도커 설치
+자세한 내용은 <a href="https://docs.microsoft.com/ko-kr/virtualization/windowscontainers/quick-start/set-up-environment?tabs=Windows-Server#install-docker">도커 엔진 설치 - 윈도우 서버 엔터프라이즈</a>에서 확인할 수 있다.</p>
+<h4 id="wins-kubelet-및-kubeadm-설치">wins, kubelet 및 kubeadm 설치</h4>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-PowerShell" data-lang="PowerShell">curl.exe -LO https<span style="">:</span>//raw.githubusercontent.com/<span style="color:#a2f">kubernetes-sigs</span>/<span style="color:#a2f">sig-windows</span>-tools/master/kubeadm/scripts/PrepareNode.ps1
+.\PrepareNode.ps1 -KubernetesVersion v1.23.0
+</code></pre></div><h4 id="kubeadm-실행하여-노드에-조인"><code>kubeadm</code> 실행하여 노드에 조인</h4>
+<p>컨트롤 플레인 호스트에서 <code>kubeadm init</code> 실행할 때 제공된 명령을 사용한다.
+이 명령이 더 이상 없거나, 토큰이 만료된 경우, <code>kubeadm token create --print-join-command</code>
+(컨트롤 플레인 호스트에서)를 실행하여 새 토큰 및 조인 명령을 생성할 수 있다.</p>
+</div>
+  <div id="tab-windows-kubeadm-runtime-installation-1" class="tab-pane" role="tabpanel" aria-labelledby="tab-windows-kubeadm-runtime-installation-1">
+
+<p><h4 id="containerd-설치">containerD 설치</h4>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">curl.exe -LO https<span style="">:</span>//github.com/<span style="color:#a2f">kubernetes-sigs</span>/<span style="color:#a2f">sig-windows</span>-tools/releases/latest/download/<span style="color:#a2f">Install-Containerd</span>.ps1
+.\<span style="color:#a2f">Install-Containerd</span>.ps1
+</code></pre></div><div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>특정 버전의 containerD를 설치하려면 -ContainerDVersion를 사용하여 버전을 지정한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#080;font-style:italic"># 예</span>
+.\<span style="color:#a2f">Install-Containerd</span>.ps1 -ContainerDVersion 1.4.1
+</code></pre></div>
+</div>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <p>윈도우 노드에서 이더넷(예: &quot;Ethernet0 2&quot;)이 아닌 다른 인터페이스를 사용하는 경우, <code>-netAdapterName</code> 으로 이름을 지정한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#080;font-style:italic"># 예</span>
+.\<span style="color:#a2f">Install-Containerd</span>.ps1 -netAdapterName <span style="color:#b44">&#34;Ethernet0 2&#34;</span>
+</code></pre></div>
+</div>
+<h4 id="wins-kubelet-및-kubeadm-설치">wins, kubelet 및 kubeadm 설치</h4>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-PowerShell" data-lang="PowerShell">curl.exe -LO https<span style="">:</span>//raw.githubusercontent.com/<span style="color:#a2f">kubernetes-sigs</span>/<span style="color:#a2f">sig-windows</span>-tools/master/kubeadm/scripts/PrepareNode.ps1
+.\PrepareNode.ps1 -KubernetesVersion v1.23.0 -ContainerRuntime containerD
+</code></pre></div><h4 id="kubeadm-실행하여-노드에-조인"><code>kubeadm</code> 실행하여 노드에 조인</h4>
+<pre><code>컨트롤 플레인 호스트에서 `kubeadm init` 실행할 때 제공된 명령을 사용한다.
+이 명령이 더 이상 없거나, 토큰이 만료된 경우, `kubeadm token create --print-join-command`
+(컨트롤 플레인 호스트에서)를 실행하여 새 토큰 및 조인 명령을 생성할 수 있다.
+</code></pre>
+<div class="alert alert-info note callout" role="alert">
+  <strong>참고:</strong> <strong>CRI-containerD</strong> 를 사용하는 경우 kubeadm 호출에 <code>--cri-socket &quot;npipe:////./pipe/containerd-containerd&quot;</code> 를 추가한다
+</div>
+</div></div>
+
+<h3 id="설치-확인">설치 확인</h3>
+<p>이제 다음을 실행하여 클러스터에서 윈도우 노드를 볼 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl get nodes -o wide
+</code></pre></div><p>새 노드가 <code>NotReady</code> 상태인 경우 플란넬 이미지가 여전히 다운로드 중일 수 있다.
+<code>kube-system</code> 네임스페이스에서 flannel 파드를 확인하여 이전과 같이 진행 상황을 확인할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl -n kube-system get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>flannel
+</code></pre></div><p>flannel 파드가 실행되면, 노드는 <code>Ready</code> 상태가 되고 워크로드를 처리할 수 있어야 한다.</p>
+<h2 id="다음-내용">다음 내용</h2>
+<ul>
+<li><a href="/ko/docs/tasks/administer-cluster/kubeadm/upgrading-windows-nodes">윈도우 kubeadm 노드 업그레이드</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-e805c7d8d4ad6195cb82dbbc843bfc29">4 - 윈도우 노드 업그레이드</h1>
+    
+	<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<p>이 페이지는 <a href="/ko/docs/tasks/administer-cluster/kubeadm/adding-windows-nodes">kubeadm으로 생성된</a> 윈도우 노드를 업그레이드하는 방법을 설명한다.</p>
+<h2 id="시작하기-전에">시작하기 전에</h2>
+<p><p>쿠버네티스 클러스터가 필요하고, kubectl 커맨드-라인 툴이 클러스터와
+통신할 수 있도록 설정되어 있어야 한다. 이 튜토리얼은 컨트롤 플레인 호스트가 아닌 노드가 적어도 2개 포함된 클러스터에서 실행하는 것을 추천한다. 만약, 아직 클러스터를 가지고
+있지 않다면,
+<a href="/ko/docs/tasks/tools/#minikube">minikube</a>를 사용해서 생성하거나
+다음의 쿠버네티스 플레이그라운드 중 하나를 사용할 수 있다.</p>
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="https://labs.play-with-k8s.com/">Play with Kubernetes</a></li>
+</ul>
+ 
+
+쿠버네티스 서버의 버전은 다음과 같거나 더 높아야 함. 버전: 1.17.
+ 버전 확인을 위해서, 다음 커맨드를 실행 <code>kubectl version</code>.
+</p>
+<ul>
+<li><a href="/ko/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade">남은 kubeadm 클러스터를 업그레이드하는 프로세스</a>에
+익숙해져야 한다. 윈도우 노드를
+업그레이드하기 전에 컨트롤 플레인 노드를 업그레이드해야 한다.</li>
+</ul>
+<!-- steps -->
+<h2 id="워커-노드-업그레이드">워커 노드 업그레이드</h2>
+<h3 id="kubeadm-업그레이드">kubeadm 업그레이드</h3>
+<ol>
+<li>
+<p>윈도우 노드에서, kubeadm을 업그레이드한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#080;font-style:italic"># replace v1.23.0 with your desired version</span>
+curl.exe -Lo C:\k\kubeadm.exe https<span style="">:</span>//dl.k8s.io/<span style="color:#a2f">/bin/windows/amd64/kubeadm.exe
+</code></pre></div></li>
+</ol>
+<h3 id="노드-드레인">노드 드레인</h3>
+<ol>
+<li>
+<p>쿠버네티스 API에 접근할 수 있는 머신에서,
+스케줄 불가능한 것으로 표시하고 워크로드를 축출하여 유지 보수할 노드를 준비한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 드레이닝하려는 노드 이름으로 바꾼다</span>
+kubectl drain &lt;node-to-drain&gt; --ignore-daemonsets
+</code></pre></div><p>다음과 비슷한 출력이 표시되어야 한다.</p>
+<pre><code>node/ip-172-31-85-18 cordoned
+node/ip-172-31-85-18 drained
+</code></pre></li>
+</ol>
+<h3 id="kubelet-구성-업그레이드">kubelet 구성 업그레이드</h3>
+<ol>
+<li>
+<p>윈도우 노드에서, 다음의 명령을 호출하여 새 kubelet 구성을 동기화한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">kubeadm upgrade node
+</code></pre></div></li>
+</ol>
+<h3 id="kubelet-업그레이드">kubelet 업그레이드</h3>
+<ol>
+<li>
+<p>윈도우 노드에서, kubelet을 업그레이드하고 다시 시작한다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#a2f">stop-service</span> kubelet
+curl.exe -Lo C:\k\kubelet.exe https<span style="">:</span>//dl.k8s.io/<span style="color:#a2f">/bin/windows/amd64/kubelet.exe
+<span style="color:#a2f">restart-service</span> kubelet
+</code></pre></div></li>
+</ol>
+<h3 id="노드에-적용된-cordon-해제">노드에 적용된 cordon 해제</h3>
+<ol>
+<li>
+<p>쿠버네티스 API에 접근할 수 있는 머신에서,
+스케줄 가능으로 표시하여 노드를 다시 온라인으로 가져온다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#080;font-style:italic"># &lt;node-to-drain&gt;을 노드의 이름으로 바꾼다</span>
+kubectl uncordon &lt;node-to-drain&gt;
+</code></pre></div></li>
+</ol>
+<h3 id="kube-proxy-업그레이드">kube-proxy 업그레이드</h3>
+<ol>
+<li>
+<p>쿠버네티스 API에 접근할 수 있는 머신에서, 다음을 실행하여,
+v1.23.0을 원하는 버전으로 다시 바꾼다.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -L https://github.com/kubernetes-sigs/sig-windows-tools/releases/latest/download/kube-proxy.yml | sed <span style="color:#b44">&#39;s/VERSION/v1.23.0/g&#39;</span> | kubectl apply -f -
+</code></pre></div></li>
+</ol>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/ko/docs/home/">홈</a>
+      
+      <a class="text-white" href="/ko/blog/">블로그</a>
+      
+      <a class="text-white" href="/ko/training/">교육</a>
+      
+      <a class="text-white" href="/ko/partners/">파트너</a>
+      
+      <a class="text-white" href="/ko/community/">커뮤니티</a>
+      
+      <a class="text-white" href="/ko/case-studies/">사례 연구</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

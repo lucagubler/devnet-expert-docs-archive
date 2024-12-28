@@ -1,0 +1,1580 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tutorials/stateless-application/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tutorials/stateless-application/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/tutorials/stateless-application/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tutorials/stateless-application/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tutorials/stateless-application/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/tutorials/stateless-application/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/zh/docs/tutorials/stateless-application/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>无状态应用程序 | Kubernetes</title><meta property="og:title" content="无状态应用程序" />
+<meta property="og:description" content="生产级别的容器编排系统" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/zh/docs/tutorials/stateless-application/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="无状态应用程序">
+<meta itemprop="description" content="生产级别的容器编排系统"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="无状态应用程序"/>
+<meta name="twitter:description" content="生产级别的容器编排系统"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="">
+<meta property="og:description" content="">
+<meta name="twitter:description" content="">
+<meta property="og:url" content="http://localhost:1313/zh/docs/tutorials/stateless-application/">
+<meta property="og:title" content="无状态应用程序">
+<meta name="twitter:title" content="无状态应用程序">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/docs/tutorials/stateless-application/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/docs/tutorials/stateless-application/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/docs/tutorials/stateless-application/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/docs/tutorials/stateless-application/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/docs/tutorials/stateless-application/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tutorials/stateless-application/">English</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tutorials/stateless-application/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/ja/docs/tutorials/stateless-application/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tutorials/stateless-application/">Français</a>
+	
+	<a class="dropdown-item" href="/es/docs/tutorials/stateless-application/">Español</a>
+	
+	<a class="dropdown-item" href="/id/docs/tutorials/stateless-application/">Bahasa Indonesia</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+这是本节的多页打印视图。
+<a href="#" onclick="print();return false;">点击此处打印</a>.
+</p><p>
+<a href="/zh/docs/tutorials/stateless-application/">返回本页常规视图</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">无状态应用程序</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-62caf420877232190a7404b8d93c6724">公开外部 IP 地址以访问集群中应用程序</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-8c56795c6614cc5f52434ecc756448ac">示例：使用 Redis 部署 PHP 留言板应用程序</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-62caf420877232190a7404b8d93c6724">1 - 公开外部 IP 地址以访问集群中应用程序</h1>
+    
+	<!--
+title: Exposing an External IP Address to Access an Application in a Cluster
+content_type: tutorial
+weight: 10
+-->
+<!-- overview -->
+<!--
+This page shows how to create a Kubernetes Service object that exposes an
+external IP address.
+-->
+<p>此页面显示如何创建公开外部 IP 地址的 Kubernetes 服务对象。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+* Install [kubectl](/docs/tasks/tools/).
+* Use a cloud provider like Google Kubernetes Engine or Amazon Web Services to
+  create a Kubernetes cluster. This tutorial creates an
+  [external load balancer](/docs/tasks/access-application-cluster/create-external-load-balancer/),
+  which requires a cloud provider.
+* Configure `kubectl` to communicate with your Kubernetes API server. For instructions, see the
+  documentation for your cloud provider.
+-->
+<ul>
+<li>安装 <a href="/zh/docs/tasks/tools/">kubectl</a>.</li>
+<li>使用 Google Kubernetes Engine 或 Amazon Web Services 等云供应商创建 Kubernetes 集群。
+本教程创建了一个<a href="/zh/docs/tasks/access-application-cluster/create-external-load-balancer/">外部负载均衡器</a>，
+需要云供应商。</li>
+<li>配置 <code>kubectl</code> 与 Kubernetes API 服务器通信。有关说明，请参阅云供应商文档。</li>
+</ul>
+<h2 id="objectives">Objectives</h2>
+<!--
+* Run five instances of a Hello World application.
+* Create a Service object that exposes an external IP address.
+* Use the Service object to access the running application.
+-->
+<ul>
+<li>运行 Hello World 应用程序的五个实例。</li>
+<li>创建一个公开外部 IP 地址的 Service 对象。</li>
+<li>使用 Service 对象访问正在运行的应用程序。</li>
+</ul>
+<!-- lessoncontent -->
+<!--
+## Creating a service for an application running in five pods
+-->
+<h2 id="为一个在五个-pod-中运行的应用程序创建服务">为一个在五个 pod 中运行的应用程序创建服务</h2>
+<!--
+1. Run a Hello World application in your cluster:
+-->
+<ol>
+<li>
+<p>在集群中运行 Hello World 应用程序：</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/service/load-balancer-example.yaml" download="service/load-balancer-example.yaml"><code>service/load-balancer-example.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('service-load-balancer-example-yaml')" title="Copy service/load-balancer-example.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="service-load-balancer-example-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app.kubernetes.io/name</span>:<span style="color:#bbb"> </span>load-balancer-example<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>hello-world<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">5</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app.kubernetes.io/name</span>:<span style="color:#bbb"> </span>load-balancer-example<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app.kubernetes.io/name</span>:<span style="color:#bbb"> </span>load-balancer-example<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>gcr.io/google-samples/node-hello:1.0<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>hello-world<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">8080</span><span style="color:#bbb">
+</span></code></pre></div>
+    </div>
+</div>
+
+
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/service/load-balancer-example.yaml
+</code></pre></div><!--
+The preceding command creates a
+<a class='glossary-tooltip' title='Deployment 是管理应用副本的 API 对象。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/deployment/' target='_blank' aria-label='Deployment'>Deployment</a>
+and an associated
+<a class='glossary-tooltip' title='ReplicaSet 是下一代副本控制器。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/replicaset/' target='_blank' aria-label='ReplicaSet'>ReplicaSet</a>.
+The ReplicaSet has five
+<a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pods'>Pods</a>
+each of which runs the Hello World application.
+-->
+<p>前面的命令创建一个
+<a class='glossary-tooltip' title='Deployment 是管理应用副本的 API 对象。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/deployment/' target='_blank' aria-label='Deployment'>Deployment</a>
+对象和一个关联的
+<a class='glossary-tooltip' title='ReplicaSet 是下一代副本控制器。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/replicaset/' target='_blank' aria-label='ReplicaSet'>ReplicaSet</a> 对象。
+ReplicaSet 有五个 <a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pods'>Pods</a>，
+每个都运行 Hello World 应用程序。</p>
+</li>
+</ol>
+<!--
+1. Display information about the Deployment:
+-->
+<ol start="2">
+<li>
+<p>显示有关 Deployment 的信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get deployments hello-world
+kubectl describe deployments hello-world
+</code></pre></div></li>
+</ol>
+<!--
+1. Display information about your ReplicaSet objects:
+-->
+<ol start="3">
+<li>
+<p>显示有关 ReplicaSet 对象的信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get replicasets
+kubectl describe replicasets
+</code></pre></div></li>
+</ol>
+<!--
+1. Create a Service object that exposes the deployment:
+-->
+<ol start="4">
+<li>
+<p>创建公开 Deployment 的 Service 对象：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl expose deployment hello-world --type<span style="color:#666">=</span>LoadBalancer --name<span style="color:#666">=</span>my-service
+</code></pre></div></li>
+</ol>
+<!--
+1. Display information about the Service:
+-->
+<ol start="5">
+<li>
+<p>显示有关 Service 的信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get services my-service
+</code></pre></div><!--
+The output is similar to this:
+-->
+<p>输出类似于：</p>
+<pre><code class="language-console" data-lang="console">NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)    AGE
+my-service   LoadBalancer   10.3.245.137   104.198.205.71   8080/TCP   54s
+</code></pre><!--
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> The <code>type=LoadBalancer</code> service is backed by external cloud providers, which is not covered in this example, please refer to <a href="/docs/concepts/services-networking/service/#loadbalancer">this page</a> for the details.
+</div>
+-->
+<p>提示：<code>type=LoadBalancer</code> 服务由外部云服务提供商提供支持，本例中不包含此部分，
+详细信息请参考<a href="/docs/concepts/services-networking/service/#loadbalancer">此页</a></p>
+<!--
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> If the external IP address is shown as &lt;pending&gt;, wait for a minute and enter the same command again.
+</div>
+-->
+<p>提示：如果外部 IP 地址显示为 &lt;pending&gt;，请等待一分钟再次输入相同的命令。</p>
+</li>
+</ol>
+<!--
+1. Display detailed information about the Service:
+-->
+<ol start="6">
+<li>
+<p>显示有关 Service 的详细信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe services my-service
+</code></pre></div><!--
+The output is similar to this:
+-->
+<p>输出类似于：</p>
+<pre><code class="language-console" data-lang="console">Name:           my-service
+Namespace:      default
+Labels:         app.kubernetes.io/name=load-balancer-example
+Annotations:    &lt;none&gt;
+Selector:       app.kubernetes.io/name=load-balancer-example
+Type:           LoadBalancer
+IP:             10.3.245.137
+LoadBalancer Ingress:   104.198.205.71
+Port:           &lt;unset&gt; 8080/TCP
+NodePort:       &lt;unset&gt; 32377/TCP
+Endpoints:      10.0.0.6:8080,10.0.1.6:8080,10.0.1.7:8080 + 2 more...
+Session Affinity:   None
+Events:         &lt;none&gt;
+</code></pre><!--
+Make a note of the external IP address (`LoadBalancer Ingress`) exposed by
+your service. In this example, the external IP address is 104.198.205.71.
+Also note the value of `Port` and `NodePort`. In this example, the `Port`
+is 8080 and the `NodePort` is 32377.
+-->
+<p>记下服务公开的外部 IP 地址（<code>LoadBalancer Ingress</code>)。
+在本例中，外部 IP 地址是 104.198.205.71。还要注意 <code>Port</code> 和 <code>NodePort</code> 的值。
+在本例中，<code>Port</code> 是 8080，<code>NodePort</code> 是32377。</p>
+</li>
+</ol>
+<!--
+1. In the preceding output, you can see that the service has several endpoints:
+   10.0.0.6:8080,10.0.1.6:8080,10.0.1.7:8080 + 2 more. These are internal
+   addresses of the pods that are running the Hello World application. To
+   verify these are pod addresses, enter this command:
+-->
+<ol start="7">
+<li>
+<p>在前面的输出中，您可以看到服务有几个端点：
+10.0.0.6:8080、10.0.1.6:8080、10.0.1.7:8080 和另外两个，
+这些都是正在运行 Hello World 应用程序的 pod 的内部地址。
+要验证这些是 pod 地址，请输入以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods --output<span style="color:#666">=</span>wide
+</code></pre></div><!--
+The output is similar to this:
+-->
+<p>输出类似于：</p>
+<pre><code class="language-console" data-lang="console">NAME                         ...  IP         NODE
+hello-world-2895499144-1jaz9 ...  10.0.1.6   gke-cluster-1-default-pool-e0b8d269-1afc
+hello-world-2895499144-2e5uh ...  10.0.1.8   gke-cluster-1-default-pool-e0b8d269-1afc
+hello-world-2895499144-9m4h1 ...  10.0.0.6   gke-cluster-1-default-pool-e0b8d269-5v7a
+hello-world-2895499144-o4z13 ...  10.0.1.7   gke-cluster-1-default-pool-e0b8d269-1afc
+hello-world-2895499144-segjf ...  10.0.2.5   gke-cluster-1-default-pool-e0b8d269-cpuc
+</code></pre></li>
+</ol>
+<!--
+1. Use the external IP address (`LoadBalancer Ingress`) to access the Hello
+   World application:
+-->
+<ol start="8">
+<li>
+<p>使用外部 IP 地址（<code>LoadBalancer Ingress</code>）访问 Hello World 应用程序:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl http://&lt;external-ip&gt;:&lt;port&gt;
+</code></pre></div><!--
+where `<external-ip>` is the external IP address (`LoadBalancer Ingress`)
+of your Service, and `<port>` is the value of `Port` in your Service
+description.
+If you are using minikube, typing `minikube service my-service` will
+automatically open the Hello World application in a browser.
+-->
+<p>其中 <code>&lt;external-ip&gt;</code> 是您的服务的外部 IP 地址（<code>LoadBalancer Ingress</code>），
+<code>&lt;port&gt;</code> 是您的服务描述中的 <code>port</code> 的值。
+如果您正在使用 minikube，输入 <code>minikube service my-service</code> 将在浏览器中自动打开 Hello World 应用程序。</p>
+<!--
+The response to a successful request is a hello message:
+-->
+<p>成功请求的响应是一条问候消息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Hello Kubernetes!
+</code></pre></div></li>
+</ol>
+<h2 id="cleaning-up">Cleaning up</h2>
+<!--
+To delete the Service, enter this command:
+-->
+<p>要删除服务，请输入以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete services my-service
+</code></pre></div><!--
+To delete the Deployment, the ReplicaSet, and the Pods that are running
+the Hello World application, enter this command:
+-->
+<p>要删除正在运行 Hello World 应用程序的 Deployment，ReplicaSet 和 Pod，请输入以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete deployment hello-world
+</code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+Learn more about
+[connecting applications with services](/docs/concepts/services-networking/connect-applications-service/).
+-->
+<p>进一步了解<a href="/zh/docs/concepts/services-networking/connect-applications-service/">将应用程序与服务连接</a>。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-8c56795c6614cc5f52434ecc756448ac">2 - 示例：使用 Redis 部署 PHP 留言板应用程序</h1>
+    
+	<!--
+title: "Example: Deploying PHP Guestbook application with Redis"
+reviewers:
+- ahmetb
+content_type: tutorial
+weight: 20
+card:
+  name: tutorials
+  weight: 30
+  title: "Stateless Example: PHP Guestbook with Redis"
+min-kubernetes-server-version: v1.14
+-->
+<!-- overview -->
+<!--
+This tutorial shows you how to build and deploy a simple _(not production ready)_, multi-tier web application using Kubernetes and [Docker](https://www.docker.com/). This example consists of the following components:
+-->
+<p>本教程向您展示如何使用 Kubernetes 和 <a href="https://www.docker.com/">Docker</a> 构建和部署
+一个简单的 <em>(非面向生产的)</em> 多层 web 应用程序。本例由以下组件组成：</p>
+<!--
+* A single-instance [Redis](https://www.redis.io/) to store guestbook entries
+* Multiple web frontend instances
+-->
+<ul>
+<li>单实例 <a href="https://www.redis.io/">Redis</a> 以保存留言板条目</li>
+<li>多个 web 前端实例</li>
+</ul>
+<h2 id="objectives">Objectives</h2>
+<!--
+* Start up a Redis leader.
+* Start up two Redis followers.
+* Start up the guestbook frontend.
+* Expose and view the Frontend Service.
+* Clean up.
+-->
+<ul>
+<li>启动 Redis 领导者（Leader）</li>
+<li>启动两个 Redis 跟随者（Follower）</li>
+<li>公开并查看前端服务</li>
+<li>清理</li>
+</ul>
+<h2 id="before-you-begin">Before you begin</h2>
+<p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+
+
+
+Your Kubernetes server must be at or later than version v1.14.
+ To check the version, enter <code>kubectl version</code>.
+
+<!-- lessoncontent -->
+<!--
+## Start up the Redis Database
+-->
+<h2 id="启动-redis-数据库">启动 Redis 数据库</h2>
+<!--
+The guestbook application uses Redis to store its data.
+-->
+<p>留言板应用程序使用 Redis 存储数据。</p>
+<!--
+### Creating the Redis Deployment
+-->
+<h3 id="创建-redis-deployment">创建 Redis Deployment</h3>
+<!--
+The manifest file, included below, specifies a Deployment controller that runs a single replica Redis Pod.
+-->
+<p>下面包含的清单文件指定了一个 Deployment 控制器，该控制器运行一个 Redis Pod 副本。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/redis-leader-deployment.yaml" download="application/guestbook/redis-leader-deployment.yaml"><code>application/guestbook/redis-leader-deployment.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-redis-leader-deployment-yaml')" title="Copy application/guestbook/redis-leader-deployment.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-redis-leader-deployment-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-leader<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>leader<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>leader<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>leader<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;docker.io/redis:6.0.5&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>100m<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>100Mi<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">6379</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Launch a terminal window in the directory you downloaded the manifest files.
+1. Apply the Redis Deployment from the `redis-leader-deployment.yaml` file:
+-->
+<ol>
+<li>
+<p>在下载清单文件的目录中启动终端窗口。</p>
+</li>
+<li>
+<p>从 <code>redis-leader-deployment.yaml</code> 文件中应用 Redis Deployment：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/redis-leader-deployment.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/redis-leader-deployment.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Pods to verify that the Redis Pod is running:
+-->
+<ol start="3">
+<li>
+<p>查询 Pod 列表以验证 Redis Pod 是否正在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">NAME                           READY   STATUS    RESTARTS   AGE
+redis-leader-fb76b4755-xjr2n   1/1     Running   <span style="color:#666">0</span>          13s
+</code></pre></div></li>
+</ol>
+<!--
+1. Run the following command to view the logs from the Redis leader Pod:
+-->
+<ol start="4">
+<li>
+<p>运行以下命令查看 Redis Deployment 中的日志：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl logs -f deployment/redis-leader
+</code></pre></div></li>
+</ol>
+<!--
+### Creating the Redis leader Service
+-->
+<h3 id="创建-redis-领导者服务">创建 Redis 领导者服务</h3>
+<!--
+The guestbook application needs to communicate to the Redis to write its data. You need to apply a [Service](/docs/concepts/services-networking/service/) to proxy the traffic to the Redis Pod. A Service defines a policy to access the Pods.
+-->
+<p>留言板应用程序需要往 Redis 中写数据。因此，需要创建
+<a href="/zh/docs/concepts/services-networking/service/">Service</a> 来转发 Redis Pod
+的流量。Service 定义了访问 Pod 的策略。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/redis-leader-service.yaml" download="application/guestbook/redis-leader-service.yaml"><code>application/guestbook/redis-leader-service.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-redis-leader-service-yaml')" title="Copy application/guestbook/redis-leader-service.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-redis-leader-service-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Service<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-leader<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>leader<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">port</span>:<span style="color:#bbb"> </span><span style="color:#666">6379</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">targetPort</span>:<span style="color:#bbb"> </span><span style="color:#666">6379</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>leader<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend</code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Apply the Redis Service from the following `redis-leader-service.yaml` file:
+-->
+<ol>
+<li>
+<p>使用下面的 <code>redis-leader-service.yaml</code> 文件创建 Redis的服务：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/redis-leader-service.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/redis-leader-service.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Services to verify that the Redis Service is running:
+-->
+<ol start="2">
+<li>
+<p>查询服务列表验证 Redis 服务是否正在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get service
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span style="color:#666">(</span>S<span style="color:#666">)</span>    AGE
+kubernetes     ClusterIP   10.0.0.1     &lt;none&gt;        443/TCP    1m
+redis-leader   ClusterIP   10.103.78.24 &lt;none&gt;        6379/TCP   16s
+</code></pre></div></li>
+</ol>
+<!--
+This manifest file creates a Service named `redis-leader` with a set of labels that match the labels previously defined, so the Service routes network traffic to the Redis Pod.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 这个清单文件创建了一个名为 <code>redis-leader</code> 的 Service，其中包含一组
+与前面定义的标签匹配的标签，因此服务将网络流量路由到 Redis Pod 上。
+</div>
+<!--
+### Set up Redis followers
+
+Although the Redis leader is a single Pod, you can make it highly available and meet traffic demands by adding a few Redis followers, or replicas.
+-->
+<h3 id="设置-redis-跟随者">设置 Redis 跟随者</h3>
+<p>尽管 Redis 领导者只有一个 Pod，你可以通过添加若干 Redis 跟随者来将其配置为高可用状态，
+以满足流量需求。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/redis-follower-deployment.yaml" download="application/guestbook/redis-follower-deployment.yaml"><code>application/guestbook/redis-follower-deployment.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-redis-follower-deployment-yaml')" title="Copy application/guestbook/redis-follower-deployment.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-redis-follower-deployment-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-follower<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>follower<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">2</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>follower<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>follower<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>gcr.io/google_samples/gb-redis-follower:v2<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>100m<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>100Mi<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">6379</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Apply the Redis Service from the following `redis-follower-deployment.yaml` file:
+-->
+<ol>
+<li>
+<p>应用下面的 <code>redis-follower-deployment.yaml</code> 文件创建 Redis Deployment：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/redis-follower-deployment.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/redis-follower-deployment.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Verify that the two Redis follower replicas are running by querying the list of Pods:
+-->
+<ol start="2">
+<li>
+<p>通过查询 Pods 列表，验证两个 Redis 跟随者副本在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该类似于这样：</p>
+<pre><code>NAME                             READY   STATUS    RESTARTS   AGE
+redis-follower-dddfbdcc9-82sfr   1/1     Running   0          37s
+redis-follower-dddfbdcc9-qrt5k   1/1     Running   0          38s
+redis-leader-fb76b4755-xjr2n     1/1     Running   0          11m
+</code></pre></li>
+</ol>
+<!--
+### Creating the Redis follower service
+
+The guestbook application needs to communicate with the Redis followers to read data. To make the Redis followers discoverable, you must set up another [Service](/docs/concepts/services-networking/service/).
+-->
+<h3 id="创建-redis-跟随者服务">创建 Redis 跟随者服务</h3>
+<p>Guestbook 应用需要与 Redis 跟随者通信以读取数据。
+为了让 Redis 跟随者可被发现，你必须创建另一个
+<a href="/zh/docs/concepts/services-networking/service/">Service</a>。</p>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/redis-follower-service.yaml" download="application/guestbook/redis-follower-service.yaml"><code>application/guestbook/redis-follower-service.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-redis-follower-service-yaml')" title="Copy application/guestbook/redis-follower-service.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-redis-follower-service-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Service<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>redis-follower<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>follower<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># the port that this service should serve on</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">port</span>:<span style="color:#bbb"> </span><span style="color:#666">6379</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>redis<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">role</span>:<span style="color:#bbb"> </span>follower<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>backend</code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Apply the Redis Service from the following `redis-follower-service.yaml` file:
+-->
+<ol>
+<li>
+<p>应用如下所示 <code>redis-follower-service.yaml</code> 文件中的 Redis Service：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/redis-follower-service.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/redis-follower-service.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Services to verify that the Redis Service is running:
+-->
+<ol start="2">
+<li>
+<p>查询 Service 列表，验证 Redis 服务在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get service
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该类似于这样：</p>
+<pre><code>NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+kubernetes       ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP    3d19h
+redis-follower   ClusterIP   10.110.162.42   &lt;none&gt;        6379/TCP   9s
+redis-leader     ClusterIP   10.103.78.24    &lt;none&gt;        6379/TCP   6m10s
+</code></pre></li>
+</ol>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+This manifest file creates a Service named `redis-follower` with a set of labels that match the labels previously defined, so the Service routes network traffic to the Redis Pod.
+-->
+<p>清单文件创建了一个名为 <code>redis-follower</code> 的 Service，该 Service
+具有一些与之前所定义的标签相匹配的标签，因此该 Service 能够将网络流量
+路由到 Redis Pod 之上。
+</div>
+<!--
+## Set up and Expose the Guestbook Frontend
+-->
+<h2 id="设置并公开留言板前端">设置并公开留言板前端</h2>
+<!-- 
+Now that you have the Redis storage of your guestbook up and running, start the guestbook web servers. Like the Redis followers, the frontend is deployed using a Kubernetes Deployment.
+
+The guestbook app uses a PHP frontend. It is configured to communicate with either the Redis follower or leader Services, depending on whether the request is a read or a write. The frontend exposes a JSON interface, and serves a jQuery-Ajax-based UX.
+-->
+<p>现在你有了一个为 Guestbook 应用配置的 Redis 存储处于运行状态，
+接下来可以启动 Guestbook 的 Web 服务器了。
+与 Redis 跟随者类似，前端也是使用 Kubernetes Deployment 来部署的。</p>
+<p>Guestbook 应用使用 PHP 前端。该前端被配置成与后端的 Redis 跟随者或者
+领导者服务通信，具体选择哪个服务取决于请求是读操作还是写操作。
+前端对外暴露一个 JSON 接口，并提供基于 jQuery-Ajax 的用户体验。</p>
+<!--
+### Creating the Guestbook Frontend Deployment
+-->
+<h3 id="创建-guestbook-前端-deployment">创建 Guestbook 前端 Deployment</h3>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/frontend-deployment.yaml" download="application/guestbook/frontend-deployment.yaml"><code>application/guestbook/frontend-deployment.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-frontend-deployment-yaml')" title="Copy application/guestbook/frontend-deployment.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-frontend-deployment-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>apps/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Deployment<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">replicas</span>:<span style="color:#bbb"> </span><span style="color:#666">3</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">matchLabels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>guestbook<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">template</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>guestbook<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span><span style="color:#008000;font-weight:bold">containers</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">      </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>php-redis<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">image</span>:<span style="color:#bbb"> </span>gcr.io/google_samples/gb-frontend:v5<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">env</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>GET_HOSTS_FROM<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">value</span>:<span style="color:#bbb"> </span><span style="color:#b44">&#34;dns&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">          </span><span style="color:#008000;font-weight:bold">requests</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">cpu</span>:<span style="color:#bbb"> </span>100m<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#008000;font-weight:bold">memory</span>:<span style="color:#bbb"> </span>100Mi<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>- <span style="color:#008000;font-weight:bold">containerPort</span>:<span style="color:#bbb"> </span><span style="color:#666">80</span></code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Apply the frontend Deployment from the `frontend-deployment.yaml` file:
+-->
+<ol>
+<li>
+<p>应用来自 <code>frontend-deployment.yaml</code> 文件的前端 Deployment：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/frontend-deployment.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-deployment.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Pods to verify that the three frontend replicas are running:
+-->
+<ol start="2">
+<li>
+<p>查询 Pod 列表，验证三个前端副本正在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>guestbook -l <span style="color:#b8860b">tier</span><span style="color:#666">=</span>frontend
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<pre><code>NAME                        READY   STATUS    RESTARTS   AGE
+frontend-85595f5bf9-5tqhb   1/1     Running   0          47s
+frontend-85595f5bf9-qbzwm   1/1     Running   0          47s
+frontend-85595f5bf9-zchwc   1/1     Running   0          47s
+</code></pre></li>
+</ol>
+<!--
+### Creating the Frontend Service
+-->
+<h3 id="创建前端服务">创建前端服务</h3>
+<!--
+The `Redis` Services you applied is only accessible within the Kubernetes cluster because the default type for a Service is [ClusterIP](/docs/concepts/services-networking/service/#publishing-services-service-types). `ClusterIP` provides a single IP address for the set of Pods the Service is pointing to. This IP address is accessible only within the cluster.
+-->
+<p>应用的 <code>Redis</code> 服务只能在 Kubernetes 集群中访问，因为服务的默认类型是
+<a href="/zh/docs/concepts/services-networking/service/#publishing-services-service-types">ClusterIP</a>。
+<code>ClusterIP</code> 为服务指向的 Pod 集提供一个 IP 地址。这个 IP 地址只能在集群中访问。</p>
+<!--
+If you want guests to be able to access your guestbook, you must configure the 
+frontend Service to be externally visible, so a client can request the Service 
+from outside the Kubernetes cluster. However a Kubernetes user can use
+`kubectl port-forward` to access the service even though it uses a 
+`ClusterIP`.
+-->
+<p>如果你希望访客能够访问你的 Guestbook，你必须将前端服务配置为外部可见的，
+以便客户端可以从 Kubernetes 集群之外请求服务。
+然而即便使用了 <code>ClusterIP</code>，Kubernetes 用户仍可以通过
+<code>kubectl port-forward</code> 访问服务。</p>
+<!--
+Some cloud providers, like Google Compute Engine or Google Kubernetes Engine, support external load balancers. If your cloud provider supports load balancers and you want to use it, uncomment `type: LoadBalancer`.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 一些云提供商，如 Google Compute Engine 或 Google Kubernetes Engine，
+支持外部负载均衡器。如果你的云提供商支持负载均衡器，并且你希望使用它，
+只需取消注释 <code>type: LoadBalancer</code>。
+</div>
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="highlight">
+    <div class="copy-code-icon" style="text-align:right">
+    <a href="https://raw.githubusercontent.com/kubernetes/website/main/content/zh/examples/application/guestbook/frontend-service.yaml" download="application/guestbook/frontend-service.yaml"><code>application/guestbook/frontend-service.yaml</code>
+    </a>
+    <img src="/images/copycode.svg" style="max-height:24px; cursor: pointer" onclick="copyCode('application-guestbook-frontend-service-yaml')" title="Copy application/guestbook/frontend-service.yaml to clipboard">
+    </img>
+    </div>
+    <div class="includecode" id="application-guestbook-frontend-service-yaml">
+    <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#080;font-style:italic"># SOURCE: https://cloud.google.com/kubernetes-engine/docs/tutorials/guestbook</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>Service<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">labels</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>guestbook<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>frontend<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">spec</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># if your cluster supports it, uncomment the following to automatically create</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># an external load-balanced IP for the frontend service.</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic"># type: LoadBalancer</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#080;font-style:italic">#type: LoadBalancer</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">ports</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#080;font-style:italic"># the port that this service should serve on</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">port</span>:<span style="color:#bbb"> </span><span style="color:#666">80</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">selector</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">app</span>:<span style="color:#bbb"> </span>guestbook<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">tier</span>:<span style="color:#bbb"> </span>frontend</code></pre></div>
+    </div>
+</div>
+
+
+<!--
+1. Apply the frontend Service from the `frontend-service.yaml` file:
+-->
+<ol>
+<li>
+<p>应用来自 <code>frontend-service.yaml</code> 文件中的前端服务：</p>
+<!---
+for local testing of the content via relative file path
+kubectl apply -f ./content/en/examples/application/guestbook/frontend-service.yaml
+-->
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-service.yaml
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Services to verify that the frontend Service is running:
+-->
+<ol start="2">
+<li>
+<p>查询 Service 列表以验证前端服务正在运行:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get services
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<pre><code>NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+frontend         ClusterIP   10.97.28.230    &lt;none&gt;        80/TCP     19s
+kubernetes       ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP    3d19h
+redis-follower   ClusterIP   10.110.162.42   &lt;none&gt;        6379/TCP   5m48s
+redis-leader     ClusterIP   10.103.78.24    &lt;none&gt;        6379/TCP   11m
+</code></pre></li>
+</ol>
+<!--
+### Viewing the Frontend Service via `kubectl port-forward`
+-->
+<h3 id="通过-kubectl-port-forward-查看前端服务">通过 <code>kubectl port-forward</code> 查看前端服务</h3>
+<!--
+1. Run the following command to forward port `8080` on your local machine to port `80` on the service.
+-->
+<ol>
+<li>
+<p>运行以下命令将本机的 <code>8080</code> 端口转发到服务的 <code>80</code> 端口。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl port-forward svc/frontend 8080:80
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<pre><code>Forwarding from 127.0.0.1:8080 -&gt; 80
+Forwarding from [::1]:8080 -&gt; 80
+</code></pre></li>
+</ol>
+<!--
+1. load the page [http://localhost:8080](http://localhost:8080) in your browser to view your guestbook.
+-->
+<ol start="2">
+<li>在浏览器中加载 <a href="http://localhost:8080">http://localhost:8080</a>
+页面以查看 Guestbook。</li>
+</ol>
+<!--
+### Viewing the Frontend Service via `LoadBalancer`
+-->
+<h3 id="通过-loadbalancer-查看前端服务">通过 <code>LoadBalancer</code> 查看前端服务</h3>
+<!--
+If you deployed the `frontend-service.yaml` manifest with type: `LoadBalancer` you need to find the IP address to view your Guestbook.
+-->
+<p>如果你部署了 <code>frontend-service.yaml</code>，需要找到用来查看 Guestbook 的
+IP 地址。</p>
+<!--
+1. Run the following command to get the IP address for the frontend Service.
+-->
+<ol>
+<li>
+<p>运行以下命令以获取前端服务的 IP 地址。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get service frontend
+</code></pre></div><!--
+The response should be similar to this:
+-->
+<p>响应应该与此类似：</p>
+<pre><code>NAME       TYPE           CLUSTER-IP      EXTERNAL-IP        PORT(S)        AGE
+frontend   LoadBalancer   10.51.242.136   109.197.92.229     80:32372/TCP   1m
+</code></pre></li>
+</ol>
+<!--
+1. Copy the external IP address, and load the page in your browser to view your guestbook.
+-->
+<ol start="2">
+<li>复制这里的外部 IP 地址，然后在浏览器中加载页面以查看留言板。</li>
+</ol>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+Try adding some guestbook entries by typing in a message, and clicking Submit. The message you typed appears in the frontend. This message indicates that data is successfully added to Redis through the Services you created earlier.
+-->
+<p>尝试通过输入消息并点击 Submit 来添加一些留言板条目。
+你所输入的消息会在前端显示。这一消息表明数据被通过你
+之前所创建的 Service 添加到 Redis 存储中。
+</div>
+<!--
+## Scale the Web Frontend
+-->
+<h2 id="扩展-web-前端">扩展 Web 前端</h2>
+<!--
+You can scale up or down as needed because your servers are defined as a Service that uses a Deployment controller.
+-->
+<p>你可以根据需要执行伸缩操作，这是因为服务器本身被定义为使用一个
+Deployment 控制器的 Service。</p>
+<!--
+1. Run the following command to scale up the number of frontend Pods:
+-->
+<ol>
+<li>
+<p>运行以下命令扩展前端 Pod 的数量：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl scale deployment frontend --replicas<span style="color:#666">=</span><span style="color:#666">5</span>
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Pods to verify the number of frontend Pods running:
+-->
+<ol start="2">
+<li>
+<p>查询 Pod 列表验证正在运行的前端 Pod 的数量：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><!--
+The response should look similar to this:
+-->
+<p>响应应该类似于这样：</p>
+<pre><code>NAME                             READY   STATUS    RESTARTS   AGE
+frontend-85595f5bf9-5df5m        1/1     Running   0          83s
+frontend-85595f5bf9-7zmg5        1/1     Running   0          83s
+frontend-85595f5bf9-cpskg        1/1     Running   0          15m
+frontend-85595f5bf9-l2l54        1/1     Running   0          14m
+frontend-85595f5bf9-l9c8z        1/1     Running   0          14m
+redis-follower-dddfbdcc9-82sfr   1/1     Running   0          97m
+redis-follower-dddfbdcc9-qrt5k   1/1     Running   0          97m
+redis-leader-fb76b4755-xjr2n     1/1     Running   0          108m
+</code></pre></li>
+</ol>
+<!--
+1. Run the following command to scale down the number of frontend Pods:
+-->
+<ol start="3">
+<li>
+<p>运行以下命令缩小前端 Pod 的数量：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl scale deployment frontend --replicas<span style="color:#666">=</span><span style="color:#666">2</span>
+</code></pre></div></li>
+</ol>
+<!--
+1. Query the list of Pods to verify the number of frontend Pods running:
+-->
+<ol start="4">
+<li>
+<p>查询 Pod 列表验证正在运行的前端 Pod 的数量：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><!--
+The response should look similar to this:
+-->
+<p>响应应该类似于这样：</p>
+<pre><code>NAME                             READY   STATUS    RESTARTS   AGE
+frontend-85595f5bf9-cpskg        1/1     Running   0          16m
+frontend-85595f5bf9-l9c8z        1/1     Running   0          15m
+redis-follower-dddfbdcc9-82sfr   1/1     Running   0          98m
+redis-follower-dddfbdcc9-qrt5k   1/1     Running   0          98m
+redis-leader-fb76b4755-xjr2n     1/1     Running   0          109m
+</code></pre></li>
+</ol>
+<h2 id="cleaning-up">Cleaning up</h2>
+<!--
+Deleting the Deployments and Services also deletes any running Pods. Use labels to delete multiple resources with one command.
+-->
+<p>删除 Deployments 和服务还会删除正在运行的 Pod。
+使用标签用一个命令删除多个资源。</p>
+<!--
+1. Run the following commands to delete all Pods, Deployments, and Services.
+-->
+<ol>
+<li>
+<p>运行以下命令以删除所有 Pod，Deployments 和 Services。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl delete deployment -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>redis
+kubectl delete service -l <span style="color:#b8860b">app</span><span style="color:#666">=</span>redis
+kubectl delete deployment frontend
+kubectl delete service frontend
+</code></pre></div><!--
+The responses should be:
+-->
+<p>响应应该是：</p>
+<pre><code>deployment.apps &quot;redis-follower&quot; deleted
+deployment.apps &quot;redis-leader&quot; deleted
+deployment.apps &quot;frontend&quot; deleted
+service &quot;frontend&quot; deleted
+</code></pre></li>
+</ol>
+<!--
+1. Query the list of Pods to verify that no Pods are running:
+-->
+<ol start="2">
+<li>
+<p>查询 Pod 列表，确认没有 Pod 在运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods
+</code></pre></div><!--
+The response should be this:
+-->
+<p>响应应该是：</p>
+<pre><code>
+No resources found in default namespace.
+</code></pre></li>
+</ol>
+<h2 id="what-s-next">What's next</h2>
+<!--
+* Complete the [Kubernetes Basics](/docs/tutorials/kubernetes-basics/) Interactive Tutorials
+* Use Kubernetes to create a blog using [Persistent Volumes for MySQL and Wordpress](/docs/tutorials/stateful-application/mysql-wordpress-persistent-volume/#visit-your-new-wordpress-blog)
+* Read more about [connecting applications](/docs/concepts/services-networking/connect-applications-service/)
+* Read more about [Managing Resources](/docs/concepts/cluster-administration/manage-deployment/#using-labels-effectively)
+-->
+<ul>
+<li>完成 <a href="/zh/docs/tutorials/kubernetes-basics/">Kubernetes 基础</a> 交互式教程</li>
+<li>使用 Kubernetes 创建一个博客，使用
+<a href="/zh/docs/tutorials/stateful-application/mysql-wordpress-persistent-volume/#visit-your-new-wordpress-blog">MySQL 和 Wordpress 的持久卷</a></li>
+<li>进一步阅读<a href="/zh/docs/concepts/services-networking/connect-applications-service/">连接应用程序</a></li>
+<li>进一步阅读<a href="/zh/docs/concepts/cluster-administration/manage-deployment/#using-labels-effectively">管理资源</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

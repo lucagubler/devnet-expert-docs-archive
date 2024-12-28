@@ -1,0 +1,1921 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/blog/2018/10/03/kubedirector-the-easy-way-to-run-complex-stateful-applications-on-kubernetes/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法 | Kubernetes</title><meta property="og:title" content="KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法" />
+<meta property="og:description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2018-10-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-12-25T08:51:29+08:00" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法">
+<meta itemprop="description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector."><meta itemprop="datePublished" content="2018-10-03T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-12-25T08:51:29+08:00" />
+<meta itemprop="wordCount" content="545">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法"/>
+<meta name="twitter:description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector."/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector.">
+<meta property="og:description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector.">
+<meta name="twitter:description" content="作者：Thomas Phelan（BlueData）
+KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD） 框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。
+我们最近介绍了 KubeDirector 项目，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 KubeDirector 的 pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。
+KubeDirector 提供以下功能：
+ 无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。 本机支持保存特定于应用程序的配置和状态。 与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。  KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。
+要了解 KubeDirector 的组件，请使用类似于以下的命令在 GitHub 上克隆存储库：
+git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector. Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 kubedirector/deploy/example_catalog/cr-app-spark221e2.json 中。
+~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json { &quot;apiVersion&quot;: &quot;kubedirector.">
+<meta property="og:url" content="http://localhost:1313/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">
+<meta property="og:title" content="KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法">
+<meta name="twitter:title" content="KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+
+<meta property="og:image" content="/images/blog/2018-10-03-kubedirector/kubedirector.png">
+
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+    <title>KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法 | Kubernetes</title>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    
+  </head>
+  <body class="td-page td-blog">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/blog/2018/10/03/kubedirector-the-easy-way-to-run-complex-stateful-applications-on-kubernetes/">English</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+      
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+      
+      <section class="header-hero text-center text-white font-bold pb-4">
+        <h1>
+          
+          
+            Kubernetes 博客
+          
+        </h1>
+      </section>
+         
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+
+
+
+
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+
+  <form class="td-sidebar__search d-flex align-items-center">
+    
+  <input
+    type="search"
+    class="form-control td-search-input"
+    name="q"
+    placeholder="&#xf002 Search"
+    aria-label="Search"
+    autocomplete="off"
+  >
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-docs-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  
+  <nav class="collapse td-sidebar-nav pt-2 pl-4" id="td-section-nav">
+    
+    
+
+
+
+
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2022/05/03/dockershim-historical-context/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2022
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-05-03-dockershim-historical-context" href="/zh/blog/2022/05/03/dockershim-historical-context/">
+                Dockershim：历史背景
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-04-07-upcoming-changes-in-kubernetes-1-24" href="/zh/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/">
+                Kubernetes 1.24 的删除和弃用
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-03-16-meet-our-contributors-au-nz-ep-02" href="/zh/blog/2022/03/16/meet-our-contributors-au-nz-ep-02/">
+                认识我们的贡献者 - 亚太地区（澳大利亚-新西兰地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-17-dockershim-faq" href="/zh/blog/2022/02/17/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-02-16-sig-node-ci-subproject-celebrates" href="/zh/blog/2022/02/16/sig-node-ci-subproject-celebrates/">
+                SIG Node CI 子项目庆祝测试改进两周年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-19-secure-your-admission-controllers-and-webhooks" href="/zh/blog/2022/01/19/secure-your-admission-controllers-and-webhooks/">
+                确保准入控制器的安全
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-10-meet-our-contributors-india-ep-01" href="/zh/blog/2022/01/10/meet-our-contributors-india-ep-01/">
+                认识我们的贡献者 - 亚太地区（印度地区）
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2022>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2022-01-07-kubernetes-is-moving-on-from-dockershim" href="/zh/blog/2022/01/07/kubernetes-is-moving-on-from-dockershim/">
+                Kubernetes 即将移除 Dockershim：承诺和下一步
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2022">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2021
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-16-kubernetes-1-23-statefulset-pvc-auto-deletion" href="/zh/blog/2021/12/16/kubernetes-1-23-statefulset-pvc-auto-deletion/">
+                Kubernetes 1.23: StatefulSet PVC 自动删除 (alpha)
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-10-storage-in-tree-to-csi-migration-status-update" href="/zh/blog/2021/12/10/storage-in-tree-to-csi-migration-status-update/">
+                Kubernetes 1.23：树内存储向 CSI 卷迁移工作的进展更新
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-12-08-dual-stack-networking-ga" href="/zh/blog/2021/12/08/dual-stack-networking-ga/">
+                Kubernetes 1.23：IPv4/IPv6 双协议栈网络达到 GA
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-11-08-steering-committee-results-2021" href="/zh/blog/2021/11/08/steering-committee-results-2021/">
+                公布 2021 年指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2021>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2021-09-27-sig-node-spotlight-2021" href="/zh/blog/2021/09/27/sig-node-spotlight-2021/">
+                关注 SIG Node
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2021">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2020
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-18-kubernetes-1-20-pod-impersonation-short-lived-volumes-in-csi" href="/zh/blog/2020/12/18/kubernetes-1.20-pod-impersonation-short-lived-volumes-in-csi/">
+                Kubernetes 1.20：CSI 驱动程序中的 Pod 身份假扮和短时卷
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-08-kubernetes-1-20-release-announcement" href="/zh/blog/2020/12/08/kubernetes-1-20-release-announcement/">
+                Kubernetes 1.20: 最新版本
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dockershim-faq" href="/zh/blog/2020/12/02/dockershim-faq/">
+                弃用 Dockershim 的常见问题
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-12-02-dont-panic-kubernetes-and-docker" href="/zh/blog/2020/12/02/dont-panic-kubernetes-and-docker/">
+                别慌: Kubernetes 和 Docker
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-10-01-e4-b8-ba-e5-bc-80-e5-8f-91-e6-8c-87-e5-8d-97-e5-81-9a-e8-b4-a1-e7-8c-ae" href="/zh/blog/2020/10/01/%E4%B8%BA%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97%E5%81%9A%E8%B4%A1%E7%8C%AE/">
+                为开发指南做贡献
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-09-04-kubernetes-1-19-introducing-structured-logs" href="/zh/blog/2020/09/04/kubernetes-1-19-introducing-structured-logs/">
+                结构化日志介绍
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-03-25-kubernetes-1-18-release-announcement" href="/zh/blog/2020/03/25/kubernetes-1-18-release-announcement/">
+                Kubernetes 1.18: Fit &amp; Finish
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2020>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2020-01-15-kubernetes-on-mips" href="/zh/blog/2020/01/15/kubernetes-on-mips/">
+                基于 MIPS 架构的 Kubernetes 方案
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2020">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2019
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-12-09-kubernetes-1-17-release-announcement" href="/zh/blog/2019/12/09/kubernetes-1-17-release-announcement/">
+                Kubernetes 1.17：稳定
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-e4-bd-bf-e7-94-a8-microk8s-e5-9c-a8-linux-e4-b8-8a-e6-9c-ac-e5-9c-b0-e8-bf-90-e8-a1-8c-kubernetes" href="/zh/blog/2019/11/26/%E4%BD%BF%E7%94%A8-microk8s-%E5%9C%A8-linux-%E4%B8%8A%E6%9C%AC%E5%9C%B0%E8%BF%90%E8%A1%8C-kubernetes/">
+                使用 Microk8s 在 Linux 上本地运行 Kubernetes
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-11-26-develop-a-kubernetes-controller-in-java" href="/zh/blog/2019/11/26/develop-a-kubernetes-controller-in-java/">
+                使用 Java 开发一个 Kubernetes controller
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-29-kubernetes-documentation-end-user-survey" href="/zh/blog/2019/10/29/kubernetes-documentation-end-user-survey/">
+                Kubernetes 文档最终用户调研
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-10-contributor-summit-san-diego-schedule" href="/zh/blog/2019/10/10/contributor-summit-san-diego-schedule/">
+                圣迭戈贡献者峰会日程公布！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-10-03-2019-steering-committee-election-results" href="/zh/blog/2019/10/03/2019-steering-committee-election-results/">
+                2019 指导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-09-24-san-diego-contributor-summit" href="/zh/blog/2019/09/24/san-diego-contributor-summit/">
+                San Diego 贡献者峰会开放注册！
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-08-06-opa-gatekeeper-policy-and-governance-for-kubernetes" href="/zh/blog/2019/08/06/opa-gatekeeper-policy-and-governance-for-kubernetes/">
+                OPA Gatekeeper：Kubernetes 的策略和管理
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-06-11-e6-ac-a2-e8-bf-8e-e5-8f-82-e5-8a-a0-e5-9c-a8-e4-b8-8a-e6-b5-b7-e4-b8-be-e8-a1-8c-e7-9a-84-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2019/06/11/%E6%AC%A2%E8%BF%8E%E5%8F%82%E5%8A%A0%E5%9C%A8%E4%B8%8A%E6%B5%B7%E4%B8%BE%E8%A1%8C%E7%9A%84%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                欢迎参加在上海举行的贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-05-14-expanding-our-contributor-workshops" href="/zh/blog/2019/05/14/expanding-our-contributor-workshops/">
+                壮大我们的贡献者研讨会
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2019">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-26-e5-a6-82-e4-bd-95-e5-8f-82-e4-b8-8e-kubernetes-e6-96-87-e6-a1-a3-e7-9a-84-e6-9c-ac-e5-9c-b0-e5-8c-96-e5-b7-a5-e4-bd-9c" href="/zh/blog/2019/04/26/%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E-kubernetes-%E6%96%87%E6%A1%A3%E7%9A%84%E6%9C%AC%E5%9C%B0%E5%8C%96%E5%B7%A5%E4%BD%9C/">
+                如何参与 Kubernetes 文档的本地化工作
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-04-15-kubernetes-1-14-e7-a8-b3-e5-ae-9a-e6-80-a7-e6-94-b9-e8-bf-9b-e4-b8-ad-e7-9a-84-e8-bf-9b-e7-a8-8bid-e9-99-90-e5-88-b6" href="/zh/blog/2019/04/15/kubernetes-1.14-%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%94%B9%E8%BF%9B%E4%B8%AD%E7%9A%84%E8%BF%9B%E7%A8%8Bid%E9%99%90%E5%88%B6/">
+                Kubernetes 1.14 稳定性改进中的进程ID限制
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2019>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2019-03-07-raw-block-volume-e6-94-af-e6-8c-81-e8-bf-9b-e5-85-a5-beta" href="/zh/blog/2019/03/07/raw-block-volume-%E6%94%AF%E6%8C%81%E8%BF%9B%E5%85%A5-beta/">
+                Raw Block Volume 支持进入 Beta
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/" class="align-left pl-0 pr-2 active td-sidebar-link td-sidebar-link__section">
+          2018
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-12-05-e6-96-b0-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b7-a5-e4-bd-9c-e5-9d-8a-e4-b8-8a-e6-b5-b7-e7-ab-99" href="/zh/blog/2018/12/05/%E6%96%B0%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B7%A5%E4%BD%9C%E5%9D%8A%E4%B8%8A%E6%B5%B7%E7%AB%99/">
+                新贡献者工作坊上海站
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-11-08-kubernetes-e6-96-87-e6-a1-a3-e6-9b-b4-e6-96-b0-e5-9b-bd-e9-99-85-e7-89-88" href="/zh/blog/2018/11/08/kubernetes-%E6%96%87%E6%A1%A3%E6%9B%B4%E6%96%B0%E5%9B%BD%E9%99%85%E7%89%88/">
+                Kubernetes 文档更新，国际版
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-16-kubernetes-2018-e5-b9-b4-e5-8c-97-e7-be-8e-e8-b4-a1-e7-8c-ae-e8-80-85-e5-b3-b0-e4-bc-9a" href="/zh/blog/2018/10/16/kubernetes-2018-%E5%B9%B4%E5%8C%97%E7%BE%8E%E8%B4%A1%E7%8C%AE%E8%80%85%E5%B3%B0%E4%BC%9A/">
+                Kubernetes 2018 年北美贡献者峰会
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-15-2018-e5-b9-b4-e7-9d-a3-e5-af-bc-e5-a7-94-e5-91-98-e4-bc-9a-e9-80-89-e4-b8-be-e7-bb-93-e6-9e-9c" href="/zh/blog/2018/10/15/2018-%E5%B9%B4%E7%9D%A3%E5%AF%BC%E5%A7%94%E5%91%98%E4%BC%9A%E9%80%89%E4%B8%BE%E7%BB%93%E6%9E%9C/">
+                2018 年督导委员会选举结果
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-11-kubernetes-e4-b8-ad-e7-9a-84-e6-8b-93-e6-89-91-e6-84-9f-e7-9f-a5-e6-95-b0-e6-8d-ae-e5-8d-b7-e4-be-9b-e5-ba-94" href="/zh/blog/2018/10/11/kubernetes-%E4%B8%AD%E7%9A%84%E6%8B%93%E6%89%91%E6%84%9F%E7%9F%A5%E6%95%B0%E6%8D%AE%E5%8D%B7%E4%BE%9B%E5%BA%94/">
+                Kubernetes 中的拓扑感知数据卷供应
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-10-kubernetes-v1-12-runtimeclass-e7-ae-80-e4-bb-8b" href="/zh/blog/2018/10/10/kubernetes-v1.12-runtimeclass-%E7%AE%80%E4%BB%8B/">
+                Kubernetes v1.12: RuntimeClass 简介
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page  active" id="m-zh-blog-2018-10-03-kubedirector-e5-9c-a8-kubernetes-e4-b8-8a-e8-bf-90-e8-a1-8c-e5-a4-8d-e6-9d-82-e7-8a-b6-e6-80-81-e5-ba-94-e7-94-a8-e7-a8-8b-e5-ba-8f-e7-9a-84-e7-ae-80-e5-8d-95-e6-96-b9-e6-b3-95" href="/zh/blog/2018/10/03/kubedirector%E5%9C%A8-kubernetes-%E4%B8%8A%E8%BF%90%E8%A1%8C%E5%A4%8D%E6%9D%82%E7%8A%B6%E6%80%81%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95/">
+                KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-10-01-e5-9c-a8-kubernetes-e4-b8-8a-e5-af-b9-grpc-e6-9c-8d-e5-8a-a1-e5-99-a8-e8-bf-9b-e8-a1-8c-e5-81-a5-e5-ba-b7-e6-a3-80-e6-9f-a5" href="/zh/blog/2018/10/01/%E5%9C%A8-kubernetes-%E4%B8%8A%E5%AF%B9-grpc-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/">
+                在 Kubernetes 上对 gRPC 服务器进行健康检查
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-29-the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience" href="/zh/blog/2018/08/29/the-machines-can-do-the-work-a-story-of-kubernetes-testing-ci-and-automating-the-contributor-experience/">
+                The Machines Can Do the Work, a Story of Kubernetes Testing, CI, and Automating the Contributor Experience
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse show" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-08-02-e4-bd-bf-e7-94-a8-csi-e5-92-8c-kubernetes-e5-ae-9e-e7-8e-b0-e5-8d-b7-e7-9a-84-e5-8a-a8-e6-80-81-e6-89-a9-e5-ae-b9" href="/zh/blog/2018/08/02/%E4%BD%BF%E7%94%A8-csi-%E5%92%8C-kubernetes-%E5%AE%9E%E7%8E%B0%E5%8D%B7%E7%9A%84%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9/">
+                使用 CSI 和 Kubernetes 实现卷的动态扩容
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse show" data-year="2018">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-11-e5-8a-a8-e6-80-81-kubelet-e9-85-8d-e7-bd-ae" href="/zh/blog/2018/07/11/%E5%8A%A8%E6%80%81-kubelet-%E9%85%8D%E7%BD%AE/">
+                动态 Kubelet 配置
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-10-e7-94-a8-e4-ba-8e-kubernetes-e9-9b-86-e7-be-a4-dns-e7-9a-84-coredns-ga-e6-ad-a3-e5-bc-8f-e5-8f-91-e5-b8-83" href="/zh/blog/2018/07/10/%E7%94%A8%E4%BA%8E-kubernetes-%E9%9B%86%E7%BE%A4-dns-%E7%9A%84-coredns-ga-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83/">
+                用于 Kubernetes 集群 DNS 的 CoreDNS GA 正式发布
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-07-09-ipvs-based-in-cluster-load-balancing-deep-dive" href="/zh/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/">
+                IPVS-Based In-Cluster Load Balancing Deep Dive
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-28-airflow-e5-9c-a8kubernetes-e4-b8-ad-e7-9a-84-e4-bd-bf-e7-94-a8-e7-ac-ac-e4-b8-80-e9-83-a8-e5-88-86-e4-b8-80-e7-a7-8d-e4-b8-8d-e5-90-8c-e7-9a-84-e6-93-8d-e4-bd-9c-e5-99-a8" href="/zh/blog/2018/06/28/airflow%E5%9C%A8kubernetes%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E4%B8%80%E7%A7%8D%E4%B8%8D%E5%90%8C%E7%9A%84%E6%93%8D%E4%BD%9C%E5%99%A8/">
+                Airflow在Kubernetes中的使用（第一部分）：一种不同的操作器
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-07-dynamic-ingress-kubernetes" href="/zh/blog/2018/06/07/dynamic-ingress-kubernetes/">
+                Kubernetes 内的动态 Ingress
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-06-06-kubernetes-e8-bf-99-e5-9b-9b-e5-b9-b4" href="/zh/blog/2018/06/06/kubernetes-%E8%BF%99%E5%9B%9B%E5%B9%B4/">
+                Kubernetes 这四年
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-30-kubernetes-1-11-e5-90-91-discuss-kubernetes-e9-97-ae-e5-a5-bd" href="/zh/blog/2018/05/30/kubernetes-1-11%E5%90%91-discuss-kubernetes-%E9%97%AE%E5%A5%BD/">
+                Kubernetes 1 11：向 discuss kubernetes 问好
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-05-01-developing-on-kubernetes" href="/zh/blog/2018/05/01/developing-on-kubernetes/">
+                在 Kubernetes 上开发
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-04-25-open-source-charts-2017" href="/zh/blog/2018/04/25/open-source-charts-2017/">
+                Kubernetes 社区 - 2017 年开源排行榜榜首
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-03-principles-of-container-app-design" href="/zh/blog/2018/03/Principles-Of-Container-App-Design/">
+                “基于容器的应用程序设计原理”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2018>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2018-01-kubernetes-v19-beta-windows-support" href="/zh/blog/2018/01/Kubernetes-V19-Beta-Windows-Support/">
+                Kubernetes 1.9 对 Windows Server 容器提供 Beta 版本支持
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2017
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-11-17-autoscaling-in-kubernetes" href="/zh/blog/2017/11/17/autoscaling-in-kubernetes/">
+                 Kubernetes 中自动缩放 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-24-five-days-of-kubernetes-18" href="/zh/blog/2017/10/24/five-days-of-kubernetes-18/">
+                 Kubernetes 1.8 的五天 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2017>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2017-10-kubernetes-community-steering-committee-election-results" href="/zh/blog/2017/10/Kubernetes-Community-Steering-Committee-Election-Results/">
+                 Kubernetes 社区指导委员会选举结果 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2017">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2016
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-08-stateful-applications-using-kubernetes-datera" href="/zh/blog/2016/08/Stateful-Applications-Using-Kubernetes-Datera/">
+                 使用 Kubernetes Pet Sets 和 Datera Elastic Data Fabric 的 FlexVolume 扩展有状态的应用程序 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-21-oh-the-places-you-will-go" href="/zh/blog/2016/07/21/oh-the-places-you-will-go/">
+                 Kubernetes 生日快乐。哦，这是你要去的地方！ 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-15-dashboard-web-interface-for-kubernetes" href="/zh/blog/2016/07/15/dashboard-web-interface-for-kubernetes/">
+                 Dashboard - Kubernetes 的全功能 Web 界面 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-14-citrix-netscaler-and-kubernetes" href="/zh/blog/2016/07/14/citrix-netscaler-and-kubernetes/">
+                 Citrix &#43; Kubernetes = 全垒打 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-stateful-applications-in-containers-kubernetes" href="/zh/blog/2016/07/stateful-applications-in-containers-kubernetes/">
+                容器中运行有状态的应用！？ Kubernetes 1.3 说 “是！” 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-05-coreosfest2016-kubernetes-community" href="/zh/blog/2016/05/Coreosfest2016-Kubernetes-Community/">
+                 CoreOS Fest 2016: CoreOS 和 Kubernetes 在柏林（和旧金山）社区见面会 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-sig-clusterops-promote-operability-and-interoperability-of-k8s-clusters" href="/zh/blog/2016/04/Sig-Clusterops-Promote-Operability-And-Interoperability-Of-K8S-Clusters/">
+                 SIG-ClusterOps: 提升 Kubernetes 集群的可操作性和互操作性 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-kubernetes-network-policy-apis" href="/zh/blog/2016/04/Kubernetes-Network-Policy-APIs/">
+                “SIG-Networking：1.3 版本引入 Kubernetes 网络策略 API”
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-04-adding-support-for-kubernetes-in-rancher" href="/zh/blog/2016/04/Adding-Support-For-Kubernetes-In-Rancher/">
+                 在 Rancher 中添加对 Kuernetes 的支持 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-24-kubecon-eu-2016-kubernetes-community-in" href="/zh/blog/2016/02/24/kubecon-eu-2016-kubernetes-community-in/">
+                 KubeCon EU 2016：伦敦 Kubernetes 社区 
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2016">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-kubernetes-community-meeting-notes-23" href="/zh/blog/2016/02/kubernetes-community-meeting-notes_23/">
+                Kubernetes 社区会议记录 - 20160218
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-09-kubernetes-community-meeting-notes" href="/zh/blog/2016/02/09/kubernetes-community-meeting-notes/">
+                 Kubernetes 社区会议记录 - 20160204 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-02-state-of-container-world-january-2016" href="/zh/blog/2016/02/State-Of-Container-World-January-2016/">
+                 容器世界现状，2016年1月 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-kubernetes-community-meeting-notes" href="/zh/blog/2016/01/Kubernetes-Community-Meeting-Notes/">
+                 Kubernetes 社区会议记录 - 20160114 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-14-why-kubernetes-doesnt-use-libnetwork" href="/zh/blog/2016/01/14/why-kubernetes-doesnt-use-libnetwork/">
+                 为什么 Kubernetes 不用 libnetwork 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2016>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-01-11-simple-leader-election-with-kubernetes" href="/zh/blog/2016/01/11/simple-leader-election-with-kubernetes/">
+                 Simple leader election with Kubernetes and Docker 
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          2015
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-12-17-managing-kubernetes-pods-services-and-replication-controllers-with-puppet" href="/zh/blog/2015/12/17/managing-kubernetes-pods-services-and-replication-controllers-with-puppet/">
+                 使用 Puppet 管理 Kubernetes Pods，Services 和 Replication Controllers 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-11-kubernetes-1-1-performance-upgrades-improved-tooling-and-a-growing-community" href="/zh/blog/2015/11/Kubernetes-1-1-Performance-Upgrades-Improved-Tooling-And-A-Growing-Community/">
+                 Kubernetes 1.1 性能升级，工具改进和社区不断壮大  
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-08-weekly-kubernetes-community-hangout" href="/zh/blog/2015/08/Weekly-Kubernetes-Community-Hangout/">
+                 Weekly Kubernetes Community Hangout Notes - July 31 2015 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-07-08-announcing-first-kubernetes-enterprise" href="/zh/blog/2015/07/08/announcing-first-kubernetes-enterprise/">
+                宣布首个Kubernetes企业培训课程 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-06-26-slides-cluster-management-with" href="/zh/blog/2015/06/26/slides-cluster-management-with/">
+                幻灯片：Kubernetes 集群管理，爱丁堡大学演讲
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-19-kubernetes-on-openstack" href="/zh/blog/2015/05/19/kubernetes-on-openstack/">
+                 OpenStack 上的 Kubernetes 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-11-weekly-kubernetes-community-hangout" href="/zh/blog/2015/05/11/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记- 2015年5月1日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-05-appc-support-for-kubernetes-through-rkt" href="/zh/blog/2015/05/Appc-Support-For-Kubernetes-Through-Rkt/">
+                 AppC Support for Kubernetes through RKT 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-30-weekly-kubernetes-community-hangout-29" href="/zh/blog/2015/04/30/weekly-kubernetes-community-hangout_29/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月24日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post collapse " data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-borg-predecessor-to-kubernetes" href="/zh/blog/2015/04/Borg-Predecessor-To-Kubernetes/">
+                Borg: Kubernetes 的前身
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="2015">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-17-weekly-kubernetes-community-hangout-17" href="/zh/blog/2015/04/17/weekly-kubernetes-community-hangout_17/">
+                 Kubernetes 社区每周聚会笔记- 2015年4月17日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-16-kubernetes-release-0150" href="/zh/blog/2015/04/16/kubernetes-release-0150/">
+                 Kubernetes Release: 0.15.0 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-04-weekly-kubernetes-community-hangout" href="/zh/blog/2015/04/Weekly-Kubernetes-Community-Hangout/">
+                 每周 Kubernetes 社区例会笔记 - 2015年4月3日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-28-weekly-kubernetes-community-hangout" href="/zh/blog/2015/03/28/weekly-kubernetes-community-hangout/">
+                 Kubernetes 社区每周聚会笔记 - 2015年3月27日 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-23-kubernetes-gathering-videos" href="/zh/blog/2015/03/23/kubernetes-gathering-videos/">
+                 Kubernetes 采集视频 
+              </a>
+            </li>
+          
+        
+          
+            <li class="blog-post hidden collapse" data-year=2015>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2015-03-20-welcome-to-kubernetes-blog" href="/zh/blog/2015/03/20/welcome-to-kubernetes-blog/">
+                欢迎来到 Kubernetes 博客!
+              </a>
+            </li>
+          
+        
+      </ul>
+    </ul>
+
+  
+
+  
+  
+  
+
+  
+    <ul class="td-sidebar-nav__section pr-md-3">
+      <li class="td-sidebar-nav__section-title">
+        <a  href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/" class="align-left pl-0 pr-2 collapsed td-sidebar-link td-sidebar-link__section">
+          0001
+        </a>
+
+      </li>
+      
+      
+      
+      <ul>
+        
+          
+            <li class="blog-post collapse " data-year=0001>
+              
+              
+              <a class="td-sidebar-link td-sidebar-link__page " id="m-zh-blog-2016-07-bringing-end-to-end-kubernetes-testing-to-azure-2" href="/zh/blog/2016/07/Bringing-End-To-End-Kubernetes-Testing-To-Azure-2/">
+                
+              </a>
+            </li>
+          
+        
+        <li class="more-posts collapse " data-year="0001">
+          <a class="td-sidebar-link" id="more-posts" href="">Show More Posts...</a>
+        </li>
+        
+      </ul>
+    </ul>
+
+  
+
+
+  </nav>
+</div>
+
+
+
+
+<script>
+let morePosts = document.querySelectorAll(".more-posts");
+let year = "";
+morePosts.forEach(link => {
+  link.onclick = (e) => {
+    e.preventDefault();
+    year = link.dataset.year;
+    console.log(year);
+    let hiddenPosts = document.querySelectorAll(`.blog-post.hidden[data-year="${year}"]`);
+    console.log(hiddenPosts);
+    hiddenPosts.forEach(post => {
+      post.classList.add('show');
+      post.classList.remove("hidden");
+    });
+    link.style.display = "none";
+  }
+});
+</script>
+          </div>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5 pr-md-4" role="main">
+            
+              <section id="deprecation-warning">
+  <div class="content deprecation-warning pageinfo outdated-blog">
+    <p>This article is more than one year old. Older articles may contain outdated content. Check that the information in the page has not become incorrect since its publication.</p>
+  </div>
+</section>
+
+            
+            
+<div class="td-content">
+	<h1>KubeDirector：在 Kubernetes 上运行复杂状态应用程序的简单方法</h1>
+	
+	<div class="td-byline mb-4">
+		
+		<time datetime="2018-10-03" class="text-muted">2018.10.03</time>
+	</div>
+	<header class="article-meta">
+		
+
+  
+    
+
+
+  
+    
+
+
+  
+
+		
+	</header>
+	<!--
+layout: blog
+title: 'KubeDirector: The easy way to run complex stateful applications on Kubernetes'
+date: 2018-10-03
+-->
+<!--
+**Author**: Thomas Phelan (BlueData)
+-->
+<p><strong>作者</strong>：Thomas Phelan（BlueData）</p>
+<!--
+KubeDirector is an open source project designed to make it easy to run complex stateful scale-out application clusters on Kubernetes. KubeDirector is built using the custom resource definition (CRD) framework and leverages the native Kubernetes API extensions and design philosophy. This enables transparent integration with Kubernetes user/resource management as well as existing clients and tools.
+-->
+<p>KubeDirector 是一个开源项目，旨在简化在 Kubernetes 上运行复杂的有状态扩展应用程序集群。KubeDirector 使用自定义资源定义（CRD）
+框架构建，并利用了本地 Kubernetes API 扩展和设计哲学。这支持与 Kubernetes 用户/资源 管理以及现有客户端和工具的透明集成。</p>
+<!--
+We recently [introduced the KubeDirector project](https://medium.com/@thomas_phelan/operation-stateful-introducing-bluek8s-and-kubernetes-director-aa204952f619/), as part of a broader open source Kubernetes initiative we call BlueK8s. I’m happy to announce that the pre-alpha
+code for [KubeDirector](https://github.com/bluek8s/kubedirector/) is now available. And in this blog post, I’ll show how it works.
+-->
+<p>我们最近<a href="https://medium.com/@thomas_phelan/operation-stateful-introducing-bluek8s-and-kubernetes-director-aa204952f619/">介绍了 KubeDirector 项目</a>，作为我们称为 BlueK8s 的更广泛的 Kubernetes 开源项目的一部分。我很高兴地宣布 <a href="https://github.com/bluek8s/kubedirector/">KubeDirector</a> 的
+pre-alpha 代码现在已经可用。在这篇博客文章中，我将展示它是如何工作的。</p>
+<!--
+KubeDirector provides the following capabilities:
+-->
+<p>KubeDirector 提供以下功能：</p>
+<!--
+*	The ability to run non-cloud native stateful applications on Kubernetes without modifying the code. In other words, it’s not necessary to decompose these existing applications to fit a microservices design pattern.
+*	Native support for preserving application-specific configuration and state.
+*	An application-agnostic deployment pattern, minimizing the time to onboard new stateful applications to Kubernetes.
+-->
+<ul>
+<li>无需修改代码即可在 Kubernetes 上运行非云原生有状态应用程序。换句话说，不需要分解这些现有的应用程序来适应微服务设计模式。</li>
+<li>本机支持保存特定于应用程序的配置和状态。</li>
+<li>与应用程序无关的部署模式，最大限度地减少将新的有状态应用程序装载到 Kubernetes 的时间。</li>
+</ul>
+<!--
+KubeDirector enables data scientists familiar with data-intensive distributed applications such as Hadoop, Spark, Cassandra, TensorFlow, Caffe2, etc. to run these applications on Kubernetes -- with a minimal learning curve and no need to write GO code. The applications controlled by KubeDirector are defined by some basic metadata and an associated package of configuration artifacts.  The application metadata is referred to as a KubeDirectorApp resource.
+-->
+<p>KubeDirector 使熟悉数据密集型分布式应用程序（如 Hadoop、Spark、Cassandra、TensorFlow、Caffe2 等）的数据科学家能够在 Kubernetes 上运行这些应用程序 -- 只需极少的学习曲线，无需编写 GO 代码。由 KubeDirector 控制的应用程序由一些基本元数据和相关的配置工件包定义。应用程序元数据称为 KubeDirectorApp 资源。</p>
+<!--
+To understand the components of KubeDirector, clone the repository on [GitHub](https://github.com/bluek8s/kubedirector/) using a command similar to:
+-->
+<p>要了解 KubeDirector 的组件，请使用类似于以下的命令在 <a href="https://github.com/bluek8s/kubedirector/">GitHub</a> 上克隆存储库：</p>
+<pre><code>git clone http://&lt;userid&gt;@github.com/bluek8s/kubedirector.
+</code></pre><!--
+The KubeDirectorApp definition for the Spark 2.2.1 application is located
+in the file `kubedirector/deploy/example_catalog/cr-app-spark221e2.json`.
+-->
+<p>Spark 2.2.1 应用程序的 KubeDirectorApp 定义位于文件 <code>kubedirector/deploy/example_catalog/cr-app-spark221e2.json</code> 中。</p>
+<pre><code>~&gt; cat kubedirector/deploy/example_catalog/cr-app-spark221e2.json
+{
+   &quot;apiVersion&quot;: &quot;kubedirector.bluedata.io/v1alpha1&quot;,
+   &quot;kind&quot;: &quot;KubeDirectorApp&quot;,
+   &quot;metadata&quot;: {
+       &quot;name&quot; : &quot;spark221e2&quot;
+   },
+   &quot;spec&quot; : {
+       &quot;systemctlMounts&quot;: true,
+       &quot;config&quot;: {
+           &quot;node_services&quot;: [
+               {
+                   &quot;service_ids&quot;: [
+                       &quot;ssh&quot;,
+                       &quot;spark&quot;,
+                       &quot;spark_master&quot;,
+                       &quot;spark_worker&quot;
+                   ],
+…
+</code></pre><!--
+The configuration of an application cluster is referred to as a KubeDirectorCluster resource. The
+KubeDirectorCluster definition for a sample Spark 2.2.1 cluster is located in the file
+`kubedirector/deploy/example_clusters/cr-cluster-spark221.e1.yaml`.
+-->
+<p>应用程序集群的配置称为 KubeDirectorCluster 资源。示例 Spark 2.2.1 集群的 KubeDirectorCluster 定义位于文件
+<code>kubedirector/deploy/example_clusters/cr-cluster-spark221.e1.yaml</code> 中。</p>
+<pre><code>~&gt; cat kubedirector/deploy/example_clusters/cr-cluster-spark221.e1.yaml
+apiVersion: &quot;kubedirector.bluedata.io/v1alpha1&quot;
+kind: &quot;KubeDirectorCluster&quot;
+metadata:
+  name: &quot;spark221e2&quot;
+spec:
+  app: spark221e2
+  roles:
+  - name: controller
+    replicas: 1
+    resources:
+      requests:
+        memory: &quot;4Gi&quot;
+        cpu: &quot;2&quot;
+      limits:
+        memory: &quot;4Gi&quot;
+        cpu: &quot;2&quot;
+  - name: worker
+    replicas: 2
+    resources:
+      requests:
+        memory: &quot;4Gi&quot;
+        cpu: &quot;2&quot;
+      limits:
+        memory: &quot;4Gi&quot;
+        cpu: &quot;2&quot;
+  - name: jupyter
+…
+</code></pre><!--
+## Running Spark on Kubernetes with KubeDirector
+-->
+<h2 id="使用-kubedirector-在-kubernetes-上运行-spark">使用 KubeDirector 在 Kubernetes 上运行 Spark</h2>
+<!--
+With KubeDirector, it’s easy to run Spark clusters on Kubernetes.
+-->
+<p>使用 KubeDirector，可以轻松在 Kubernetes 上运行 Spark 集群。</p>
+<!--
+First, verify that Kubernetes (version 1.9 or later) is running, using the command `kubectl version`
+-->
+<p>首先，使用命令 <code>kubectl version</code> 验证 Kubernetes（版本 1.9 或更高）是否正在运行</p>
+<pre><code>~&gt; kubectl version
+Client Version: version.Info{Major:&quot;1&quot;, Minor:&quot;11&quot;, GitVersion:&quot;v1.11.3&quot;, GitCommit:&quot;a4529464e4629c21224b3d52edfe0ea91b072862&quot;, GitTreeState:&quot;clean&quot;, BuildDate:&quot;2018-09-09T18:02:47Z&quot;, GoVersion:&quot;go1.10.3&quot;, Compiler:&quot;gc&quot;, Platform:&quot;linux/amd64&quot;}
+Server Version: version.Info{Major:&quot;1&quot;, Minor:&quot;11&quot;, GitVersion:&quot;v1.11.3&quot;, GitCommit:&quot;a4529464e4629c21224b3d52edfe0ea91b072862&quot;, GitTreeState:&quot;clean&quot;, BuildDate:&quot;2018-09-09T17:53:03Z&quot;, GoVersion:&quot;go1.10.3&quot;, Compiler:&quot;gc&quot;, Platform:&quot;linux/amd64&quot;}                                    
+</code></pre><!--
+Deploy the KubeDirector service and the example KubeDirectorApp resource definitions with the commands:
+-->
+<p>使用以下命令部署 KubeDirector 服务和示例 KubeDirectorApp 资源定义：</p>
+<pre><code>cd kubedirector
+make deploy
+</code></pre><!--
+These will start the KubeDirector pod:
+-->
+<p>这些将启动 KubeDirector pod：</p>
+<pre><code>~&gt; kubectl get pods
+NAME                           READY     STATUS     RESTARTS     AGE
+kubedirector-58cf59869-qd9hb   1/1       Running    0            1m     
+</code></pre><!--
+List the installed KubeDirector applications with `kubectl get KubeDirectorApp`
+-->
+<p><code>kubectl get KubeDirectorApp</code> 列出中已安装的 KubeDirector 应用程序</p>
+<pre><code>~&gt; kubectl get KubeDirectorApp
+NAME           AGE
+cassandra311   30m
+spark211up     30m
+spark221e2     30m
+</code></pre><!--
+Now you can launch a Spark 2.2.1 cluster using the example KubeDirectorCluster file and the
+`kubectl create -f deploy/example_clusters/cr-cluster-spark211up.yaml` command.
+Verify that the Spark cluster has been started:
+-->
+<p>现在，您可以使用示例 KubeDirectorCluster 文件和 <code>kubectl create -f deploy/example_clusters/cr-cluster-spark211up.yaml</code> 命令
+启动 Spark 2.2.1 集群。验证 Spark 集群已经启动:</p>
+<pre><code>~&gt; kubectl get pods
+NAME                             READY     STATUS    RESTARTS   AGE
+kubedirector-58cf59869-djdwl     1/1       Running   0          19m
+spark221e2-controller-zbg4d-0    1/1       Running   0          23m
+spark221e2-jupyter-2km7q-0       1/1       Running   0          23m
+spark221e2-worker-4gzbz-0        1/1       Running   0          23m
+spark221e2-worker-4gzbz-1        1/1       Running   0          23m
+</code></pre><!--
+The running services now include the Spark services:
+-->
+<p>现在运行的服务包括 Spark 服务：</p>
+<pre><code>~&gt; kubectl get service
+NAME                                TYPE         CLUSTER-IP        EXTERNAL-IP    PORT(S)                                                    AGE
+kubedirector                        ClusterIP    10.98.234.194     &lt;none&gt;         60000/TCP                                                  1d
+kubernetes                          ClusterIP    10.96.0.1         &lt;none&gt;         443/TCP                                                    1d
+svc-spark221e2-5tg48                ClusterIP    None              &lt;none&gt;         8888/TCP                                                   21s
+svc-spark221e2-controller-tq8d6-0   NodePort     10.104.181.123    &lt;none&gt;         22:30534/TCP,8080:31533/TCP,7077:32506/TCP,8081:32099/TCP  20s
+svc-spark221e2-jupyter-6989v-0      NodePort     10.105.227.249    &lt;none&gt;         22:30632/TCP,8888:30355/TCP                                20s
+svc-spark221e2-worker-d9892-0       NodePort     10.107.131.165    &lt;none&gt;         22:30358/TCP,8081:32144/TCP                                20s
+svc-spark221e2-worker-d9892-1       NodePort     10.110.88.221     &lt;none&gt;         22:30294/TCP,8081:31436/TCP                                20s
+</code></pre><!--
+Pointing the browser at port 31533 connects to the Spark Master UI:
+-->
+<p>将浏览器指向端口 31533 连接到 Spark 主节点 UI：</p>
+<p><img src="/images/blog/2018-10-03-kubedirector/kubedirector.png" alt="kubedirector"></p>
+<!--
+That’s all there is to it!
+In fact, in the example above we also deployed a Jupyter notebook along with the Spark cluster.
+-->
+<p>就是这样!
+事实上，在上面的例子中，我们还部署了一个 Jupyter notebook 和 Spark 集群。</p>
+<!--
+To start another application (e.g. Cassandra), just specify another KubeDirectorApp file:
+-->
+<p>要启动另一个应用程序（例如 Cassandra），只需指定另一个 KubeDirectorApp 文件：</p>
+<pre><code>kubectl create -f deploy/example_clusters/cr-cluster-cassandra311.yaml
+</code></pre><!--
+See the running Cassandra cluster:
+-->
+<p>查看正在运行的 Cassandra 集群：</p>
+<pre><code>~&gt; kubectl get pods
+NAME                              READY     STATUS    RESTARTS   AGE
+cassandra311-seed-v24r6-0         1/1       Running   0          1m
+cassandra311-seed-v24r6-1         1/1       Running   0          1m
+cassandra311-worker-rqrhl-0       1/1       Running   0          1m
+cassandra311-worker-rqrhl-1       1/1       Running   0          1m
+kubedirector-58cf59869-djdwl      1/1       Running   0          1d
+spark221e2-controller-tq8d6-0     1/1       Running   0          22m
+spark221e2-jupyter-6989v-0        1/1       Running   0          22m
+spark221e2-worker-d9892-0         1/1       Running   0          22m
+spark221e2-worker-d9892-1         1/1       Running   0          22m
+</code></pre><!--
+Now you have a Spark cluster (with a Jupyter notebook) and a Cassandra cluster running on Kubernetes.
+Use `kubectl get service` to see the set of services.
+-->
+<p>现在，您有一个 Spark 集群（带有 Jupyter notebook ）和一个运行在 Kubernetes 上的 Cassandra 集群。
+使用 <code>kubectl get service</code> 查看服务集。</p>
+<pre><code>~&gt; kubectl get service
+NAME                                TYPE         CLUSTER-IP       EXTERNAL-IP   PORT(S)                                                   AGE
+kubedirector                        ClusterIP    10.98.234.194    &lt;none&gt;        60000/TCP                                                 1d
+kubernetes                          ClusterIP    10.96.0.1        &lt;none&gt;        443/TCP                                                   1d
+svc-cassandra311-seed-v24r6-0       NodePort     10.96.94.204     &lt;none&gt;        22:31131/TCP,9042:30739/TCP                               3m
+svc-cassandra311-seed-v24r6-1       NodePort     10.106.144.52    &lt;none&gt;        22:30373/TCP,9042:32662/TCP                               3m
+svc-cassandra311-vhh29              ClusterIP    None             &lt;none&gt;        8888/TCP                                                  3m
+svc-cassandra311-worker-rqrhl-0     NodePort     10.109.61.194    &lt;none&gt;        22:31832/TCP,9042:31962/TCP                               3m
+svc-cassandra311-worker-rqrhl-1     NodePort     10.97.147.131    &lt;none&gt;        22:31454/TCP,9042:31170/TCP                               3m
+svc-spark221e2-5tg48                ClusterIP    None             &lt;none&gt;        8888/TCP                                                  24m
+svc-spark221e2-controller-tq8d6-0   NodePort     10.104.181.123   &lt;none&gt;        22:30534/TCP,8080:31533/TCP,7077:32506/TCP,8081:32099/TCP 24m
+svc-spark221e2-jupyter-6989v-0      NodePort     10.105.227.249   &lt;none&gt;        22:30632/TCP,8888:30355/TCP                               24m
+svc-spark221e2-worker-d9892-0       NodePort     10.107.131.165   &lt;none&gt;        22:30358/TCP,8081:32144/TCP                               24m
+svc-spark221e2-worker-d9892-1       NodePort     10.110.88.221    &lt;none&gt;        22:30294/TCP,8081:31436/TCP                               24m
+</code></pre><!--
+## Get Involved
+-->
+<h2 id="参与其中">参与其中</h2>
+<!--
+KubeDirector is a fully open source, Apache v2 licensed, project – the first of multiple open source projects within a broader initiative we call BlueK8s.
+The pre-alpha code for KubeDirector has just been released and we would love for you to join the growing community of developers, contributors, and adopters.
+Follow [@BlueK8s](https://twitter.com/BlueK8s/) on Twitter and get involved through these channels:
+-->
+<p>KubeDirector 是一个完全开放源码的 Apache v2 授权项目 – 在我们称为 BlueK8s 的更广泛的计划中，它是多个开放源码项目中的第一个。
+KubeDirector 的 pre-alpha 代码刚刚发布，我们希望您加入到不断增长的开发人员、贡献者和使用者社区。
+在 Twitter 上关注 <a href="https://twitter.com/BlueK8s/">@BlueK8s</a>，并通过以下渠道参与:</p>
+<!--
+* KubeDirector [chat room on Slack](https://join.slack.com/t/bluek8s/shared_invite/enQtNDUwMzkwODY5OTM4LTRhYmRmZmE4YzY3OGUzMjA1NDg0MDVhNDQ2MGNkYjRhM2RlMDNjMTI1NDQyMjAzZGVlMDFkNThkNGFjZGZjMGY/)
+*	KubeDirector [GitHub repo](https://github.com/bluek8s/kubedirector/)
+-->
+<ul>
+<li>KubeDirector <a href="https://join.slack.com/t/bluek8s/shared_invite/enQtNDUwMzkwODY5OTM4LTRhYmRmZmE4YzY3OGUzMjA1NDg0MDVhNDQ2MGNkYjRhM2RlMDNjMTI1NDQyMjAzZGVlMDFkNThkNGFjZGZjMGY/">Slack 聊天室</a></li>
+<li>KubeDirector <a href="https://github.com/bluek8s/kubedirector/">GitHub 仓库</a></li>
+</ul>
+
+	
+
+	<ul class="list-unstyled d-flex justify-content-between align-items-center mb-0 pt-5">
+  <li>
+    <a href="/zh/blog/2018/10/01/%E5%9C%A8-kubernetes-%E4%B8%8A%E5%AF%B9-grpc-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" aria-label="上一页 - 在 Kubernetes 上对 gRPC 服务器进行健康检查" class="btn btn-primary"><span class="mr-1">←</span>上一页</a>
+  </li>
+    <a href="/zh/blog/2018/10/10/kubernetes-v1.12-runtimeclass-%E7%AE%80%E4%BB%8B/" aria-label="下一页 - Kubernetes v1.12: RuntimeClass 简介" class="btn btn-primary">下一页<span class="ml-1">→</span></a>
+  </li>
+</ul>
+
+</div>
+
+
+          </main>
+          <div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+            <div class="td-page-blog-meta ml-2 pb-1 pt-2 mb-4">
+  <link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/zh/feed.xml" title="Kubernetes">
+  <a class="widget-link" href="http://localhost:1313/zh/feed.xml"><div> <i class="fas fa-rss fab-icon"> </i> <span class="widget-link-text">RSS Feed</span></div> </a>
+  <a class="widget-link" href="https://kubernetes.io/docs/contribute/new-content/blogs-case-studies/"><div> <i class="fa fa-edit fab-icon"></i> <span class="widget-link-text">Submit a Post</span></div></a>
+  <a class="widget-link" href="https://twitter.com/kubernetesio"><div> <i class="fab fa-twitter-square fab-icon"> </i> <span class="widget-link-text"> @Kubernetesio</span></div></a>
+  <a class="widget-link" href="https://github.com/kubernetes/kubernetes"><div> <i class="fab fa-github-square fab-icon"></i> <span class="widget-link-text"> on GitHub </span></div></a>
+  <a class="widget-link" href="http://slack.k8s.io"><div><i class="fab fa-slack fab-icon"> </i> <span class="widget-link-text">#kubernetes-users </span></div></a>
+  <a class="widget-link" href="https://stackoverflow.com/questions/tagged/kubernetes"><div><i class="fab fa-stack-overflow fab-icon"></i> <span class="widget-link-text"> Overflow</span></div></a>
+  <a class="widget-link" href="https://discuss.kubernetes.io"><div> <i class="fab fa-discourse fab-icon"></i><span class="widget-link-text"> Forum </span></div></a>
+  <a class="widget-link" href="https://kubernetes.io/docs/setup"><div><i class="fa fa-download fab-icon"></i> <span class="widget-link-text"> Kubernetes</span></div></a>
+</div>
+
+          </div>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

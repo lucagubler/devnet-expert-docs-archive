@@ -1,0 +1,2851 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ja" href="http://localhost:1313/ja/docs/concepts/architecture/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/concepts/architecture/">
+<link rel="alternate" hreflang="it" href="http://localhost:1313/it/docs/concepts/architecture/">
+<link rel="alternate" hreflang="de" href="http://localhost:1313/de/docs/concepts/architecture/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/concepts/architecture/">
+<link rel="alternate" hreflang="pt-br" href="http://localhost:1313/pt-br/docs/concepts/architecture/">
+<link rel="alternate" hreflang="id" href="http://localhost:1313/id/docs/concepts/architecture/">
+<link rel="alternate" hreflang="vi" href="http://localhost:1313/vi/docs/concepts/architecture/">
+<link rel="alternate" hreflang="ru" href="http://localhost:1313/ru/docs/concepts/architecture/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/zh/docs/concepts/architecture/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>Kubernetes 架构 | Kubernetes</title><meta property="og:title" content="Kubernetes 架构" />
+<meta property="og:description" content="Kubernetes 背后的架构概念。
+" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/zh/docs/concepts/architecture/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="Kubernetes 架构">
+<meta itemprop="description" content="Kubernetes 背后的架构概念。
+"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Kubernetes 架构"/>
+<meta name="twitter:description" content="Kubernetes 背后的架构概念。
+"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="Kubernetes 背后的架构概念。
+">
+<meta property="og:description" content="Kubernetes 背后的架构概念。
+">
+<meta name="twitter:description" content="Kubernetes 背后的架构概念。
+">
+<meta property="og:url" content="http://localhost:1313/zh/docs/concepts/architecture/">
+<meta property="og:title" content="Kubernetes 架构">
+<meta name="twitter:title" content="Kubernetes 架构">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/docs/concepts/architecture/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/docs/concepts/architecture/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/docs/concepts/architecture/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/docs/concepts/architecture/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/docs/concepts/architecture/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/concepts/architecture/">English</a>
+	
+	<a class="dropdown-item" href="/ko/docs/concepts/architecture/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/ja/docs/concepts/architecture/">日本語 Japanese</a>
+	
+	<a class="dropdown-item" href="/fr/docs/concepts/architecture/">Français</a>
+	
+	<a class="dropdown-item" href="/it/docs/concepts/architecture/">Italiano</a>
+	
+	<a class="dropdown-item" href="/de/docs/concepts/architecture/">Deutsch</a>
+	
+	<a class="dropdown-item" href="/es/docs/concepts/architecture/">Español</a>
+	
+	<a class="dropdown-item" href="/pt-br/docs/concepts/architecture/">Português</a>
+	
+	<a class="dropdown-item" href="/id/docs/concepts/architecture/">Bahasa Indonesia</a>
+	
+	<a class="dropdown-item" href="/vi/docs/concepts/architecture/">Tiếng Việt</a>
+	
+	<a class="dropdown-item" href="/ru/docs/concepts/architecture/">Русский</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+这是本节的多页打印视图。
+<a href="#" onclick="print();return false;">点击此处打印</a>.
+</p><p>
+<a href="/zh/docs/concepts/architecture/">返回本页常规视图</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">Kubernetes 架构</h1>
+<div class="lead">Kubernetes 背后的架构概念。</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-9ef2890698e773b6c0d24fd2c20146f5">节点</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-c0251def6da29b30afebfb04549f1703">控制面到节点通信</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-ca8819042a505291540e831283da66df">控制器</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-bc804b02614d67025b4c788f1ca87fbc">云控制器管理器</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-44a2e2e592af0846101e970aff9243e5">垃圾收集</a></li>
+
+
+    
+  
+    
+    
+	
+<li>6: <a href="#pg-c0ea5310f52e22c5de34dc84d9ab5e0d">容器运行时接口（CRI）</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-9ef2890698e773b6c0d24fd2c20146f5">1 - 节点</h1>
+    
+	<!--
+reviewers:
+- caesarxuchao
+- dchen1107
+title: Nodes
+content_type: concept
+weight: 10
+-->
+<!-- overview -->
+<!--
+Kubernetes runs your workload by placing containers into Pods to run on _Nodes_.
+A node may be a virtual or physical machine, depending on the cluster. Each node
+is managed by the 
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='control plane'>control plane</a>
+and contains the services necessary to run
+<a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pods'>Pods</a>.
+
+Typically you have several nodes in a cluster; in a learning or resource-limited
+environment, you might have just one.
+
+The [components](/docs/concepts/overview/components/#node-components) on a node include the
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a>, a
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='container runtime'>container runtime</a>, and the
+<a class='glossary-tooltip' title='kube-proxy 是集群中每个节点上运行的网络代理。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-proxy/' target='_blank' aria-label='kube-proxy'>kube-proxy</a>.
+-->
+<p>Kubernetes 通过将容器放入在节点（Node）上运行的 Pod 中来执行你的工作负载。
+节点可以是一个虚拟机或者物理机器，取决于所在的集群配置。
+每个节点包含运行 <a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pods'>Pods</a> 所需的服务；
+这些节点由 <a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='控制面'>控制面</a> 负责管理。</p>
+<p>通常集群中会有若干个节点；而在一个学习用或者资源受限的环境中，你的集群中也可能
+只有一个节点。</p>
+<p>节点上的<a href="/zh/docs/concepts/overview/components/#node-components">组件</a>包括
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a>、
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='容器运行时'>容器运行时</a>以及
+<a class='glossary-tooltip' title='kube-proxy 是集群中每个节点上运行的网络代理。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-proxy/' target='_blank' aria-label='kube-proxy'>kube-proxy</a>。</p>
+<!-- body -->
+<!--
+## Management
+
+There are two main ways to have Nodes added to the <a class='glossary-tooltip' title='提供 Kubernetes API 服务的控制面组件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-apiserver/' target='_blank' aria-label='API server'>API server</a>:
+
+1. The kubelet on a node self-registers to the control plane
+2. You, or another human user, manually add a Node object
+
+After you create a Node <a class='glossary-tooltip' title='Kubernetes 系统中的实体, 代表了集群的部分状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/#kubernetes-objects' target='_blank' aria-label='object'>object</a>,
+or the kubelet on a node self-registers, the control plane checks whether the new Node object is
+valid. For example, if you try to create a Node from the following JSON manifest:
+-->
+<h2 id="management">管理 </h2>
+<p>向 <a class='glossary-tooltip' title='提供 Kubernetes API 服务的控制面组件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-apiserver/' target='_blank' aria-label='API 服务器'>API 服务器</a>添加节点的方式主要有两种：</p>
+<ol>
+<li>节点上的 <code>kubelet</code> 向控制面执行自注册；</li>
+<li>你，或者别的什么人，手动添加一个 Node 对象。</li>
+</ol>
+<p>在你创建了 Node <a class='glossary-tooltip' title='Kubernetes 系统中的实体, 代表了集群的部分状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/#kubernetes-objects' target='_blank' aria-label='对象'>对象</a>或者节点上的
+<code>kubelet</code> 执行了自注册操作之后，控制面会检查新的 Node 对象是否合法。
+例如，如果你尝试使用下面的 JSON 对象来创建 Node 对象：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#008000;font-weight:bold">&#34;kind&#34;</span>: <span style="color:#b44">&#34;Node&#34;</span>,
+  <span style="color:#008000;font-weight:bold">&#34;apiVersion&#34;</span>: <span style="color:#b44">&#34;v1&#34;</span>,
+  <span style="color:#008000;font-weight:bold">&#34;metadata&#34;</span>: {
+    <span style="color:#008000;font-weight:bold">&#34;name&#34;</span>: <span style="color:#b44">&#34;10.240.79.157&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;labels&#34;</span>: {
+      <span style="color:#008000;font-weight:bold">&#34;name&#34;</span>: <span style="color:#b44">&#34;my-first-k8s-node&#34;</span>
+    }
+  }
+}
+</code></pre></div><!--
+Kubernetes creates a Node object internally (the representation). Kubernetes checks
+that a kubelet has registered to the API server that matches the `metadata.name`
+field of the Node. If the node is healthy (if all necessary services are running),
+it is eligible to run a Pod. Otherwise, that node is ignored for any cluster activity
+until it becomes healthy.
+-->
+<p>Kubernetes 会在内部创建一个 Node 对象作为节点的表示。Kubernetes 检查 <code>kubelet</code>
+向 API 服务器注册节点时使用的 <code>metadata.name</code> 字段是否匹配。
+如果节点是健康的（即所有必要的服务都在运行中），则该节点可以用来运行 Pod。
+否则，直到该节点变为健康之前，所有的集群活动都会忽略该节点。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+Kubernetes keeps the object for the invalid Node and continues checking to see whether
+it becomes healthy.
+
+You, or a <a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='controller'>controller</a>, must explicitly
+delete the Node object to stop that health checking.
+-->
+<p>Kubernetes 会一直保存着非法节点对应的对象，并持续检查该节点是否已经变得健康。
+你，或者某个<a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='控制器'>控制器</a>必须显式地删除该
+Node 对象以停止健康检查操作。
+</div>
+<!--
+The name of a Node object must be a valid
+[DNS subdomain name](/docs/concepts/overview/working-with-objects/names#dns-subdomain-names).
+-->
+<p>Node 对象的名称必须是合法的
+<a href="/zh/docs/concepts/overview/working-with-objects/names#dns-subdomain-names">DNS 子域名</a>。</p>
+<!--
+### Node name uniqueness
+
+The [name](/docs/concepts/overview/working-with-objects/names#names) identifies a Node. Two Nodes
+cannot have the same name at the same time. Kubernetes also assumes that a resource with the same
+name is the same object. In case of a Node, it is implicitly assumed that an instance using the
+same name will have the same state (e.g. network settings, root disk contents)
+and attributes like node labels. This may lead to
+inconsistencies if an instance was modified without changing its name. If the Node needs to be
+replaced or updated significantly, the existing Node object needs to be removed from API server
+first and re-added after the update.
+-->
+<h3 id="node-name-uniqueness">节点名称唯一性    </h3>
+<p>节点的<a href="/zh/docs/concepts/overview/working-with-objects/names#names">名称</a>用来标识 Node 对象。
+没有两个 Node 可以同时使用相同的名称。 Kubernetes 还假定名字相同的资源是同一个对象。
+就 Node 而言，隐式假定使用相同名称的实例会具有相同的状态（例如网络配置、根磁盘内容）
+和类似节点标签这类属性。这可能在节点被更改但其名称未变时导致系统状态不一致。
+如果某个 Node 需要被替换或者大量变更，需要从 API 服务器移除现有的 Node 对象，
+之后再在更新之后重新将其加入。</p>
+<!--
+### Self-registration of Nodes
+
+When the kubelet flag `-register-node` is true (the default), the kubelet will attempt to
+register itself with the API server.  This is the preferred pattern, used by most distros.
+
+For self-registration, the kubelet is started with the following options:
+-->
+<h3 id="self-registration-of-nodes">节点自注册</h3>
+<p>当 kubelet 标志 <code>--register-node</code> 为 true（默认）时，它会尝试向 API 服务注册自己。
+这是首选模式，被绝大多数发行版选用。</p>
+<p>对于自注册模式，kubelet 使用下列参数启动：</p>
+<!--
+- `--kubeconfig` - Path to credentials to authenticate itself to the API server.
+- `--cloud-provider` - How to talk to a <a class='glossary-tooltip' title='一个提供云计算平台的组织。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-cloud-provider' target='_blank' aria-label='cloud provider'>cloud provider</a> to read metadata about itself.
+- `--register-node` - Automatically register with the API server.
+- `--register-with-taints` - Register the node with the given list of <a class='glossary-tooltip' title='污点是一种一个核心对象，包含三个必需的属性：key、value 和 effect。 污点会阻止在节点或节点组上调度 Pod。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='taints'>taints</a> (comma separated `<key>=<value>:<effect>`).
+
+    No-op if `register-node` is false.
+- `--node-ip` - IP address of the node.
+- `--node-labels` - <a class='glossary-tooltip' title='用来为对象设置可标识的属性标记；这些标记对用户而言是有意义且重要的。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/labels/' target='_blank' aria-label='Labels'>Labels</a> to add when registering the node in the cluster (see label restrictions enforced by the [NodeRestriction admission plugin](/docs/reference/access-authn-authz/admission-controllers/#noderestriction)).
+- `--node-status-update-frequency` - Specifies how often kubelet posts node status to master.
+-->
+<ul>
+<li><code>--kubeconfig</code> - 用于向 API 服务器执行身份认证所用的凭据的路径。</li>
+<li><code>--cloud-provider</code> - 与某<a class='glossary-tooltip' title='一个提供云计算平台的组织。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-cloud-provider' target='_blank' aria-label='云驱动'>云驱动</a>
+进行通信以读取与自身相关的元数据的方式。</li>
+<li><code>--register-node</code> - 自动向 API 服务注册。</li>
+<li><code>--register-with-taints</code> - 使用所给的<a class='glossary-tooltip' title='污点是一种一个核心对象，包含三个必需的属性：key、value 和 effect。 污点会阻止在节点或节点组上调度 Pod。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='污点'>污点</a>列表
+（逗号分隔的 <code>&lt;key&gt;=&lt;value&gt;:&lt;effect&gt;</code>）注册节点。当 <code>register-node</code> 为 false 时无效。</li>
+<li><code>--node-ip</code> - 节点 IP 地址。</li>
+<li><code>--node-labels</code> - 在集群中注册节点时要添加的<a class='glossary-tooltip' title='用来为对象设置可标识的属性标记；这些标记对用户而言是有意义且重要的。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/labels/' target='_blank' aria-label='标签'>标签</a>。
+（参见 <a href="/zh/docs/reference/access-authn-authz/admission-controllers/#noderestriction">NodeRestriction 准入控制插件</a>所实施的标签限制）。</li>
+<li><code>--node-status-update-frequency</code> - 指定 kubelet 向控制面发送状态的频率。</li>
+</ul>
+<!--
+When the [Node authorization mode](/docs/reference/access-authn-authz/node/) and
+[NodeRestriction admission plugin](/docs/reference/access-authn-authz/admission-controllers/#noderestriction) are enabled,
+kubelets are only authorized to create/modify their own Node resource.
+-->
+<p>启用<a href="/zh/docs/reference/access-authn-authz/node/">Node 鉴权模式</a>和
+<a href="/zh/docs/reference/access-authn-authz/admission-controllers/#noderestriction">NodeRestriction 准入插件</a>时，
+仅授权 <code>kubelet</code> 创建或修改其自己的节点资源。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+As mentioned in the [Node name uniqueness](#node-name-uniqueness) section,
+when Node configuration needs to be updated, it is a good practice to re-register
+the node with the API server. For example, if the kubelet being restarted with
+the new set of `--node-labels`, but the same Node name is used, the change will
+not take an effect, as labels are being set on the Node registration.
+-->
+<p>正如<a href="#node-name-uniqueness">节点名称唯一性</a>一节所述，当 Node 的配置需要被更新时，
+一种好的做法是重新向 API 服务器注册该节点。例如，如果 kubelet 重启时其 <code>--node-labels</code>
+是新的值集，但同一个 Node 名称已经被使用，则所作变更不会起作用，
+因为节点标签是在 Node 注册时完成的。</p>
+<!--
+Pods already scheduled on the Node may misbehave or cause issues if the Node
+configuration will be changed on kubelet restart. For example, already running
+Pod may be tainted against the new labels assigned to the Node, while other
+Pods, that are incompatible with that Pod will be scheduled based on this new
+label.  Node re-registration ensures all Pods will be drained and properly
+re-scheduled.
+-->
+<p>如果在 kubelet 重启期间 Node 配置发生了变化，已经被调度到某 Node 上的 Pod
+可能会出现行为不正常或者出现其他问题，例如，已经运行的 Pod
+可能通过污点机制设置了与 Node 上新设置的标签相排斥的规则，也有一些其他 Pod，
+本来与此 Pod 之间存在不兼容的问题，也会因为新的标签设置而被调到到同一节点。
+节点重新注册操作可以确保节点上所有 Pod 都被排空并被正确地重新调度。</p>
+
+</div>
+<!--
+### Manual Node administration
+
+You can create and modify Node objects using
+<a class='glossary-tooltip' title='kubectl 是用来和 Kubernetes 集群进行通信的命令行工具。' data-toggle='tooltip' data-placement='top' href='/docs/user-guide/kubectl-overview/' target='_blank' aria-label='kubectl'>kubectl</a>.
+
+When you want to create Node objects manually, set the kubelet flag `--register-node=false`.
+
+You can modify Node objects regardless of the setting of `--register-node`.
+For example, you can set labels on an existing Node, or mark it unschedulable.
+-->
+<h3 id="manual-node-administration">手动节点管理</h3>
+<p>你可以使用 <a class='glossary-tooltip' title='kubectl 是用来和 Kubernetes 集群进行通信的命令行工具。' data-toggle='tooltip' data-placement='top' href='/docs/user-guide/kubectl-overview/' target='_blank' aria-label='kubectl'>kubectl</a>
+来创建和修改 Node 对象。</p>
+<p>如果你希望手动创建节点对象时，请设置 kubelet 标志 <code>--register-node=false</code>。</p>
+<p>你可以修改 Node 对象（忽略 <code>--register-node</code> 设置）。
+例如，修改节点上的标签或标记其为不可调度。</p>
+<!--
+You can use labels on Nodes in conjunction with node selectors on Pods to control
+scheduling. For example, you can to constrain a Pod to only be eligible to run on
+a subset of the available nodes.
+
+Marking a node as unschedulable prevents the scheduler from placing new pods onto
+that Node, but does not affect existing Pods on the Node. This is useful as a
+preparatory step before a node reboot or other maintenance.
+
+To mark a Node unschedulable, run:
+-->
+<p>你可以结合使用 Node 上的标签和 Pod 上的选择算符来控制调度。
+例如，你可以限制某 Pod 只能在符合要求的节点子集上运行。</p>
+<p>如果标记节点为不可调度（unschedulable），将阻止新 Pod 调度到该 Node 之上，
+但不会影响任何已经在其上的 Pod。
+这是重启节点或者执行其他维护操作之前的一个有用的准备步骤。</p>
+<p>要标记一个 Node 为不可调度，执行以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl cordon <span style="color:#b8860b">$NODENAME</span>
+</code></pre></div><!--
+See [Safely Drain a Node](/docs/tasks/administer-cluster/safely-drain-node/)
+for more details.
+-->
+<p>更多细节参考<a href="/zh/docs/tasks/administer-cluster/safely-drain-node/">安全地腾空节点</a>。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+Pods that are part of a <a class='glossary-tooltip' title='确保 Pod 的副本在集群中的一组节点上运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/daemonset/' target='_blank' aria-label='DaemonSet'>DaemonSet</a> tolerate
+being run on an unschedulable Node. DaemonSets typically provide node-local services
+that should run on the Node even if it is being drained of workload applications.
+-->
+<p>被 <a class='glossary-tooltip' title='确保 Pod 的副本在集群中的一组节点上运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/daemonset/' target='_blank' aria-label='DaemonSet'>DaemonSet</a> 控制器创建的 Pod
+能够容忍节点的不可调度属性。
+DaemonSet 通常提供节点本地的服务，即使节点上的负载应用已经被腾空，
+这些服务也仍需运行在节点之上。
+</div>
+<!--
+## Node Status
+
+A node's status contains the following information:
+
+* [Addresses](#addresses)
+* [Conditions](#condition)
+* [Capacity and Allocatable](#capacity)
+* [Info](#info)
+-->
+<h2 id="node-status">节点状态  </h2>
+<p>一个节点的状态包含以下信息:</p>
+<ul>
+<li><a href="#addresses">地址（Addresses）</a></li>
+<li><a href="#condition">状况（Condition）</a></li>
+<li><a href="#capacity">容量与可分配（Capacity）</a></li>
+<li><a href="#info">信息（Info）</a></li>
+</ul>
+<!--
+You can use `kubectl` to view a Node's status and other details:
+-->
+<p>你可以使用 <code>kubectl</code> 来查看节点状态和其他细节信息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl describe node &lt;节点名称&gt;
+</code></pre></div><!-- Each section is described in detail below. -->
+<p>下面对每个部分进行详细描述。</p>
+<!--
+### Addresses
+
+The usage of these fields varies depending on your cloud provider or bare metal configuration.
+-->
+<h3 id="addresses">地址  </h3>
+<p>这些字段的用法取决于你的云服务商或者物理机配置。</p>
+<!--
+* HostName: The hostname as reported by the node's kernel. Can be overridden via the kubelet `-hostname-override` parameter.
+* ExternalIP: Typically the IP address of the node that is externally routable (available from outside the cluster).
+* InternalIP: Typichostnameally the IP address of the node that is routable only within the cluster.
+-->
+<ul>
+<li>HostName：由节点的内核报告。可以通过 kubelet 的 <code>--hostname-override</code> 参数覆盖。</li>
+<li>ExternalIP：通常是节点的可外部路由（从集群外可访问）的 IP 地址。</li>
+<li>InternalIP：通常是节点的仅可在集群内部路由的 IP 地址。</li>
+</ul>
+<!--
+### Conditions {#condition}
+
+The `conditions` field describes the status of all `Running` nodes. Examples of conditions include:
+-->
+<h3 id="condition">状况</h3>
+<p><code>conditions</code> 字段描述了所有 <code>Running</code> 节点的状况。状况的示例包括：</p>
+<!--
+
+
+
+
+
+<table><caption style="display: none;">Node conditions, and a description of when each condition applies.</caption>
+<thead>
+<tr>
+<th>Node Condition</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ready</code></td>
+<td><code>True</code> if the node is healthy and ready to accept pods, <code>False</code> if the node is not healthy and is not accepting pods, and <code>Unknown</code> if the node controller has not heard from the node in the last <code>node-monitor-grace-period</code> (default is 40 seconds)</td>
+</tr>
+<tr>
+<td><code>DiskPressure</code></td>
+<td><code>True</code> if pressure exists on the disk size—that is, if the disk capacity is low; otherwise <code>False</code></td>
+</tr>
+<tr>
+<td><code>MemoryPressure</code></td>
+<td><code>True</code> if pressure exists on the node memory—that is, if the node memory is low; otherwise <code>False</code></td>
+</tr>
+<tr>
+<td><code>PIDPressure</code></td>
+<td><code>True</code> if pressure exists on the processes - that is, if there are too many processes on the node; otherwise <code>False</code></td>
+</tr>
+<tr>
+<td><code>NetworkUnavailable</code></td>
+<td><code>True</code> if the network for the node is not correctly configured, otherwise <code>False</code></td>
+</tr>
+</tbody>
+</table>
+
+-->
+
+
+
+
+
+<table><caption style="display: none;">节点状况及每种状况适用场景的描述</caption>
+<thead>
+<tr>
+<th>节点状况</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ready</code></td>
+<td>如节点是健康的并已经准备好接收 Pod 则为 <code>True</code>；<code>False</code> 表示节点不健康而且不能接收 Pod；<code>Unknown</code> 表示节点控制器在最近 <code>node-monitor-grace-period</code> 期间（默认 40 秒）没有收到节点的消息</td>
+</tr>
+<tr>
+<td><code>DiskPressure</code></td>
+<td><code>True</code> 表示节点存在磁盘空间压力，即磁盘可用量低, 否则为 <code>False</code></td>
+</tr>
+<tr>
+<td><code>MemoryPressure</code></td>
+<td><code>True</code> 表示节点存在内存压力，即节点内存可用量低，否则为 <code>False</code></td>
+</tr>
+<tr>
+<td><code>PIDPressure</code></td>
+<td><code>True</code> 表示节点存在进程压力，即节点上进程过多；否则为 <code>False</code></td>
+</tr>
+<tr>
+<td><code>NetworkUnavailable</code></td>
+<td><code>True</code> 表示节点网络配置不正确；否则为 <code>False</code></td>
+</tr>
+</tbody>
+</table>
+
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+If you use command-line tools to print details of a cordoned Node, the Condition includes
+`SchedulingDisabled`. `SchedulingDisabled` is not a Condition in the Kubernetes API; instead,
+cordoned nodes are marked Unschedulable in their spec.
+-->
+<p>如果使用命令行工具来打印已保护（Cordoned）节点的细节，其中的 Condition 字段可能包括
+<code>SchedulingDisabled</code>。<code>SchedulingDisabled</code> 不是 Kubernetes API 中定义的
+Condition，被保护起来的节点在其规约中被标记为不可调度（Unschedulable）。
+</div>
+<!--
+In the Kubernetes API, a node's condition is represented as part of the `.status`
+of the Node resource. For example, the following JSON structure describes a healthy node:
+-->
+<p>在 Kubernetes API 中，节点的状况表示节点资源中<code>.status</code> 的一部分。
+例如，以下 JSON 结构描述了一个健康节点：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#b44">&#34;conditions&#34;</span><span style="">:</span> [
+  {
+    <span style="color:#008000;font-weight:bold">&#34;type&#34;</span>: <span style="color:#b44">&#34;Ready&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;status&#34;</span>: <span style="color:#b44">&#34;True&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;reason&#34;</span>: <span style="color:#b44">&#34;KubeletReady&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;message&#34;</span>: <span style="color:#b44">&#34;kubelet is posting ready status&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;lastHeartbeatTime&#34;</span>: <span style="color:#b44">&#34;2019-06-05T18:38:35Z&#34;</span>,
+    <span style="color:#008000;font-weight:bold">&#34;lastTransitionTime&#34;</span>: <span style="color:#b44">&#34;2019-06-05T11:41:27Z&#34;</span>
+  }
+]
+</code></pre></div><!--
+If the `status` of the Ready condition remains `Unknown` or `False` for longer
+than the `pod-eviction-timeout` (an argument passed to the
+<a class='glossary-tooltip' title='主节点上运行控制器的组件。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kube-controller-manager/' target='_blank' aria-label='kube-controller-manager'>kube-controller-manager</a>), then the [node controller](#node-controller) triggers
+<a class='glossary-tooltip' title='API 发起的驱逐是一个先调用 Eviction API 创建驱逐对象，再由该对象体面地中止 Pod 的过程。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/pod-eviction/#api-eviction' target='_blank' aria-label='API-initiated eviction'>API-initiated eviction</a>
+for all Pods assigned to that node. The default eviction timeout duration is
+**five minutes**.
+-->
+<p>如果 Ready 状况的 <code>status</code> 处于 <code>Unknown</code> 或者 <code>False</code> 状态的时间超过了
+<code>pod-eviction-timeout</code> 值（一个传递给
+<a class='glossary-tooltip' title='主节点上运行控制器的组件。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kube-controller-manager/' target='_blank' aria-label='kube-controller-manager'>kube-controller-manager</a>
+的参数），<a href="#node-controller">节点控制器</a>会对节点上的所有 Pod 触发
+<a class='glossary-tooltip' title='API 发起的驱逐是一个先调用 Eviction API 创建驱逐对象，再由该对象体面地中止 Pod 的过程。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/pod-eviction/#api-eviction' target='_blank' aria-label='API-发起的驱逐'>API-发起的驱逐</a>。
+默认的逐出超时时长为 <strong>5 分钟</strong>。</p>
+<!--
+In some cases when the node is unreachable, the API server is unable to communicate
+with the kubelet on the node. The decision to delete the pods cannot be communicated to
+the kubelet until communication with the API server is re-established. In the meantime,
+the pods that are scheduled for deletion may continue to run on the partitioned node.
+-->
+<p>某些情况下，当节点不可达时，API 服务器不能和其上的 kubelet 通信。
+删除 Pod 的决定不能传达给 kubelet，直到它重新建立和 API 服务器的连接为止。
+与此同时，被计划删除的 Pod 可能会继续在游离的节点上运行。</p>
+<!--
+The node controller does not force delete pods until it is confirmed that they have stopped
+running in the cluster. You can see the pods that might be running on an unreachable node as
+being in the `Terminating` or `Unknown` state. In cases where Kubernetes cannot deduce from the
+underlying infrastructure if a node has permanently left a cluster, the cluster administrator
+may need to delete the node object by hand.  Deleting the node object from Kubernetes causes
+all the Pod objects running on the node to be deleted from the API server, and frees up their
+names.
+-->
+<p>节点控制器在确认 Pod 在集群中已经停止运行前，不会强制删除它们。
+你可以看到可能在这些无法访问的节点上运行的 Pod 处于 <code>Terminating</code> 或者 <code>Unknown</code> 状态。
+如果 kubernetes 不能基于下层基础设施推断出某节点是否已经永久离开了集群，
+集群管理员可能需要手动删除该节点对象。
+从 Kubernetes 删除节点对象将导致 API 服务器删除节点上所有运行的 Pod 对象并释放它们的名字。</p>
+<!--
+When problems occur on nodes, the Kubernetes control plane automatically creates
+[taints](/docs/concepts/scheduling-eviction/taint-and-toleration/) that match the conditions
+affecting the node.
+The scheduler takes the Node's taints into consideration when assigning a Pod to a Node.
+Pods can also have <a class='glossary-tooltip' title='一个核心对象，由三个必需的属性组成：key、value 和 effect。 容忍度允许将 Pod 调度到具有对应污点的节点或节点组上。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='tolerations'>tolerations</a> that let
+them run on a Node even though it has a specific taint.
+-->
+<p>当节点上出现问题时，Kubernetes 控制面会自动创建与影响节点的状况对应的
+<a href="/zh/docs/concepts/scheduling-eviction/taint-and-toleration/">污点</a>。
+调度器在将 Pod 指派到某 Node 时会考虑 Node 上的污点设置。
+Pod 也可以设置<a class='glossary-tooltip' title='一个核心对象，由三个必需的属性组成：key、value 和 effect。 容忍度允许将 Pod 调度到具有对应污点的节点或节点组上。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='容忍度'>容忍度</a>，
+以便能够在设置了特定污点的 Node 上运行。</p>
+<!--
+See [Taint Nodes by Condition](/docs/concepts/scheduling-eviction/taint-and-toleration/#taint-nodes-by-condition)
+for more details.
+-->
+<p>进一步的细节可参阅<a href="/zh/docs/concepts/scheduling-eviction/taint-and-toleration/#taint-nodes-by-condition">根据状况为节点设置污点</a>。</p>
+<!--
+### Capacity and Allocatable {#capacity}
+
+Describes the resources available on the node: CPU, memory and the maximum
+number of pods that can be scheduled onto the node.
+-->
+<h3 id="capacity">容量（Capacity）与可分配（Allocatable）    </h3>
+<p>这两个值描述节点上的可用资源：CPU、内存和可以调度到节点上的 Pod 的个数上限。</p>
+<!--
+The fields in the capacity block indicate the total amount of resources that a
+Node has. The allocatable block indicates the amount of resources on a
+Node that is available to be consumed by normal Pods.
+-->
+<p><code>capacity</code> 块中的字段标示节点拥有的资源总量。
+<code>allocatable</code> 块指示节点上可供普通 Pod 消耗的资源量。</p>
+<!--
+You may read more about capacity and allocatable resources while learning how
+to [reserve compute resources](/docs/tasks/administer-cluster/reserve-compute-resources/#node-allocatable) on a Node.
+-->
+<p>可以在学习如何在节点上<a href="/zh/docs/tasks/administer-cluster/reserve-compute-resources/#node-allocatable">预留计算资源</a>
+的时候了解有关容量和可分配资源的更多信息。</p>
+<!--
+### Info
+
+Describes general information about the node, such as kernel version, Kubernetes
+version (kubelet and kube-proxy version), container runtime details, and which
+operating system the node uses.
+The kubelet gathers this information from the node and publishes it into
+the Kubernetes API.
+-->
+<h3 id="info">信息（Info）</h3>
+<p>Info 指的是节点的一般信息，如内核版本、Kubernetes 版本（<code>kubelet</code> 和 <code>kube-proxy</code> 版本）、
+容器运行时详细信息，以及节点使用的操作系统。
+<code>kubelet</code> 从节点收集这些信息并将其发布到 Kubernetes API。</p>
+<!--
+## Heartbeats
+
+Heartbeats, sent by Kubernetes nodes, help your cluster determine the
+availability of each node, and to take action when failures are detected.
+
+For nodes there are two forms of heartbeats:
+-->
+<h2 id="heartbeats">心跳 </h2>
+<p>Kubernetes 节点发送的心跳帮助你的集群确定每个节点的可用性，并在检测到故障时采取行动。</p>
+<p>对于节点，有两种形式的心跳:</p>
+<!--
+* updates to the `.status` of a Node
+* [Lease](/docs/reference/kubernetes-api/cluster-resources/lease-v1/) objects
+  within the `kube-node-lease`
+  <a class='glossary-tooltip' title='名字空间是 Kubernetes 用来支持隔离单个集群中的资源组的一种抽象。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/namespaces/' target='_blank' aria-label='namespace'>namespace</a>.
+  Each Node has an associated Lease object.
+-->
+<ul>
+<li>更新节点的 <code>.status</code></li>
+<li><code>kube-node-lease</code> <a class='glossary-tooltip' title='名字空间是 Kubernetes 用来支持隔离单个集群中的资源组的一种抽象。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/namespaces/' target='_blank' aria-label='名字空间'>名字空间</a>中的
+<a href="/docs/reference/kubernetes-api/cluster-resources/lease-v1/">Lease（租约）</a>对象。
+每个节点都有一个关联的 Lease 对象。</li>
+</ul>
+<!--
+Compared to updates to `.status` of a Node, a Lease is a lightweight resource.
+Using Leases for heartbeats reduces the performance impact of these updates
+for large clusters.
+
+The kubelet is responsible for creating and updating the `.status` of Nodes,
+and for updating their related Leases.
+-->
+<p>与 Node 的 <code>.status</code> 更新相比，Lease 是一种轻量级资源。
+使用 Lease 来表达心跳在大型集群中可以减少这些更新对性能的影响。</p>
+<p>kubelet 负责创建和更新节点的 <code>.status</code>，以及更新它们对应的 Lease。</p>
+<!--
+- The kubelet updates the node's `.status` either when there is change in status
+  or if there has been no update for a configured interval. The default interval
+  for `.status` updates to Nodes is 5 minutes, which is much longer than the 40
+  second default timeout for unreachable nodes.
+- The kubelet creates and then updates its Lease object every 10 seconds
+  (the default update interval). Lease updates occur independently from
+  updates to the Node's `.status`. If the Lease update fails, the kubelet retries,
+  using exponential backoff that starts at 200 milliseconds and capped at 7 seconds.
+-->
+<ul>
+<li>当节点状态发生变化时，或者在配置的时间间隔内没有更新事件时，kubelet 会更新 <code>.status</code>。
+<code>.status</code> 更新的默认间隔为 5 分钟（比节点不可达事件的 40 秒默认超时时间长很多）。</li>
+<li><code>kubelet</code> 会创建并每 10 秒（默认更新间隔时间）更新 Lease 对象。
+Lease 的更新独立于 Node 的 <code>.status</code> 更新而发生。
+如果 Lease 的更新操作失败，kubelet 会采用指数回退机制，从 200 毫秒开始重试，
+最长重试间隔为 7 秒钟。</li>
+</ul>
+<!--
+## Node Controller
+
+The node <a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='controller'>controller</a> is a
+Kubernetes control plane component that manages various aspects of nodes.
+
+The node controller has multiple roles in a node's life. The first is assigning a
+CIDR block to the node when it is registered (if CIDR assignment is turned on).
+-->
+<h2 id="node-controller">节点控制器 </h2>
+<p>节点<a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='控制器'>控制器</a>是 Kubernetes 控制面组件，
+管理节点的方方面面。</p>
+<p>节点控制器在节点的生命周期中扮演多个角色。
+第一个是当节点注册时为它分配一个 CIDR 区段（如果启用了 CIDR 分配）。</p>
+<!--
+The second is keeping the node controller's internal list of nodes up to date with
+the cloud provider's list of available machines. When running in a cloud
+environment, whenever a node is unhealthy, the node controller asks the cloud
+provider if the VM for that node is still available. If not, the node
+controller deletes the node from its list of nodes.
+-->
+<p>第二个是保持节点控制器内的节点列表与云服务商所提供的可用机器列表同步。
+如果在云环境下运行，只要某节点不健康，节点控制器就会询问云服务是否节点的虚拟机仍可用。
+如果不可用，节点控制器会将该节点从它的节点列表删除。</p>
+<!--
+The third is monitoring the nodes' health. The node controller is
+responsible for:
+
+- In the case that a node becomes unreachable, updating the `Ready` condition
+  in the Node's `.status` field. In this case the node controller sets the
+  `Ready` condition to `Unknown`.
+- If a node remains unreachable: triggering
+  [API-initiated eviction](/docs/concepts/scheduling-eviction/api-eviction/)
+  for all of the Pods on the unreachable node. By default, the node controller
+  waits 5 minutes between marking the node as `Unknown` and submitting
+  the first eviction request.
+
+By default, the node controller checks the state of each node every 5 seconds.
+This period can be configured using the `--node-monitor-period` flag on the
+`kube-controller-manager` component.
+-->
+<p>第三个是监控节点的健康状况。节点控制器负责：</p>
+<ul>
+<li>在节点不可达的情况下，在 Node 的 <code>.status</code> 中更新 <code>Ready</code> 状况。
+在这种情况下，节点控制器将 NodeReady 状况更新为 <code>Unknown</code> 。</li>
+<li>如果节点仍然无法访问：对于不可达节点上的所有 Pod 触发
+<a href="/zh/docs/concepts/scheduling-eviction/api-eviction/">API 发起的逐出</a>操作。
+默认情况下，节点控制器在将节点标记为 <code>Unknown</code> 后等待 5 分钟提交第一个驱逐请求。</li>
+</ul>
+<p>默认情况下，节点控制器每 5 秒检查一次节点状态，可以使用 <code>kube-controller-manager</code>
+组件上的 <code>--node-monitor-period</code> 参数来配置周期。</p>
+<!--
+### Rate limits on eviction
+
+In most cases, the node controller limits the eviction rate to
+`-node-eviction-rate` (default 0.1) per second, meaning it won't evict pods
+from more than 1 node per 10 seconds.
+-->
+<h3 id="rate-limits-on-eviction">逐出速率限制 </h3>
+<p>大部分情况下，节点控制器把逐出速率限制在每秒 <code>--node-eviction-rate</code> 个（默认为 0.1）。
+这表示它每 10 秒钟内至多从一个节点驱逐 Pod。</p>
+<!--
+The node eviction behavior changes when a node in a given availability zone
+becomes unhealthy. The node controller checks what percentage of nodes in the zone
+are unhealthy (the `Ready` condition is `Unknown` or `False`) at
+the same time:
+-->
+<p>当一个可用区域（Availability Zone）中的节点变为不健康时，节点的驱逐行为将发生改变。
+节点控制器会同时检查可用区域中不健康（<code>Ready</code> 状况为 <code>Unknown</code> 或 <code>False</code>）
+的节点的百分比：</p>
+<!--
+- If the fraction of unhealthy nodes is at least `--unhealthy-zone-threshold`
+  (default 0.55), then the eviction rate is reduced.
+- If the cluster is small (i.e. has less than or equal to
+  `--large-cluster-size-threshold` nodes - default 50), then evictions are stopped.
+- Otherwise, the eviction rate is reduced to `--secondary-node-eviction-rate`
+  (default 0.01) per second.
+-->
+<ul>
+<li>如果不健康节点的比例超过 <code>--unhealthy-zone-threshold</code> （默认为 0.55），
+驱逐速率将会降低。</li>
+<li>如果集群较小（意即小于等于 <code>--large-cluster-size-threshold</code> 个节点 - 默认为 50），
+驱逐操作将会停止。</li>
+<li>否则驱逐速率将降为每秒 <code>--secondary-node-eviction-rate</code> 个（默认为 0.01）。</li>
+</ul>
+<!--
+The reason these policies are implemented per availability zone is because one
+availability zone might become partitioned from the master while the others remain
+connected. If your cluster does not span multiple cloud provider availability zones,
+then the eviction mechanism does not take per-zone unavailability into account.
+-->
+<p>在逐个可用区域中实施这些策略的原因是，
+当一个可用区域可能从控制面脱离时其它可用区域可能仍然保持连接。
+如果你的集群没有跨越云服务商的多个可用区域，那（整个集群）就只有一个可用区域。</p>
+<!--
+A key reason for spreading your nodes across availability zones is so that the
+workload can be shifted to healthy zones when one entire zone goes down.
+Therefore, if all nodes in a zone are unhealthy then node controller evicts at
+the normal rate `-node-eviction-rate`.  The corner case is when all zones are
+completely unhealthy (none of the nodes in the cluster are healthy). In such a
+case, the node controller assumes that there is some problem with connectivity
+between the control plane and the nodes, and doesn't perform any evictions.
+(If there has been an outage and some nodes reappear, the node controller does
+evict pods from the remaining nodes that are unhealthy or unreachable).
+-->
+<p>跨多个可用区域部署你的节点的一个关键原因是当某个可用区域整体出现故障时，
+工作负载可以转移到健康的可用区域。
+因此，如果一个可用区域中的所有节点都不健康时，节点控制器会以正常的速率
+<code>--node-eviction-rate</code> 进行驱逐操作。
+在所有的可用区域都不健康（也即集群中没有健康节点）的极端情况下，
+节点控制器将假设控制面与节点间的连接出了某些问题，它将停止所有驱逐动作
+（如果故障后部分节点重新连接，节点控制器会从剩下不健康或者不可达节点中驱逐 Pod）。</p>
+<!--
+The Node Controller is also responsible for evicting pods running on nodes with
+`NoExecute` taints, unless the pods do not tolerate the taints.
+The Node Controller also adds <a class='glossary-tooltip' title='污点是一种一个核心对象，包含三个必需的属性：key、value 和 effect。 污点会阻止在节点或节点组上调度 Pod。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='taints'>taints</a>
+corresponding to node problems like node unreachable or not ready. This means
+that the scheduler won't place Pods onto unhealthy nodes.
+-->
+<p>节点控制器还负责驱逐运行在拥有 <code>NoExecute</code> 污点的节点上的 Pod，
+除非这些 Pod 能够容忍此污点。
+节点控制器还负责根据节点故障（例如节点不可访问或没有就绪）
+为其添加<a class='glossary-tooltip' title='污点是一种一个核心对象，包含三个必需的属性：key、value 和 effect。 污点会阻止在节点或节点组上调度 Pod。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/scheduling-eviction/taint-and-toleration/' target='_blank' aria-label='污点'>污点</a>。
+这意味着调度器不会将 Pod 调度到不健康的节点上。</p>
+<!--
+## Resource capacity tracking {#node-capacity}
+
+Node objects track information about the Node's resource capacity (for example: the amount
+of memory available, and the number of CPUs).
+Nodes that [self register](#self-registration-of-nodes) report their capacity during
+registration. If you [manually](#manual-node-administration) add a Node, then
+you need to set the node's capacity information when you add it.
+-->
+<h3 id="node-capacity">资源容量跟踪  </h3>
+<p>Node 对象会跟踪节点上资源的容量（例如可用内存和 CPU 数量）。
+通过<a href="#self-registration-of-nodes">自注册</a>机制生成的 Node 对象会在注册期间报告自身容量。
+如果你<a href="#manual-node-administration">手动</a>添加了 Node，
+你就需要在添加节点时手动设置节点容量。</p>
+<!--
+The Kubernetes <a class='glossary-tooltip' title='控制平面组件，负责监视新创建的、未指定运行节点的 Pod，选择节点让 Pod 在上面运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-scheduler/' target='_blank' aria-label='scheduler'>scheduler</a> ensures that
+there are enough resources for all the pods on a node.  The scheduler checks that the sum
+of the requests of containers on the node is no greater than the node capacity.
+The sum of requests includes all containers started by the kubelet, but excludes any
+containers started directly by the container runtime, and also excludes any
+process running outside of the kubelet's control.
+-->
+<p>Kubernetes <a class='glossary-tooltip' title='控制平面组件，负责监视新创建的、未指定运行节点的 Pod，选择节点让 Pod 在上面运行。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-scheduler/' target='_blank' aria-label='调度器'>调度器</a>
+保证节点上有足够的资源供其上的所有 Pod 使用。
+它会检查节点上所有容器的请求的总和不会超过节点的容量。
+总的请求包括由 kubelet 启动的所有容器，但不包括由容器运行时直接启动的容器，
+也不包括不受 <code>kubelet</code> 控制的其他进程。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+If you want to explicitly reserve resources for non-Pod processes, follow this tutorial to
+[reserve resources for system daemons](/docs/tasks/administer-cluster/reserve-compute-resources/#system-reserved).
+-->
+<p>如果要为非 Pod 进程显式保留资源。
+请参考<a href="/zh/docs/tasks/administer-cluster/reserve-compute-resources/#system-reserved">为系统守护进程预留资源</a>。
+</div>
+<!--
+## Node topology
+-->
+<h2 id="node-topology">节点拓扑 </h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<!--
+If you have enabled the `TopologyManager`
+[feature gate](/docs/reference/command-line-tools-reference/feature-gates/), then
+the kubelet can use topology hints when making resource assignment decisions.
+See [Control Topology Management Policies on a Node](/docs/tasks/administer-cluster/topology-manager/)
+for more information.
+-->
+<p>如果启用了 <code>TopologyManager</code> <a href="/zh/docs/reference/command-line-tools-reference/feature-gates/">特性门控</a>，
+<code>kubelet</code> 可以在作出资源分配决策时使用拓扑提示。
+参考<a href="/zh/docs/tasks/administer-cluster/topology-manager/">控制节点上拓扑管理策略</a>了解详细信息。</p>
+<!-- 
+## Graceful node shutdown {#graceful-node-shutdown}
+-->
+<h2 id="graceful-node-shutdown">节点体面关闭</h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.21 [beta]</code>
+</div>
+
+
+<!-- 
+The kubelet attempts to detect node system shutdown and terminates pods running on the node.
+
+Kubelet ensures that pods follow the normal
+[pod termination process](/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
+during the node shutdown.
+-->
+<p>kubelet 会尝试检测节点系统关闭事件并终止在节点上运行的 Pods。</p>
+<p>在节点终止期间，kubelet 保证 Pod 遵从常规的
+<a href="/zh/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination">Pod 终止流程</a>。</p>
+<!-- 
+The graceful node shutdown feature depends on systemd since it takes advantage of
+[systemd inhibitor locks](https://www.freedesktop.org/wiki/Software/systemd/inhibit/) to
+delay the node shutdown with a given duration.
+-->
+<p>体面节点关闭特性依赖于 systemd，因为它要利用
+<a href="https://www.freedesktop.org/wiki/Software/systemd/inhibit/">systemd 抑制器锁</a>机制，
+在给定的期限内延迟节点关闭。</p>
+<!--
+Graceful node shutdown is controlled with the `GracefulNodeShutdown`
+[feature gate](/docs/reference/command-line-tools-reference/feature-gates/) which is
+enabled by default in 1.21.
+-->
+<p>体面节点关闭特性受 <code>GracefulNodeShutdown</code>
+<a href="/docs/reference/command-line-tools-reference/feature-gates/">特性门控</a>控制，
+在 1.21 版本中是默认启用的。</p>
+<!--
+Note that by default, both configuration options described below,
+`ShutdownGracePeriod` and `ShutdownGracePeriodCriticalPods` are set to zero,
+thus not activating the graceful node shutdown functionality.
+To activate the feature, the two kubelet config settings should be configured appropriately and set to non-zero values.
+-->
+<p>注意，默认情况下，下面描述的两个配置选项，<code>shutdownGracePeriod</code> 和
+<code>shutdownGracePeriodCriticalPods</code> 都是被设置为 0 的，因此不会激活体面节点关闭功能。
+要激活此功能特性，这两个 kubelet 配置选项要适当配置，并设置为非零值。</p>
+<!-- 
+During a graceful shutdown, kubelet terminates pods in two phases:
+
+1. Terminate regular pods running on the node.
+2. Terminate [critical pods](/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical) running on the node.
+-->
+<p>在体面关闭节点过程中，kubelet 分两个阶段来终止 Pod：</p>
+<ol>
+<li>终止在节点上运行的常规 Pod。</li>
+<li>终止在节点上运行的<a href="/zh/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical">关键 Pod</a>。</li>
+</ol>
+<!-- 
+Graceful Node Shutdown feature is configured with two [`KubeletConfiguration`](/docs/tasks/administer-cluster/kubelet-config-file/) options:
+* `ShutdownGracePeriod`:
+  * Specifies the total duration that the node should delay the shutdown by. This is the total grace period for pod termination for both regular and [critical pods](/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical).
+* `ShutdownGracePeriodCriticalPods`:
+  * Specifies the duration used to terminate [critical pods](/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical) during a node shutdown. This value should be less than `ShutdownGracePeriod`.
+-->
+<p>节点体面关闭的特性对应两个
+<a href="/zh/docs/tasks/administer-cluster/kubelet-config-file/"><code>KubeletConfiguration</code></a> 选项：</p>
+<ul>
+<li><code>shutdownGracePeriod</code>：
+<ul>
+<li>指定节点应延迟关闭的总持续时间。此时间是 Pod 体面终止的时间总和，不区分常规 Pod
+还是<a href="/zh/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical">关键 Pod</a>。</li>
+</ul>
+</li>
+<li><code>shutdownGracePeriodCriticalPods</code>：
+<ul>
+<li>在节点关闭期间指定用于终止<a href="/zh/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical">关键 Pod</a>
+的持续时间。该值应小于 <code>shutdownGracePeriod</code>。</li>
+</ul>
+</li>
+</ul>
+<!--  
+For example, if `ShutdownGracePeriod=30s`, and
+`ShutdownGracePeriodCriticalPods=10s`, kubelet will delay the node shutdown by
+30 seconds. During the shutdown, the first 20 (30-10) seconds would be reserved
+for gracefully terminating normal pods, and the last 10 seconds would be
+reserved for terminating [critical pods](/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical).
+-->
+<p>例如，如果设置了 <code>shutdownGracePeriod=30s</code> 和 <code>shutdownGracePeriodCriticalPods=10s</code>，
+则 kubelet 将延迟 30 秒关闭节点。
+在关闭期间，将保留前 20（30 - 10）秒用于体面终止常规 Pod，
+而保留最后 10 秒用于终止<a href="/zh/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/#marking-pod-as-critical">关键 Pod</a>。</p>
+<!--
+When pods were evicted during the graceful node shutdown, they are marked as failed.
+Running `kubectl get pods` shows the status of the the evicted pods as `Shutdown`.
+And `kubectl describe pod` indicates that the pod was evicted because of node shutdown:
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <p>当 Pod 在正常节点关闭期间被驱逐时，它们会被标记为已经失败（Failed）。
+运行 <code>kubectl get pods</code> 时，被驱逐的 Pod 的状态显示为 <code>Shutdown</code>。
+并且 <code>kubectl describe pod</code> 表示 Pod 因节点关闭而被驱逐：</p>
+<pre><code>Reason:         Terminated
+Message:        Pod was terminated in response to imminent node shutdown.
+</code></pre>
+</div>
+<!--
+### Pod Priority based graceful node shutdown {#pod-priority-graceful-node-shutdown}
+-->
+<h3 id="pod-priority-graceful-node-shutdown">基于 Pod 优先级的体面节点关闭   </h3>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.23 [alpha]</code>
+</div>
+
+
+<!--
+To provide more flexibility during graceful node shutdown around the ordering
+of pods during shutdown, graceful node shutdown honors the PriorityClass for
+Pods, provided that you enabled this feature in your cluster. The feature
+allows cluster administers to explicitly define the ordering of pods
+during graceful node shutdown based on
+[priority classes](/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass).
+-->
+<p>为了在体面节点关闭期间提供更多的灵活性，尤其是处理关闭期间的 Pod 排序问题，
+体面节点关闭机制能够关注 Pod 的 PriorityClass 设置，前提是你已经在集群中启用了此功能特性。
+此功能特性允许集群管理员基于 Pod
+的<a href="/zh/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass">优先级类（Priority Class）</a>
+显式地定义体面节点关闭期间 Pod 的处理顺序。</p>
+<!--
+The [Graceful Node Shutdown](#graceful-node-shutdown) feature, as described
+above, shuts down pods in two phases, non-critical pods, followed by critical
+pods. If additional flexibility is needed to explicitly define the ordering of
+pods during shutdown in a more granular way, pod priority based graceful
+shutdown can be used.
+-->
+<p>前文所述的<a href="#graceful-node-shutdown">体面节点关闭</a>特性能够分两个阶段关闭 Pod，
+首先关闭的是非关键的 Pod，之后再处理关键 Pod。
+如果需要显式地以更细粒度定义关闭期间 Pod 的处理顺序，需要一定的灵活度，
+这时可以使用基于 Pod 优先级的体面关闭机制。</p>
+<!--
+When graceful node shutdown honors pod priorities, this makes it possible to do
+graceful node shutdown in multiple phases, each phase shutting down a
+particular priority class of pods. The kubelet can be configured with the exact
+phases and shutdown time per phase.
+-->
+<p>当体面节点关闭能够处理 Pod 优先级时，体面节点关闭的处理可以分为多个阶段，
+每个阶段关闭特定优先级类的 Pod。kubelet 可以被配置为按确切的阶段处理 Pod，
+且每个阶段可以独立设置关闭时间。</p>
+<!--
+Assuming the following custom pod
+[priority classes](/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass)
+in a cluster,
+-->
+<p>假设集群中存在以下自定义的 Pod
+<a href="/zh/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass">优先级类</a>。</p>
+<table>
+<thead>
+<tr>
+<th>Pod 优先级类名称</th>
+<th>Pod 优先级类数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>custom-class-a</code></td>
+<td>100000</td>
+</tr>
+<tr>
+<td><code>custom-class-b</code></td>
+<td>10000</td>
+</tr>
+<tr>
+<td><code>custom-class-c</code></td>
+<td>1000</td>
+</tr>
+<tr>
+<td><code>regular/unset</code></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<!--
+Within the [kubelet configuration](/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration)
+the settings for `shutdownGracePeriodByPodPriority` could look like:
+-->
+<p>在 <a href="/zh/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration">kubelet 配置</a>中，
+<code>shutdownGracePeriodByPodPriority</code> 可能看起来是这样：</p>
+<table>
+<thead>
+<tr>
+<th>Pod 优先级类数值</th>
+<th>关闭期限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100000</td>
+<td>10 秒</td>
+</tr>
+<tr>
+<td>10000</td>
+<td>180 秒</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>120 秒</td>
+</tr>
+<tr>
+<td>0</td>
+<td>60 秒</td>
+</tr>
+</tbody>
+</table>
+<!--
+The corresponding kubelet config YAML configuration would be:
+-->
+<p>对应的 kubelet 配置 YAML 将会是：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">shutdownGracePeriodByPodPriority</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">priority</span>:<span style="color:#bbb"> </span><span style="color:#666">100000</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">shutdownGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">10</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">priority</span>:<span style="color:#bbb"> </span><span style="color:#666">10000</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">shutdownGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">180</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">priority</span>:<span style="color:#bbb"> </span><span style="color:#666">1000</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">shutdownGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">120</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#008000;font-weight:bold">priority</span>:<span style="color:#bbb"> </span><span style="color:#666">0</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#008000;font-weight:bold">shutdownGracePeriodSeconds</span>:<span style="color:#bbb"> </span><span style="color:#666">60</span><span style="color:#bbb">
+</span></code></pre></div><!--
+The above table implies that any pod with `priority` value >= 100000 will get
+just 10 seconds to stop, any pod with value >= 10000 and < 100000 will get 180
+seconds to stop, any pod with value >= 1000 and < 10000 will get 120 seconds to stop.
+Finally, all other pods will get 60 seconds to stop.
+
+One doesn't have to specify values corresponding to all of the classes. For
+example, you could instead use these settings:
+-->
+<p>上面的表格表明，所有 <code>priority</code> 值大于等于 100000 的 Pod 会得到 10 秒钟期限停止，
+所有 <code>priority</code> 值介于 10000 和 100000 之间的 Pod 会得到 180 秒钟期限停止，
+所有 <code>priority</code> 值介于 1000 和 10000 之间的 Pod 会得到 120 秒钟期限停止，
+所有其他 Pod 将获得 60 秒的时间停止。</p>
+<p>用户不需要为所有的优先级类都设置数值。例如，你也可以使用下面这种配置：</p>
+<table>
+<thead>
+<tr>
+<th>Pod 优先级类数值</th>
+<th>关闭期限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100000</td>
+<td>300 秒</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>120 秒</td>
+</tr>
+<tr>
+<td>0</td>
+<td>60 秒</td>
+</tr>
+</tbody>
+</table>
+<!--
+In the above case, the pods with `custom-class-b` will go into the same bucket
+as `custom-class-c` for shutdown.
+
+If there are no pods in a particular range, then the kubelet does not wait
+for pods in that priority range. Instead, the kubelet immediately skips to the
+next priority class value range.
+-->
+<p>在上面这个场景中，优先级类为 <code>custom-class-b</code> 的 Pod 会与优先级类为 <code>custom-class-c</code>
+的 Pod 在关闭时按相同期限处理。</p>
+<p>如果在特定的范围内不存在 Pod，则 kubelet 不会等待对应优先级范围的 Pod。
+kubelet 会直接跳到下一个优先级数值范围进行处理。</p>
+<!--
+If this feature is enabled and no configuration is provided, then no ordering
+action will be taken.
+
+Using this feature, requires enabling the
+`GracefulNodeShutdownBasedOnPodPriority` feature gate, and setting the kubelet
+config's `ShutdownGracePeriodByPodPriority` to the desired configuration
+containing the pod priority class values and their respective shutdown periods.
+-->
+<p>如果此功能特性被启用，但没有提供配置数据，则不会出现排序操作。</p>
+<p>使用此功能特性需要启用 <code>GracefulNodeShutdownBasedOnPodPriority</code> 特性门控，
+并将 kubelet 配置中的 <code>shutdownGracePeriodByPodPriority</code> 设置为期望的配置，
+其中包含 Pod 的优先级类数值以及对应的关闭期限。</p>
+<!--
+Metrics `graceful_shutdown_start_time_seconds` and `graceful_shutdown_end_time_seconds`
+are emitted under the kubelet subsystem to monitor node shutdowns.
+-->
+<p>kubelet 子系统中会生成 <code>graceful_shutdown_start_time_seconds</code> 和
+<code>graceful_shutdown_end_time_seconds</code> 度量指标以便监视节点关闭行为。</p>
+<!--
+## Swap memory management {#swap-memory}
+-->
+<h2 id="swap-memory">交换内存管理</h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.22 [alpha]</code>
+</div>
+
+
+<!--
+Prior to Kubernetes 1.22, nodes did not support the use of swap memory, and a
+kubelet would by default fail to start if swap was detected on a node. In 1.22
+onwards, swap memory support can be enabled on a per-node basis.
+-->
+<p>在 Kubernetes 1.22 之前，节点不支持使用交换内存，并且默认情况下，
+如果在节点上检测到交换内存配置，kubelet 将无法启动。
+在 1.22 以后，可以逐个节点地启用交换内存支持。</p>
+<!--
+To enable swap on a node, the `NodeSwap` feature gate must be enabled on
+the kubelet, and the `--fail-swap-on` command line flag or `failSwapOn`
+[configuration setting](/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration)
+must be set to false.
+-->
+<p>要在节点上启用交换内存，必须启用kubelet 的 <code>NodeSwap</code> 特性门控，
+同时使用 <code>--fail-swap-on</code> 命令行参数或者将 <code>failSwapOn</code>
+<a href="/zh/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration">配置</a>设置为 false。</p>
+<!--
+A user can also optionally configure `memorySwap.swapBehavior` in order to
+specify how a node will use swap memory. For example,
+-->
+<p>用户还可以选择配置 <code>memorySwap.swapBehavior</code> 以指定节点使用交换内存的方式。例如:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">memorySwap</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">swapBehavior</span>:<span style="color:#bbb"> </span>LimitedSwap<span style="color:#bbb">
+</span></code></pre></div><!--
+The available configuration options for `swapBehavior` are:
+
+- `LimitedSwap`: Kubernetes workloads are limited in how much swap they can
+  use. Workloads on the node not managed by Kubernetes can still swap.
+- `UnlimitedSwap`: Kubernetes workloads can use as much swap memory as they
+  request, up to the system limit.
+-->
+<p>可用的 <code>swapBehavior</code> 的配置选项有：</p>
+<ul>
+<li><code>LimitedSwap</code>：Kubernetes 工作负载的交换内存会受限制。
+不受 Kubernetes 管理的节点上的工作负载仍然可以交换。</li>
+<li><code>UnlimitedSwap</code>：Kubernetes 工作负载可以使用尽可能多的交换内存请求，
+一直到达到系统限制为止。</li>
+</ul>
+<!--
+If configuration for `memorySwap` is not specified and the feature gate is
+enabled, by default the kubelet will apply the same behaviour as the
+`LimitedSwap` setting.
+
+The behaviour of the `LimitedSwap` setting depends if the node is running with
+v1 or v2 of control groups (also known as "cgroups"):
+-->
+<p>如果启用了特性门控但是未指定 <code>memorySwap</code> 的配置，默认情况下 kubelet 将使用
+<code>LimitedSwap</code> 设置。</p>
+<p><code>LimitedSwap</code> 这种设置的行为取决于节点运行的是 v1 还是 v2 的控制组（也就是 <code>cgroups</code>）：</p>
+<!--
+- **cgroupsv1:** Kubernetes workloads can use any combination of memory and
+  swap, up to the pod's memory limit, if set.
+- **cgroupsv2:** Kubernetes workloads cannot use swap memory.
+-->
+<ul>
+<li><strong>cgroupsv1:</strong> Kubernetes 工作负载可以使用内存和交换，上限为 Pod 的内存限制值（如果设置了的话）。</li>
+<li><strong>cgroupsv2:</strong> Kubernetes 工作负载不能使用交换内存。</li>
+</ul>
+<!--
+For more information, and to assist with testing and provide feedback, please
+see [KEP-2400](https://github.com/kubernetes/enhancements/issues/2400) and its
+[design proposal](https://github.com/kubernetes/enhancements/blob/master/keps/sig-node/2400-node-swap/README.md).
+-->
+<p>如需更多信息以及协助测试和提供反馈，请参见
+<a href="https://github.com/kubernetes/enhancements/issues/2400">KEP-2400</a>
+及其<a href="https://github.com/kubernetes/enhancements/blob/master/keps/sig-node/2400-node-swap/README.md">设计提案</a>。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+* Learn about the [components](/docs/concepts/overview/components/#node-components) that make up a node.
+* Read the [API definition for Node](/docs/reference/generated/kubernetes-api/v1.23/#node-v1-core).
+* Read the [Node](https://git.k8s.io/community/contributors/design-proposals/architecture/architecture.md#the-kubernetes-node)
+  section of the architecture design document.
+* Read about [taints and tolerations](/docs/concepts/scheduling-eviction/taint-and-toleration/).
+-->
+<ul>
+<li>进一步了解节点<a href="/zh/docs/concepts/overview/components/#node-components">组件</a>。</li>
+<li>阅读 <a href="/docs/reference/generated/kubernetes-api/v1.23/#node-v1-core">Node 的 API 定义</a>。</li>
+<li>阅读架构设计文档中有关
+<a href="https://git.k8s.io/community/contributors/design-proposals/architecture/architecture.md#the-kubernetes-node">Node</a>
+的章节。</li>
+<li>了解<a href="/zh/docs/concepts/scheduling-eviction/taint-and-toleration/">污点和容忍度</a>。</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-c0251def6da29b30afebfb04549f1703">2 - 控制面到节点通信</h1>
+    
+	<!--
+title: Control Plane-Node Communication
+content_type: concept
+weight: 20
+aliases:
+- master-node-communication
+-->
+<!-- overview -->
+<!--
+This document catalogs the communication paths between the control plane (apiserver) and the Kubernetes cluster. The intent is to allow users to customize their installation to harden the network configuration such that the cluster can be run on an untrusted network (or on fully public IPs on a cloud provider).
+-->
+<p>本文列举控制面节点（确切说是 API 服务器）和 Kubernetes 集群之间的通信路径。
+目的是为了让用户能够自定义他们的安装，以实现对网络配置的加固，使得集群能够在不可信的网络上
+（或者在一个云服务商完全公开的 IP 上）运行。</p>
+<!-- body -->
+<!--
+## Node to Control Plane
+Kubernetes has a "hub-and-spoke" API pattern. All API usage from nodes (or the pods they run) terminate at the apiserver. None of the other control plane components are designed to expose remote services. The apiserver is configured to listen for remote connections on a secure HTTPS port (typically 443) with one or more forms of client [authentication](/docs/reference/access-authn-authz/authentication/) enabled.
+One or more forms of [authorization](/docs/reference/access-authn-authz/authorization/) should be enabled, especially if [anonymous requests](/docs/reference/access-authn-authz/authentication/#anonymous-requests) or [service account tokens](/docs/reference/access-authn-authz/authentication/#service-account-tokens) are allowed.
+-->
+<h2 id="节点到控制面">节点到控制面</h2>
+<p>Kubernetes 采用的是中心辐射型（Hub-and-Spoke）API 模式。
+所有从集群（或所运行的 Pods）发出的 API 调用都终止于 API 服务器。
+其它控制面组件都没有被设计为可暴露远程服务。
+API 服务器被配置为在一个安全的 HTTPS 端口（通常为 443）上监听远程连接请求，
+并启用一种或多种形式的客户端<a href="/zh/docs/reference/access-authn-authz/authentication/">身份认证</a>机制。
+一种或多种客户端<a href="/zh/docs/reference/access-authn-authz/authorization/">鉴权机制</a>应该被启用，
+特别是在允许使用<a href="/zh/docs/reference/access-authn-authz/authentication/#anonymous-requests">匿名请求</a>
+或<a href="/zh/docs/reference/access-authn-authz/authentication/#service-account-tokens">服务账号令牌</a>的时候。</p>
+<!--
+Nodes should be provisioned with the public root certificate for the cluster such that they can connect securely to the apiserver along with valid client credentials. A good approach is that the client credentials provided to the kubelet are in the form of a client certificate. See [kubelet TLS bootstrapping](/docs/reference/command-line-tools-reference/kubelet-tls-bootstrapping/) for automated provisioning of kubelet client certificates.
+-->
+<p>应该使用集群的公共根证书开通节点，这样它们就能够基于有效的客户端凭据安全地连接 API 服务器。
+一种好的方法是以客户端证书的形式将客户端凭据提供给 kubelet。
+请查看 <a href="/zh/docs/reference/command-line-tools-reference/kubelet-tls-bootstrapping/">kubelet TLS 启动引导</a>
+以了解如何自动提供 kubelet 客户端证书。</p>
+<!--
+Pods that wish to connect to the apiserver can do so securely by leveraging a service account so that Kubernetes will automatically inject the public root certificate and a valid bearer token into the pod when it is instantiated.
+The `kubernetes` service (in `default` namespace) is configured with a virtual IP address that is redirected (via kube-proxy) to the HTTPS endpoint on the apiserver.
+
+The control plane components also communicate with the cluster apiserver over the secure port.
+-->
+<p>想要连接到 API 服务器的 Pod 可以使用服务账号安全地进行连接。
+当 Pod 被实例化时，Kubernetes 自动把公共根证书和一个有效的持有者令牌注入到 Pod 里。
+<code>kubernetes</code> 服务（位于 <code>default</code> 名字空间中）配置了一个虚拟 IP 地址，用于（通过 kube-proxy）转发
+请求到 API 服务器的 HTTPS 末端。</p>
+<p>控制面组件也通过安全端口与集群的 API 服务器通信。</p>
+<!--
+As a result, the default operating mode for connections from the nodes and pods running on the nodes to the control plane is secured by default and can run over untrusted and/or public networks.
+-->
+<p>这样，从集群节点和节点上运行的 Pod 到控制面的连接的缺省操作模式即是安全的，
+能够在不可信的网络或公网上运行。</p>
+<!--
+## Control Plane to node
+
+There are two primary communication paths from the control plane (apiserver) to the nodes. The first is from the apiserver to the kubelet process which runs on each node in the cluster. The second is from the apiserver to any node, pod, or service through the apiserver's proxy functionality.
+-->
+<h2 id="控制面到节点">控制面到节点</h2>
+<p>从控制面（API 服务器）到节点有两种主要的通信路径。
+第一种是从 API 服务器到集群中每个节点上运行的 kubelet 进程。
+第二种是从 API 服务器通过它的代理功能连接到任何节点、Pod 或者服务。</p>
+<!--
+### apiserver to kubelet
+
+The connections from the apiserver to the kubelet are used for:
+
+* Fetching logs for pods.
+* Attaching (through kubectl) to running pods.
+* Providing the kubelet's port-forwarding functionality.
+
+These connections terminate at the kubelet's HTTPS endpoint. By default, the apiserver does not verify the kubelet's serving certificate, which makes the connection subject to man-in-the-middle attacks and **unsafe** to run over untrusted and/or public networks.
+-->
+<h3 id="api-服务器到-kubelet">API 服务器到 kubelet</h3>
+<p>从 API 服务器到 kubelet 的连接用于：</p>
+<ul>
+<li>获取 Pod 日志</li>
+<li>挂接（通过 kubectl）到运行中的 Pod</li>
+<li>提供 kubelet 的端口转发功能。</li>
+</ul>
+<p>这些连接终止于 kubelet 的 HTTPS 末端。
+默认情况下，API 服务器不检查 kubelet 的服务证书。这使得此类连接容易受到中间人攻击，
+在非受信网络或公开网络上运行也是 <strong>不安全的</strong>。</p>
+<!--
+To verify this connection, use the `--kubelet-certificate-authority` flag to provide the apiserver with a root certificate bundle to use to verify the kubelet's serving certificate.
+
+If that is not possible, use [SSH tunneling](/docs/concepts/architecture/master-node-communication/#ssh-tunnels) between the apiserver and kubelet if required to avoid connecting over an
+untrusted or public network.
+
+Finally, [Kubelet authentication and/or authorization](/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/) should be enabled to secure the kubelet API.
+-->
+<p>为了对这个连接进行认证，使用 <code>--kubelet-certificate-authority</code> 标志给 API
+服务器提供一个根证书包，用于 kubelet 的服务证书。</p>
+<p>如果无法实现这点，又要求避免在非受信网络或公共网络上进行连接，可在 API 服务器和
+kubelet 之间使用 <a href="#ssh-tunnels">SSH 隧道</a>。</p>
+<p>最后，应该启用
+<a href="/zh/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/">kubelet 用户认证和/或鉴权</a>
+来保护 kubelet API。</p>
+<!--
+### apiserver to nodes, pods, and services
+
+The connections from the apiserver to a node, pod, or service default to plain HTTP connections and are therefore neither authenticated nor encrypted. They can be run over a secure HTTPS connection by prefixing `https:` to the node, pod, or service name in the API URL, but they will not validate the certificate provided by the HTTPS endpoint nor provide client credentials so while the connection will be encrypted, it will not provide any guarantees of integrity. These connections **are not currently safe** to run over untrusted and/or public networks.
+-->
+<h3 id="api-服务器到节点-pod-和服务">API 服务器到节点、Pod 和服务</h3>
+<p>从 API 服务器到节点、Pod 或服务的连接默认为纯 HTTP 方式，因此既没有认证，也没有加密。
+这些连接可通过给 API URL 中的节点、Pod 或服务名称添加前缀 <code>https:</code> 来运行在安全的 HTTPS 连接上。
+不过这些连接既不会验证 HTTPS 末端提供的证书，也不会提供客户端证书。
+因此，虽然连接是加密的，仍无法提供任何完整性保证。
+这些连接 <strong>目前还不能安全地</strong> 在非受信网络或公共网络上运行。</p>
+<!--
+### SSH tunnels
+
+Kubernetes supports SSH tunnels to protect the control plane to nodes communication paths. In this configuration, the apiserver initiates an SSH tunnel to each node in the cluster (connecting to the ssh server listening on port 22) and passes all traffic destined for a kubelet, node, pod, or service through the tunnel.
+This tunnel ensures that the traffic is not exposed outside of the network in which the nodes are running.
+
+SSH tunnels are currently deprecated so you shouldn't opt to use them unless you know what you are doing. The Konnectivity service is a replacement for this communication channel.
+-->
+<h3 id="ssh-tunnels">SSH 隧道</h3>
+<p>Kubernetes 支持使用 SSH 隧道来保护从控制面到节点的通信路径。在这种配置下，API
+服务器建立一个到集群中各节点的 SSH 隧道（连接到在 22 端口监听的 SSH 服务）
+并通过这个隧道传输所有到 kubelet、节点、Pod 或服务的请求。
+这一隧道保证通信不会被暴露到集群节点所运行的网络之外。</p>
+<p>SSH 隧道目前已被废弃。除非你了解个中细节，否则不应使用。
+Konnectivity 服务是对此通信通道的替代品。</p>
+<!--
+### Konnectivity service
+
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+
+As a replacement to the SSH tunnels, the Konnectivity service provides TCP level proxy for the control plane to cluster communication. The Konnectivity service consists of two parts: the Konnectivity server in the control plane network and the Konnectivity agents in the nodes network. The Konnectivity agents initiate connections to the Konnectivity server and maintain the network connections.
+After enabling the Konnectivity service, all control plane to nodes traffic goes through these connections.
+
+Follow the [Konnectivity service task](/docs/tasks/extend-kubernetes/setup-konnectivity/) to set up the Konnectivity service in your cluster.
+-->
+<h3 id="konnectivity-服务">Konnectivity 服务</h3>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.18 [beta]</code>
+</div>
+
+
+<p>作为 SSH 隧道的替代方案，Konnectivity 服务提供 TCP 层的代理，以便支持从控制面到集群的通信。
+Konnectivity 服务包含两个部分：Konnectivity 服务器和 Konnectivity 代理，分别运行在
+控制面网络和节点网络中。Konnectivity 代理建立并维持到 Konnectivity 服务器的网络连接。
+启用 Konnectivity 服务之后，所有控制面到节点的通信都通过这些连接传输。</p>
+<p>请浏览 <a href="/zh/docs/tasks/extend-kubernetes/setup-konnectivity/">Konnectivity 服务任务</a>
+在你的集群中配置 Konnectivity 服务。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-ca8819042a505291540e831283da66df">3 - 控制器</h1>
+    
+	<!-- overview -->
+<!--
+In robotics and automation, a _control loop_ is
+a non-terminating loop that regulates the state of a system.
+
+Here is one example of a control loop: a thermostat in a room.
+
+When you set the temperature, that's telling the thermostat
+about your *desired state*. The actual room temperature is the
+*current state*. The thermostat acts to bring the current state
+closer to the desired state, by turning equipment on or off.
+-->
+<p>在机器人技术和自动化领域，控制回路（Control Loop）是一个非终止回路，用于调节系统状态。</p>
+<p>这是一个控制环的例子：房间里的温度自动调节器。</p>
+<p>当你设置了温度，告诉了温度自动调节器你的<em>期望状态（Desired State）</em>。
+房间的实际温度是<em>当前状态（Current State）</em>。
+通过对设备的开关控制，温度自动调节器让其当前状态接近期望状态。</p>
+在 Kubernetes 中，控制器通过监控<a class='glossary-tooltip' title='集群由一组被称作节点的机器组成。这些节点上运行 Kubernetes 所管理的容器化应用。集群具有至少一个工作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-cluster' target='_blank' aria-label='集群'>集群</a>
+的公共状态，并致力于将当前状态转变为期望的状态。
+<!-- body -->
+<!--
+## Controller pattern
+
+A controller tracks at least one Kubernetes resource type.
+These [objects](/docs/concepts/overview/working-with-objects/kubernetes-objects/)
+have a spec field that represents the desired state. The
+controller(s) for that resource are responsible for making the current
+state come closer to that desired state.
+
+The controller might carry the action out itself; more commonly, in Kubernetes,
+a controller will send messages to the
+<a class='glossary-tooltip' title='提供 Kubernetes API 服务的控制面组件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-apiserver/' target='_blank' aria-label='API server'>API server</a> that have
+useful side effects. You'll see examples of this below.
+
+
+-->
+<h2 id="controller-pattern">控制器模式</h2>
+<p>一个控制器至少追踪一种类型的 Kubernetes 资源。这些
+<a href="/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/">对象</a>
+有一个代表期望状态的 <code>spec</code> 字段。
+该资源的控制器负责确保其当前状态接近期望状态。</p>
+<p>控制器可能会自行执行操作；在 Kubernetes 中更常见的是一个控制器会发送信息给
+<a class='glossary-tooltip' title='提供 Kubernetes API 服务的控制面组件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/command-line-tools-reference/kube-apiserver/' target='_blank' aria-label='API 服务器'>API 服务器</a>，这会有副作用。
+具体可参看后文的例子。</p>
+
+<!--
+### Control via API server
+
+The <a class='glossary-tooltip' title='Job 是需要运行完成的确定性的或批量的任务。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/job/' target='_blank' aria-label='Job'>Job</a> controller is an example of a
+Kubernetes built-in controller. Built-in controllers manage state by
+interacting with the cluster API server.
+
+Job is a Kubernetes resource that runs a
+<a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pod'>Pod</a>, or perhaps several Pods, to carry out
+a task and then stop.
+
+(Once [scheduled](/docs/concepts/scheduling/), Pod objects become part of the
+desired state for a kubelet).
+
+When the Job controller sees a new task it makes sure that, somewhere
+in your cluster, the kubelets on a set of Nodes are running the right
+number of Pods to get the work done.
+The Job controller does not run any Pods or containers
+itself. Instead, the Job controller tells the API server to create or remove
+Pods.
+Other components in the
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='control plane'>control plane</a>
+act on the new information (there are new Pods to schedule and run),
+and eventually the work is done.
+-->
+<h3 id="control-via-API-server">通过 API 服务器来控制</h3>
+<p><a class='glossary-tooltip' title='Job 是需要运行完成的确定性的或批量的任务。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/workloads/controllers/job/' target='_blank' aria-label='Job'>Job</a> 控制器是一个 Kubernetes 内置控制器的例子。
+内置控制器通过和集群 API 服务器交互来管理状态。</p>
+<p>Job 是一种 Kubernetes 资源，它运行一个或者多个 <a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pod'>Pod</a>，
+来执行一个任务然后停止。
+（一旦<a href="/zh/docs/concepts/scheduling-eviction/">被调度了</a>，对 <code>kubelet</code> 来说 Pod
+对象就会变成了期望状态的一部分）。</p>
+<p>在集群中，当 Job 控制器拿到新任务时，它会保证一组 Node 节点上的 <code>kubelet</code>
+可以运行正确数量的 Pod 来完成工作。
+Job 控制器不会自己运行任何的 Pod 或者容器。Job 控制器是通知 API 服务器来创建或者移除 Pod。
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='控制面'>控制面</a>中的其它组件
+根据新的消息作出反应（调度并运行新 Pod）并且最终完成工作。</p>
+<!--
+After you create a new Job, the desired state is for that Job to be completed.
+The Job controller makes the current state for that Job be nearer to your
+desired state: creating Pods that do the work you wanted for that Job, so that
+the Job is closer to completion.
+
+Controllers also update the objects that configure them.
+For example: once the work is done for a Job, the Job controller
+updates that Job object to mark it `Finished`.
+
+(This is a bit like how some thermostats turn a light off to
+indicate that your room is now at the temperature you set).
+-->
+<p>创建新 Job 后，所期望的状态就是完成这个 Job。Job 控制器会让 Job 的当前状态不断接近期望状态：创建为 Job 要完成工作所需要的 Pod，使 Job 的状态接近完成。</p>
+<p>控制器也会更新配置对象。例如：一旦 Job 的工作完成了，Job 控制器会更新 Job 对象的状态为 <code>Finished</code>。</p>
+<p>（这有点像温度自动调节器关闭了一个灯，以此来告诉你房间的温度现在到你设定的值了）。</p>
+<!--
+### Direct control
+
+By contrast with Job, some controllers need to make changes to
+things outside of your cluster.
+
+For example, if you use a control loop to make sure there
+are enough <a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='Nodes'>Nodes</a>
+in your cluster, then that controller needs something outside the
+current cluster to set up new Nodes when needed.
+
+Controllers that interact with external state find their desired state from
+the API server, then communicate directly with an external system to bring
+the current state closer in line.
+
+(There actually is a [controller](https://github.com/kubernetes/autoscaler/)
+that horizontally scales the nodes in your cluster.)
+-->
+<h3 id="direct-control">直接控制</h3>
+<p>相比 Job 控制器，有些控制器需要对集群外的一些东西进行修改。</p>
+<p>例如，如果你使用一个控制回路来保证集群中有足够的
+<a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='节点'>节点</a>，那么控制器就需要当前集群外的
+一些服务在需要时创建新节点。</p>
+<p>和外部状态交互的控制器从 API 服务器获取到它想要的状态，然后直接和外部系统进行通信
+并使当前状态更接近期望状态。</p>
+<p>（实际上有一个<a href="https://github.com/kubernetes/autoscaler/">控制器</a>
+可以水平地扩展集群中的节点。）</p>
+<!--
+The important point here is that the controller makes some change to bring about
+your desired state, and then reports current state back to your cluster's API server.
+Other control loops can observe that reported data and take their own actions.
+-->
+<p>这里，很重要的一点是，控制器做出了一些变更以使得事物更接近你的期望状态，
+之后将当前状态报告给集群的 API 服务器。
+其他控制回路可以观测到所汇报的数据的这种变化并采取其各自的行动。</p>
+<!--
+In the thermostat example, if the room is very cold then a different controller
+might also turn on a frost protection heater. With Kubernetes clusters, the control
+plane indirectly works with IP address management tools, storage services,
+cloud provider APIs, and other services by
+[extending Kubernetes](/docs/concepts/extend-kubernetes/) to implement that.
+-->
+<p>在温度计的例子中，如果房间很冷，那么某个控制器可能还会启动一个防冻加热器。
+就 Kubernetes 集群而言，控制面间接地与 IP 地址管理工具、存储服务、云驱动
+APIs 以及其他服务协作，通过<a href="/zh/docs/concepts/extend-kubernetes/">扩展 Kubernetes</a>
+来实现这点。</p>
+<!--
+## Desired versus current state {#desired-vs-current}
+
+Kubernetes takes a cloud-native view of systems, and is able to handle
+constant change.
+
+Your cluster could be changing at any point as work happens and
+control loops automatically fix failures. This means that,
+potentially, your cluster never reaches a stable state.
+
+As long as the controllers for your cluster are running and able to make
+useful changes, it doesn't matter if the overall state is stable or not.
+-->
+<h2 id="desired-vs-current">期望状态与当前状态</h2>
+<p>Kubernetes 采用了系统的云原生视图，并且可以处理持续的变化。</p>
+<p>在任务执行时，集群随时都可能被修改，并且控制回路会自动修复故障。
+这意味着很可能集群永远不会达到稳定状态。</p>
+<p>只要集群中的控制器在运行并且进行有效的修改，整体状态的稳定与否是无关紧要的。</p>
+<!--
+## Design
+
+As a tenet of its design, Kubernetes uses lots of controllers that each manage
+a particular aspect of cluster state. Most commonly, a particular control loop
+(controller) uses one kind of resource as its desired state, and has a different
+kind of resource that it manages to make that desired state happen.
+
+It's useful to have simple controllers rather than one, monolithic set of control
+loops that are interlinked. Controllers can fail, so Kubernetes is designed to
+allow for that.
+
+-->
+<h2 id="design">设计</h2>
+<p>作为设计原则之一，Kubernetes 使用了很多控制器，每个控制器管理集群状态的一个特定方面。
+最常见的一个特定的控制器使用一种类型的资源作为它的期望状态，
+控制器管理控制另外一种类型的资源向它的期望状态演化。</p>
+<p>使用简单的控制器而不是一组相互连接的单体控制回路是很有用的。
+控制器会失败，所以 Kubernetes 的设计正是考虑到了这一点。</p>
+<!--
+There can be several controllers that create or update the same kind of object.
+Behind the scenes, Kubernetes controllers make sure that they only pay attention
+to the resources linked to their controlling resource.
+
+For example, you can have Deployments and Jobs; these both create Pods.
+The Job controller does not delete the Pods that your Deployment created,
+because there is information (<a class='glossary-tooltip' title='用来为对象设置可标识的属性标记；这些标记对用户而言是有意义且重要的。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/labels/' target='_blank' aria-label='labels'>labels</a>)
+the controllers can use to tell those Pods apart.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <p>可以有多个控制器来创建或者更新相同类型的对象。
+在后台，Kubernetes 控制器确保它们只关心与其控制资源相关联的资源。</p>
+<p>例如，你可以创建 Deployment 和 Job；它们都可以创建 Pod。
+Job 控制器不会删除 Deployment 所创建的 Pod，因为有信息
+（<a class='glossary-tooltip' title='用来为对象设置可标识的属性标记；这些标记对用户而言是有意义且重要的。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/labels/' target='_blank' aria-label='标签'>标签</a>）让控制器可以区分这些 Pod。</p>
+
+</div>
+<!--
+## Ways of running controllers {#running-controllers}
+
+Kubernetes comes with a set of built-in controllers that run inside
+the <a class='glossary-tooltip' title='主节点上运行控制器的组件。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kube-controller-manager/' target='_blank' aria-label='kube-controller-manager'>kube-controller-manager</a>. These
+built-in controllers provide important core behaviors.
+
+The Deployment controller and Job controller are examples of controllers that
+come as part of Kubernetes itself (“built-in” controllers).
+Kubernetes lets you run a resilient control plane, so that if any of the built-in
+controllers were to fail, another part of the control plane will take over the work.
+
+You can find controllers that run outside the control plane, to extend Kubernetes.
+Or, if you want, you can write a new controller yourself.
+You can run your own controller as a set of Pods,
+or externally to Kubernetes. What fits best will depend on what that particular
+controller does.
+-->
+<h2 id="running-controllers">运行控制器的方式</h2>
+<p>Kubernetes 内置一组控制器，运行在 <a class='glossary-tooltip' title='主节点上运行控制器的组件。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kube-controller-manager/' target='_blank' aria-label='kube-controller-manager'>kube-controller-manager</a> 内。
+这些内置的控制器提供了重要的核心功能。</p>
+<p>Deployment 控制器和 Job 控制器是 Kubernetes 内置控制器的典型例子。
+Kubernetes 允许你运行一个稳定的控制平面，这样即使某些内置控制器失败了，
+控制平面的其他部分会接替它们的工作。</p>
+<p>你会遇到某些控制器运行在控制面之外，用以扩展 Kubernetes。
+或者，如果你愿意，你也可以自己编写新控制器。
+你可以以一组 Pod 来运行你的控制器，或者运行在 Kubernetes 之外。
+最合适的方案取决于控制器所要执行的功能是什么。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+* Read about the [Kubernetes control plane](/docs/concepts/overview/components/#control-plane-components)
+* Discover some of the basic [Kubernetes objects](/docs/concepts/overview/working-with-objects/kubernetes-objects/)
+* Learn more about the [Kubernetes API](/docs/concepts/overview/kubernetes-api/)
+* If you want to write your own controller, see [Extension Patterns](/docs/concepts/extend-kubernetes/extend-cluster/#extension-patterns) in Extending Kubernetes.
+-->
+<ul>
+<li>阅读 <a href="/zh/docs/concepts/overview/components/#control-plane-components">Kubernetes 控制平面组件</a></li>
+<li>了解 <a href="/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/">Kubernetes 对象</a>
+的一些基本知识</li>
+<li>进一步学习 <a href="/zh/docs/concepts/overview/kubernetes-api/">Kubernetes API</a></li>
+<li>如果你想编写自己的控制器，请看 Kubernetes 的
+<a href="/zh/docs/concepts/extend-kubernetes/#extension-patterns">扩展模式</a>。</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-bc804b02614d67025b4c788f1ca87fbc">4 - 云控制器管理器</h1>
+    
+	<!--
+title: Cloud Controller Manager
+content_type: concept
+weight: 40
+-->
+<!-- overview -->
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.11 [beta]</code>
+</div>
+
+
+<!--
+Cloud infrastructure technologies let you run Kubernetes on public, private, and hybrid clouds.
+Kubernetes believes in automated, API-driven infrastructure without tight coupling between
+components.
+-->
+<p>使用云基础设施技术，你可以在公有云、私有云或者混合云环境中运行 Kubernetes。
+Kubernetes 的信条是基于自动化的、API 驱动的基础设施，同时避免组件间紧密耦合。</p>
+<!--
+title: Cloud Controller Manager
+id: cloud-controller-manager
+date: 2018-04-12
+full_link: /docs/concepts/architecture/cloud-controller/
+short_description: >
+  Control plane component that integrates Kubernetes with third-party cloud providers.
+
+aka: 
+tags:
+- core-object
+- architecture
+- operation
+-->
+<!--
+ A Kubernetes <a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='control plane'>control plane</a> component
+that embeds cloud-specific control logic. The cloud controller manager lets you link your
+cluster into your cloud provider's API, and separates out the components that interact
+with that cloud platform from components that only interact with your cluster.
+-->
+<p><p>组件 cloud-controller-manager 是指云控制器管理器， 云控制器管理器是指嵌入特定云的控制逻辑的
+<a class='glossary-tooltip' title='控制平面是指容器编排层，它暴露 API 和接口来定义、部署容器和管理容器的生命周期。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/glossary/?all=true#term-control-plane' target='_blank' aria-label='控制平面'>控制平面</a>组件。
+云控制器管理器使得你可以将你的集群连接到云提供商的 API 之上，
+并将与该云平台交互的组件同与你的集群交互的组件分离开来。</p></p>
+<!--
+By decoupling the interoperability logic between Kubernetes and the underlying cloud
+infrastructure, the cloud-controller-manager component enables cloud providers to release
+features at a different pace compared to the main Kubernetes project.
+-->
+<p>通过分离 Kubernetes 和底层云基础设置之间的互操作性逻辑，
+云控制器管理器组件使云提供商能够以不同于 Kubernetes 主项目的
+步调发布新特征。</p>
+<!--
+The cloud-controller-manager is structured using a plugin
+mechanism that allows different cloud providers to integrate their platforms with Kubernetes.
+-->
+<p><code>cloud-controller-manager</code> 组件是基于一种插件机制来构造的，
+这种机制使得不同的云厂商都能将其平台与 Kubernetes 集成。</p>
+<!-- body -->
+<!--
+## Design
+
+![Kubernetes components](/images/docs/components-of-kubernetes.svg)
+
+The cloud controller manager runs in the control plane as a replicated set of processes
+(usually, these are containers in Pods). Each cloud-controller-manager implements
+multiple <a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='controllers'>controllers</a> in a single
+process.
+-->
+<h2 id="design">设计 </h2>
+<p><img src="/images/docs/components-of-kubernetes.svg" alt="Kubernetes 组件"></p>
+<p>云控制器管理器以一组多副本的进程集合的形式运行在控制面中，通常表现为 Pod
+中的容器。每个 <code>cloud-controller-manager</code> 在同一进程中实现多个
+<a class='glossary-tooltip' title='控制器通过 apiserver 监控集群的公共状态，并致力于将当前状态转变为期望的状态。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/controller/' target='_blank' aria-label='控制器'>控制器</a>。</p>
+<!--
+You can also run the cloud controller manager as a Kubernetes
+<a class='glossary-tooltip' title='扩展 Kubernetes 功能的资源。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/cluster-administration/addons/' target='_blank' aria-label='addon'>addon</a> rather than as part
+of the control plane.
+-->
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> 你也可以用 Kubernetes <a class='glossary-tooltip' title='扩展 Kubernetes 功能的资源。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/cluster-administration/addons/' target='_blank' aria-label='插件'>插件</a>
+的形式而不是控制面中的一部分来运行云控制器管理器。
+</div>
+<!--
+## Cloud controller manager functions {#functions-of-the-ccm}
+
+The controllers inside the cloud controller manager include:
+-->
+<h2 id="functions-of-the-ccm">云控制器管理器的功能</h2>
+<p>云控制器管理器中的控制器包括：</p>
+<!--
+### Node controller
+
+The node controller is responsible for updating <a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='Node'>Node</a> objects
+when new servers are created in your cloud infrastructure. The node controller obtains information about the
+hosts running inside your tenancy with the cloud provider. The node controller performs the following functions:
+-->
+<h3 id="node-controller">节点控制器  </h3>
+<p>节点控制器负责在云基础设施中创建了新服务器时为之 更新
+<a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='节点（Node）'>节点（Node）</a>对象。
+节点控制器从云提供商获取当前租户中主机的信息。节点控制器执行以下功能：</p>
+<!--
+1. Update a Node object with the corresponding server's unique identifier obtained from the cloud provider API.
+2. Annotating and labelling the Node object with cloud-specific information, such as the region the node
+   is deployed into and the resources (CPU, memory, etc) that it has available.
+3. Obtain the node's hostname and network addresses.
+4. Verifying the node's health. In case a node becomes unresponsive, this controller checks with
+   your cloud provider's API to see if the server has been deactivated / deleted / terminated.
+   If the node has been deleted from the cloud, the controller deletes the Node object from your Kubernetes
+   cluster.
+-->
+<ol>
+<li>使用从云平台 API 获取的对应服务器的唯一标识符更新 Node 对象；</li>
+<li>利用特定云平台的信息为 Node 对象添加注解和标签，例如节点所在的
+区域（Region）和所具有的资源（CPU、内存等等）；</li>
+<li>获取节点的网络地址和主机名；</li>
+<li>检查节点的健康状况。如果节点无响应，控制器通过云平台 API 查看该节点是否
+已从云中禁用、删除或终止。如果节点已从云中删除，则控制器从 Kubernetes 集群
+中删除 Node 对象。</li>
+</ol>
+<!--
+Some cloud provider implementations split this into a node controller and a separate node
+lifecycle controller.
+-->
+<p>某些云驱动实现中，这些任务被划分到一个节点控制器和一个节点生命周期控制器中。</p>
+<!--
+### Route controller
+
+The route controller is responsible for configuring routes in the cloud
+appropriately so that containers on different nodes in your Kubernetes
+cluster can communicate with each other.
+
+Depending on the cloud provider, the route controller might also allocate blocks
+of IP addresses for the Pod network.
+-->
+<h3 id="route-controller">路由控制器  </h3>
+<p>Route 控制器负责适当地配置云平台中的路由，以便 Kubernetes 集群中不同节点上的
+容器之间可以相互通信。</p>
+<p>取决于云驱动本身，路由控制器可能也会为 Pod 网络分配 IP 地址块。</p>
+<!--
+### Service controller
+
+<a class='glossary-tooltip' title='将运行在一组 Pods 上的应用程序公开为网络服务的抽象方法。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/services-networking/service/' target='_blank' aria-label='Services'>Services</a> integrate with cloud
+infrastructure components such as managed load balancers, IP addresses, network
+packet filtering, and target health checking. The service controller interacts with your
+cloud provider's APIs to set up load balancers and other infrastructure components
+when you declare a Service resource that requires them.
+-->
+<h3 id="service-controller">服务控制器  </h3>
+<p><a class='glossary-tooltip' title='将运行在一组 Pods 上的应用程序公开为网络服务的抽象方法。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/services-networking/service/' target='_blank' aria-label='服务（Service）'>服务（Service）</a>与受控的负载均衡器、
+IP 地址、网络包过滤、目标健康检查等云基础设施组件集成。
+服务控制器与云驱动的 API 交互，以配置负载均衡器和其他基础设施组件。
+你所创建的 Service 资源会需要这些组件服务。</p>
+<!--
+## Authorization
+
+This section breaks down the access that the cloud controller manager requires
+on various API objects, in order to perform its operations.
+-->
+<h2 id="authorization">鉴权  </h2>
+<p>本节分别讲述云控制器管理器为了完成自身工作而产生的对各类 API 对象的访问需求。</p>
+<!--
+### Node controller {#authorization-node-controller}
+
+The Node controller only works with Node objects. It requires full access
+to read and modify Node objects.
+-->
+<h3 id="authorization-node-controller">节点控制器 </h3>
+<p>节点控制器只操作 Node 对象。它需要读取和修改 Node 对象的完全访问权限。</p>
+<p><code>v1/Node</code>:</p>
+<ul>
+<li>Get</li>
+<li>List</li>
+<li>Create</li>
+<li>Update</li>
+<li>Patch</li>
+<li>Watch</li>
+<li>Delete</li>
+</ul>
+<!--
+### Route controller {#authorization-route-controller}
+
+The route controller listens to Node object creation and configures
+routes appropriately. It requires Get access to Node objects.
+-->
+<h3 id="authorization-route-controller">路由控制器</h3>
+<p>路由控制器会监听 Node 对象的创建事件，并据此配置路由设施。
+它需要读取 Node 对象的 Get 权限。</p>
+<p><code>v1/Node</code>:</p>
+<ul>
+<li>Get</li>
+</ul>
+<!--
+### Service controller {#authorization-service-controller}
+
+The service controller listens to Service object Create, Update and Delete events and then configures Endpoints for those Services appropriately.
+
+To access Services, it requires List, and Watch access. To update Services, it requires Patch and Update access.
+
+To set up Endpoints resources for the Services, it requires access to Create, List, Get, Watch, and Update.
+-->
+<h3 id="authorization-service-controller">服务控制器</h3>
+<p>服务控制器监测 Service 对象的 Create、Update 和 Delete 事件，并配置
+对应服务的 Endpoints 对象。
+为了访问 Service 对象，它需要 List、Watch 访问权限；为了更新 Service 对象
+它需要 Patch 和 Update 访问权限。
+为了能够配置 Service 对应的 Endpoints 资源，它需要 Create、List、Get、Watch
+和 Update 等访问权限。</p>
+<p><code>v1/Service</code>:</p>
+<ul>
+<li>List</li>
+<li>Get</li>
+<li>Watch</li>
+<li>Patch</li>
+<li>Update</li>
+</ul>
+<!--
+### Others {#authorization-miscellaneous}
+
+The implementation of the core of the cloud controller manager requires access to create Event objects, and to ensure secure operation, it requires access to create ServiceAccounts.
+
+`v1/Event`:
+
+- Create
+- Patch
+- Update
+
+`v1/ServiceAccount`:
+
+- Create
+
+The <a class='glossary-tooltip' title='管理授权决策，允许管理员通过 Kubernetes API 动态配置访问策略。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/access-authn-authz/rbac/' target='_blank' aria-label='RBAC'>RBAC</a> ClusterRole for the cloud
+controller manager looks like:
+-->
+<h3 id="authorization-miscellaneous">其他 </h3>
+<p>云控制器管理器的实现中，其核心部分需要创建 Event 对象的访问权限以及
+创建 ServiceAccount 资源以保证操作安全性的权限。</p>
+<p><code>v1/Event</code>:</p>
+<ul>
+<li>Create</li>
+<li>Patch</li>
+<li>Update</li>
+</ul>
+<p><code>v1/ServiceAccount</code>:</p>
+<ul>
+<li>Create</li>
+</ul>
+<p>用于云控制器管理器 <a class='glossary-tooltip' title='管理授权决策，允许管理员通过 Kubernetes API 动态配置访问策略。' data-toggle='tooltip' data-placement='top' href='/zh/docs/reference/access-authn-authz/rbac/' target='_blank' aria-label='RBAC'>RBAC</a>
+的 ClusterRole 如下例所示：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#008000;font-weight:bold">apiVersion</span>:<span style="color:#bbb"> </span>rbac.authorization.k8s.io/v1<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">kind</span>:<span style="color:#bbb"> </span>ClusterRole<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">metadata</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">name</span>:<span style="color:#bbb"> </span>cloud-controller-manager<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#008000;font-weight:bold">rules</span>:<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- events<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- nodes<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#39;*&#39;</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- nodes/status<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- services<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- patch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- serviceaccounts<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- persistentvolumes<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- get<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb"></span>- <span style="color:#008000;font-weight:bold">apiGroups</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#b44">&#34;&#34;</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">resources</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- endpoints<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#008000;font-weight:bold">verbs</span>:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- create<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- get<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- list<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- watch<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- update<span style="color:#bbb">
+</span></code></pre></div><h2 id="what-s-next">What's next</h2>
+<!--
+[Cloud Controller Manager Administration](/docs/tasks/administer-cluster/running-cloud-controller/#cloud-controller-manager)
+has instructions on running and managing the cloud controller manager.
+
+To upgrade a HA control plane to use the cloud controller manager, see [Migrate Replicated Control Plane To Use Cloud Controller Manager](/docs/tasks/administer-cluster/controller-manager-leader-migration/).
+
+Want to know how to implement your own cloud controller manager, or extend an existing project?
+-->
+<p><a href="/zh/docs/tasks/administer-cluster/running-cloud-controller/#cloud-controller-manager">云控制器管理器的管理</a>
+给出了运行和管理云控制器管理器的指南。</p>
+<p>要升级 HA 控制平面以使用云控制器管理器，请参见 <a href="/zh/docs/tasks/administer-cluster/controller-manager-leader-migration/">将复制的控制平面迁移以使用云控制器管理器</a></p>
+<p>想要了解如何实现自己的云控制器管理器，或者对现有项目进行扩展么？</p>
+<!--
+The cloud controller manager uses Go interfaces to allow implementations from any cloud to be plugged in. Specifically, it uses the `CloudProvider` interface defined in [`cloud.go`](https://github.com/kubernetes/cloud-provider/blob/release-1.21/cloud.go#L42-L69) from [kubernetes/cloud-provider](https://github.com/kubernetes/cloud-provider).
+-->
+<p>云控制器管理器使用 Go 语言的接口，从而使得针对各种云平台的具体实现都可以接入。
+其中使用了在 <a href="https://github.com/kubernetes/cloud-provider">kubernetes/cloud-provider</a>
+项目中 <a href="https://github.com/kubernetes/cloud-provider/blob/release-1.21/cloud.go#L42-L69"><code>cloud.go</code></a>
+文件所定义的 <code>CloudProvider</code> 接口。</p>
+<!--
+The implementation of the shared controllers highlighted in this document (Node, Route, and Service), and some scaffolding along with the shared cloudprovider interface, is part of the Kubernetes core. Implementations specific to cloud providers are outside the core of Kubernetes and implement the `CloudProvider` interface.
+
+For more information about developing plugins, see [Developing Cloud Controller Manager](/docs/tasks/administer-cluster/developing-cloud-controller-manager/).
+-->
+<p>本文中列举的共享控制器（节点控制器、路由控制器和服务控制器等）的实现以及
+其他一些生成具有 CloudProvider 接口的框架的代码，都是 Kubernetes 的核心代码。
+特定于云驱动的实现虽不是 Kubernetes 核心成分，仍要实现 <code>CloudProvider</code> 接口。</p>
+<p>关于如何开发插件的详细信息，可参考
+<a href="/zh/docs/tasks/administer-cluster/developing-cloud-controller-manager/">开发云控制器管理器</a>
+文档。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-44a2e2e592af0846101e970aff9243e5">5 - 垃圾收集</h1>
+    
+	<!--
+title: Garbage Collection
+content_type: concept
+weight: 50
+-->
+<!-- overview -->
+<!--
+垃圾收集是 Kubernetes 用于清理集群资源的各种机制的统称。 This
+allows the clean up of resources like the following:
+-->
+<p>垃圾收集是 Kubernetes 用于清理集群资源的各种机制的统称。
+垃圾收集允许系统清理如下资源：</p>
+<!--
+* [Failed pods](/docs/concepts/workloads/pods/pod-lifecycle/#pod-garbage-collection)
+* [Completed Jobs](/docs/concepts/workloads/controllers/ttlafterfinished/)
+* [Objects without owner references](#owners-dependents)
+* [Unused containers and container images](#containers-images)
+* [Dynamically provisioned PersistentVolumes with a StorageClass reclaim policy of Delete](/docs/concepts/storage/persistent-volumes/#delete)
+* [Stale or expired CertificateSigningRequests (CSRs)](/docs/reference/access-authn-authz/certificate-signing-requests/#request-signing-process)
+* <a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='Nodes'>Nodes</a> deleted in the following scenarios:
+  * On a cloud when the cluster uses a [cloud controller manager](/docs/concepts/architecture/cloud-controller/)
+  * On-premises when the cluster uses an addon similar to a cloud controller
+    manager
+* [Node Lease objects](/docs/concepts/architecture/nodes/#heartbeats)
+-->
+<ul>
+<li><a href="/zh/docs/concepts/workloads/pods/pod-lifecycle/#pod-garbage-collection">失败的 Pod</a></li>
+<li><a href="/zh/docs/concepts/workloads/controllers/ttlafterfinished/">已完成的 Job</a></li>
+<li><a href="#owners-dependents">不再存在属主引用的对象</a></li>
+<li><a href="#containers-images">未使用的容器和容器镜像</a></li>
+<li><a href="/zh/docs/concepts/storage/persistent-volumes/#delete">动态制备的、StorageClass 回收策略为 Delete 的 PV 卷</a></li>
+<li><a href="/zh/docs/reference/access-authn-authz/certificate-signing-requests/#request-signing-process">阻滞或者过期的 CertificateSigningRequest (CSRs)</a></li>
+<li>在以下情形中删除了的<a class='glossary-tooltip' title='Kubernetes 中的工作机器称作节点。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/architecture/nodes/' target='_blank' aria-label='节点'>节点</a>对象：
+<ul>
+<li>当集群使用<a href="/zh/docs/concepts/architecture/cloud-controller/">云控制器管理器</a>运行于云端时；</li>
+<li>当集群使用类似于云控制器管理器的插件运行在本地环境中时。</li>
+</ul>
+</li>
+<li><a href="/zh/docs/concepts/architecture/nodes/#heartbeats">节点租约对象</a></li>
+</ul>
+<!--
+## Owners and dependents {#owners-dependents}
+
+Many objects in Kubernetes link to each other through [*owner references*](/docs/concepts/overview/working-with-objects/owners-dependents/). 
+Owner references tell the control plane which objects are dependent on others.
+Kubernetes uses owner references to give the control plane, and other API
+clients, the opportunity to clean up related resources before deleting an
+object. In most cases, Kubernetes manages owner references automatically.
+-->
+<h2 id="owners-dependents">属主与依赖  </h2>
+<p>Kubernetes 中很多对象通过<a href="/zh/docs/concepts/overview/working-with-objects/owners-dependents/"><em>属主引用</em></a>
+链接到彼此。属主引用（Owner Reference）可以告诉控制面哪些对象依赖于其他对象。
+Kubernetes 使用属主引用来为控制面以及其他 API 客户端在删除某对象时提供一个
+清理关联资源的机会。在大多数场合，Kubernetes 都是自动管理属主引用的。</p>
+<!--
+Ownership is different from the [labels and selectors](/docs/concepts/overview/working-with-objects/labels/)
+mechanism that some resources also use. For example, consider a
+<a class='glossary-tooltip' title='将运行在一组 Pods 上的应用程序公开为网络服务的抽象方法。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/services-networking/service/' target='_blank' aria-label='Service'>Service</a> that creates
+`EndpointSlice` objects. The Service uses *labels* to allow the control plane to
+determine which `EndpointSlice` objects are used for that Service. In addition
+to the labels, each `EndpointSlice` that is managed on behalf of a Service has
+an owner reference. Owner references help different parts of Kubernetes avoid
+interfering with objects they don’t control.
+-->
+<p>属主关系与某些资源所使用的的<a href="/zh/docs/concepts/overview/working-with-objects/labels/">标签和选择算符</a>
+不同。例如，考虑一个创建 <code>EndpointSlice</code> 对象的 <a class='glossary-tooltip' title='将运行在一组 Pods 上的应用程序公开为网络服务的抽象方法。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/services-networking/service/' target='_blank' aria-label='Service'>Service</a>
+对象。Service 对象使用<em>标签</em>来允许控制面确定哪些 <code>EndpointSlice</code> 对象被该
+Service 使用。除了标签，每个被 Service 托管的 <code>EndpointSlice</code> 对象还有一个属主引用属性。
+属主引用可以帮助 Kubernetes 中的不同组件避免干预并非由它们控制的对象。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+Cross-namespace owner references are disallowed by design.
+Namespaced dependents can specify cluster-scoped or namespaced owners.
+A namespaced owner **must** exist in the same namespace as the dependent.
+If it does not, the owner reference is treated as absent, and the dependent
+is subject to deletion once all owners are verified absent.
+-->
+<p>根据设计，系统不允许出现跨名字空间的属主引用。名字空间作用域的依赖对象可以指定集群作用域或者名字空间作用域的属主。
+名字空间作用域的属主<strong>必须</strong>存在于依赖对象所在的同一名字空间。
+如果属主位于不同名字空间，则属主引用被视为不存在，而当检查发现所有属主都已不存在时，
+依赖对象会被删除。</p>
+<!--
+Cluster-scoped dependents can only specify cluster-scoped owners.
+In v1.20+, if a cluster-scoped dependent specifies a namespaced kind as an owner,
+it is treated as having an unresolvable owner reference, and is not able to be garbage collected.
+-->
+<p>集群作用域的依赖对象只能指定集群作用域的属主。
+在 1.20 及更高版本中，如果一个集群作用域的依赖对象指定了某个名字空间作用域的类别作为其属主，
+则该对象被视为拥有一个无法解析的属主引用，因而无法被垃圾收集处理。</p>
+<!--
+In v1.20+, if the garbage collector detects an invalid cross-namespace `ownerReference`,
+or a cluster-scoped dependent with an `ownerReference` referencing a namespaced kind, a warning Event 
+with a reason of `OwnerRefInvalidNamespace` and an `involvedObject` of the invalid dependent is reported.
+You can check for that kind of Event by running
+`kubectl get events -A --field-selector=reason=OwnerRefInvalidNamespace`.
+-->
+<p>在 1.20 及更高版本中，如果垃圾收集器检测到非法的跨名字空间 <code>ownerReference</code>，
+或者某集群作用域的依赖对象的 <code>ownerReference</code> 引用某名字空间作用域的类别，
+系统会生成一个警告事件，其原因为 <code>OwnerRefInvalidNamespace</code>，<code>involvedObject</code>
+设置为非法的依赖对象。你可以通过运行
+<code>kubectl get events -A --field-selector=reason=OwnerRefInvalidNamespace</code>
+来检查是否存在这类事件。</p>
+
+</div>
+<!--
+## Cascading deletion {#cascading-deletion}
+
+Kubernetes checks for and deletes objects that no longer have owner
+references, like the pods left behind when you delete a ReplicaSet. When you
+delete an object, you can control whether Kubernetes deletes the object's
+dependents automatically, in a process called *cascading deletion*. There are
+two types of cascading deletion, as follows: 
+
+* Foreground cascading deletion
+* Background cascading deletion
+-->
+<h2 id="cascading-deletion">级联删除   </h2>
+<p>Kubernetes 会检查并删除那些不再拥有属主引用的对象，例如在你删除了 ReplicaSet
+之后留下来的 Pod。当你删除某个对象时，你可以控制 Kubernetes 是否要通过一个称作
+级联删除（Cascading Deletion）的过程自动删除该对象的依赖对象。
+级联删除有两种类型，分别如下：</p>
+<ul>
+<li>前台级联删除</li>
+<li>后台级联删除</li>
+</ul>
+<!--
+You can also control how and when garbage collection deletes resources that have
+owner references using Kubernetes <a class='glossary-tooltip' title='一个带有命名空间的键，告诉 Kubernetes 等到特定的条件被满足后， 再完全删除被标记为删除的资源。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/finalizers/' target='_blank' aria-label='finalizers'>finalizers</a>. 
+-->
+<p>你也可以使用 Kubernetes <a class='glossary-tooltip' title='一个带有命名空间的键，告诉 Kubernetes 等到特定的条件被满足后， 再完全删除被标记为删除的资源。' data-toggle='tooltip' data-placement='top' href='/zh/docs/concepts/overview/working-with-objects/finalizers/' target='_blank' aria-label='Finalizers'>Finalizers</a>
+来控制垃圾收集机制如何以及何时删除包含属主引用的资源。</p>
+<!--
+### Foreground cascading deletion {#foreground-deletion}
+
+In foreground cascading deletion, the owner object you're deleting first enters
+a *deletion in progress* state. In this state, the following happens to the
+owner object: 
+-->
+<h3 id="foreground-deletion">前台级联删除</h3>
+<p>在前台级联删除中，正在被你删除的对象首先进入 <em>deletion in progress</em> 状态。
+在这种状态下，针对属主对象会发生以下事情：</p>
+<!--
+* The Kubernetes API server sets the object's `metadata.deletionTimestamp`
+  field to the time the object was marked for deletion.
+* The Kubernetes API server also sets the `metadata.finalizers` field to
+  `foregroundDeletion`. 
+* The object remains visible through the Kubernetes API until the deletion
+  process is complete.
+-->
+<ul>
+<li>Kubernetes API 服务器将对象的 <code>metadata.deletionTimestamp</code>
+字段设置为对象被标记为要删除的时间点。</li>
+<li>Kubernetes API 服务器也会将 <code>metadata.finalizers</code> 字段设置为 <code>foregroundDeletion</code>。</li>
+<li>在删除过程完成之前，通过 Kubernetes API 仍然可以看到该对象。</li>
+</ul>
+<!--
+After the owner object enters the deletion in progress state, the controller
+deletes the dependents. After deleting all the dependent objects, the controller
+deletes the owner object. At this point, the object is no longer visible in the
+Kubernetes API. 
+
+During foreground cascading deletion, the only dependents that block owner
+deletion are those that have the `ownerReference.blockOwnerDeletion=true` field.
+See [Use foreground cascading deletion](/docs/tasks/administer-cluster/use-cascading-deletion/#use-foreground-cascading-deletion)
+to learn more.
+-->
+<p>当属主对象进入删除过程中状态后，控制器删除其依赖对象。控制器在删除完所有依赖对象之后，
+删除属主对象。这时，通过 Kubernetes API 就无法再看到该对象。</p>
+<p>在前台级联删除过程中，唯一的可能阻止属主对象被删除的依赖对象是那些带有
+<code>ownerReference.blockOwnerDeletion=true</code> 字段的对象。
+参阅<a href="/zh/docs/tasks/administer-cluster/use-cascading-deletion/#use-foreground-cascading-deletion">使用前台级联删除</a>
+以了解进一步的细节。</p>
+<!--
+### Background cascading deletion {#background-deletion}
+
+In background cascading deletion, the Kubernetes API server deletes the owner
+object immediately and the controller cleans up the dependent objects in
+the background. By default, Kubernetes uses background cascading deletion unless
+you manually use foreground deletion or choose to orphan the dependent objects.
+
+See [Use background cascading deletion](/docs/tasks/administer-cluster/use-cascading-deletion/#use-background-cascading-deletion)
+to learn more.
+-->
+<h3 id="background-deletion">后台级联删除</h3>
+<p>在后台级联删除过程中，Kubernetes 服务器立即删除属主对象，控制器在后台清理所有依赖对象。
+默认情况下，Kubernetes 使用后台级联删除方案，除非你手动设置了要使用前台删除，
+或者选择遗弃依赖对象。</p>
+<p>参阅<a href="/zh/docs/tasks/administer-cluster/use-cascading-deletion/#use-background-cascading-deletion">使用后台级联删除</a>
+以了解进一步的细节。</p>
+<!--
+### Orphaned dependents
+
+When Kubernetes deletes an owner object, the dependents left behind are called
+*orphan* objects. By default, Kubernetes deletes dependent objects. To learn how
+to override this behaviour, see [Delete owner objects and orphan dependents](/docs/tasks/administer-cluster/use-cascading-deletion/#set-orphan-deletion-policy).
+-->
+<h3 id="orphaned-dependents">被遗弃的依赖对象   </h3>
+<p>当 Kubernetes 删除某个属主对象时，被留下来的依赖对象被称作被遗弃的（Orphaned）对象。
+默认情况下，Kubernetes 会删除依赖对象。要了解如何重载这种默认行为，可参阅
+<a href="/zh/docs/tasks/administer-cluster/use-cascading-deletion/#set-orphan-deletion-policy">删除属主对象和遗弃依赖对象</a>。</p>
+<!--
+## Garbage collection of unused containers and images {#containers-images}
+
+The <a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> performs garbage
+collection on unused images every five minutes and on unused containers every
+minute. You should avoid using external garbage collection tools, as these can
+break the kubelet behavior and remove containers that should exist. 
+-->
+<h2 id="containers-images">未使用容器和镜像的垃圾收集    </h2>
+<p><a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> 会每五分钟对未使用的镜像执行一次垃圾收集，
+每分钟对未使用的容器执行一次垃圾收集。
+你应该避免使用外部的垃圾收集工具，因为外部工具可能会破坏 kubelet
+的行为，移除应该保留的容器。</p>
+<!--
+To configure options for unused container and image garbage collection, tune the
+kubelet using a [configuration file](/docs/tasks/administer-cluster/kubelet-config-file/)
+and change the parameters related to garbage collection using the
+[`KubeletConfiguration`](/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration)
+resource type.
+-->
+<p>要配置对未使用容器和镜像的垃圾收集选项，可以使用一个
+<a href="/zh/docs/tasks/administer-cluster/kubelet-config-file/">配置文件</a>，基于
+<a href="/zh/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration"><code>KubeletConfiguration</code></a>
+资源类型来调整与垃圾搜集相关的 kubelet 行为。</p>
+<!--
+### Container image lifecycle
+
+Kubernetes manages the lifecycle of all images through its *image manager*,
+which is part of the kubelet, with the cooperation of 
+<a class='glossary-tooltip' title='帮助理解容器的资源用量与性能特征的工具' data-toggle='tooltip' data-placement='top' href='https://github.com/google/cadvisor/' target='_blank' aria-label='cadvisor'>cadvisor</a>. The kubelet
+considers the following disk usage limits when making garbage collection
+decisions:
+-->
+<h3 id="container-image-lifecycle">容器镜像生命期    </h3>
+<p>Kubernetes 通过其镜像管理器（Image Manager）来管理所有镜像的生命周期，
+该管理器是 kubelet 的一部分，工作时与
+<a class='glossary-tooltip' title='帮助理解容器的资源用量与性能特征的工具' data-toggle='tooltip' data-placement='top' href='https://github.com/google/cadvisor/' target='_blank' aria-label='cadvisor'>cadvisor</a> 协同。
+kubelet 在作出垃圾收集决定时会考虑如下磁盘用量约束：</p>
+<ul>
+<li><code>HighThresholdPercent</code></li>
+<li><code>LowThresholdPercent</code></li>
+</ul>
+<!--
+Disk usage above the configured `HighThresholdPercent` value triggers garbage
+collection, which deletes images in order based on the last time they were used,
+starting with the oldest first. The kubelet deletes images
+until disk usage reaches the `LowThresholdPercent` value.
+-->
+<p>磁盘用量超出所配置的 <code>HighThresholdPercent</code> 值时会触发垃圾收集，
+垃圾收集器会基于镜像上次被使用的时间来按顺序删除它们，首先删除的是最老的镜像。
+kubelet 会持续删除镜像，直到磁盘用量到达 <code>LowThresholdPercent</code> 值为止。</p>
+<!--
+### Container garbage collection {#container-image-garbage-collection}
+
+The kubelet garbage collects unused containers based on the following variables,
+which you can define: 
+-->
+<h3 id="container-image-garbage-collection">容器垃圾收集   </h3>
+<p>kubelet 会基于如下变量对所有未使用的容器执行垃圾收集操作，这些变量都是你可以定义的：</p>
+<!--
+* `MinAge`: the minimum age at which the kubelet can garbage collect a
+  container. Disable by setting to `0`.
+* `MaxPerPodContainer`: the maximum number of dead containers each Pod pair
+  can have. Disable by setting to less than `0`.
+* `MaxContainers`: the maximum number of dead containers the cluster can have.
+  Disable by setting to less than `0`. 
+-->
+<ul>
+<li><code>MinAge</code>：kubelet 可以垃圾回收某个容器时该容器的最小年龄。设置为 <code>0</code>
+表示禁止使用此规则。</li>
+<li><code>MaxPerPodContainer</code>：每个 Pod 可以包含的已死亡的容器个数上限。设置为小于 <code>0</code>
+的值表示禁止使用此规则。</li>
+<li><code>MaxContainers</code>：集群中可以存在的已死亡的容器个数上限。设置为小于 <code>0</code>
+的值意味着禁止应用此规则。</li>
+</ul>
+<!--
+In addition to these variables, the kubelet garbage collects unidentified and
+deleted containers, typically starting with the oldest first. 
+
+`MaxPerPodContainer` and `MaxContainer` may potentially conflict with each other
+in situations where retaining the maximum number of containers per Pod
+(`MaxPerPodContainer`) would go outside the allowable total of global dead
+containers (`MaxContainers`). In this situation, the kubelet adjusts
+`MaxPerPodContainer` to address the conflict. A worst-case scenario would be to
+downgrade `MaxPerPodContainer` to `1` and evict the oldest containers.
+Additionally, containers owned by pods that have been deleted are removed once
+they are older than `MinAge`.
+-->
+<p>除以上变量之外，kubelet 还会垃圾收集除无标识的以及已删除的容器，通常从最老的容器开始。</p>
+<p>当保持每个 Pod 的最大数量的容器（<code>MaxPerPodContainer</code>）会使得全局的已死亡容器个数超出上限
+（<code>MaxContainers</code>）时，<code>MaxPerPodContainer</code> 和 <code>MaxContainers</code> 之间可能会出现冲突。
+在这种情况下，kubelet 会调整 <code>MaxPerPodContainer</code> 来解决这一冲突。
+最坏的情形是将 <code>MaxPerPodContainer</code> 降格为 <code>1</code>，并驱逐最老的容器。
+此外，当隶属于某已被删除的 Pod 的容器的年龄超过 <code>MinAge</code> 时，它们也会被删除。</p>
+<div class="alert alert-info note callout" role="alert">
+  <strong>Note:</strong> <!--
+The kubelet only garbage collects the containers it manages.
+-->
+<p>kubelet 仅会回收由它所管理的容器。
+</div>
+<!--
+## Configuring garbage collection {#configuring-gc}
+
+You can tune garbage collection of resources by configuring options specific to
+the controllers managing those resources. The following pages show you how to
+configure garbage collection:
+
+  * [Configuring cascading deletion of Kubernetes objects](/docs/tasks/administer-cluster/use-cascading-deletion/)
+  * [Configuring cleanup of finished Jobs](/docs/concepts/workloads/controllers/ttlafterfinished/)
+--> 
+<h2 id="configuring-gc">配置垃圾收集    </h2>
+<p>你可以通过配置特定于管理资源的控制器来调整资源的垃圾收集行为。
+下面的页面为你展示如何配置垃圾收集：</p>
+<ul>
+<li><a href="/zh/docs/tasks/administer-cluster/use-cascading-deletion/">配置 Kubernetes 对象的级联删除</a></li>
+<li><a href="/zh/docs/concepts/workloads/controllers/ttlafterfinished/">配置已完成 Job 的清理</a></li>
+</ul>
+<!-- * [Configuring unused container and image garbage collection](/docs/tasks/administer-cluster/reconfigure-kubelet/) -->
+<h2 id="what-s-next">What's next</h2>
+<!--
+* Learn more about [ownership of Kubernetes objects](/docs/concepts/overview/working-with-objects/owners-dependents/).
+* Learn more about Kubernetes [finalizers](/docs/concepts/overview/working-with-objects/finalizers/).
+* Learn about the [TTL controller](/docs/concepts/workloads/controllers/ttlafterfinished/) (beta) that cleans up finished Jobs.
+-->
+<ul>
+<li>进一步了解 <a href="/zh/docs/concepts/overview/working-with-objects/owners-dependents/">Kubernetes 对象的属主关系</a>。</li>
+<li>进一步了解 Kubernetes <a href="/zh/docs/concepts/overview/working-with-objects/finalizers/">finalizers</a>。</li>
+<li>进一步了解 <a href="/zh/docs/concepts/workloads/controllers/ttlafterfinished/">TTL 控制器</a> (beta)，
+该控制器负责清理已完成的 Job。</li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-c0ea5310f52e22c5de34dc84d9ab5e0d">6 - 容器运行时接口（CRI）</h1>
+    
+	<!-- 
+title: Container Runtime Interface (CRI)
+content_type: concept
+weight: 50
+-->
+<!-- overview -->
+<!-- 
+The CRI is a plugin interface which enables the kubelet to use a wide variety of
+container runtimes, without having a need to recompile the cluster components.
+
+You need a working
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='container runtime'>container runtime</a> on
+each Node in your cluster, so that the
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> can launch
+<a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pods'>Pods</a> and their containers.
+-->
+<p>CRI 是一个插件接口，它使 kubelet 能够使用各种容器运行时，无需重新编译集群组件。</p>
+<p>你需要在集群中的每个节点上都有一个可以正常工作的
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='容器运行时'>容器运行时</a>，
+这样
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> 能启动
+<a class='glossary-tooltip' title='Pod 表示您的集群上一组正在运行的容器。' data-toggle='tooltip' data-placement='top' href='/docs/concepts/workloads/pods/pod-overview/' target='_blank' aria-label='Pod'>Pod</a> 及其容器。</p>
+<!--
+title: Container Runtime Interface
+id: container-runtime-interface
+date: 2021-11-24
+full_link: /docs/concepts/architecture/cri
+short_description: >
+  The main protocol for the communication between the kubelet and Container Runtime.
+
+aka:
+tags:
+  - cri
+-->
+<!-- The main protocol for the communication between the kubelet and Container Runtime. -->
+<p><p>容器运行时接口（CRI）是 kubelet 和容器运行时之间通信的主要协议。</p></p>
+<!-- 
+The Kubernetes Container Runtime Interface (CRI) defines the main
+[gRPC](https://grpc.io) protocol for the communication between the
+[cluster components](/docs/concepts/overview/components/#node-components)
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> and
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='container runtime'>container runtime</a>.
+-->
+<p>Kubernetes 容器运行时接口（CRI）定义了主要 <a href="https://grpc.io">gRPC</a> 协议，
+用于<a href="/zh/docs/concepts/overview/components/#node-components">集群组件</a>
+<a class='glossary-tooltip' title='一个在集群中每个节点上运行的代理。它保证容器都运行在 Pod 中。' data-toggle='tooltip' data-placement='top' href='/docs/reference/generated/kubelet' target='_blank' aria-label='kubelet'>kubelet</a> 和
+<a class='glossary-tooltip' title='容器运行时是负责运行容器的软件。' data-toggle='tooltip' data-placement='top' href='/zh/docs/setup/production-environment/container-runtimes' target='_blank' aria-label='容器运行时'>容器运行时</a>。</p>
+<!-- body -->
+<!-- ## The API {#api} -->
+<h2 id="api">API</h2>
+
+
+
+
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <b>FEATURE STATE:</b> <code>Kubernetes v1.23 [stable]</code>
+</div>
+
+
+<!--
+The kubelet acts as a client when connecting to the container runtime via gRPC.
+The runtime and image service endpoints have to be available in the container
+runtime, which can be configured separately within the kubelet by using the
+`--image-service-endpoint` and `--container-runtime-endpoint` [command line
+flags](/docs/reference/command-line-tools-reference/kubelet)
+-->
+<p>当通过 gRPC 连接到容器运行时时，kubelet 充当客户端。
+运行时和镜像服务端点必须在容器运行时中可用，可以使用
+<a href="/zh/docs/reference/command-line-tools-reference/kubelet">命令行标志</a>的
+<code>--image-service-endpoint</code> 和 <code>--container-runtime-endpoint</code>
+在 kubelet 中单独配置。</p>
+<!-- 
+For Kubernetes v1.23, the kubelet prefers to use CRI `v1`.
+If a container runtime does not support `v1` of the CRI, then the kubelet tries to
+negotiate any older supported version.
+The v1.23 kubelet can also negotiate CRI `v1alpha2`, but
+this version is considered as deprecated.
+If the kubelet cannot negotiate a supported CRI version, the kubelet gives up
+and doesn't register as a node.
+-->
+<p>对 Kubernetes v1.23，kubelet 偏向于使用 CRI <code>v1</code> 版本。
+如果容器运行时不支持 CRI 的 <code>v1</code> 版本，那么 kubelet 会尝试协商任何旧的其他支持版本。
+如果 kubelet 无法协商支持的 CRI 版本，则 kubelet 放弃并且不会注册为节点。</p>
+<!-- 
+## Upgrading
+
+When upgrading Kubernetes, then the kubelet tries to automatically select the
+latest CRI version on restart of the component. If that fails, then the fallback
+will take place as mentioned above. If a gRPC re-dial was required because the
+container runtime has been upgraded, then the container runtime must also
+support the initially selected version or the redial is expected to fail. This
+requires a restart of the kubelet.
+-->
+<h2 id="upgrading">升级 </h2>
+<p>升级 Kubernetes 时，kubelet 会尝试在组件重启时自动选择最新的 CRI 版本。
+如果失败，则将如上所述进行回退。如果由于容器运行时已升级而需要 gRPC 重拨，
+则容器运行时还必须支持最初选择的版本，否则重拨预计会失败。
+这需要重新启动 kubelet。</p>
+<h2 id="what-s-next">What's next</h2>
+<!-- 
+- Learn more about the CRI [protocol definition](https://github.com/kubernetes/cri-api/blob/c75ef5b/pkg/apis/runtime/v1/api.proto)
+-->
+<ul>
+<li>了解更多有关 CRI <a href="https://github.com/kubernetes/cri-api/blob/c75ef5b/pkg/apis/runtime/v1/api.proto">协议定义</a></li>
+</ul>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>

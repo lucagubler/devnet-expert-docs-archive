@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-36037335-10"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-36037335-10');
+</script>
+
+
+<link rel="alternate" hreflang="en" href="http://localhost:1313/docs/tasks/administer-cluster/network-policy-provider/">
+<link rel="alternate" hreflang="ko" href="http://localhost:1313/ko/docs/tasks/administer-cluster/network-policy-provider/">
+<link rel="alternate" hreflang="fr" href="http://localhost:1313/fr/docs/tasks/administer-cluster/network-policy-provider/">
+<link rel="alternate" hreflang="es" href="http://localhost:1313/es/docs/tasks/administer-cluster/network-policy-provider/">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.87.0" />
+<link rel="canonical" type="text/html" href="http://localhost:1313/zh/docs/tasks/administer-cluster/network-policy-provider/">
+<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/images/kubernetes-192x192.png">
+<title>安装网络策略驱动 | Kubernetes</title><meta property="og:title" content="安装网络策略驱动" />
+<meta property="og:description" content="生产级别的容器编排系统" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/administer-cluster/network-policy-provider/" /><meta property="og:site_name" content="Kubernetes" />
+
+<meta itemprop="name" content="安装网络策略驱动">
+<meta itemprop="description" content="生产级别的容器编排系统"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="安装网络策略驱动"/>
+<meta name="twitter:description" content="生产级别的容器编排系统"/>
+
+
+
+
+
+
+<link href="/scss/main.css" rel="stylesheet">
+
+
+<script
+  src="/js/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "url": "https://kubernetes.io",
+    "logo": "https://kubernetes.io/images/favicon.png",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:1313/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+
+  }
+</script>
+<meta name="theme-color" content="#326ce5">
+
+
+
+
+<link rel="stylesheet" href="/css/feature-states.css">
+
+
+
+<meta name="description" content="">
+<meta property="og:description" content="">
+<meta name="twitter:description" content="">
+<meta property="og:url" content="http://localhost:1313/zh/docs/tasks/administer-cluster/network-policy-provider/">
+<meta property="og:title" content="安装网络策略驱动">
+<meta name="twitter:title" content="安装网络策略驱动">
+<meta name="twitter:image" content="https://kubernetes.io/images/favicon.png" />
+
+<meta name="twitter:image:alt" content="Kubernetes">
+
+<meta property="og:image" content="/images/kubernetes-horizontal-color.png">
+
+<meta property="og:type" content="article">
+
+<script src="/js/script.js"></script>
+
+
+  </head>
+  <body class="td-section">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark  flex-column flex-md-row td-navbar" data-auto-burger="primary">
+        <a class="navbar-brand" href="/zh/"></a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link active" href="/zh/docs/" >文档</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/blog/" >Kubernetes 博客</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/training/" >培训</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/partners/" >合作伙伴</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/community/" >社区</a>
+			</li>
+			
+			
+			
+			<li class="nav-item mr-2 mb-lg-0">
+				
+				<a class="nav-link" href="/zh/case-studies/" >案例分析</a>
+			</li>
+			
+			
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	Versions
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/releases">Release Information</a>
+	
+	<a class="dropdown-item" href="https://kubernetes.io/zh/docs/tasks/administer-cluster/network-policy-provider/">v1.23</a>
+	
+	<a class="dropdown-item" href="https://v1-22.docs.kubernetes.io/zh/docs/tasks/administer-cluster/network-policy-provider/">v1.22</a>
+	
+	<a class="dropdown-item" href="https://v1-21.docs.kubernetes.io/zh/docs/tasks/administer-cluster/network-policy-provider/">v1.21</a>
+	
+	<a class="dropdown-item" href="https://v1-20.docs.kubernetes.io/zh/docs/tasks/administer-cluster/network-policy-provider/">v1.20</a>
+	
+	<a class="dropdown-item" href="https://v1-19.docs.kubernetes.io/zh/docs/tasks/administer-cluster/network-policy-provider/">v1.19</a>
+	
+</div>
+			</li>
+			
+			
+			<li class="nav-item dropdown">
+				
+
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	中文 Chinese
+</a>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+	
+	<a class="dropdown-item" href="/docs/tasks/administer-cluster/network-policy-provider/">English</a>
+	
+	<a class="dropdown-item" href="/ko/docs/tasks/administer-cluster/network-policy-provider/">한국어 Korean</a>
+	
+	<a class="dropdown-item" href="/fr/docs/tasks/administer-cluster/network-policy-provider/">Français</a>
+	
+	<a class="dropdown-item" href="/es/docs/tasks/administer-cluster/network-policy-provider/">Español</a>
+	
+</div>
+
+			</li>
+			
+		</ul>
+	</div>
+	<button id="hamburger" onclick="kub.toggleMenu()" data-auto-burger-exclude><div></div></button>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+这是本节的多页打印视图。
+<a href="#" onclick="print();return false;">点击此处打印</a>.
+</p><p>
+<a href="/zh/docs/tasks/administer-cluster/network-policy-provider/">返回本页常规视图</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">安装网络策略驱动</h1>
+
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-b4418905b0c14630e4e9cb1368241534">使用 Antrea 提供 NetworkPolicy</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-1239a77618c6278373832a142cd85519">使用 Calico 提供 NetworkPolicy</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-95039241255a31df196beaa405b68eba">使用 Cilium 提供 NetworkPolicy</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-505a0a6a7e6eff361bbb3be81c84b2e0">使用 kube-router 提供 NetworkPolicy</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-2842eac98aa0e229a5c6755c4c83d2a7">使用 Romana 提供 NetworkPolicy</a></li>
+
+
+    
+  
+    
+    
+	
+<li>6: <a href="#pg-ac075c3fdfd0d41aa753cc70e42be064">使用 Weave Net 提供 NetworkPolicy</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      <!--
+title: Install a Network Policy Provider
+weight: 30
+-->
+
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-b4418905b0c14630e4e9cb1368241534">1 - 使用 Antrea 提供 NetworkPolicy</h1>
+    
+	<!--
+---
+title: Use Antrea for NetworkPolicy
+content_type: task
+weight: 10
+---
+-->
+<!-- overview -->
+<!--
+This page shows how to install and use Antrea CNI plugin on Kubernetes.
+For background on Project Antrea, read the [Introduction to Antrea](https://antrea.io/docs/).
+-->
+<p>本页展示了如何在 kubernetes 中安装和使用 Antrea CNI 插件。
+要了解 Antrea 项目的背景，请阅读 <a href="https://antrea.io/docs/">Antrea 介绍</a>。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+You need to have a Kubernetes cluster. Follow the
+[kubeadm getting started guide](/docs/reference/setup-tools/kubeadm/) to bootstrap one.
+-->
+<p>你需要拥有一个 kuernetes 集群。
+遵循 <a href="/zh/docs/reference/setup-tools/kubeadm/">kubeadm 入门指南</a>自行创建一个。</p>
+<!-- steps -->
+<!--
+## Deploying Antrea with kubeadm
+
+Follow [Getting Started](https://github.com/vmware-tanzu/antrea/blob/main/docs/getting-started.md) guide to deploy Antrea for kubeadm.
+-->
+<h2 id="使用-kubeadm-部署-antrea">使用 kubeadm 部署 Antrea</h2>
+<p>遵循<a href="https://github.com/vmware-tanzu/antrea/blob/main/docs/getting-started.md">入门</a>指南
+为 kubeadm 部署 Antrea 。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once your cluster is running, you can follow the [Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/) to try out Kubernetes NetworkPolicy.
+-->
+<p>一旦你的集群已经运行，你可以遵循
+<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+来尝试 Kubernetes NetworkPolicy。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-1239a77618c6278373832a142cd85519">2 - 使用 Calico 提供 NetworkPolicy</h1>
+    
+	<!-- overview -->
+<!--
+This page shows a couple of quick ways to create a Calico cluster on Kubernetes.
+-->
+<p>本页展示了几种在 Kubernetes 上快速创建 Calico 集群的方法。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+Decide whether you want to deploy a [cloud](#creating-a-calico-cluster-with-google-kubernetes-engine-gke) or [local](#creating-a-local-calico-cluster-with-kubeadm) cluster.
+-->
+<p>确定你想部署一个<a href="#gke-cluster">云版本</a>还是<a href="#local-cluster">本地版本</a>的集群。</p>
+<!-- steps -->
+<!--
+## Creating a Calico cluster with Google Kubernetes Engine (GKE)
+
+**Prerequisite**: [gcloud](https://cloud.google.com/sdk/docs/quickstarts).
+-->
+<h2 id="gke-cluster">在 Google Kubernetes Engine (GKE) 上创建一个 Calico 集群</h2>
+<p><strong>先决条件</strong>: <a href="https://cloud.google.com/sdk/docs/quickstarts">gcloud</a></p>
+<!--
+1.  To launch a GKE cluster with Calico, include the `--enable-network-policy` flag.
+-->
+<ol>
+<li>
+<p>启动一个带有 Calico 的 GKE 集群，需要加上参数 <code>--enable-network-policy</code>。</p>
+<p><strong>语法</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">gcloud container clusters create <span style="color:#666">[</span>CLUSTER_NAME<span style="color:#666">]</span> --enable-network-policy
+</code></pre></div><p><strong>示例</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">gcloud container clusters create my-calico-cluster --enable-network-policy
+</code></pre></div></li>
+</ol>
+<!--
+1.  To verify the deployment, use the following command.
+-->
+<ol start="2">
+<li>
+<p>使用如下命令验证部署是否正确。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods --namespace<span style="color:#666">=</span>kube-system
+</code></pre></div><!--
+The Calico pods begin with `calico`. Check to make sure each one has a status of `Running`.
+-->
+<p>Calico 的 pods 名以 <code>calico</code> 打头，检查确认每个 pods 状态为 <code>Running</code>。</p>
+</li>
+</ol>
+<!-- 
+## Creating a local Calico cluster with kubeadm
+
+To get a local single-host Calico cluster in fifteen minutes using kubeadm, refer to the
+[Calico Quickstart](https://docs.projectcalico.org/latest/getting-started/kubernetes/).
+-->
+<h2 id="local-cluster">使用 kubeadm 创建一个本地 Calico 集群  </h2>
+<p>使用 kubeadm 在 15 分钟内得到一个本地单主机 Calico 集群，请参考
+<a href="https://docs.projectcalico.org/latest/getting-started/kubernetes/">Calico 快速入门</a>。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once your cluster is running, you can follow the [Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/) to try out Kubernetes NetworkPolicy.
+-->
+<p>集群运行后，您可以按照<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+去尝试使用 Kubernetes NetworkPolicy。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-95039241255a31df196beaa405b68eba">3 - 使用 Cilium 提供 NetworkPolicy</h1>
+    
+	<!--
+reviewers:
+- danwent
+- aanm
+title: Use Cilium for NetworkPolicy
+content_type: task
+weight: 20
+-->
+<!-- overview -->
+<!--
+This page shows how to use Cilium for NetworkPolicy.
+
+For background on Cilium, read the [Introduction to Cilium](https://docs.cilium.io/en/stable/intro).
+-->
+<p>本页展示如何使用 Cilium 提供 NetworkPolicy。</p>
+<p>关于 Cilium 的背景知识，请阅读 <a href="https://docs.cilium.io/en/stable/intro">Cilium 介绍</a>。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<p><p>你必须拥有一个 Kubernetes 的集群，同时你的 Kubernetes 集群必须带有 kubectl 命令行工具。
+建议在至少有两个节点的集群上运行本教程，且这些节点不作为控制平面主机。
+如果你还没有集群，你可以通过 <a href="https://minikube.sigs.k8s.io/docs/tutorials/multi_node/">Minikube</a>
+构建一个你自己的集群，或者你可以使用下面任意一个 Kubernetes 工具构建：</p>
+<!--
+You need to have a Kubernetes cluster, and the kubectl command-line tool must
+be configured to communicate with your cluster. It is recommended to run this tutorial on a cluster with at least two nodes that are not acting as control plane hosts. If you do not already have a
+cluster, you can create one by using
+[minikube](https://minikube.sigs.k8s.io/docs/tutorials/multi_node/)
+or you can use one of these Kubernetes playgrounds:
+-->
+<ul>
+<li><a href="https://www.katacoda.com/courses/kubernetes/playground">Katacoda</a></li>
+<li><a href="http://labs.play-with-k8s.com/">玩转 Kubernetes</a></li>
+</ul>
+ 
+ To check the version, enter <code>kubectl version</code>.
+</p>
+<!-- steps -->
+<!--
+## Deploying Cilium on Minikube for Basic Testing
+
+To get familiar with Cilium easily you can follow the
+[Cilium Kubernetes Getting Started Guide](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/)
+to perform a basic DaemonSet installation of Cilium in minikube.
+
+To start minikube, minimal version required is >= v1.5.2, run the with the
+following arguments:
+-->
+<h2 id="在-minikube-上部署-cilium-用于基本测试">在 Minikube 上部署 Cilium 用于基本测试</h2>
+<p>为了轻松熟悉 Cilium 你可以根据
+<a href="https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/s">Cilium Kubernetes 入门指南</a>
+在 minikube 中执行一个 cilium 的基本 DaemonSet 安装。</p>
+<p>要启动 minikube，需要的最低版本为 1.5.2，使用下面的参数运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube version
+</code></pre></div><pre><code>minikube version: v1.5.2
+</code></pre><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">minikube start --network-plugin<span style="color:#666">=</span>cni --memory<span style="color:#666">=</span><span style="color:#666">4096</span>
+</code></pre></div><!--
+For minikube you can install Cilium using its CLI tool. Cilium will
+automatically detect the cluster configuration and will install the appropriate
+components for a successful installation:
+-->
+<p>对于 minikube 你可以使用 Cilium 的 CLI 工具安装它。
+Cilium 将自动检测集群配置并为成功的集群部署选择合适的组件。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -LO https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
+sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+rm cilium-linux-amd64.tar.gz
+cilium install
+</code></pre></div><pre><code>🔮 Auto-detected Kubernetes kind: minikube
+✨ Running &quot;minikube&quot; validation checks
+✅ Detected minikube version &quot;1.20.0&quot;
+ℹ️  Cilium version not set, using default version &quot;v1.10.0&quot;
+🔮 Auto-detected cluster name: minikube
+🔮 Auto-detected IPAM mode: cluster-pool
+🔮 Auto-detected datapath mode: tunnel
+🔑 Generating CA...
+2021/05/27 02:54:44 [INFO] generate received request
+2021/05/27 02:54:44 [INFO] received CSR
+2021/05/27 02:54:44 [INFO] generating key: ecdsa-256
+2021/05/27 02:54:44 [INFO] encoded CSR
+2021/05/27 02:54:44 [INFO] signed certificate with serial number 48713764918856674401136471229482703021230538642
+🔑 Generating certificates for Hubble...
+2021/05/27 02:54:44 [INFO] generate received request
+2021/05/27 02:54:44 [INFO] received CSR
+2021/05/27 02:54:44 [INFO] generating key: ecdsa-256
+2021/05/27 02:54:44 [INFO] encoded CSR
+2021/05/27 02:54:44 [INFO] signed certificate with serial number 3514109734025784310086389188421560613333279574
+🚀 Creating Service accounts...
+🚀 Creating Cluster roles...
+🚀 Creating ConfigMap...
+🚀 Creating Agent DaemonSet...
+🚀 Creating Operator Deployment...
+⌛ Waiting for Cilium to be installed...
+</code></pre><!--
+The remainder of the Getting Started Guide explains how to enforce both L3/L4
+(i.e., IP address + port) security policies, as well as L7 (e.g., HTTP) security
+policies using an example application.
+-->
+<p>入门指南其余的部分用一个示例应用说明了如何强制执行 L3/L4（即 IP 地址+端口）的安全策略
+以及L7 （如 HTTP）的安全策略。</p>
+<!--
+## Deploying Cilium for Production Use
+
+For detailed instructions around deploying Cilium for production, see:
+[Cilium Kubernetes Installation Guide](https://docs.cilium.io/en/stable/concepts/kubernetes/intro/)
+This documentation includes detailed requirements, instructions and example
+production DaemonSet files.
+ -->
+<h2 id="部署-cilium-用于生产用途">部署 Cilium 用于生产用途</h2>
+<p>关于部署 Cilium 用于生产的详细说明，请见
+<a href="https://docs.cilium.io/en/stable/concepts/kubernetes/intro/">Cilium Kubernetes 安装指南</a>
+此文档包括详细的需求、说明和生产用途 DaemonSet 文件示例。</p>
+<!-- discussion -->
+<!--
+##  Understanding Cilium components
+
+Deploying a cluster with Cilium adds Pods to the `kube-system` namespace. To see
+this list of Pods run:
+ -->
+<h2 id="了解-cilium-组件">了解 Cilium 组件</h2>
+<p>部署使用 Cilium 的集群会添加 Pods 到 <code>kube-system</code> 命名空间。要查看 Pod 列表，运行：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get pods --namespace<span style="color:#666">=</span>kube-system -l k8s-app<span style="color:#666">=</span>cilium
+</code></pre></div><!-- You'll see a list of Pods similar to this: -->
+<p>你将看到像这样的 Pods 列表：</p>
+<pre><code class="language-console" data-lang="console">NAME           READY   STATUS    RESTARTS   AGE
+cilium-kkdhz   1/1     Running   0          3m23s
+...
+</code></pre><!--
+A `cilium` Pod runs on each node in your cluster and enforces network policy
+on the traffic to/from Pods on that node using Linux BPF.
+-->
+<p>你的集群中的每个节点上都会运行一个 <code>cilium</code> Pod，通过使用 Linux BPF
+针对该节点上的 Pod 的入站、出站流量实施网络策略控制。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once your cluster is running, you can follow the
+[Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/)
+to try out Kubernetes NetworkPolicy with Cilium.
+Have fun, and if you have questions, contact us using the
+[Cilium Slack Channel](https://cilium.herokuapp.com/).
+-->
+<p>集群运行后，你可以按照
+<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+试用基于 Cilium 的 Kubernetes NetworkPolicy。
+玩得开心，如果你有任何疑问，请到 <a href="https://cilium.herokuapp.com/">Cilium Slack 频道</a>
+联系我们。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-505a0a6a7e6eff361bbb3be81c84b2e0">4 - 使用 kube-router 提供 NetworkPolicy</h1>
+    
+	<!-- overview -->
+<!--
+This page shows how to use [Kube-router](https://github.com/cloudnativelabs/kube-router) for NetworkPolicy.
+-->
+<p>本页展示如何使用 <a href="https://github.com/cloudnativelabs/kube-router">Kube-router</a> 提供 NetworkPolicy。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+You need to have a Kubernetes cluster running. If you do not already have a cluster, you can create one by using any of the cluster installers like Kops, Bootkube, Kubeadm etc.
+-->
+<p>你需要拥有一个运行中的 Kubernetes 集群。如果你还没有集群，可以使用任意的集群
+安装程序如 Kops、Bootkube、Kubeadm 等创建一个。</p>
+<!-- steps -->
+<!--
+## Installing Kube-router addon
+
+The Kube-router Addon comes with a Network Policy Controller that watches Kubernetes API server for any NetworkPolicy and pods updated and configures iptables rules and ipsets to allow or block traffic as directed by the policies. Please follow the [trying Kube-router with cluster installers](https://www.kube-router.io/docs/user-guide/#try-kube-router-with-cluster-installers) guide to install Kube-router addon.
+-->
+<h2 id="安装-kube-router-插件">安装 kube-router 插件</h2>
+<p>kube-router 插件自带一个网络策略控制器，监视来自于 Kubernetes API 服务器的
+NetworkPolicy 和 Pod 的变化，根据策略指示配置 iptables 规则和 ipsets 来允许或阻止流量。
+请根据 <a href="https://www.kube-router.io/docs/user-guide/#try-kube-router-with-cluster-installers">通过集群安装程序尝试 kube-router</a> 指南安装 kube-router 插件。</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once you have installed the Kube-router addon, you can follow the [Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/) to try out Kubernetes NetworkPolicy.
+-->
+<p>在你安装了 kube-router 插件后，可以参考
+<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+去尝试使用 Kubernetes NetworkPolicy。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-2842eac98aa0e229a5c6755c4c83d2a7">5 - 使用 Romana 提供 NetworkPolicy</h1>
+    
+	<!--
+reviewers:
+- chrismarino
+title: Romana for NetworkPolicy
+content_type: task
+weight: 40
+-->
+<!-- overview -->
+<!--
+This page shows how to use Romana for NetworkPolicy.
+-->
+<p>本页展示如何使用 Romana 作为 NetworkPolicy。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+Complete steps 1, 2, and 3 of  the [kubeadm getting started guide](/docs/getting-started-guides/kubeadm/).
+-->
+<p>完成 <a href="/zh/docs/reference/setup-tools/kubeadm/">kubeadm 入门指南</a>中的 1、2、3 步。</p>
+<!-- steps -->
+<!--
+## Installing Romana with kubeadm
+
+Follow the [containerized installation guide](https://github.com/romana/romana/tree/master/containerize) for kubeadm.
+
+## Applying network policies
+
+To apply network policies use one of the following:
+
+* [Romana network policies](https://github.com/romana/romana/wiki/Romana-policies).
+    * [Example of Romana network policy](https://github.com/romana/core/blob/master/doc/policy.md).
+* The NetworkPolicy API.
+ -->
+<h2 id="使用-kubeadm-安装-romana">使用 kubeadm 安装 Romana</h2>
+<p>按照<a href="https://github.com/romana/romana/tree/master/containerize">容器化安装指南</a>，
+使用 kubeadm 安装。</p>
+<h2 id="应用网络策略">应用网络策略</h2>
+<p>使用以下的一种方式应用网络策略：</p>
+<ul>
+<li><a href="https://github.com/romana/romana/wiki/Romana-policies">Romana 网络策略</a>
+<ul>
+<li><a href="https://github.com/romana/core/blob/master/doc/policy.md">Romana 网络策略例子</a></li>
+</ul>
+</li>
+<li>NetworkPolicy API</li>
+</ul>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once you have installed Romana, you can follow the [Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/) to try out Kubernetes NetworkPolicy.
+ -->
+<p>Romana 安装完成后，你可以按照
+<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+去尝试使用 Kubernetes NetworkPolicy。</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-ac075c3fdfd0d41aa753cc70e42be064">6 - 使用 Weave Net 提供 NetworkPolicy</h1>
+    
+	<!--
+reviewers:
+- bboreham
+title: Weave Net for NetworkPolicy
+content_type: task
+weight: 50
+-->
+<!-- overview -->
+<!--
+This page shows how to use Weave Net for NetworkPolicy.
+-->
+<p>本页展示如何使用使用 Weave Net 提供 NetworkPolicy。</p>
+<h2 id="before-you-begin">Before you begin</h2>
+<!--
+You need to have a Kubernetes cluster. Follow the
+[kubeadm getting started guide](/docs/reference/setup-tools/kubeadm/) to bootstrap one.
+ -->
+<p>你需要拥有一个 Kubernetes 集群。按照
+<a href="/zh/docs/reference/setup-tools/kubeadm/">kubeadm 入门指南</a>
+来启动一个。</p>
+<!-- steps -->
+<!--
+## Install the Weave Net addon
+
+Follow the [Integrating Kubernetes via the Addon](https://www.weave.works/docs/net/latest/kubernetes/kube-addon/) guide.
+
+The Weave Net addon for Kubernetes comes with a
+[Network Policy Controller](https://www.weave.works/docs/net/latest/kubernetes/kube-addon/#npc)
+that automatically monitors Kubernetes for any NetworkPolicy annotations on all
+namespaces and configures `iptables` rules to allow or block traffic as directed by the policies.
+-->
+<h2 id="安装-weave-net-插件">安装 Weave Net 插件</h2>
+<p>按照<a href="https://www.weave.works/docs/net/latest/kubernetes/kube-addon/">通过插件集成 Kubernetes</a>
+指南执行安装。</p>
+<p>Kubernetes 的 Weave Net 插件带有
+<a href="https://www.weave.works/docs/net/latest/kubernetes/kube-addon/#npc">网络策略控制器</a>，
+可自动监控 Kubernetes 所有名字空间的 NetworkPolicy 注释，
+配置 <code>iptables</code> 规则以允许或阻止策略指示的流量。</p>
+<!--
+## Test the installation
+
+Verify that the weave works.
+
+Enter the following command:
+-->
+<h2 id="测试安装">测试安装</h2>
+<p>验证 weave 是否有效。</p>
+<p>输入以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl get po -n kube-system -o wide
+</code></pre></div><!-- The output is similar to this: -->
+<p>输出类似这样：</p>
+<pre><code>NAME                                    READY     STATUS    RESTARTS   AGE       IP              NODE
+weave-net-1t1qg                         2/2       Running   0          9d        192.168.2.10    worknode3
+weave-net-231d7                         2/2       Running   1          7d        10.2.0.17       worknodegpu
+weave-net-7nmwt                         2/2       Running   3          9d        192.168.2.131   masternode
+weave-net-pmw8w                         2/2       Running   0          9d        192.168.2.216   worknode2
+</code></pre><!--
+Each Node has a weave Pod, and all Pods are `Running` and `2/2 READY`. (`2/2` means that each Pod has `weave` and `weave-npc`.)
+-->
+<p>每个 Node 都有一个 weave Pod，所有 Pod 都是<code>Running</code> 和 <code>2/2 READY</code>。
+（<code>2/2</code> 表示每个 Pod 都有 <code>weave</code> 和 <code>weave-npc</code>）</p>
+<h2 id="what-s-next">What's next</h2>
+<!--
+Once you have installed the Weave Net addon, you can follow the [Declare Network Policy](/docs/tasks/administer-cluster/declare-network-policy/) to try out Kubernetes NetworkPolicy. If you have any question, contact us at [#weave-community on Slack or Weave User Group](https://github.com/weaveworks/weave#getting-help).
+ -->
+<p>安装 Weave Net 插件后，你可以参考
+<a href="/zh/docs/tasks/administer-cluster/declare-network-policy/">声明网络策略</a>
+来试用 Kubernetes NetworkPolicy。
+如果你有任何疑问，请通过
+<a href="https://github.com/weaveworks/weave#getting-help">Slack 上的 #weave-community 频道或者 Weave 用户组</a>
+联系我们。</p>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="d-print-none">
+  <div class="footer__links">
+    <nav>
+      
+      
+      
+      <a class="text-white" href="/zh/docs/home/">主页</a>
+      
+      <a class="text-white" href="/zh/blog/">博客</a>
+      
+      <a class="text-white" href="/zh/training/">培训</a>
+      
+      <a class="text-white" href="/zh/partners/">合作伙伴</a>
+      
+      <a class="text-white" href="/zh/community/">社区</a>
+      
+      <a class="text-white" href="/zh/case-studies/">案例分析</a>
+      
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6 col-sm-2 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="User mailing list" aria-label="User mailing list">
+    <a class="text-white" target="_blank" href="https://discuss.kubernetes.io">
+      <i class="fa fa-envelope"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" href="https://twitter.com/kubernetesio">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Calendar" aria-label="Calendar">
+    <a class="text-white" target="_blank" href="https://calendar.google.com/calendar/embed?src=calendar%40kubernetes.io">
+      <i class="fas fa-calendar-alt"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Youtube" aria-label="Youtube">
+    <a class="text-white" target="_blank" href="https://youtube.com/kubernetescommunity">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-2 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" href="https://github.com/kubernetes/kubernetes">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Slack" aria-label="Slack">
+    <a class="text-white" target="_blank" href="https://slack.k8s.io">
+      <i class="fab fa-slack"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Contribute" aria-label="Contribute">
+    <a class="text-white" target="_blank" href="https://git.k8s.io/community/contributors/guide">
+      <i class="fas fa-edit"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Stack Overflow" aria-label="Stack Overflow">
+    <a class="text-white" target="_blank" href="https://stackoverflow.com/questions/tagged/kubernetes">
+      <i class="fab fa-stack-overflow"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-8 text-center order-sm-2">
+        <small class="text-white">&copy; 2024 The Kubernetes Authors | Documentation Distributed under <a href="https://git.k8s.io/website/LICENSE" class="light-text">CC BY 4.0</a></small>
+        <br/>
+        <small class="text-white">Copyright &copy; 2024 The Linux Foundation &reg;. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage" class="light-text">Trademark Usage page</a></small>
+        <br/>
+        <small class="text-white">ICP license: 京ICP备17074266号-3</small>
+        
+        
+          
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    
+<script src="/js/popper-1.14.3.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-4.3.1.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
