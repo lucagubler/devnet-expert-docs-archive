@@ -1,0 +1,979 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>gRPC – Go</title>
+    <link>https://grpc.io/docs/languages/go/</link>
+    <description>Recent content in Go on gRPC</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	  <atom:link href="https://grpc.io/docs/languages/go/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+    <item>
+      <title>Docs: Quick start</title>
+      <link>https://grpc.io/docs/languages/go/quickstart/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/quickstart/</guid>
+      <description>
+        
+        
+        &lt;h3 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://golang.org&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/strong&gt;, any one of the &lt;strong&gt;two latest major&lt;/strong&gt; &lt;a href=&#34;https://golang.org/doc/devel/release.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;releases of Go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For installation instructions, see Go&amp;rsquo;s &lt;a href=&#34;https://golang.org/doc/install&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Getting Started&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; guide.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://developers.google.com/protocol-buffers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Protocol buffer&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; compiler&lt;/strong&gt;, &lt;code&gt;protoc&lt;/code&gt;, &lt;a href=&#34;https://protobuf.dev/programming-guides/proto3&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;version 3&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For installation instructions, see &lt;a href=&#34;https://grpc.io/docs/protoc-installation/&#34;&gt;Protocol Buffer Compiler
+Installation&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Go plugins&lt;/strong&gt; for the protocol compiler:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Install the protocol compiler plugins for Go using the following commands:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Update your &lt;code&gt;PATH&lt;/code&gt; so that the &lt;code&gt;protoc&lt;/code&gt; compiler can find the plugins:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#366&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#033&#34;&gt;PATH&lt;/span&gt;&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#033&#34;&gt;$PATH&lt;/span&gt;&lt;span style=&#34;color:#c30&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;$(&lt;/span&gt;go env GOPATH&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;)&lt;/span&gt;&lt;span style=&#34;color:#c30&#34;&gt;/bin&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;get-the-example-code&#34;&gt;Get the example code&lt;/h3&gt;
+&lt;p&gt;The example code is part of the &lt;a href=&#34;https://github.com/grpc/grpc-go&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;grpc-go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; repo.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/grpc/grpc-go/archive/v1.69.2.zip&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Download the repo as a zip file&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; and unzip it, or clone
+the repo:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone -b v1.69.2 --depth &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt; https://github.com/grpc/grpc-go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Change to the quick start example directory:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#366&#34;&gt;cd&lt;/span&gt; grpc-go/examples/helloworld
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;run-the-example&#34;&gt;Run the example&lt;/h3&gt;
+&lt;p&gt;From the &lt;code&gt;examples/helloworld&lt;/code&gt; directory:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Compile and execute the server code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run greeter_server/main.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;From a different terminal, compile and execute the client code to see the
+client output:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run greeter_client/main.go
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Greeting: Hello world
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Congratulations! You&amp;rsquo;ve just run a client-server application with gRPC.&lt;/p&gt;
+&lt;h3 id=&#34;update-the-grpc-service&#34;&gt;Update the gRPC service&lt;/h3&gt;
+&lt;p&gt;In this section you&amp;rsquo;ll update the application with an extra server method. The
+gRPC service is defined using &lt;a href=&#34;https://developers.google.com/protocol-buffers&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;protocol buffers&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;. To learn more about how to
+define a service in a &lt;code&gt;.proto&lt;/code&gt; file see &lt;a href=&#34;../basics/&#34;&gt;Basics tutorial&lt;/a&gt;.
+For now, all you need to know is that both the
+server and the client stub have a &lt;code&gt;SayHello()&lt;/code&gt; RPC method that takes a
+&lt;code&gt;HelloRequest&lt;/code&gt; parameter from the client and returns a &lt;code&gt;HelloReply&lt;/code&gt; from the
+server, and that the method is defined like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-protobuf&#34; data-lang=&#34;protobuf&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The greeting service definition.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;service&lt;/span&gt; Greeter {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Sends a greeting
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; SayHello (HelloRequest) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (HelloReply) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The request message containing the user&amp;#39;s name.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#0a8;font-weight:bold&#34;&gt;HelloRequest&lt;/span&gt; {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt; name &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The response message containing the greetings
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#0a8;font-weight:bold&#34;&gt;HelloReply&lt;/span&gt; {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Open &lt;code&gt;helloworld/helloworld.proto&lt;/code&gt; and add a new &lt;code&gt;SayHelloAgain()&lt;/code&gt; method, with
+the same request and response types:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-protobuf&#34; data-lang=&#34;protobuf&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The greeting service definition.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;service&lt;/span&gt; Greeter {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Sends a greeting
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; SayHello (HelloRequest) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (HelloReply) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Sends another greeting
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; SayHelloAgain (HelloRequest) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (HelloReply) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The request message containing the user&amp;#39;s name.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#0a8;font-weight:bold&#34;&gt;HelloRequest&lt;/span&gt; {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt; name &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// The response message containing the greetings
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#0a8;font-weight:bold&#34;&gt;HelloReply&lt;/span&gt; {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Remember to save the file!&lt;/p&gt;
+&lt;h3 id=&#34;regenerate-grpc-code&#34;&gt;Regenerate gRPC code&lt;/h3&gt;
+&lt;p&gt;Before you can use the new service method, you need to recompile the updated
+&lt;code&gt;.proto&lt;/code&gt; file.&lt;/p&gt;
+&lt;p&gt;While still in the &lt;code&gt;examples/helloworld&lt;/code&gt; directory, run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;protoc --go_out&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;. --go_opt&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#033&#34;&gt;paths&lt;/span&gt;&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;source_relative &lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;&lt;/span&gt;    --go-grpc_out&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;. --go-grpc_opt&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#033&#34;&gt;paths&lt;/span&gt;&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;source_relative &lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;&lt;/span&gt;    helloworld/helloworld.proto
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This will regenerate the &lt;code&gt;helloworld/helloworld.pb.go&lt;/code&gt; and  &lt;code&gt;helloworld/helloworld_grpc.pb.go&lt;/code&gt; files, which contain:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Code for populating, serializing, and retrieving &lt;code&gt;HelloRequest&lt;/code&gt; and
+&lt;code&gt;HelloReply&lt;/code&gt; message types.&lt;/li&gt;
+&lt;li&gt;Generated client and server code.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;update-and-run-the-application&#34;&gt;Update and run the application&lt;/h3&gt;
+&lt;p&gt;You have regenerated server and client code, but you still need to implement
+and call the new method in the human-written parts of the example application.&lt;/p&gt;
+&lt;h4 id=&#34;update-the-server&#34;&gt;Update the server&lt;/h4&gt;
+&lt;p&gt;Open &lt;code&gt;greeter_server/main.go&lt;/code&gt; and add the following function to it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;server) &lt;span style=&#34;color:#c0f&#34;&gt;SayHelloAgain&lt;/span&gt;(ctx context.Context, in &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.HelloRequest) (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.HelloReply, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.HelloReply{Message: &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Hello again &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;+&lt;/span&gt; in.&lt;span style=&#34;color:#c0f&#34;&gt;GetName&lt;/span&gt;()}, &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;update-the-client&#34;&gt;Update the client&lt;/h4&gt;
+&lt;p&gt;Open &lt;code&gt;greeter_client/main.go&lt;/code&gt; to add the following code to the end of the
+&lt;code&gt;main()&lt;/code&gt; function body:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;r, err = c.&lt;span style=&#34;color:#c0f&#34;&gt;SayHelloAgain&lt;/span&gt;(ctx, &lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.HelloRequest{Name: &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;name})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;could not greet: %v&amp;#34;&lt;/span&gt;, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;log.&lt;span style=&#34;color:#c0f&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Greeting: %s&amp;#34;&lt;/span&gt;, r.&lt;span style=&#34;color:#c0f&#34;&gt;GetMessage&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Remember to save your changes.&lt;/p&gt;
+&lt;h4 id=&#34;run&#34;&gt;Run!&lt;/h4&gt;
+&lt;p&gt;Run the client and server like you did before. Execute the following commands
+from the &lt;code&gt;examples/helloworld&lt;/code&gt; directory:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Run the server:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run greeter_server/main.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;From another terminal, run the client. This time, add a name as a
+command-line argument:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run greeter_client/main.go --name&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;Alice
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You&amp;rsquo;ll see the following output:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Greeting: Hello Alice
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Greeting: Hello again Alice
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;whats-next&#34;&gt;What&amp;rsquo;s next&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Learn how gRPC works in &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/introduction/&#34;&gt;Introduction to gRPC&lt;/a&gt;
+and &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/core-concepts/&#34;&gt;Core concepts&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Work through the &lt;a href=&#34;../basics/&#34;&gt;Basics tutorial&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Explore the &lt;a href=&#34;../api&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;API reference&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+      </description>
+    </item>
+    
+    <item>
+      <title>Docs: Basics tutorial</title>
+      <link>https://grpc.io/docs/languages/go/basics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/basics/</guid>
+      <description>
+        
+        
+        &lt;p&gt;This tutorial provides a basic Go programmer&amp;rsquo;s introduction to
+working with gRPC.&lt;/p&gt;
+&lt;p&gt;By walking through this example you&amp;rsquo;ll learn how to:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Define a service in a &lt;code&gt;.proto&lt;/code&gt; file.&lt;/li&gt;
+&lt;li&gt;Generate server and client code using the protocol buffer compiler.&lt;/li&gt;
+&lt;li&gt;Use the Go gRPC API to write a simple client and server for your service.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It assumes that you have read the &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/introduction/&#34;&gt;Introduction to gRPC&lt;/a&gt; and are familiar with
+&lt;a href=&#34;https://protobuf.dev/overview&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;protocol buffers&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.
+Note that the example in this tutorial uses the proto3 version of the protocol
+buffers language: you can find out more in the &lt;a href=&#34;https://protobuf.dev/programming-guides/proto3&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;proto3 language
+guide&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; and the
+&lt;a href=&#34;https://protobuf.dev/reference/go/go-generated&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Go generated code
+guide&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;why-use-grpc&#34;&gt;Why use gRPC?&lt;/h3&gt;
+&lt;p&gt;Our example is a simple route mapping application that lets clients get
+information about features on their route, create a summary of their route, and
+exchange route information such as traffic updates with the server and other
+clients.&lt;/p&gt;
+&lt;p&gt;With gRPC we can define our service once in a &lt;code&gt;.proto&lt;/code&gt; file and generate clients
+and servers in any of gRPC&amp;rsquo;s supported languages, which in turn can be run in
+environments ranging from servers inside a large data center to your own tablet —
+all the complexity of communication between different languages and environments is
+handled for you by gRPC. We also get all the advantages of working with protocol
+buffers, including efficient serialization, a simple IDL, and easy interface
+updating.&lt;/p&gt;
+
+&lt;h3 id=&#34;setup&#34;&gt;Setup&lt;/h3&gt;
+&lt;p&gt;You should have already installed the tools needed to generate client and server
+interface code &amp;ndash; if you haven&amp;rsquo;t, see the &lt;a href=&#34;../quickstart/#prerequisites&#34;&gt;Prerequisites&lt;/a&gt; section of &lt;a href=&#34;../quickstart/&#34;&gt;Quick
+start&lt;/a&gt; for setup instructions.&lt;/p&gt;
+&lt;h3 id=&#34;get-the-example-code&#34;&gt;Get the example code&lt;/h3&gt;
+&lt;p&gt;The example code is part of the &lt;a href=&#34;https://github.com/grpc/grpc-go&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;grpc-go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; repo.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/grpc/grpc-go/archive/v1.69.2.zip&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Download the repo as a zip file&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; and unzip it, or clone
+the repo:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone -b v1.69.2 --depth &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt; https://github.com/grpc/grpc-go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Change to the example directory:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#366&#34;&gt;cd&lt;/span&gt; grpc-go/examples/route_guide
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;defining-the-service&#34;&gt;Defining the service&lt;/h3&gt;
+&lt;p&gt;Our first step (as you&amp;rsquo;ll know from the &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/introduction/&#34;&gt;Introduction to gRPC&lt;/a&gt;) is to
+define the gRPC &lt;em&gt;service&lt;/em&gt; and the method &lt;em&gt;request&lt;/em&gt; and &lt;em&gt;response&lt;/em&gt; types using
+&lt;a href=&#34;https://protobuf.dev/overview&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;protocol buffers&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.
+For the complete &lt;code&gt;.proto&lt;/code&gt; file, see
+&lt;a href=&#34;https://github.com/grpc/grpc-go/blob/master/examples/route_guide/routeguide/route_guide.proto&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;routeguide/route_guide.proto&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To define a service, you specify a named &lt;code&gt;service&lt;/code&gt; in your &lt;code&gt;.proto&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;service&lt;/span&gt; RouteGuide {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;   &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then you define &lt;code&gt;rpc&lt;/code&gt; methods inside your service definition, specifying their
+request and response types. gRPC lets you define four kinds of service method,
+all of which are used in the &lt;code&gt;RouteGuide&lt;/code&gt; service:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A &lt;em&gt;simple RPC&lt;/em&gt; where the client sends a request to the server using the stub
+and waits for a response to come back, just like a normal function call.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Obtains the feature at a given position.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; GetFeature(Point) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (Feature) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;A &lt;em&gt;server-side streaming RPC&lt;/em&gt; where the client sends a request to the server
+and gets a stream to read a sequence of messages back. The client reads from
+the returned stream until there are no more messages. As you can see in our
+example, you specify a server-side streaming method by placing the &lt;code&gt;stream&lt;/code&gt;
+keyword before the &lt;em&gt;response&lt;/em&gt; type.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Obtains the Features available within the given Rectangle.  Results are
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// streamed rather than returned at once (e.g. in a response message with a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// repeated field), as the rectangle may cover a large area and contain a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// huge number of features.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; ListFeatures(Rectangle) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (stream Feature) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;A &lt;em&gt;client-side streaming RPC&lt;/em&gt; where the client writes a sequence of messages
+and sends them to the server, again using a provided stream. Once the client
+has finished writing the messages, it waits for the server to read them all
+and return its response. You specify a client-side streaming method by placing
+the &lt;code&gt;stream&lt;/code&gt; keyword before the &lt;em&gt;request&lt;/em&gt; type.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Accepts a stream of Points on a route being traversed, returning a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// RouteSummary when traversal is completed.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; RecordRoute(stream Point) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (RouteSummary) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;A &lt;em&gt;bidirectional streaming RPC&lt;/em&gt; where both sides send a sequence of messages
+using a read-write stream. The two streams operate independently, so clients
+and servers can read and write in whatever order they like: for example, the
+server could wait to receive all the client messages before writing its
+responses, or it could alternately read a message then write a message, or
+some other combination of reads and writes. The order of messages in each
+stream is preserved. You specify this type of method by placing the &lt;code&gt;stream&lt;/code&gt;
+keyword before both the request and the response.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Accepts a stream of RouteNotes sent while a route is being traversed,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// while receiving other RouteNotes (e.g. from other users).
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;rpc&lt;/span&gt; RouteChat(stream RouteNote) &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;returns&lt;/span&gt; (stream RouteNote) {}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Our &lt;code&gt;.proto&lt;/code&gt; file also contains protocol buffer message type definitions for all
+the request and response types used in our service methods - for example, here&amp;rsquo;s
+the &lt;code&gt;Point&lt;/code&gt; message type:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-proto&#34; data-lang=&#34;proto&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Points are represented as latitude-longitude pairs in the E7 representation
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// (degrees multiplied by 10**7 and rounded to the nearest integer).
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Latitudes should be in the range +/- 90 degrees and longitude should be in
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// the range +/- 180 degrees (inclusive).
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;message&lt;/span&gt; &lt;span style=&#34;color:#0a8;font-weight:bold&#34;&gt;Point&lt;/span&gt; {&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;int32&lt;/span&gt; latitude &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;1&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;int32&lt;/span&gt; longitude &lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;2&lt;/span&gt;;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;&lt;/span&gt;}&lt;span style=&#34;color:#a00;background-color:#faa&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;generating-client-and-server-code&#34;&gt;Generating client and server code&lt;/h3&gt;
+&lt;p&gt;Next we need to generate the gRPC client and server interfaces from our &lt;code&gt;.proto&lt;/code&gt;
+service definition. We do this using the protocol buffer compiler &lt;code&gt;protoc&lt;/code&gt; with
+a special gRPC Go plugin. This is similar to what we did in the &lt;a href=&#34;../quickstart/&#34;&gt;Quick start&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;From the &lt;code&gt;examples/route_guide&lt;/code&gt; directory, run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;protoc --go_out&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;. --go_opt&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#033&#34;&gt;paths&lt;/span&gt;&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;source_relative &lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;&lt;/span&gt;    --go-grpc_out&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;. --go-grpc_opt&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#033&#34;&gt;paths&lt;/span&gt;&lt;span style=&#34;color:#555&#34;&gt;=&lt;/span&gt;source_relative &lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#c30;font-weight:bold&#34;&gt;&lt;/span&gt;    routeguide/route_guide.proto
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Running this command generates the following files in the
+&lt;a href=&#34;https://github.com/grpc/grpc-go/blob/master/examples/route_guide/routeguide&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;routeguide&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; directory:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;route_guide.pb.go&lt;/code&gt;, which contains all the protocol buffer code to
+populate, serialize, and retrieve request and response message types.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;route_guide_grpc.pb.go&lt;/code&gt;, which contains the following:
+&lt;ul&gt;
+&lt;li&gt;An interface type (or &lt;em&gt;stub&lt;/em&gt;) for clients to call with the methods defined in
+the &lt;code&gt;RouteGuide&lt;/code&gt; service.&lt;/li&gt;
+&lt;li&gt;An interface type for servers to implement, also with the methods defined in
+the &lt;code&gt;RouteGuide&lt;/code&gt; service.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;server&#34;&gt;Creating the server&lt;/h3&gt;
+&lt;p&gt;First let&amp;rsquo;s look at how we create a &lt;code&gt;RouteGuide&lt;/code&gt; server. If you&amp;rsquo;re only
+interested in creating gRPC clients, you can skip this section and go straight
+to &lt;a href=&#34;#client&#34;&gt;Creating the client&lt;/a&gt; (though you might find it interesting
+anyway!).&lt;/p&gt;
+&lt;p&gt;There are two parts to making our &lt;code&gt;RouteGuide&lt;/code&gt; service do its job:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Implementing the service interface generated from our service definition:
+doing the actual &amp;ldquo;work&amp;rdquo; of our service.&lt;/li&gt;
+&lt;li&gt;Running a gRPC server to listen for requests from clients and dispatch them to
+the right service implementation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can find our example &lt;code&gt;RouteGuide&lt;/code&gt; server in
+&lt;a href=&#34;https://github.com/grpc/grpc-go/tree/master/examples/route_guide/server/server.go&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;server/server.go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.
+Let&amp;rsquo;s take a closer look at how it works.&lt;/p&gt;
+&lt;h4 id=&#34;implementing-routeguide&#34;&gt;Implementing RouteGuide&lt;/h4&gt;
+&lt;p&gt;As you can see, our server has a &lt;code&gt;routeGuideServer&lt;/code&gt; struct type that implements
+the generated &lt;code&gt;RouteGuideServer&lt;/code&gt; interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; routeGuideServer &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;struct&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;GetFeature&lt;/span&gt;(ctx context.Context, point &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Point) (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Feature, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;ListFeatures&lt;/span&gt;(rect &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;RecordRoute&lt;/span&gt;(stream pb.RouteGuide_RecordRouteServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;RouteChat&lt;/span&gt;(stream pb.RouteGuide_RouteChatServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h5 id=&#34;simple-rpc&#34;&gt;Simple RPC&lt;/h5&gt;
+&lt;p&gt;The &lt;code&gt;routeGuideServer&lt;/code&gt; implements all our service methods. Let&amp;rsquo;s look at the
+simplest type first, &lt;code&gt;GetFeature&lt;/code&gt;, which just gets a &lt;code&gt;Point&lt;/code&gt; from the client and
+returns the corresponding feature information from its database in a &lt;code&gt;Feature&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;GetFeature&lt;/span&gt;(ctx context.Context, point &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Point) (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Feature, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, feature &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; s.savedFeatures {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; proto.&lt;span style=&#34;color:#c0f&#34;&gt;Equal&lt;/span&gt;(feature.Location, point) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; feature, &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// No feature was found, return an unnamed feature
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.Feature{Location: point}, &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The method is passed a context object for the RPC and the client&amp;rsquo;s &lt;code&gt;Point&lt;/code&gt;
+protocol buffer request. It returns a &lt;code&gt;Feature&lt;/code&gt; protocol buffer object with the
+response information and an &lt;code&gt;error&lt;/code&gt;. In the method we populate the &lt;code&gt;Feature&lt;/code&gt;
+with the appropriate information, and then &lt;code&gt;return&lt;/code&gt; it along with a &lt;code&gt;nil&lt;/code&gt; error
+to tell gRPC that we&amp;rsquo;ve finished dealing with the RPC and that the &lt;code&gt;Feature&lt;/code&gt; can
+be returned to the client.&lt;/p&gt;
+&lt;h5 id=&#34;server-side-streaming-rpc&#34;&gt;Server-side streaming RPC&lt;/h5&gt;
+&lt;p&gt;Now let&amp;rsquo;s look at one of our streaming RPCs. &lt;code&gt;ListFeatures&lt;/code&gt; is a server-side
+streaming RPC, so we need to send back multiple &lt;code&gt;Feature&lt;/code&gt;s to our client.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;ListFeatures&lt;/span&gt;(rect &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, feature &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; s.savedFeatures {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#c0f&#34;&gt;inRange&lt;/span&gt;(feature.Location, rect) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(feature); err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; err
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As you can see, instead of getting simple request and response objects in our
+method parameters, this time we get a request object (the &lt;code&gt;Rectangle&lt;/code&gt; in which
+our client wants to find &lt;code&gt;Feature&lt;/code&gt;s) and a special
+&lt;code&gt;RouteGuide_ListFeaturesServer&lt;/code&gt; object to write our responses.&lt;/p&gt;
+&lt;p&gt;In the method, we populate as many &lt;code&gt;Feature&lt;/code&gt; objects as we need to return,
+writing them to the &lt;code&gt;RouteGuide_ListFeaturesServer&lt;/code&gt; using its &lt;code&gt;Send()&lt;/code&gt; method.
+Finally, as in our simple RPC, we return a &lt;code&gt;nil&lt;/code&gt; error to tell gRPC that we&amp;rsquo;ve
+finished writing responses. Should any error happen in this call, we return a
+non-&lt;code&gt;nil&lt;/code&gt; error; the gRPC layer will translate it into an appropriate RPC status
+to be sent on the wire.&lt;/p&gt;
+&lt;h5 id=&#34;client-side-streaming-rpc&#34;&gt;Client-side streaming RPC&lt;/h5&gt;
+&lt;p&gt;Now let&amp;rsquo;s look at something a little more complicated: the client-side streaming
+method &lt;code&gt;RecordRoute&lt;/code&gt;, where we get a stream of &lt;code&gt;Point&lt;/code&gt;s from the client and
+return a single &lt;code&gt;RouteSummary&lt;/code&gt; with information about their trip. As you can
+see, this time the method doesn&amp;rsquo;t have a request parameter at all. Instead, it
+gets a &lt;code&gt;RouteGuide_RecordRouteServer&lt;/code&gt; stream, which the server can use to both
+read &lt;em&gt;and&lt;/em&gt; write messages - it can receive client messages using its &lt;code&gt;Recv()&lt;/code&gt;
+method and return its single response using its &lt;code&gt;SendAndClose()&lt;/code&gt; method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;RecordRoute&lt;/span&gt;(stream pb.RouteGuide_RecordRouteServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;var&lt;/span&gt; pointCount, featureCount, distance &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;int32&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;var&lt;/span&gt; lastPoint &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Point
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  startTime &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; time.&lt;span style=&#34;color:#c0f&#34;&gt;Now&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    point, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;==&lt;/span&gt; io.EOF {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      endTime &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; time.&lt;span style=&#34;color:#c0f&#34;&gt;Now&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;SendAndClose&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.RouteSummary{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        PointCount:   pointCount,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        FeatureCount: featureCount,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Distance:     distance,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        ElapsedTime:  &lt;span style=&#34;color:#366&#34;&gt;int32&lt;/span&gt;(endTime.&lt;span style=&#34;color:#c0f&#34;&gt;Sub&lt;/span&gt;(startTime).&lt;span style=&#34;color:#c0f&#34;&gt;Seconds&lt;/span&gt;()),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      })
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; err
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pointCount&lt;span style=&#34;color:#555&#34;&gt;++&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, feature &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; s.savedFeatures {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; proto.&lt;span style=&#34;color:#c0f&#34;&gt;Equal&lt;/span&gt;(feature.Location, point) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        featureCount&lt;span style=&#34;color:#555&#34;&gt;++&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; lastPoint &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      distance &lt;span style=&#34;color:#555&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#c0f&#34;&gt;calcDistance&lt;/span&gt;(lastPoint, point)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    lastPoint = point
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In the method body we use the &lt;code&gt;RouteGuide_RecordRouteServer&lt;/code&gt;&amp;rsquo;s &lt;code&gt;Recv()&lt;/code&gt; method
+to repeatedly read in our client&amp;rsquo;s requests to a request object (in this case a
+&lt;code&gt;Point&lt;/code&gt;) until there are no more messages: the server needs to check the error
+returned from &lt;code&gt;Recv()&lt;/code&gt; after each call. If this is &lt;code&gt;nil&lt;/code&gt;, the stream is still
+good and it can continue reading; if it&amp;rsquo;s &lt;code&gt;io.EOF&lt;/code&gt; the message stream has ended
+and the server can return its &lt;code&gt;RouteSummary&lt;/code&gt;. If it has any other value, we
+return the error &amp;ldquo;as is&amp;rdquo; so that it&amp;rsquo;ll be translated to an RPC status by the
+gRPC layer.&lt;/p&gt;
+&lt;h5 id=&#34;bidirectional-streaming-rpc&#34;&gt;Bidirectional streaming RPC&lt;/h5&gt;
+&lt;p&gt;Finally, let&amp;rsquo;s look at our bidirectional streaming RPC &lt;code&gt;RouteChat()&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt; (s &lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;routeGuideServer) &lt;span style=&#34;color:#c0f&#34;&gt;RouteChat&lt;/span&gt;(stream pb.RouteGuide_RouteChatServer) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    in, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;==&lt;/span&gt; io.EOF {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; err
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    key &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#c0f&#34;&gt;serialize&lt;/span&gt;(in.Location)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt; &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// look for notes to be sent to client
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, note &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; s.routeNotes[key] {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(note); err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt; err
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This time we get a &lt;code&gt;RouteGuide_RouteChatServer&lt;/code&gt; stream that, as in our
+client-side streaming example, can be used to read and write messages. However,
+this time we return values via our method&amp;rsquo;s stream while the client is still
+writing messages to &lt;em&gt;their&lt;/em&gt; message stream.&lt;/p&gt;
+&lt;p&gt;The syntax for reading and writing here is very similar to our client-streaming
+method, except the server uses the stream&amp;rsquo;s &lt;code&gt;Send()&lt;/code&gt; method rather than
+&lt;code&gt;SendAndClose()&lt;/code&gt; because it&amp;rsquo;s writing multiple responses. Although each side
+will always get the other&amp;rsquo;s messages in the order they were written, both the
+client and server can read and write in any order — the streams operate
+completely independently.&lt;/p&gt;
+&lt;h4 id=&#34;starting-the-server&#34;&gt;Starting the server&lt;/h4&gt;
+&lt;p&gt;Once we&amp;rsquo;ve implemented all our methods, we also need to start up a gRPC server
+so that clients can actually use our service. The following snippet shows how we
+do this for our &lt;code&gt;RouteGuide&lt;/code&gt; service:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;lis, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; net.&lt;span style=&#34;color:#c0f&#34;&gt;Listen&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;tcp&amp;#34;&lt;/span&gt;, fmt.&lt;span style=&#34;color:#c0f&#34;&gt;Sprintf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;localhost:%d&amp;#34;&lt;/span&gt;, port))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;failed to listen: %v&amp;#34;&lt;/span&gt;, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;var&lt;/span&gt; opts []grpc.ServerOption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;grpcServer &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; grpc.&lt;span style=&#34;color:#c0f&#34;&gt;NewServer&lt;/span&gt;(opts&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pb.&lt;span style=&#34;color:#c0f&#34;&gt;RegisterRouteGuideServer&lt;/span&gt;(grpcServer, &lt;span style=&#34;color:#c0f&#34;&gt;newServer&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;grpcServer.&lt;span style=&#34;color:#c0f&#34;&gt;Serve&lt;/span&gt;(lis)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To build and start a server, we:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Specify the port we want to use to listen for client requests using:&lt;br&gt;
+&lt;code&gt;lis, err := net.Listen(...)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Create an instance of the gRPC server using &lt;code&gt;grpc.NewServer(...)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Register our service implementation with the gRPC server.&lt;/li&gt;
+&lt;li&gt;Call &lt;code&gt;Serve()&lt;/code&gt; on the server with our port details to do a blocking wait
+until the process is killed or &lt;code&gt;Stop()&lt;/code&gt; is called.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;client&#34;&gt;Creating the client&lt;/h3&gt;
+&lt;p&gt;In this section, we&amp;rsquo;ll look at creating a Go client for our &lt;code&gt;RouteGuide&lt;/code&gt;
+service. You can see our complete example client code in
+&lt;a href=&#34;https://github.com/grpc/grpc-go/tree/master/examples/route_guide/client/client.go&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;grpc-go/examples/route_guide/client/client.go&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h4 id=&#34;creating-a-stub&#34;&gt;Creating a stub&lt;/h4&gt;
+&lt;p&gt;To call service methods, we first need to create a gRPC &lt;em&gt;channel&lt;/em&gt; to communicate
+with the server. We create this by passing the server address and port number to
+&lt;code&gt;grpc.NewClient()&lt;/code&gt; as follows:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;var&lt;/span&gt; opts []grpc.DialOption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; grpc.&lt;span style=&#34;color:#c0f&#34;&gt;NewClient&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;serverAddr, opts&lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;defer&lt;/span&gt; conn.&lt;span style=&#34;color:#c0f&#34;&gt;Close&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can use &lt;code&gt;DialOptions&lt;/code&gt; to set the auth credentials (for example, TLS, GCE
+credentials, or JWT credentials) in &lt;code&gt;grpc.NewClient&lt;/code&gt; when a service requires
+them. The &lt;code&gt;RouteGuide&lt;/code&gt; service doesn&amp;rsquo;t require any credentials.&lt;/p&gt;
+&lt;p&gt;Once the gRPC &lt;em&gt;channel&lt;/em&gt; is setup, we need a client &lt;em&gt;stub&lt;/em&gt; to perform RPCs. We
+get it using the &lt;code&gt;NewRouteGuideClient&lt;/code&gt; method provided by the &lt;code&gt;pb&lt;/code&gt; package
+generated from the example &lt;code&gt;.proto&lt;/code&gt; file.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;client &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; pb.&lt;span style=&#34;color:#c0f&#34;&gt;NewRouteGuideClient&lt;/span&gt;(conn)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;calling-service-methods&#34;&gt;Calling service methods&lt;/h4&gt;
+&lt;p&gt;Now let&amp;rsquo;s look at how we call our service methods. Note that in gRPC-Go, RPCs
+operate in a blocking/synchronous mode, which means that the RPC call waits for
+the server to respond, and will either return a response or an error.&lt;/p&gt;
+&lt;h5 id=&#34;simple-rpc-1&#34;&gt;Simple RPC&lt;/h5&gt;
+&lt;p&gt;Calling the simple RPC &lt;code&gt;GetFeature&lt;/code&gt; is nearly as straightforward as calling a
+local method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;feature, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; client.&lt;span style=&#34;color:#c0f&#34;&gt;GetFeature&lt;/span&gt;(context.&lt;span style=&#34;color:#c0f&#34;&gt;Background&lt;/span&gt;(), &lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.Point{&lt;span style=&#34;color:#f60&#34;&gt;409146138&lt;/span&gt;, &lt;span style=&#34;color:#555&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f60&#34;&gt;746188906&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As you can see, we call the method on the stub we got earlier. In our method
+parameters we create and populate a request protocol buffer object (in our case
+&lt;code&gt;Point&lt;/code&gt;). We also pass a &lt;code&gt;context.Context&lt;/code&gt; object which lets us change our RPC&amp;rsquo;s
+behavior if necessary, such as time-out/cancel an RPC in flight. If the call
+doesn&amp;rsquo;t return an error, then we can read the response information from the
+server from the first return value.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;log.&lt;span style=&#34;color:#c0f&#34;&gt;Println&lt;/span&gt;(feature)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h5 id=&#34;server-side-streaming-rpc-1&#34;&gt;Server-side streaming RPC&lt;/h5&gt;
+&lt;p&gt;Here&amp;rsquo;s where we call the server-side streaming method &lt;code&gt;ListFeatures&lt;/code&gt;, which
+returns a stream of geographical &lt;code&gt;Feature&lt;/code&gt;s. If you&amp;rsquo;ve already read &lt;a href=&#34;#server&#34;&gt;Creating
+the server&lt;/a&gt; some of this may look very familiar - streaming RPCs are
+implemented in a similar way on both sides.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;rect &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#555&#34;&gt;&amp;amp;&lt;/span&gt;pb.Rectangle{ &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt; }  &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// initialize a pb.Rectangle
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;stream, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; client.&lt;span style=&#34;color:#c0f&#34;&gt;ListFeatures&lt;/span&gt;(context.&lt;span style=&#34;color:#c0f&#34;&gt;Background&lt;/span&gt;(), rect)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#555&#34;&gt;...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    feature, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;==&lt;/span&gt; io.EOF {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;break&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;%v.ListFeatures(_) = _, %v&amp;#34;&lt;/span&gt;, client, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    log.&lt;span style=&#34;color:#c0f&#34;&gt;Println&lt;/span&gt;(feature)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As in the simple RPC, we pass the method a context and a request. However,
+instead of getting a response object back, we get back an instance of
+&lt;code&gt;RouteGuide_ListFeaturesClient&lt;/code&gt;. The client can use the
+&lt;code&gt;RouteGuide_ListFeaturesClient&lt;/code&gt; stream to read the server&amp;rsquo;s responses.&lt;/p&gt;
+&lt;p&gt;We use the &lt;code&gt;RouteGuide_ListFeaturesClient&lt;/code&gt;&amp;rsquo;s &lt;code&gt;Recv()&lt;/code&gt; method to repeatedly read
+in the server&amp;rsquo;s responses to a response protocol buffer object (in this case a
+&lt;code&gt;Feature&lt;/code&gt;) until there are no more messages: the client needs to check the error
+&lt;code&gt;err&lt;/code&gt; returned from &lt;code&gt;Recv()&lt;/code&gt; after each call. If &lt;code&gt;nil&lt;/code&gt;, the stream is still good
+and it can continue reading; if it&amp;rsquo;s &lt;code&gt;io.EOF&lt;/code&gt; then the message stream has ended;
+otherwise there must be an RPC error, which is passed over through &lt;code&gt;err&lt;/code&gt;.&lt;/p&gt;
+&lt;h5 id=&#34;client-side-streaming-rpc-1&#34;&gt;Client-side streaming RPC&lt;/h5&gt;
+&lt;p&gt;The client-side streaming method &lt;code&gt;RecordRoute&lt;/code&gt; is similar to the server-side
+method, except that we only pass the method a context and get a
+&lt;code&gt;RouteGuide_RecordRouteClient&lt;/code&gt; stream back, which we can use to both write &lt;em&gt;and&lt;/em&gt;
+read messages.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Create a random number of random points
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;r &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; rand.&lt;span style=&#34;color:#c0f&#34;&gt;New&lt;/span&gt;(rand.&lt;span style=&#34;color:#c0f&#34;&gt;NewSource&lt;/span&gt;(time.&lt;span style=&#34;color:#c0f&#34;&gt;Now&lt;/span&gt;().&lt;span style=&#34;color:#c0f&#34;&gt;UnixNano&lt;/span&gt;()))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pointCount &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#366&#34;&gt;int&lt;/span&gt;(r.&lt;span style=&#34;color:#c0f&#34;&gt;Int31n&lt;/span&gt;(&lt;span style=&#34;color:#f60&#34;&gt;100&lt;/span&gt;)) &lt;span style=&#34;color:#555&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// Traverse at least two points
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;var&lt;/span&gt; points []&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;pb.Point
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#f60&#34;&gt;0&lt;/span&gt;; i &amp;lt; pointCount; i&lt;span style=&#34;color:#555&#34;&gt;++&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  points = &lt;span style=&#34;color:#366&#34;&gt;append&lt;/span&gt;(points, &lt;span style=&#34;color:#c0f&#34;&gt;randomPoint&lt;/span&gt;(r))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;log.&lt;span style=&#34;color:#c0f&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Traversing %d points.&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#366&#34;&gt;len&lt;/span&gt;(points))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;stream, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; client.&lt;span style=&#34;color:#c0f&#34;&gt;RecordRoute&lt;/span&gt;(context.&lt;span style=&#34;color:#c0f&#34;&gt;Background&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;%v.RecordRoute(_) = _, %v&amp;#34;&lt;/span&gt;, client, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, point &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; points {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(point); err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;%v.Send(%v) = %v&amp;#34;&lt;/span&gt;, stream, point, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;reply, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;CloseAndRecv&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;%v.CloseAndRecv() got error %v, want %v&amp;#34;&lt;/span&gt;, stream, err, &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;log.&lt;span style=&#34;color:#c0f&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Route summary: %v&amp;#34;&lt;/span&gt;, reply)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;RouteGuide_RecordRouteClient&lt;/code&gt; has a &lt;code&gt;Send()&lt;/code&gt; method that we can use to send
+requests to the server. Once we&amp;rsquo;ve finished writing our client&amp;rsquo;s requests to the
+stream using &lt;code&gt;Send()&lt;/code&gt;, we need to call &lt;code&gt;CloseAndRecv()&lt;/code&gt; on the stream to let
+gRPC know that we&amp;rsquo;ve finished writing and are expecting to receive a response.
+We get our RPC status from the &lt;code&gt;err&lt;/code&gt; returned from &lt;code&gt;CloseAndRecv()&lt;/code&gt;. If the
+status is &lt;code&gt;nil&lt;/code&gt;, then the first return value from &lt;code&gt;CloseAndRecv()&lt;/code&gt; will be a
+valid server response.&lt;/p&gt;
+&lt;h5 id=&#34;bidirectional-streaming-rpc-1&#34;&gt;Bidirectional streaming RPC&lt;/h5&gt;
+&lt;p&gt;Finally, let&amp;rsquo;s look at our bidirectional streaming RPC &lt;code&gt;RouteChat()&lt;/code&gt;. As in the
+case of &lt;code&gt;RecordRoute&lt;/code&gt;, we only pass the method a context object and get back a
+stream that we can use to both write and read messages. However, this time we
+return values via our method&amp;rsquo;s stream while the server is still writing messages
+to &lt;em&gt;their&lt;/em&gt; message stream.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;stream, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; client.&lt;span style=&#34;color:#c0f&#34;&gt;RouteChat&lt;/span&gt;(context.&lt;span style=&#34;color:#c0f&#34;&gt;Background&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;waitc &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#366&#34;&gt;make&lt;/span&gt;(&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;chan&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;struct&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;go&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;func&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    in, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;==&lt;/span&gt; io.EOF {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;// read done.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#09f;font-style:italic&#34;&gt;&lt;/span&gt;      &lt;span style=&#34;color:#366&#34;&gt;close&lt;/span&gt;(waitc)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Failed to receive a note : %v&amp;#34;&lt;/span&gt;, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    log.&lt;span style=&#34;color:#c0f&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Got message %s at point(%d, %d)&amp;#34;&lt;/span&gt;, in.Message, in.Location.Latitude, in.Location.Longitude)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;for&lt;/span&gt; _, note &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;range&lt;/span&gt; notes {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;if&lt;/span&gt; err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; stream.&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(note); err &lt;span style=&#34;color:#555&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    log.&lt;span style=&#34;color:#c0f&#34;&gt;Fatalf&lt;/span&gt;(&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;Failed to send a note: %v&amp;#34;&lt;/span&gt;, err)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;stream.&lt;span style=&#34;color:#c0f&#34;&gt;CloseSend&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#555&#34;&gt;&amp;lt;-&lt;/span&gt;waitc
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The syntax for reading and writing here is very similar to our client-side
+streaming method, except we use the stream&amp;rsquo;s &lt;code&gt;CloseSend()&lt;/code&gt; method once we&amp;rsquo;ve
+finished our call. Although each side will always get the other&amp;rsquo;s messages in
+the order they were written, both the client and server can read and write in
+any order — the streams operate completely independently.&lt;/p&gt;
+&lt;h3 id=&#34;try-it-out&#34;&gt;Try it out!&lt;/h3&gt;
+&lt;p&gt;Execute the following commands from the &lt;code&gt;examples/route_guide&lt;/code&gt; directory:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Run the server:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run server/server.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;From another terminal, run the client:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go run client/client.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;You&amp;rsquo;ll see output like this:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-nocode&#34; data-lang=&#34;nocode&#34;&gt;Getting feature for point (409146138, -746188906)
+name:&amp;#34;Berkshire Valley Management Area Trail, Jefferson, NJ, USA&amp;#34; location:&amp;lt;latitude:409146138 longitude:-746188906 &amp;gt;
+Getting feature for point (0, 0)
+location:&amp;lt;&amp;gt;
+Looking for features within lo:&amp;lt;latitude:400000000 longitude:-750000000 &amp;gt; hi:&amp;lt;latitude:420000000 longitude:-730000000 &amp;gt;
+name:&amp;#34;Patriots Path, Mendham, NJ 07945, USA&amp;#34; location:&amp;lt;latitude:407838351 longitude:-746143763 &amp;gt;
+...
+name:&amp;#34;3 Hasta Way, Newton, NJ 07860, USA&amp;#34; location:&amp;lt;latitude:410248224 longitude:-747127767 &amp;gt;
+Traversing 56 points.
+Route summary: point_count:56 distance:497013163
+Got message First message at point(0, 1)
+Got message Second message at point(0, 2)
+Got message Third message at point(0, 3)
+Got message First message at point(0, 1)
+Got message Fourth message at point(0, 1)
+Got message Second message at point(0, 2)
+Got message Fifth message at point(0, 2)
+Got message Third message at point(0, 3)
+Got message Sixth message at point(0, 3)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;div class=&#34;alert alert-info&#34; role=&#34;alert&#34;&gt;
+&lt;h4 class=&#34;alert-heading&#34;&gt;Note&lt;/h4&gt;
+
+    We&amp;rsquo;ve omitted timestamps from the client and server trace output shown in this
+page.
+
+&lt;/div&gt;
+
+
+      </description>
+    </item>
+    
+    <item>
+      <title>Docs: ALTS authentication</title>
+      <link>https://grpc.io/docs/languages/go/alts/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/alts/</guid>
+      <description>
+        
+        
+        &lt;h3 id=&#34;overview&#34;&gt;Overview&lt;/h3&gt;
+&lt;p&gt;Application Layer Transport Security (ALTS) is a mutual authentication and
+transport encryption system developed by Google. It is used for securing RPC
+communications within Google&amp;rsquo;s infrastructure. ALTS is similar to mutual TLS
+but has been designed and optimized to meet the needs of Google&amp;rsquo;s production
+environments. For more information, take a look at the
+&lt;a href=&#34;https://cloud.google.com/security/encryption-in-transit/application-layer-transport-security&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ALTS whitepaper&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;ALTS in gRPC has the following features:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Create gRPC servers &amp;amp; clients with ALTS as the transport security protocol.&lt;/li&gt;
+&lt;li&gt;ALTS connections are end-to-end protected with privacy and integrity.&lt;/li&gt;
+&lt;li&gt;Applications can access peer information such as the peer service account.&lt;/li&gt;
+&lt;li&gt;Client authorization and server authorization support.&lt;/li&gt;
+&lt;li&gt;Minimal code changes to enable ALTS.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;gRPC users can configure their applications to use ALTS as a transport security
+protocol with few lines of code.&lt;/p&gt;
+&lt;p&gt;Note that ALTS is fully functional if the application runs on
+&lt;a href=&#34;https://cloud.google.com/compute&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Compute Engine&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; or
+&lt;a href=&#34;https://cloud.google.com/kubernetes-engine&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Google Kubernetes Engine (GKE)&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;grpc-client-with-alts-transport-security-protocol&#34;&gt;gRPC Client with ALTS Transport Security Protocol&lt;/h3&gt;
+&lt;p&gt;gRPC clients can use ALTS credentials to connect to servers, as illustrated in
+the following code excerpt:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc/credentials/alts&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;altsTC &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; alts.&lt;span style=&#34;color:#c0f&#34;&gt;NewClientCreds&lt;/span&gt;(alts.&lt;span style=&#34;color:#c0f&#34;&gt;DefaultClientOptions&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; grpc.&lt;span style=&#34;color:#c0f&#34;&gt;NewClient&lt;/span&gt;(serverAddr, grpc.&lt;span style=&#34;color:#c0f&#34;&gt;WithTransportCredentials&lt;/span&gt;(altsTC))
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;grpc-server-with-alts-transport-security-protocol&#34;&gt;gRPC Server with ALTS Transport Security Protocol&lt;/h3&gt;
+&lt;p&gt;gRPC servers can use ALTS credentials to allow clients to connect to them, as
+illustrated next:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc/credentials/alts&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;altsTC &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; alts.&lt;span style=&#34;color:#c0f&#34;&gt;NewServerCreds&lt;/span&gt;(alts.&lt;span style=&#34;color:#c0f&#34;&gt;DefaultServerOptions&lt;/span&gt;())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;server &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; grpc.&lt;span style=&#34;color:#c0f&#34;&gt;NewServer&lt;/span&gt;(grpc.&lt;span style=&#34;color:#c0f&#34;&gt;Creds&lt;/span&gt;(altsTC))
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;server-authorization&#34;&gt;Server Authorization&lt;/h3&gt;
+&lt;p&gt;gRPC has built-in server authorization support using ALTS. A gRPC client using
+ALTS can set the expected server service accounts prior to establishing a
+connection. Then, at the end of the handshake, server authorization guarantees
+that the server identity matches one of the service accounts specified
+by the client. Otherwise, the connection fails.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc/credentials/alts&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;clientOpts &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; alts.&lt;span style=&#34;color:#c0f&#34;&gt;DefaultClientOptions&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;clientOpts.TargetServiceAccounts = []&lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt;{expectedServerSA}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;altsTC &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; alts.&lt;span style=&#34;color:#c0f&#34;&gt;NewClientCreds&lt;/span&gt;(clientOpts)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn, err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; grpc.&lt;span style=&#34;color:#c0f&#34;&gt;NewClient&lt;/span&gt;(serverAddr, grpc.&lt;span style=&#34;color:#c0f&#34;&gt;WithTransportCredentials&lt;/span&gt;(altsTC))
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;client-authorization&#34;&gt;Client Authorization&lt;/h3&gt;
+&lt;p&gt;On a successful connection, the peer information (e.g., client’s service
+account) is stored in the &lt;a href=&#34;https://github.com/grpc/grpc/blob/master/src/proto/grpc/gcp/altscontext.proto&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;AltsContext&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;. gRPC provides a utility library for
+client authorization check. Assuming that the server knows the expected client
+identity (e.g., &lt;code&gt;foo@iam.gserviceaccount.com&lt;/code&gt;), it can run the following example
+codes to authorize the incoming RPC.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;google.golang.org/grpc/credentials/alts&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;err &lt;span style=&#34;color:#555&#34;&gt;:=&lt;/span&gt; alts.&lt;span style=&#34;color:#c0f&#34;&gt;ClientAuthorizationCheck&lt;/span&gt;(ctx, []&lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;string&lt;/span&gt;{&lt;span style=&#34;color:#c30&#34;&gt;&amp;#34;foo@iam.gserviceaccount.com&amp;#34;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+      </description>
+    </item>
+    
+    <item>
+      <title>Docs: API reference</title>
+      <link>https://grpc.io/docs/languages/go/api/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/api/</guid>
+      <description>
+        
+        
+        
+      </description>
+    </item>
+    
+    <item>
+      <title>Docs: Generated-code reference</title>
+      <link>https://grpc.io/docs/languages/go/generated-code/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/generated-code/</guid>
+      <description>
+        
+        
+        &lt;p&gt;This page describes the code generated when compiling &lt;code&gt;.proto&lt;/code&gt; files with &lt;code&gt;protoc&lt;/code&gt;, using the &lt;code&gt;protoc-gen-go-grpc&lt;/code&gt; &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;grpc plugin&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;. This latest version of generated code uses generics by default. If you&amp;rsquo;re working with older generated code that doesn&amp;rsquo;t use generics, you can find the relevant documentation &lt;a href=&#34;https://grpc.io/docs/languages/go/generated-code-old&#34;&gt;here&lt;/a&gt;.  While we encourage using this latest version with generics, you can temporarily revert to the old behavior by setting the &lt;code&gt;useGenericStreams&lt;/code&gt; flag to &lt;code&gt;false&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;You can find out how to define a gRPC service in a &lt;code&gt;.proto&lt;/code&gt; file in &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/core-concepts/#service-definition&#34;&gt;Service definition&lt;/a&gt;.&lt;/p&gt;
+&lt;p class=&#34;note&#34;&gt;&lt;strong&gt;Thread-safety&lt;/strong&gt;: note that client-side RPC invocations and server-side RPC handlers &lt;i&gt;are thread-safe&lt;/i&gt; and are meant
+to be run on concurrent goroutines. But also note that for &lt;i&gt;individual streams&lt;/i&gt;, incoming and outgoing data is bi-directional but serial;
+so e.g. &lt;i&gt;individual streams&lt;/i&gt; do not support &lt;i&gt;concurrent reads&lt;/i&gt; or &lt;i&gt;concurrent writes&lt;/i&gt; (but reads are safely concurrent &lt;i&gt;with&lt;/i&gt; writes).
+&lt;/p&gt;
+&lt;h2 id=&#34;methods-on-generated-server-interfaces&#34;&gt;Methods on generated server interfaces&lt;/h2&gt;
+&lt;p&gt;On the server side, each &lt;code&gt;service Bar&lt;/code&gt; in the &lt;code&gt;.proto&lt;/code&gt; file results in the function:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;func RegisterBarServer(s *grpc.Server, srv BarServer)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The application can define a concrete implementation of the &lt;code&gt;BarServer&lt;/code&gt; interface and register it with a &lt;code&gt;grpc.Server&lt;/code&gt; instance
+(before starting the server instance) by using this function.&lt;/p&gt;
+&lt;h3 id=&#34;unary-methods&#34;&gt;Unary methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(context.Context, *RequestMsg) (*ResponseMsg, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;RequestMsg&lt;/code&gt; is the protobuf message sent from the client, and &lt;code&gt;ResponseMsg&lt;/code&gt; is the protobuf message sent back from the server.&lt;/p&gt;
+&lt;h3 id=&#34;server-streaming-methods&#34;&gt;Server-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:
+&lt;code&gt;Foo(*RequestMsg, grpc.ServerStreamingServer[*ResponseMsg]) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;RequestMsg&lt;/code&gt; is the single request from the client, and &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ServerStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ServerStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; represents the server side of server-to-client stream of response type &lt;code&gt;ResponseMsg&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ServerStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ServerStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h3 id=&#34;client-streaming-methods&#34;&gt;Client-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(grpc.ClientStreamingServer[*RequestMsg, *ResponseMsg]) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Where &lt;code&gt;RequestMsg&lt;/code&gt; is the message type of the stream, sent from client-to-server and &lt;code&gt;ResponseMsg&lt;/code&gt; is the type of response from server to client.&lt;/p&gt;
+&lt;p&gt;In this context, &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ClientStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ClientStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; can be used both to read the client-to-server message stream and to send the single server response message.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ClientStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ClientStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h3 id=&#34;bidi-streaming-methods&#34;&gt;Bidi-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(grpc.BidiStreamingServer[*RequestMsg, *ResponseMsg]) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Where &lt;code&gt;RequestMsg&lt;/code&gt; is the message type of the stream, sent from client-to-server and &lt;code&gt;ResponseMsg&lt;/code&gt; is the type of stream from server-to-client.&lt;/p&gt;
+&lt;p&gt;In this context, &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#BidiStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.BidiStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; can be used to access both the client-to-server message stream and the server-to-client message stream.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#BidiStreamingServer&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.BidiStreamingServer&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h2 id=&#34;methods-on-generated-client-interfaces&#34;&gt;Methods on generated client interfaces&lt;/h2&gt;
+&lt;p&gt;For client side usage, each &lt;code&gt;service Bar&lt;/code&gt; in the &lt;code&gt;.proto&lt;/code&gt; file also results in the function: &lt;code&gt;func BarClient(cc *grpc.ClientConn) BarClient&lt;/code&gt;, which
+returns a concrete implementation of the &lt;code&gt;BarClient&lt;/code&gt; interface (this concrete implementation also lives in the generated &lt;code&gt;.pb.go&lt;/code&gt; file).&lt;/p&gt;
+&lt;h3 id=&#34;unary-methods-1&#34;&gt;Unary Methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;(ctx context.Context, in *RequestMsg, opts ...grpc.CallOption) (*ResponseMsg, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;RequestMsg&lt;/code&gt; is the single request from client to server, and &lt;code&gt;ResponseMsg&lt;/code&gt; contains the response sent back from the server.&lt;/p&gt;
+&lt;h3 id=&#34;server-streaming-methods-1&#34;&gt;Server-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, in *RequestMsg, opts ...grpc.CallOption) (grpc.ServerStreamingClient[*ResponseMsg], error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ServerStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ServerStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; represents the client side of server-to-client stream of &lt;code&gt;ResponseMsg&lt;/code&gt; messages.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ServerStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ServerStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h3 id=&#34;client-streaming-methods-1&#34;&gt;Client-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[*RequestMsg, *ResponseMsg], error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ClientStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ClientStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; represents the client side of client-to-server stream of &lt;code&gt;RequestMsg&lt;/code&gt; messages. It can be used both to send the client-to-server message stream and to receive the single server response message.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#ClientStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.ClientStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h3 id=&#34;bidi-streaming-methods-1&#34;&gt;Bidi-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[*RequestMsg, *ResponseMsg], error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#BidiStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.BidiStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; represents both the client-to-server and server-to-client message streams.&lt;/p&gt;
+&lt;p&gt;Refer to &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc#BidiStreamingClient&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;code&gt;grpc.BidiStreamingClient&lt;/code&gt;&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt; documentation for detailed usage information.&lt;/p&gt;
+&lt;h2 id=&#34;packages-and-namespaces&#34;&gt;Packages and Namespaces&lt;/h2&gt;
+&lt;p&gt;When the &lt;code&gt;protoc&lt;/code&gt; compiler is invoked with &lt;code&gt;--go_out=plugins=grpc:&lt;/code&gt;, the &lt;code&gt;proto package&lt;/code&gt; to Go package translation
+works the same as when the &lt;code&gt;protoc-gen-go&lt;/code&gt; plugin is used without the &lt;code&gt;grpc&lt;/code&gt; plugin.&lt;/p&gt;
+&lt;p&gt;So, for example, if &lt;code&gt;foo.proto&lt;/code&gt; declares itself to be in &lt;code&gt;package foo&lt;/code&gt;, then the generated &lt;code&gt;foo.pb.go&lt;/code&gt; file will also be in
+the Go &lt;code&gt;package foo&lt;/code&gt;.&lt;/p&gt;
+
+      </description>
+    </item>
+    
+    <item>
+      <title>Docs: Generated-code (legacy non-generic) reference</title>
+      <link>https://grpc.io/docs/languages/go/generated-code-old/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://grpc.io/docs/languages/go/generated-code-old/</guid>
+      <description>
+        
+        
+        &lt;p&gt;This page describes the code generated with the &lt;a href=&#34;https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;grpc plugin&lt;i class=&#34;fas fa-external-link-alt&#34;&gt;&lt;/i&gt;&lt;/a&gt;, &lt;code&gt;protoc-gen-go-grpc&lt;/code&gt;,
+when compiling &lt;code&gt;.proto&lt;/code&gt; files with &lt;code&gt;protoc&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;You can find out how to define a gRPC service in a &lt;code&gt;.proto&lt;/code&gt; file in &lt;a href=&#34;https://grpc.io/docs/what-is-grpc/core-concepts/#service-definition&#34;&gt;Service definition&lt;/a&gt;.&lt;/p&gt;
+&lt;p class=&#34;note&#34;&gt;&lt;strong&gt;Thread-safety&lt;/strong&gt;: note that client-side RPC invocations and server-side RPC handlers &lt;i&gt;are thread-safe&lt;/i&gt; and are meant
+to be run on concurrent goroutines. But also note that for &lt;i&gt;individual streams&lt;/i&gt;, incoming and outgoing data is bi-directional but serial;
+so e.g. &lt;i&gt;individual streams&lt;/i&gt; do not support &lt;i&gt;concurrent reads&lt;/i&gt; or &lt;i&gt;concurrent writes&lt;/i&gt; (but reads are safely concurrent &lt;i&gt;with&lt;/i&gt; writes).
+&lt;/p&gt;
+&lt;h2 id=&#34;methods-on-generated-server-interfaces&#34;&gt;Methods on generated server interfaces&lt;/h2&gt;
+&lt;p&gt;On the server side, each &lt;code&gt;service Bar&lt;/code&gt; in the &lt;code&gt;.proto&lt;/code&gt; file results in the function:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;func RegisterBarServer(s *grpc.Server, srv BarServer)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The application can define a concrete implementation of the &lt;code&gt;BarServer&lt;/code&gt; interface and register it with a &lt;code&gt;grpc.Server&lt;/code&gt; instance
+(before starting the server instance) by using this function.&lt;/p&gt;
+&lt;h3 id=&#34;unary-methods&#34;&gt;Unary methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(context.Context, *MsgA) (*MsgB, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;MsgA&lt;/code&gt; is the protobuf message sent from the client, and &lt;code&gt;MsgB&lt;/code&gt; is the protobuf message sent back from the server.&lt;/p&gt;
+&lt;h3 id=&#34;server-streaming-methods&#34;&gt;Server-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(*MsgA, &amp;lt;ServiceName&amp;gt;_FooServer) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;MsgA&lt;/code&gt; is the single request from the client, and the &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; parameter represents the server-to-client stream
+of &lt;code&gt;MsgB&lt;/code&gt; messages.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; has an embedded &lt;code&gt;grpc.ServerStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooServer &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ServerStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The server-side handler can send a stream of protobuf messages to the client through this parameter&amp;rsquo;s &lt;code&gt;Send&lt;/code&gt; method. End-of-stream for the server-to-client
+stream is caused by the &lt;code&gt;return&lt;/code&gt; of the handler method.&lt;/p&gt;
+&lt;h3 id=&#34;client-streaming-methods&#34;&gt;Client-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(&amp;lt;ServiceName&amp;gt;_FooServer) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; can be used both to read the client-to-server message stream and to send the single server response message.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; has an embedded &lt;code&gt;grpc.ServerStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooServer &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;SendAndClose&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgA) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;() (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ServerStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The server-side handler can repeatedly call &lt;code&gt;Recv&lt;/code&gt; on this parameter in order to receive the full stream of
+messages from the client. &lt;code&gt;Recv&lt;/code&gt; returns &lt;code&gt;(nil, io.EOF)&lt;/code&gt; once it has reached the end of the stream.
+The single response message from the server is sent by calling the &lt;code&gt;SendAndClose&lt;/code&gt; method on this &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; parameter.
+Note that &lt;code&gt;SendAndClose&lt;/code&gt; must be called once and only once.&lt;/p&gt;
+&lt;h3 id=&#34;bidi-streaming-methods&#34;&gt;Bidi-streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated service interface:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(&amp;lt;ServiceName&amp;gt;_FooServer) error&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; can be used to access both the client-to-server message stream and the server-to-client message stream.
+&lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooServer&lt;/code&gt; has an embedded &lt;code&gt;grpc.ServerStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooServer &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgA) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;() (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ServerStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The server-side handler can repeatedly call &lt;code&gt;Recv&lt;/code&gt; on this parameter in order to read the client-to-server message stream.
+&lt;code&gt;Recv&lt;/code&gt; returns &lt;code&gt;(nil, io.EOF)&lt;/code&gt; once it has reached the end of the client-to-server stream.
+The response server-to-client message stream is sent by repeatedly calling the &lt;code&gt;Send&lt;/code&gt; method of on this &lt;code&gt;ServiceName&amp;gt;_FooServer&lt;/code&gt; parameter.
+End-of-stream for the server-to-client stream is indicated by the &lt;code&gt;return&lt;/code&gt; of the bidi method handler.&lt;/p&gt;
+&lt;h2 id=&#34;methods-on-generated-client-interfaces&#34;&gt;Methods on generated client interfaces&lt;/h2&gt;
+&lt;p&gt;For client side usage, each &lt;code&gt;service Bar&lt;/code&gt; in the &lt;code&gt;.proto&lt;/code&gt; file also results in the function: &lt;code&gt;func BarClient(cc *grpc.ClientConn) BarClient&lt;/code&gt;, which
+returns a concrete implementation of the &lt;code&gt;BarClient&lt;/code&gt; interface (this concrete implementation also lives in the generated &lt;code&gt;.pb.go&lt;/code&gt; file).&lt;/p&gt;
+&lt;h3 id=&#34;unary-methods-1&#34;&gt;Unary Methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;(ctx context.Context, in *MsgA, opts ...grpc.CallOption) (*MsgB, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;MsgA&lt;/code&gt; is the single request from client to server, and &lt;code&gt;MsgB&lt;/code&gt; contains the response sent back from the server.&lt;/p&gt;
+&lt;h3 id=&#34;server-streaming-methods-1&#34;&gt;Server-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, in *MsgA, opts ...grpc.CallOption) (&amp;lt;ServiceName&amp;gt;_FooClient, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; represents the server-to-client &lt;code&gt;stream&lt;/code&gt; of &lt;code&gt;MsgB&lt;/code&gt; messages.&lt;/p&gt;
+&lt;p&gt;This stream has an embedded &lt;code&gt;grpc.ClientStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooClient &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;() (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ClientStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The stream begins when the client calls the &lt;code&gt;Foo&lt;/code&gt; method on the stub.
+The client can then repeatedly call the &lt;code&gt;Recv&lt;/code&gt; method on the returned &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; &lt;i&gt;stream&lt;/i&gt; in order to read the server-to-client response stream.
+This &lt;code&gt;Recv&lt;/code&gt; method returns &lt;code&gt;(nil, io.EOF)&lt;/code&gt; once the server-to-client stream has been completely read through.&lt;/p&gt;
+&lt;h3 id=&#34;client-streaming-methods-1&#34;&gt;Client-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, opts ...grpc.CallOption) (&amp;lt;ServiceName&amp;gt;_FooClient, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; represents the client-to-server &lt;code&gt;stream&lt;/code&gt; of &lt;code&gt;MsgA&lt;/code&gt; messages.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; has an embedded &lt;code&gt;grpc.ClientStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooClient &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgA) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;CloseAndRecv&lt;/span&gt;() (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ClientStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The stream begins when the client calls the &lt;code&gt;Foo&lt;/code&gt; method on the stub.
+The client can then repeatedly call the &lt;code&gt;Send&lt;/code&gt; method on the returned &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; stream in order to send the client-to-server message stream.
+The &lt;code&gt;CloseAndRecv&lt;/code&gt; method on this stream must be called once and only once, in order to both close the client-to-server stream
+and receive the single response message from the server.&lt;/p&gt;
+&lt;h3 id=&#34;bidi-streaming-methods-1&#34;&gt;Bidi-Streaming methods&lt;/h3&gt;
+&lt;p&gt;These methods have the following signature on the generated client stub:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Foo(ctx context.Context, opts ...grpc.CallOption) (&amp;lt;ServiceName&amp;gt;_FooClient, error)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;In this context, &lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; represents both the client-to-server and server-to-client message streams.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;ServiceName&amp;gt;_FooClient&lt;/code&gt; has an embedded &lt;code&gt;grpc.ClientStream&lt;/code&gt; and the following interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;type&lt;/span&gt; &amp;lt;ServiceName&amp;gt;_FooClient &lt;span style=&#34;color:#069;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Send&lt;/span&gt;(&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgA) &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#c0f&#34;&gt;Recv&lt;/span&gt;() (&lt;span style=&#34;color:#555&#34;&gt;*&lt;/span&gt;MsgB, &lt;span style=&#34;color:#078;font-weight:bold&#34;&gt;error&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	grpc.ClientStream
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The stream begins when the client calls the &lt;code&gt;Foo&lt;/code&gt; method on the stub.
+The client can then repeatedly call the &lt;code&gt;Send&lt;/code&gt; method on the returned &lt;code&gt;&amp;lt;SericeName&amp;gt;_FooClient&lt;/code&gt; stream in order to send the
+client-to-server message stream. The client can also repeatedly call &lt;code&gt;Recv&lt;/code&gt; on this stream in order to
+receive the full server-to-client message stream.&lt;/p&gt;
+&lt;p&gt;End-of-stream for the server-to-client stream is indicated by a return value of &lt;code&gt;(nil, io.EOF)&lt;/code&gt; on the &lt;code&gt;Recv&lt;/code&gt; method of the stream.
+End-of-stream for the client-to-server stream can be indicated from the client by calling the &lt;code&gt;CloseSend&lt;/code&gt; method on the stream.&lt;/p&gt;
+&lt;h2 id=&#34;packages-and-namespaces&#34;&gt;Packages and Namespaces&lt;/h2&gt;
+&lt;p&gt;When the &lt;code&gt;protoc&lt;/code&gt; compiler is invoked with &lt;code&gt;--go_out=plugins=grpc:&lt;/code&gt;, the &lt;code&gt;proto package&lt;/code&gt; to Go package translation
+works the same as when the &lt;code&gt;protoc-gen-go&lt;/code&gt; plugin is used without the &lt;code&gt;grpc&lt;/code&gt; plugin.&lt;/p&gt;
+&lt;p&gt;So, for example, if &lt;code&gt;foo.proto&lt;/code&gt; declares itself to be in &lt;code&gt;package foo&lt;/code&gt;, then the generated &lt;code&gt;foo.pb.go&lt;/code&gt; file will also be in
+the Go &lt;code&gt;package foo&lt;/code&gt;.&lt;/p&gt;
+
+      </description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,1529 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.99.1" />
+
+
+
+<meta name="robots" content="noindex, nofollow">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicons/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicons/android-chrome-512x512.png" sizes="512x512">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<title>Building gRPC services with bazel and rules_protobuf | gRPC</title>
+<meta name="description" content="gRPC makes it easier to build high-performance
+microservices by providing generated service entrypoints in a variety
+of different languages.  Bazel …">
+<meta property="og:title" content="Building gRPC services with bazel and rules_protobuf" />
+<meta property="og:description" content="gRPC makes it easier to build high-performance
+microservices by providing generated service entrypoints in a variety
+of different languages.  Bazel complements these
+efforts with a capable and fast polyglot build environment.
+rules_protobuf extends
+bazel and makes it easier develop gRPC services." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://grpc.io/blog/bazel-rules-protobuf/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2016-10-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2024-11-25T11:33:41-05:00" /><meta property="og:site_name" content="gRPC" />
+
+<meta itemprop="name" content="Building gRPC services with bazel and rules_protobuf">
+<meta itemprop="description" content="gRPC makes it easier to build high-performance
+microservices by providing generated service entrypoints in a variety
+of different languages.  Bazel complements these
+efforts with a capable and fast polyglot build environment.
+rules_protobuf extends
+bazel and makes it easier develop gRPC services."><meta itemprop="datePublished" content="2016-10-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2024-11-25T11:33:41-05:00" />
+<meta itemprop="wordCount" content="4434">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Building gRPC services with bazel and rules_protobuf"/>
+<meta name="twitter:description" content="gRPC makes it easier to build high-performance
+microservices by providing generated service entrypoints in a variety
+of different languages.  Bazel complements these
+efforts with a capable and fast polyglot build environment.
+rules_protobuf extends
+bazel and makes it easier develop gRPC services."/>
+<link href="/css/style.css" rel="stylesheet">
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK"
+  crossorigin="anonymous"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="canonical" href="https://grpc.io/blog/bazel-rules-protobuf/">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@grpcio">
+<meta name="twitter:creator" content="@grpcio">
+<meta name="twitter:image" content="https://grpc.io/img/logos/grpc-icon-color.png">
+<meta name="twitter:image:alt" content="gRPC color logo">
+
+<meta property="og:url" content="https://grpc.io/blog/bazel-rules-protobuf/">
+<meta property="og:title" content="Building gRPC services with bazel and rules_protobuf">
+<meta property="og:description" content="A high-performance, open source universal RPC framework">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="gRPC">
+<meta property="og:image" content="https://grpc.io/img/logos/grpc-icon-color.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="gRPC color logo">
+<meta property="og:locale" content="en_US">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicons/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicons/android-chrome-512x512.png" sizes="512x512">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/favicons/site.webmanifest">
+  </head>
+  <body class="td-page td-blog">
+    <header>
+      
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark flex-column flex-md-row td-navbar">
+        <a class="navbar-brand" href="/">
+		<span class="navbar-logo"><svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 288 122.3333"><style>.st0{fill:#fff}.st2,.st3{clip-path:url(#SVGID_2_);fill:#73cbcb}.st3{fill:#72cbca}.st5,.st57,.st59,.st63,.st8{clip-path:url(#SVGID_2_);fill:#70caca}.st57,.st59,.st63,.st8{fill:#6dc9c9}.st57,.st59,.st63{fill:#00b5b2}.st59,.st63{fill:#00b3b0}.st63{fill:#00b0ad}.st120,.st121,.st70{clip-path:url(#SVGID_4_);fill:#6fcac9}.st120,.st121{fill:#00bab8}.st121{fill:#00b9b7}.st123,.st126,.st128,.st129{clip-path:url(#SVGID_4_);fill:#00b8b6}.st126,.st128,.st129{fill:#00b7b4}.st128,.st129{fill:#00b6b3}.st129{fill:#00b5b2}</style><path class="st0" d="M33.8581 102.699c2.0254 2.7248 4.6635 4.9082 7.9122 6.5503 3.2493 1.641 6.865 2.4626 10.8474 2.4626 3.493.0 6.462-.5075 8.9083-1.5194 2.4451-1.014 4.4181-2.3939 5.9212-4.1396 1.502-1.7478 2.5842-3.7906 3.2492-6.1316.663-2.341.9955-4.8385.9955-7.4924v-8.8036h-.2093c-2.2369 3.353-4.9622 5.7298-8.175 7.1266-3.2143 1.3978-6.6026 2.0957-10.166 2.0957-3.5632.0-6.9002-.6291-10.0083-1.8863-3.1103-1.2583-5.8171-2.987-8.1227-5.1874-2.3055-2.2014-4.1231-4.8374-5.4496-7.9133-1.328-3.0737-1.9915-6.3928-1.9915-9.956s.6291-6.8813 1.8868-9.9567c1.2572-3.0737 2.9865-5.7641 5.1874-8.0697 2.201-2.3056 4.821-4.1036 7.8604-5.3973 3.0394-1.292 6.3754-1.9392 10.009-1.9392 1.467.0 3.0214.1412 4.6634.4193 1.641.2802 3.2837.7697 4.9257 1.4676 1.641.6989 3.2657 1.66 4.8734 2.8818 1.6066 1.2234 3.108 2.7772 4.507 4.664h.2093v-8.175h6.9173V92.429c0 2.654-.3326 5.4834-.996 8.4884-.6646 3.003-1.9567 5.7648-3.8774 8.2791-1.9228 2.5155-4.5953 4.6122-8.0174 6.2892C62.2941 117.1616 57.8221 118 52.3032 118c-4.8914.0-9.2588-.8036-13.1001-2.4097-3.8435-1.6083-7.3365-4.0878-10.4806-7.4417l5.1356-5.4496zm1.2572-35.0038c0 2.5852.4716 5.014 1.4153 7.283.9432 2.2713 2.2352 4.2633 3.8773 5.9741 1.641 1.713 3.5633 3.0759 5.7642 4.0878 2.2009 1.013 4.5937 1.5194 7.1795 1.5194 2.5149.0 4.9077-.4536 7.1789-1.363 2.2696-.9071 4.2791-2.1823 6.0259-3.8244 1.7456-1.641 3.0917-3.6162 4.0354-5.9223.9431-2.305 1.3787-4.8892 1.31-7.7546.0-2.5847-.4192-5.013-1.2577-7.2841-.8385-2.2697-2.0619-4.2612-3.6685-5.9741-1.6077-1.7113-3.5633-3.0737-5.8689-4.0872-2.3055-1.012-4.8913-1.5194-7.7551-1.5194-2.5858.0-4.9786.5075-7.1795 1.5194-2.2009 1.0135-4.1232 2.3759-5.7642 4.0872-1.642 1.713-2.9341 3.7044-3.8773 5.974-.9437 2.2713-1.4153 4.6995-1.4153 7.2842zm71.6851 25.1524h-7.5458v-74.201h22.8468c7.5458.0 13.502 1.6425 17.8693 4.9256 4.3659 3.2852 6.5504 8.2453 6.5504 14.8823.0 5.1715-1.6246 9.521-4.8734 13.0483-3.2492 3.529-7.9487 5.5723-14.0961 6.1306l21.3803 35.2142h-9.2234l-20.3319-34.4804h-12.5762v34.4804zm0-41.3976h13.4147c3.354.0 6.1998-.3484 8.5413-1.0479 2.3405-.6973 4.2088-1.6246 5.6072-2.7771 1.3968-1.153 2.4108-2.5155 3.0394-4.0872.6286-1.5723.9431-3.2657.9431-5.0833.0-1.7457-.3145-3.4063-.9431-4.978-.6286-1.5723-1.6426-2.9511-3.0394-4.1401-1.3984-1.1869-3.2667-2.112-5.6072-2.7771-2.3415-.663-5.1874-.9955-8.5413-.9955h-13.4147V51.45zm55.1253-32.8035h21.5902c7.5453.0 13.5014 1.6426 17.8683 4.9257 4.3658 3.2852 6.5503 8.2453 6.5503 14.8823.0 6.6386-2.1845 11.6167-6.5503 14.9347-4.367 3.319-10.323 4.978-17.8683 4.978H169.472v34.4804h-7.5464v-74.201zm7.5464 32.8035h12.1574c3.353.0 6.1993-.3484 8.5414-1.0479 2.3399-.6973 4.2083-1.6246 5.6071-2.7771 1.3968-1.153 2.4098-2.5155 3.0389-4.0872.6291-1.5723.9432-3.2657.9432-5.0833.0-1.7457-.314-3.4063-.9432-4.978-.6291-1.5723-1.6421-2.9511-3.0389-4.1401-1.3988-1.1869-3.2672-2.112-5.6071-2.7771-2.342-.663-5.1885-.9955-8.5414-.9955h-12.1574V51.45zM283.7057 81.1099c-1.2572 1.8863-2.8125 3.668-4.663 5.345-1.8524 1.6769-3.966 3.1276-6.3409 4.3488-2.3759 1.2234-4.9442 2.1835-7.7028 2.8824-2.7608.6978-5.678 1.0478-8.7518 1.0478-5.5194.0-10.637-.979-15.3528-2.9341-4.7169-1.9551-8.8035-4.664-12.2622-8.1227-3.4586-3.4586-6.1675-7.5622-8.1226-12.314-1.9572-4.7506-2.9341-9.9565-2.9341-15.616s.977-10.8633 2.9341-15.6156c1.955-4.7507 4.664-8.856 8.1226-12.3145s7.5453-6.1655 12.2622-8.1221c4.7158-1.9556 9.8334-2.9347 15.3528-2.9347 4.6122.0 9.2234.9088 13.8345 2.7248 4.6111 1.8176 8.5582 4.821 11.8424 9.0134l-6.6022 4.9257c-.7697-1.1874-1.8176-2.3748-3.1445-3.5633-1.328-1.1874-2.8475-2.2352-4.5583-3.144-1.713-.9072-3.5474-1.641-5.5025-2.2009-1.9571-.5588-3.9133-.8385-5.8694-.8385-4.7517.0-9.0129.8745-12.7855 2.6202-3.7727 1.7472-6.969 4.0872-9.5892 7.0213-2.6201 2.9347-4.6302 6.341-6.027 10.2189-1.3978 3.8773-2.0956 7.9486-2.0956 12.2093.0 4.2627.6978 8.332 2.0957 12.2093 1.3967 3.8783 3.4068 7.284 6.0269 10.2183 2.6201 2.9352 5.8165 5.2762 9.5892 7.0219 3.7726 1.7478 8.0338 2.62 12.7855 2.62 1.9561.0 3.8943-.1733 5.8166-.5233 1.9212-.349 3.8075-.9432 5.66-1.7816 1.8504-.8385 3.597-1.9741 5.2402-3.4068 1.641-1.4307 3.1605-3.2303 4.5583-5.3968l6.1834 4.4018z"/><defs><path id="SVGID_1_" transform="rotate(-135.2127 22.2272 23.47)" d="M8.4598 9.7025h27.535v27.535H8.4598z"/></defs><clipPath id="SVGID_2_"><use xlink:href="#SVGID_1_" overflow="visible"/></clipPath><path clip-path="url(#SVGID_2_)" fill="#74cbcb" d="M3.1017 4l-.3445 3.0493V4z"/><path class="st2" d="M3.557 4l-.7998 7.078V7.0493L3.1017 4z"/><path class="st2" d="M4.0122 4l-1.255 11.1067V11.078L3.557 4z"/><path class="st3" d="M4.4674 4 2.7572 19.1354v-4.0287L4.0122 4z"/><path class="st3" d="M4.9226 4 2.7572 23.1641v-4.0287L4.4674 4z"/><path clip-path="url(#SVGID_2_)" fill="#71caca" d="M5.3778 4 2.7572 27.1928v-4.0287L4.9226 4z"/><path class="st5" d="M5.833 4 2.7572 31.2216v-4.0288L5.3778 4z"/><path class="st5" d="M6.2882 4l-3.531 31.2503v-4.0287L5.833 4z"/><path clip-path="url(#SVGID_2_)" fill="#6fcac9" d="M6.7434 4 2.7572 39.279v-4.0287L6.2882 4z"/><path clip-path="url(#SVGID_2_)" fill="#6ecac9" d="M7.1986 4 2.8014 42.9162l-.0442-.005V39.279L6.7434 4z"/><path class="st8" d="M7.6538 4 3.2539 42.94h-.2414l-.211-.0238L7.1985 4z"/><path class="st8" d="M8.109 4 3.7092 42.94h-.4553L7.6538 4z"/><path clip-path="url(#SVGID_2_)" fill="#6cc9c8" d="M8.5642 4 4.1644 42.94h-.4552L8.109 4z"/><path clip-path="url(#SVGID_2_)" fill="#6bc9c8" d="M9.0194 4 4.6196 42.94h-.4552L8.5642 4z"/><path clip-path="url(#SVGID_2_)" fill="#6ac9c8" d="M9.4746 4 5.0748 42.94h-.4552L9.0194 4z"/><path clip-path="url(#SVGID_2_)" fill="#69c8c8" d="M9.9298 4 5.53 42.94h-.4552L9.4746 4z"/><path clip-path="url(#SVGID_2_)" fill="#68c8c7" d="M10.385 4 5.9852 42.94H5.53L9.9298 4z"/><path clip-path="url(#SVGID_2_)" fill="#67c8c7" d="M10.8402 4 6.4404 42.94h-.4552L10.385 4z"/><path clip-path="url(#SVGID_2_)" fill="#66c7c7" d="M11.2954 4 6.8956 42.94h-.4552L10.8402 4z"/><path clip-path="url(#SVGID_2_)" fill="#65c7c6" d="M11.7506 4 7.3508 42.94h-.4552L11.2954 4z"/><path clip-path="url(#SVGID_2_)" fill="#64c7c6" d="M12.2059 4 7.806 42.94h-.4552L11.7506 4z"/><path clip-path="url(#SVGID_2_)" fill="#62c7c6" d="M12.661 4 8.2613 42.94H7.806L12.2059 4z"/><path clip-path="url(#SVGID_2_)" fill="#61c6c6" d="M13.1163 4 8.7164 42.94h-.4552L12.6611 4z"/><path clip-path="url(#SVGID_2_)" fill="#60c6c5" d="M13.5715 4 9.1716 42.94h-.4552L13.1163 4z"/><path clip-path="url(#SVGID_2_)" fill="#5ec6c5" d="M14.0267 4 9.6268 42.94h-.4552L13.5715 4z"/><path clip-path="url(#SVGID_2_)" fill="#5dc5c5" d="M14.4819 4 10.082 42.94h-.4552L14.0267 4z"/><path clip-path="url(#SVGID_2_)" fill="#5bc5c4" d="M14.937 4l-4.3998 38.94h-.4552L14.482 4z"/><path clip-path="url(#SVGID_2_)" fill="#5ac5c4" d="M15.3923 4l-4.3999 38.94h-.4552L14.9371 4z"/><path clip-path="url(#SVGID_2_)" fill="#58c4c3" d="M15.8475 4l-4.3999 38.94h-.4552L15.3923 4z"/><path clip-path="url(#SVGID_2_)" fill="#57c4c3" d="M16.3027 4l-4.3998 38.94h-.4553L15.8475 4z"/><path clip-path="url(#SVGID_2_)" fill="#55c4c3" d="M16.758 4l-4.4 38.94h-.4551L16.3027 4z"/><path clip-path="url(#SVGID_2_)" fill="#53c3c2" d="M17.2131 4l-4.3998 38.94h-.4552L16.7579 4z"/><path clip-path="url(#SVGID_2_)" fill="#51c3c2" d="M17.6683 4l-4.3998 38.94h-.4552L17.213 4z"/><path clip-path="url(#SVGID_2_)" fill="#4fc3c1" d="M18.1235 4l-4.3998 38.94h-.4552L17.6683 4z"/><path clip-path="url(#SVGID_2_)" fill="#4dc2c1" d="M18.5787 4 14.179 42.94h-.4552L18.1235 4z"/><path clip-path="url(#SVGID_2_)" fill="#4bc2c0" d="M19.034 4l-4.4 38.94h-.4551L18.5787 4z"/><path clip-path="url(#SVGID_2_)" fill="#49c1c0" d="M19.4891 4l-4.3998 38.94h-.4552L19.0339 4z"/><path clip-path="url(#SVGID_2_)" fill="#46c1c0" d="M19.9443 4l-4.3998 38.94h-.4552L19.489 4z"/><path clip-path="url(#SVGID_2_)" fill="#44c0bf" d="M20.3996 4l-4.3999 38.94h-.4552L19.9443 4z"/><path clip-path="url(#SVGID_2_)" fill="#41c0bf" d="M20.8548 4l-4.3999 38.94h-.4552L20.3996 4z"/><path clip-path="url(#SVGID_2_)" fill="#3ec0be" d="M21.31 4l-4.4 38.94h-.4552L20.8548 4z"/><path clip-path="url(#SVGID_2_)" fill="#3bbfbe" d="M21.7652 4l-4.3999 38.94h-.4552L21.31 4z"/><path clip-path="url(#SVGID_2_)" fill="#38bfbd" d="M22.2204 4l-4.3999 38.94h-.4552L21.7652 4z"/><path clip-path="url(#SVGID_2_)" fill="#34bebd" d="M22.6756 4l-4.3999 38.94h-.4552L22.2204 4z"/><path clip-path="url(#SVGID_2_)" fill="#30bebc" d="M23.1308 4l-4.3999 38.94h-.4552L22.6756 4z"/><path clip-path="url(#SVGID_2_)" fill="#2cbdbb" d="M23.586 4l-4.4 38.94h-.4552L23.1308 4z"/><path clip-path="url(#SVGID_2_)" fill="#27bdbb" d="M24.0412 4l-4.3999 38.94h-.4552L23.586 4z"/><path clip-path="url(#SVGID_2_)" fill="#21bcba" d="M24.4964 4l-4.3999 38.94h-.4552L24.0412 4z"/><path clip-path="url(#SVGID_2_)" fill="#1abcba" d="M24.9516 4l-4.3998 38.94h-.4553L24.4964 4z"/><path clip-path="url(#SVGID_2_)" fill="#10bbb9" d="M25.4068 4 21.007 42.94h-.4552L24.9516 4z"/><path clip-path="url(#SVGID_2_)" fill="#00bbb9" d="M25.862 4l-4.3998 38.94h-.4552L25.4068 4z"/><path clip-path="url(#SVGID_2_)" fill="#00bab8" d="M26.3172 4l-4.3998 38.94h-.4552L25.862 4z"/><path clip-path="url(#SVGID_2_)" fill="#00bab7" d="M26.7724 4l-4.3998 38.94h-.4552L26.3172 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b9b7" d="M27.2276 4l-4.3998 38.94h-.4552L26.7724 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b9b6" d="M27.6828 4 23.283 42.94h-.4552L27.2276 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b8b6" d="M28.138 4l-4.3998 38.94h-.4552L27.6828 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b7b5" d="M28.5932 4l-4.3998 38.94h-.4552L28.138 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b7b4" d="M29.0485 4l-4.3999 38.94h-.4552L28.5932 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b6b4" d="M29.5037 4l-4.3999 38.94h-.4552L29.0485 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b6b3" d="M29.9589 4 25.559 42.94h-.4552L29.5037 4z"/><path class="st57" d="M30.414 4l-4.3998 38.94h-.4552L29.959 4z"/><path class="st57" d="M30.8693 4l-4.3999 38.94h-.4552L30.4141 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b4b1" d="M31.3245 4l-4.3999 38.94h-.4552L30.8693 4z"/><path class="st59" d="M31.7797 4l-4.3999 38.94h-.4552L31.3245 4z"/><path class="st59" d="M32.2349 4 27.835 42.94h-.4552L31.7797 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b2af" d="M32.6901 4l-4.3999 38.94h-.4552L32.235 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b2ae" d="M33.1453 4l-4.3998 38.94h-.4553L32.6901 4z"/><path clip-path="url(#SVGID_2_)" fill="#00b1ad" d="M33.6005 4l-4.3998 38.94h-.4552L33.1453 4z"/><path class="st63" d="M34.0557 4 29.656 42.94h-.4552L33.6005 4z"/><path class="st63" d="M41.442 4l.2553.0288v38.9113H29.6559L34.0557 4z"/><g><defs><path id="SVGID_3_" transform="rotate(-135.2127 75.4332 23.2399)" d="M67.3578 15.1645h16.1509v16.1509H67.3578z"/></defs><clipPath id="SVGID_4_"><use xlink:href="#SVGID_3_" overflow="visible"/></clipPath><path clip-path="url(#SVGID_4_)" fill="#74cbcb" d="M86.8535 18.4911l-.3107-6.6715h.3107z"/><path clip-path="url(#SVGID_4_)" fill="#73cbcb" d="M86.8535 25.5011l-.6372-13.6815h.3265l.3107 6.6715z"/><path clip-path="url(#SVGID_4_)" fill="#73cbca" d="M86.8535 32.5111l-.9637-20.6915h.3265l.6372 13.6815z"/><path clip-path="url(#SVGID_4_)" fill="#72cbca" d="M86.6271 34.6602l-1.0638-22.8406h.3265l.9637 20.6915v2.1491z"/><path clip-path="url(#SVGID_4_)" fill="#71caca" d="M86.3006 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#70caca" d="M85.9741 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st70" d="M85.6476 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st70" d="M85.3211 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#6ec9c9" d="M84.9946 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#6dc9c9" d="M84.6681 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#6cc9c8" d="M84.3416 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#6bc9c8" d="M84.0151 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#6ac8c8" d="M83.6886 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#69c8c8" d="M83.3621 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#68c8c7" d="M83.0356 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#67c8c7" d="M82.709 34.6602l-1.0637-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#66c7c7" d="M82.3826 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#65c7c6" d="M82.056 34.6602l-1.0637-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#63c7c6" d="M81.7296 34.6602l-1.0639-22.8406h.3266l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#62c7c6" d="M81.403 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#61c6c6" d="M81.0766 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#60c6c5" d="M80.75 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#5fc6c5" d="M80.4236 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#5dc5c5" d="M80.097 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#5cc5c4" d="M79.7706 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#5bc5c4" d="M79.444 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#59c5c4" d="M79.1176 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#58c4c3" d="M78.791 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#57c4c3" d="M78.4646 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#55c4c3" d="M78.138 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#54c3c2" d="M77.8116 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#52c3c2" d="M77.485 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#50c3c2" d="M77.1586 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#4fc2c1" d="M76.832 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#4dc2c1" d="M76.5056 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#4bc2c1" d="M76.179 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#4ac1c0" d="M75.8526 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#48c1c0" d="M75.526 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#46c1c0" d="M75.1996 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#44c1bf" d="M74.873 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#42c0bf" d="M74.5466 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#40c0be" d="M74.22 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#3ec0be" d="M73.8936 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#3cbfbe" d="M73.567 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#39bfbd" d="M73.2406 34.6602l-1.0639-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#37bfbd" d="M72.914 34.6602l-1.0638-22.8406h.3265l1.0639 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#34bebd" d="M72.5875 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#32bebc" d="M72.261 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#2fbdbc" d="M71.9345 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#2cbdbb" d="M71.608 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#28bdbb" d="M71.2815 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#25bcbb" d="M70.955 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#21bcba" d="M70.6285 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#1cbcba" d="M70.302 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#16bbba" d="M69.9755 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#0fbbb9" d="M69.649 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#04bbb9" d="M69.3225 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st120" d="M68.996 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st120" d="M68.6695 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st120" d="M68.343 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st121" d="M68.0165 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st121" d="M67.69 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#00b9b6" d="M67.3635 34.6602l-1.0638-22.8406h.3265L67.69 34.6602z"/><path class="st123" d="M67.037 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406zM66.7105 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#00b8b5" d="M66.384 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#00b7b5" d="M66.0575 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st126" d="M65.731 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st126" d="M65.4045 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path clip-path="url(#SVGID_4_)" fill="#00b6b4" d="M65.078 34.6602l-1.0638-22.8406h.3265l1.0638 22.8406z"/><path class="st128" d="M64.7515 34.6602 64.013 18.802v-6.9823h.0013l1.0638 22.8406z"/><path class="st128" d="M64.425 34.6602l-.4121-8.8483v-7.01l.7386 15.8583z"/><path class="st129" d="M64.0985 34.6602l-.0856-1.8383v-7.01l.4121 8.8483z"/><path class="st129" d="M64.0129 32.8219l.0856 1.8383h-.0856z"/></g><g><path class="st0" d="M23.0105 11.6979 11.2639 23.5324l11.8342 11.7468 10.0115-.0372-10.4982-10.4145 51.842-.1923-4.5437 4.5747 5.0057-.0186 5.8734-5.9171-5.917-5.8733-5.0057.0186 4.5776 4.5412-51.8418.1922 10.4203-10.492z"/></g></svg></span><span class="font-weight-bold">gRPC</span>
+	</a>
+	<div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+		<ul class="navbar-nav mt-2 mt-lg-0">
+			
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/about/" ><span>About</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/meet/" ><span>Meet</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/docs/" ><span>Docs</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/docs/guides/" ><span>Guides</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/videos/" ><span>Videos</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/showcase/" ><span>Showcase</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link active" href="/blog/" ><span class="active">Blog</span></a>
+			</li>
+			
+			<li class="nav-item mr-4 mb-2 mb-lg-0">
+				
+				
+				
+				
+				
+				
+				
+				
+				<a class="nav-link" href="/community/" ><span>Community</span></a>
+			</li>
+			
+			
+			
+		</ul>
+	</div>
+	<div class="navbar-nav d-none d-lg-block"><input type="search" class="form-control td-search-input" placeholder="&#xf002; Search this site…" aria-label="Search this site…" autocomplete="off">
+</div>
+</nav>
+
+      
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            
+<div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <input type="search" class="form-control td-search-input" placeholder="&#xf002; Search this site…" aria-label="Search this site…" autocomplete="off">
+
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" type="button" data-toggle="collapse" data-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="collapse td-sidebar-nav" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pr-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-blog-li">
+  <a href="/blog/" title="gRPC Blog" class="align-left pl-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-blog"><span class="">Blog</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpconf-2024-videos-li">
+  <a href="/blog/grpconf-2024-videos/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpconf-2024-videos"><span class="">Highlights in gRPConf 2024:Customer Showcase, Developer Engagement, Birds of Feathers Discussions and more.</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-io-announce-li">
+  <a href="/blog/grpc-io-announce/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-io-announce"><span class="">Announcing Our New Mailing List grpc-io-announce</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogproxyless-grpc-li">
+  <a href="/blog/proxyless-grpc/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogproxyless-grpc"><span class="">Configuring proxyless gRPC with Kubernetes Gateway API and OpenTelemetry metrics for Cloud Service Mesh now available in preview</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpconf-2024-schedule-li">
+  <a href="/blog/grpconf-2024-schedule/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpconf-2024-schedule"><span class="">gRPConf 2024 Schedule</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-day-2023-li">
+  <a href="/blog/grpc-day-2023/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-day-2023"><span class="">Celebrate gRPC Day</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogpostman-grpcweb-li">
+  <a href="/blog/postman-grpcweb/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogpostman-grpcweb"><span class="">Can gRPC replace REST and WebSockets for Web Application Communication?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpconf-2023-videos-li">
+  <a href="/blog/grpconf-2023-videos/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpconf-2023-videos"><span class="">Highlights in gRPConf 2023:Customer Showcase, Developer Engagement, Birds of Feathers Discussions and more.</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpconf-2023-announcement-li">
+  <a href="/blog/grpconf-2023-announcement/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpconf-2023-announcement"><span class="">Announcing gRPConf 2023!</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpconf-2023-schedule-li">
+  <a href="/blog/grpconf-2023-schedule/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpconf-2023-schedule"><span class="">gRPConf 2023 Schedule</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogperformance-benchmarks-gke-li">
+  <a href="/blog/performance-benchmarks-gke/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogperformance-benchmarks-gke"><span class="">gRPC performance benchmarks on GKE</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-on-arm64-li">
+  <a href="/blog/grpc-on-arm64/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-on-arm64"><span class="">Running gRPC and Protobuf on ARM64 (on Linux)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-csharp-future-li">
+  <a href="/blog/grpc-csharp-future/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-csharp-future"><span class="">The future of gRPC in C# belongs to grpc-dotnet</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogwireshark-li">
+  <a href="/blog/wireshark/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogwireshark"><span class="">Analyzing gRPC messages using Wireshark</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-web-interceptor-li">
+  <a href="/blog/grpc-web-interceptor/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-web-interceptor"><span class="">Interceptors in gRPC-Web</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-js-10-li">
+  <a href="/blog/grpc-js-1.0/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-js-10"><span class="">Announcing gRPC-JS 1.0</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogkotlin-meet-grpc-li">
+  <a href="/blog/kotlin-meet-grpc/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogkotlin-meet-grpc"><span class="">Kotlin, meet gRPC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-cloud-run-li">
+  <a href="/blog/grpc-cloud-run/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-cloud-run"><span class="">gRPC comes to Cloud Run</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogcmake-improvements-li">
+  <a href="/blog/cmake-improvements/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogcmake-improvements"><span class="">Improvements to gRPC&#39;s CMake Build System</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-on-dotnetcore-li">
+  <a href="/blog/grpc-on-dotnetcore/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-on-dotnetcore"><span class="">.NET Core ❤ gRPC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloghello-pancakes-li">
+  <a href="/blog/hello-pancakes/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloghello-pancakes"><span class="">Dear gRPC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogstate-of-grpc-web-li">
+  <a href="/blog/state-of-grpc-web/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogstate-of-grpc-web"><span class="">The state of gRPC in the browser</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-stacks-li">
+  <a href="/blog/grpc-stacks/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-stacks"><span class="">Visualizing gRPC Language Stacks</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-web-ga-li">
+  <a href="/blog/grpc-web-ga/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-web-ga"><span class="">gRPC-Web is Generally Available</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloga-short-introduction-to-channelz-li">
+  <a href="/blog/a-short-introduction-to-channelz/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloga-short-introduction-to-channelz"><span class="">A short introduction to Channelz</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-on-http2-li">
+  <a href="/blog/grpc-on-http2/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-on-http2"><span class="">gRPC on HTTP/2 Engineering a Robust, High-performance Protocol</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-with-json-li">
+  <a href="/blog/grpc-with-json/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-with-json"><span class="">gRPC &#43; JSON</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogtake-the-grpc-survey-li">
+  <a href="/blog/take-the-grpc-survey/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogtake-the-grpc-survey"><span class="">Take the gRPC Survey!</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggraceful-cleanup-junit-tests-li">
+  <a href="/blog/graceful-cleanup-junit-tests/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggraceful-cleanup-junit-tests"><span class="">Gracefully clean up in gRPC JUnit tests</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-dotnet-build-li">
+  <a href="/blog/grpc-dotnet-build/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-dotnet-build"><span class="">gRPC Meets .NET SDK And Visual Studio: Automatic Codegen On Build</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogkotlin-gradle-projects-li">
+  <a href="/blog/kotlin-gradle-projects/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogkotlin-gradle-projects"><span class="">gRPC ❤ Kotlin</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogoptimizing-grpc-part-2-li">
+  <a href="/blog/optimizing-grpc-part-2/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogoptimizing-grpc-part-2"><span class="">So You Want to Optimize gRPC - Part 2</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogoptimizing-grpc-part-1-li">
+  <a href="/blog/optimizing-grpc-part-1/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogoptimizing-grpc-part-1"><span class="">So You Want to Optimize gRPC - Part 1</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogdeadlines-li">
+  <a href="/blog/deadlines/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogdeadlines"><span class="">gRPC and Deadlines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-go-engineering-practices-li">
+  <a href="/blog/grpc-go-engineering-practices/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-go-engineering-practices"><span class="">gRPC-Go Engineering Practices</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogmeetup-kit-li">
+  <a href="/blog/meetup-kit/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogmeetup-kit"><span class="">The gRPC Meetup Kit</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-go-perf-improvements-li">
+  <a href="/blog/grpc-go-perf-improvements/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-go-perf-improvements"><span class="">gRPC-Go performance Improvements</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogcommunity-meeting-update-li">
+  <a href="/blog/community-meeting-update/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogcommunity-meeting-update"><span class="">2017-08-17 Community Meeting Update</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-flatbuffers-li">
+  <a href="/blog/grpc-flatbuffers/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-flatbuffers"><span class="">Announcing out-of-the-box support for gRPC in the Flatbuffers serialization library</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloggrpc-load-balancing-li">
+  <a href="/blog/grpc-load-balancing/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloggrpc-load-balancing"><span class="">gRPC Load Balancing</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloghelm-grpc-li">
+  <a href="/blog/helm-grpc/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloghelm-grpc"><span class="">gRPC in Helm</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogyikyak-li">
+  <a href="/blog/yikyak/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogyikyak"><span class="">Migration to Google Cloud Platform — gRPC &amp; grpc-gateway</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-blogbazel-rules-protobuf-li">
+  <a href="/blog/bazel-rules-protobuf/" class="align-left pl-0 active td-sidebar-link td-sidebar-link__page" id="m-blogbazel-rules-protobuf"><span class="td-sidebar-nav-active-item">Building gRPC services with bazel and rules_protobuf</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogvsco-li">
+  <a href="/blog/vsco/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogvsco"><span class="">gRPC at VSCO</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogvendasta-li">
+  <a href="/blog/vendasta/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogvendasta"><span class="">Why we have decided to move our APIs to gRPC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogga-announcement-li">
+  <a href="/blog/ga-announcement/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogga-announcement"><span class="">gRPC Project is now 1.0 and ready for production deployments</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogmobile-benchmarks-li">
+  <a href="/blog/mobile-benchmarks/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogmobile-benchmarks"><span class="">Mobile Benchmarks</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogcoreos-li">
+  <a href="/blog/coreos/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogcoreos"><span class="">gRPC with REST and Open APIs</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-bloginstallation-li">
+  <a href="/blog/installation/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-bloginstallation"><span class="">gRPC - now with easy installation</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogpubsub-li">
+  <a href="/blog/pubsub/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogpubsub"><span class="">Google Cloud PubSub - with the power of gRPC!</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-blogbeta-release-li">
+  <a href="/blog/beta-release/" class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id="m-blogbeta-release"><span class="">gRPC releases Beta, opening door for use in production environments</span></a>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            
+<div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/grpc/grpc.io/tree/main/content/en/blog/bazel-rules-protobuf.md" class="td-page-meta--view" target="_blank" rel="noopener"><i class="fa fa-file-alt fa-fw"></i> View page source</a>
+  <a href="https://github.com/grpc/grpc.io/edit/main/content/en/blog/bazel-rules-protobuf.md" class="td-page-meta--edit" target="_blank" rel="noopener"><i class="fa fa-edit fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/grpc/grpc.io/new/main/content/en/blog/bazel-rules-protobuf.md?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child" target="_blank" rel="noopener"><i class="fa fa-edit fa-fw"></i> Create child page</a>
+  <a href="https://github.com/grpc/grpc.io/issues/new?title=Building%20gRPC%20services%20with%20bazel%20and%20rules_protobuf" class="td-page-meta--issue" target="_blank" rel="noopener"><i class="fas fa-tasks fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/grpc/grpc.io/issues/new" class="td-page-meta--project-issue" target="_blank" rel="noopener"><i class="fas fa-tasks fa-fw"></i> Create project issue</a>
+  
+</div>
+
+            
+
+
+<div class="td-toc"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#11-package-structure">1.1: Package Structure</a></li>
+    <li><a href="#12-targets">1.2: Targets</a></li>
+    <li><a href="#13-target-pattern-syntax">1.3: Target Pattern Syntax</a></li>
+    <li><a href="#14-external-dependencies-workspace-rules">1.4: External Dependencies: Workspace Rules</a>
+      <ul>
+        <li><a href="#141-workspace-rules-that-require-a-pre-existing-workspace">1.4.1: Workspace Rules that require a pre-existing WORKSPACE</a></li>
+        <li><a href="#142-workspace-rules-that-autogenerate-a-workspace-file-for-you">1.4.2: Workspace Rules that autogenerate a WORKSPACE file for you</a></li>
+        <li><a href="#143-workspace-rules-that-accept-a-build-file-as-an-argument">1.4.3: Workspace Rules that accept a BUILD file as an argument</a></li>
+      </ul>
+    </li>
+    <li><a href="#15-bazel-summary">1.5: Bazel Summary</a></li>
+    <li><a href="#16-rules_protobuf">1.6: rules_protobuf</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#21-services">2.1: Services</a></li>
+    <li><a href="#22-compiled-programs">2.2: Compiled Programs</a></li>
+    <li><a href="#23-protobuf-definitions">2.3: Protobuf Definitions</a></li>
+    <li><a href="#24-build-the-grpc_greetertimer-example-application">2.4: Build the grpc_greetertimer example application.</a>
+      <ul>
+        <li><a href="#241-create-the-project-layout">2.4.1: Create the Project Layout</a></li>
+        <li><a href="#242-the-workspace">2.4.2: The WORKSPACE</a></li>
+        <li><a href="#243-the-greetertimer-server">2.4.3: The GreeterTimer Server</a></li>
+        <li><a href="#244-the-greetertimer-client">2.4.4: The GreeterTimer Client</a></li>
+        <li><a href="#245-generate-the-go-protobufgrpc-code">2.4.5: Generate the go protobuf+gRPC code</a></li>
+        <li><a href="#246-generate-the-java-protobuf-libraries">2.4.6: Generate the java protobuf libraries</a></li>
+        <li><a href="#247-run-it">2.4.7: Run it!</a></li>
+      </ul>
+    </li>
+    <li><a href="#25-summary">2.5: Summary</a></li>
+  </ul>
+</nav></div>
+
+
+
+            
+
+	
+		
+
+
+
+  
+  
+
+	
+		
+
+
+
+  
+  
+
+	
+
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 pl-md-5 pr-md-4" role="main">
+            <a class="btn btn-lg -bg-orange td-rss-button d-none d-lg-block" href="https://grpc.io/blog/index.xml" target="_blank">
+              RSS <i class="fa fa-rss ml-2 "></i>
+            </a>
+            
+<div class="td-content">
+	<h1>Building gRPC services with bazel and rules_protobuf</h1>
+	
+	<div class="td-byline mb-4">
+    By
+			<a href="https://pubref.org"><b>Paul Cody Johnston</b></a>
+			 (PubRef.org) |
+			<time datetime="2016-10-13" class="text-muted">Thursday, October 13, 2016</time>
+	</div>
+	<div class="d-xl-none td-toc td-toc--inline d-print-none">
+		
+  
+    
+      <a id="td-content__toc-link" href="#td-content__toc" data-toggle="collapse" aria-controls="td-docs-toc" aria-expanded="false" aria-label="Toggle toc navigation">
+        <span class="lead">Contents<i class="fas fa-chevron-right ml-2"></i></span>
+      </a>
+      <div id="td-content__toc" class="collapse">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#11-package-structure">1.1: Package Structure</a></li>
+    <li><a href="#12-targets">1.2: Targets</a></li>
+    <li><a href="#13-target-pattern-syntax">1.3: Target Pattern Syntax</a></li>
+    <li><a href="#14-external-dependencies-workspace-rules">1.4: External Dependencies: Workspace Rules</a>
+      <ul>
+        <li><a href="#141-workspace-rules-that-require-a-pre-existing-workspace">1.4.1: Workspace Rules that require a pre-existing WORKSPACE</a></li>
+        <li><a href="#142-workspace-rules-that-autogenerate-a-workspace-file-for-you">1.4.2: Workspace Rules that autogenerate a WORKSPACE file for you</a></li>
+        <li><a href="#143-workspace-rules-that-accept-a-build-file-as-an-argument">1.4.3: Workspace Rules that accept a BUILD file as an argument</a></li>
+      </ul>
+    </li>
+    <li><a href="#15-bazel-summary">1.5: Bazel Summary</a></li>
+    <li><a href="#16-rules_protobuf">1.6: rules_protobuf</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#21-services">2.1: Services</a></li>
+    <li><a href="#22-compiled-programs">2.2: Compiled Programs</a></li>
+    <li><a href="#23-protobuf-definitions">2.3: Protobuf Definitions</a></li>
+    <li><a href="#24-build-the-grpc_greetertimer-example-application">2.4: Build the grpc_greetertimer example application.</a>
+      <ul>
+        <li><a href="#241-create-the-project-layout">2.4.1: Create the Project Layout</a></li>
+        <li><a href="#242-the-workspace">2.4.2: The WORKSPACE</a></li>
+        <li><a href="#243-the-greetertimer-server">2.4.3: The GreeterTimer Server</a></li>
+        <li><a href="#244-the-greetertimer-client">2.4.4: The GreeterTimer Client</a></li>
+        <li><a href="#245-generate-the-go-protobufgrpc-code">2.4.5: Generate the go protobuf+gRPC code</a></li>
+        <li><a href="#246-generate-the-java-protobuf-libraries">2.4.6: Generate the java protobuf libraries</a></li>
+        <li><a href="#247-run-it">2.4.7: Run it!</a></li>
+      </ul>
+    </li>
+    <li><a href="#25-summary">2.5: Summary</a></li>
+  </ul>
+</nav>
+      </div>
+      <button id="td-content__toc-link-expanded" href="#td-content__toc" class="btn btn-small ml-1 my-2 py-0 px-3" data-toggle="collapse" aria-controls="td-docs-toc" aria-expanded="true" aria-label="Toggle toc navigation">
+      </button>
+    
+  
+
+
+	</div>
+	<header class="article-meta">
+		
+
+  
+    
+
+
+  
+    
+
+
+  
+
+		
+	</header>
+	<p><a href="/">gRPC</a> makes it easier to build high-performance
+microservices by providing generated service entrypoints in a variety
+of different languages.  <a href="https://bazel.io" target="_blank" rel="noopener">Bazel<i class="fas fa-external-link-alt"></i></a> complements these
+efforts with a capable and fast polyglot build environment.</p>
+<p><a href="https://github.com/pubref/rules_protobuf" target="_blank" rel="noopener">rules_protobuf<i class="fas fa-external-link-alt"></i></a> extends
+bazel and makes it easier develop gRPC services.</p>
+<p>It does this by:</p>
+<ol>
+<li>Building <code>protoc</code> (the protocol buffer compiler) and all the
+necessary <code>protoc-gen-*</code> plugins.</li>
+<li>Building the protobuf and gRPC libraries required for gRPC-related
+code to compile.</li>
+<li>Abstracting away <code>protoc</code> plugin invocation (you don&rsquo;t have to
+necessarily learn or remember how to call <code>protoc</code>).</li>
+<li>Regenerating and recompiling outputs when protobuf source files
+change.</li>
+</ol>
+<p>In this post I&rsquo;ll provide background about how bazel works
+(<a href="#about-bazel">Part 1</a>) and how to get started building gRPC
+services with rules_protobuf
+(<a href="#building">Part 2</a>).  If
+you&rsquo;re already a bazel aficionado, you can skip directly to Part 2.</p>
+<p>To best follow along,
+<a href="https://www.bazel.io/versions/master/docs/install.html" target="_blank" rel="noopener">install bazel<i class="fas fa-external-link-alt"></i></a>
+and clone the rules_protobuf repository:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>git clone https://github.com/pubref/rules_protobuf
+</span></span><span style="display:flex;"><span><span style="color:#366">cd</span> rules_protobuf
+</span></span><span style="display:flex;"><span>~/rules_protobuf$
+</span></span></code></pre></div><p>Great. Let&rsquo;s get started!</p>
+<h1 id="about-bazel">1: About Bazel</h1>
+<p><a href="https://www.bazel.io/" target="_blank" rel="noopener">Bazel<i class="fas fa-external-link-alt"></i></a> is Google&rsquo;s open-source version of
+their internal build tool called &ldquo;Blaze&rdquo;.  Blaze originated from the
+challenges of managing a large monorepo with code written in a variety
+of languages.  Blaze was the inspiration for other capable and fast
+build tools including <a href="https://www.pantsbuild.org/" target="_blank" rel="noopener">Pants<i class="fas fa-external-link-alt"></i></a> and
+<a href="https://buckbuild.com/" target="_blank" rel="noopener">Buck<i class="fas fa-external-link-alt"></i></a>.  Bazel is conceptually simple but
+there are some core concepts &amp; terminology to understand:</p>
+<ol>
+<li>
+<p><strong>Bazel command</strong>: a function that does some type of work when
+called from the command line. Common ones include <code>bazel build</code>
+(compile a libary), <code>bazel run</code> (run a binary executable), <code>bazel test</code> (execute tests), and <code>bazel query</code> (tell me something about
+the build dependency graph).  See all with <code>bazel help</code>.</p>
+</li>
+<li>
+<p><strong>Build phases</strong>: the three stages (loading, analysis, and
+execution) that bazel goes through when calling a bazel command.</p>
+</li>
+<li>
+<p><strong>The WORKSPACE file</strong>: a required file that defines the project
+root.  It is primarily used to declare external dependencies
+(external workspaces).</p>
+</li>
+<li>
+<p><strong>BUILD files</strong>: the presence of a <code>BUILD</code> file in a directory
+defines it as a <em>package</em>.  <code>BUILD</code> files contain <em>rules</em> that define
+<em>targets</em> which can be selected using the <em>target pattern syntax</em>.
+Rules are written in a python-like language called
+<a href="https://bazel.io/versions/master/docs/skylark/index.html" target="_blank" rel="noopener"><em>skylark</em><i class="fas fa-external-link-alt"></i></a>.
+Syklark has stronger deterministic guarantees than python but is
+intentionally minimal, excluding language features such as recursion,
+classes, and lambdas.</p>
+</li>
+</ol>
+<h2 id="11-package-structure">1.1: Package Structure</h2>
+<p>To illustrate these concepts, let&rsquo;s look at the package structure of
+the
+<a href="https://github.com/pubref/rules_protobuf/tree/master/examples" target="_blank" rel="noopener">rules_protobuf examples subdirectory<i class="fas fa-external-link-alt"></i></a>.
+Let&rsquo;s look at the file tree, showing only those folder having a
+<code>BUILD</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>tree -P &#39;BUILD|WORKSPACE&#39; -I &#39;third_party|bzl&#39; examples/
+</span></span><span style="display:flex;"><span>.
+</span></span><span style="display:flex;"><span>├── BUILD
+</span></span><span style="display:flex;"><span>├── WORKSPACE
+</span></span><span style="display:flex;"><span>└── examples
+</span></span><span style="display:flex;"><span>    ├── helloworld
+</span></span><span style="display:flex;"><span>    │   ├── cpp
+</span></span><span style="display:flex;"><span>    │   │   └── BUILD
+</span></span><span style="display:flex;"><span>    │   ├── go
+</span></span><span style="display:flex;"><span>    │   │   ├── client
+</span></span><span style="display:flex;"><span>    │   │   │   └── BUILD
+</span></span><span style="display:flex;"><span>    │   │   ├── greeter_test
+</span></span><span style="display:flex;"><span>    │   │   │   └── BUILD
+</span></span><span style="display:flex;"><span>    │   │   └── server
+</span></span><span style="display:flex;"><span>    │   │       └── BUILD
+</span></span><span style="display:flex;"><span>    │   ├── grpc_gateway
+</span></span><span style="display:flex;"><span>    │   │   └── BUILD
+</span></span><span style="display:flex;"><span>    │   ├── java
+</span></span><span style="display:flex;"><span>    │   │   └── org
+</span></span><span style="display:flex;"><span>    │   │       └── pubref
+</span></span><span style="display:flex;"><span>    │   │           └── rules_protobuf
+</span></span><span style="display:flex;"><span>    │   │               └── examples
+</span></span><span style="display:flex;"><span>    │   │                   └── helloworld
+</span></span><span style="display:flex;"><span>    │   │                       ├── client
+</span></span><span style="display:flex;"><span>    │   │                       │   └── BUILD
+</span></span><span style="display:flex;"><span>    │   │                       └── server
+</span></span><span style="display:flex;"><span>    │   │                           └── BUILD
+</span></span><span style="display:flex;"><span>    │   └── proto
+</span></span><span style="display:flex;"><span>    │       └── BUILD
+</span></span><span style="display:flex;"><span>    └── proto
+</span></span><span style="display:flex;"><span>        └── BUILD
+</span></span></code></pre></div><h2 id="12-targets">1.2: Targets</h2>
+<p>To get a list of targets within the <code>examples/</code> folder, use a query.
+This says <em>&ldquo;Ok bazel, show me all the callable targets in all packages
+within the examples folder, and say what kind of thing it is in
+addition to its path label&rdquo;</em>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/rules_protobuf$ bazel query //examples/... --output label_kind | sort | column -t
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cc_binary                   rule  //examples/helloworld/cpp:client
+</span></span><span style="display:flex;"><span>cc_binary                   rule  //examples/helloworld/cpp:server
+</span></span><span style="display:flex;"><span>cc_library                  rule  //examples/helloworld/cpp:clientlib
+</span></span><span style="display:flex;"><span>cc_library                  rule  //examples/helloworld/proto:cpp
+</span></span><span style="display:flex;"><span>cc_library                  rule  //examples/proto:cpp
+</span></span><span style="display:flex;"><span>cc_proto_compile            rule  //examples/helloworld/proto:cpp.pb
+</span></span><span style="display:flex;"><span>cc_proto_compile            rule  //examples/proto:cpp.pb
+</span></span><span style="display:flex;"><span>cc_test                     rule  //examples/helloworld/cpp:test
+</span></span><span style="display:flex;"><span>filegroup                   rule  //examples/helloworld/proto:protos
+</span></span><span style="display:flex;"><span>filegroup                   rule  //examples/proto:protos
+</span></span><span style="display:flex;"><span>go_binary                   rule  //examples/helloworld/go/client:client
+</span></span><span style="display:flex;"><span>go_binary                   rule  //examples/helloworld/go/server:server
+</span></span><span style="display:flex;"><span>go_library                  rule  //examples/helloworld/go/server:greeter
+</span></span><span style="display:flex;"><span>go_library                  rule  //examples/helloworld/grpc_gateway:gateway
+</span></span><span style="display:flex;"><span>go_library                  rule  //examples/helloworld/proto:go
+</span></span><span style="display:flex;"><span>go_library                  rule  //examples/proto:go_default_library
+</span></span><span style="display:flex;"><span>go_proto_compile            rule  //examples/helloworld/proto:go.pb
+</span></span><span style="display:flex;"><span>go_proto_compile            rule  //examples/proto:go_default_library.pb
+</span></span><span style="display:flex;"><span>go_test                     rule  //examples/helloworld/go/greeter_test:greeter_test
+</span></span><span style="display:flex;"><span>go_test                     rule  //examples/helloworld/grpc_gateway:greeter_test
+</span></span><span style="display:flex;"><span>grpc_gateway_proto_compile  rule  //examples/helloworld/grpc_gateway:gateway.pb
+</span></span><span style="display:flex;"><span>java_binary                 rule  //examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/client:netty
+</span></span><span style="display:flex;"><span>java_binary                 rule  //examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/server:netty
+</span></span><span style="display:flex;"><span>java_library                rule  //examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/client:client
+</span></span><span style="display:flex;"><span>java_library                rule  //examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/server:server
+</span></span><span style="display:flex;"><span>java_library                rule  //examples/helloworld/proto:java
+</span></span><span style="display:flex;"><span>java_library                rule  //examples/proto:java
+</span></span><span style="display:flex;"><span>java_proto_compile          rule  //examples/helloworld/proto:java.pb
+</span></span><span style="display:flex;"><span>java_proto_compile          rule  //examples/proto:java.pb
+</span></span><span style="display:flex;"><span>js_proto_compile            rule  //examples/helloworld/proto:js
+</span></span><span style="display:flex;"><span>js_proto_compile            rule  //examples/proto:js
+</span></span><span style="display:flex;"><span>py_proto_compile            rule  //examples/helloworld/proto:py.pb
+</span></span><span style="display:flex;"><span>ruby_proto_compile          rule  //examples/proto:rb.pb
+</span></span></code></pre></div><p>We&rsquo;re not limited to targets in our own workspace.  As it turns out,
+the <a href="https://github.com/google/protobuf" target="_blank" rel="noopener">Google Protobuf repo<i class="fas fa-external-link-alt"></i></a> is
+named as an external repository (more on this later) and we can also
+address targets in that workspace in the same way.  Here&rsquo;s a partial
+list:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/rules_protobuf$ bazel query @com_github_google_protobuf//... --output label_kind | sort | column -t
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cc_binary       rule  @com_github_google_protobuf//:protoc
+</span></span><span style="display:flex;"><span>cc_library      rule  @com_github_google_protobuf//:protobuf
+</span></span><span style="display:flex;"><span>cc_library      rule  @com_github_google_protobuf//:protobuf_lite
+</span></span><span style="display:flex;"><span>cc_library      rule  @com_github_google_protobuf//:protoc_lib
+</span></span><span style="display:flex;"><span>cc_library      rule  @com_github_google_protobuf//util/python:python_headers
+</span></span><span style="display:flex;"><span>filegroup       rule  @com_github_google_protobuf//:well_known_protos
+</span></span><span style="display:flex;"><span>java_library    rule  @com_github_google_protobuf//:protobuf_java
+</span></span><span style="display:flex;"><span>objc_library    rule  @com_github_google_protobuf//:protobuf_objc
+</span></span><span style="display:flex;"><span>py_library      rule  @com_github_google_protobuf//:protobuf_python
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>This is possible because the protobuf team provides a
+<a href="https://github.com/google/protobuf/blob/master/BUILD" target="_blank" rel="noopener">BUILD file<i class="fas fa-external-link-alt"></i></a> at
+the root of their repository.  Thanks Protobuf team!  Later we&rsquo;ll
+learn how to &ldquo;inject&rdquo; our own BUILD files into repositories that don&rsquo;t
+already have one.</p>
+<p>Inspecting the list above, we see a <code>cc_binary</code> rule named <code>protoc</code>.
+If we <code>bazel run</code> that target, bazel will clone the protobuf repo,
+build all the dependent libraries, build a pristine executable binary
+from source, and call it (pass command line arguments to binary rules
+after the double-dash):</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/rules_protobuf$ bazel run @com_github_google_protobuf//:protoc -- --help
+</span></span><span style="display:flex;"><span>Usage: /private/var/tmp/_bazel_pcj/63330772b4917b139280caef8bb81867/execroot/rules_protobuf/bazel-out/local-fastbuild/bin/external/com_github_google_protobuf/protoc <span style="color:#555">[</span>OPTION<span style="color:#555">]</span> PROTO_FILES
+</span></span><span style="display:flex;"><span>Parse PROTO_FILES and generate output based on the options given:
+</span></span><span style="display:flex;"><span>  -IPATH, --proto_path<span style="color:#555">=</span>PATH   Specify the directory in which to search <span style="color:#069;font-weight:bold">for</span>
+</span></span><span style="display:flex;"><span>                              imports.  May be specified multiple times;
+</span></span><span style="display:flex;"><span>                              directories will be searched in order.  If not
+</span></span><span style="display:flex;"><span>                              given, the current working directory is used.
+</span></span><span style="display:flex;"><span>  --version                   Show version info and exit.
+</span></span><span style="display:flex;"><span>  -h, --help                  Show this text and exit.
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>As we&rsquo;ll see in a moment, <em>we name the protobuf external dependency
+with a specific commit ID so there&rsquo;s no ambiguity about which protoc
+version we&rsquo;re using</em>.  In this way you can vendor in tools with your
+project with reliable, repeable, secure precision without bloating
+your repository by checking in binaries, resorting to git submodules,
+or similar hacks.  Very clean!</p>
+<blockquote>
+<p>Note: the gRPC repository also has a BUILD file: <code>$ bazel query @com_github_grpc_grpc//... --output label_kind</code></p>
+</blockquote>
+<h2 id="13-target-pattern-syntax">1.3: Target Pattern Syntax</h2>
+<p>With those examples under our belt, let&rsquo;s examine the target syntax a
+bit more.  When I first started working with bazel I found the
+target-pattern syntax somewhat intimidating.  It&rsquo;s actually not too
+bad. Here&rsquo;s a closer look:</p>
+<p>
+
+<figure class="text-center">
+  <img class="modal-trigger" src="/img/target-pattern-syntax.png"  id="target-pattern-syntax" data-toggle="modal" data-target="#modal-target-pattern-syntax"/>
+
+  <div class="modal" id="modal-target-pattern-syntax">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-body">
+        <img src="/img/target-pattern-syntax.png" />
+      </div>
+  </div>
+</figure>
+</p>
+<ul>
+<li>
+<p>The <code>@</code> (at-sign) selects an external workspace. These are
+established by
+<a href="https://bazel.io/docs/be/workspace.html#workspace-rules" target="_blank" rel="noopener">workspace rules<i class="fas fa-external-link-alt"></i></a>
+that bind a name to something fetched over the network (or your
+filesystem).</p>
+</li>
+<li>
+<p>The <code>//</code> (double-slash) selects the workspace root.</p>
+</li>
+<li>
+<p>The <code>:</code> (colon) selects a target (rule or file) within a <em>package</em>.
+Recall that a package is established by the presence of a <code>BUILD</code>
+file in a subfolder of the workspace.</p>
+</li>
+<li>
+<p>The <code>/</code> (single-slash) selects a folder within a workspace or
+package.</p>
+</li>
+</ul>
+<blockquote>
+<p>A common source of confusion is that the mere presence of a
+BUILD file defines that filesystem subtree as a package and
+therefore one must always account for that.  For example, if there
+exists a file <code>qux.js</code> in <code>foo/bar/baz/</code> and there exists a BUILD
+file in <code>baz/</code> also, the file is selected with <code>foo/bar/baz:qux.js</code>
+and not <code>foo/bar/baz/quz.js</code></p>
+</blockquote>
+<p><em>Common shortcut</em>: if there exists a rule having the same name as the
+package, this is the implied target and can be omitted.  For example,
+there is a <code>:jar</code> target in the <code>//jar</code> package in the external
+workspace <code>com_google_guava_guava</code>, so the following are eqivalent:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>deps <span style="color:#555">=</span> [<span style="color:#c30">&#34;@com_google_guava_guava//jar:jar&#34;</span>]
+</span></span><span style="display:flex;"><span>deps <span style="color:#555">=</span> [<span style="color:#c30">&#34;@com_google_guava_guava//jar&#34;</span>]
+</span></span></code></pre></div><h2 id="14-external-dependencies-workspace-rules">1.4: External Dependencies: Workspace Rules</h2>
+<p>Many large organizations check-in in all the required tools,
+compilers, linkers, etc to guarantee correct, repeatable builds.  With
+external workspaces, one can effectively accomplish the same thing
+without bloating your repository.</p>
+<blockquote>
+<p>Note: the bazel convention is to use a fully-namespaced identifier
+for external dependency names (replacing special chars with
+underscore).  For example, the remote repository URL is
+<a href="https://github.com/google/protobuf.git" target="_blank" rel="noopener">https://github.com/google/protobuf.git<i class="fas fa-external-link-alt"></i></a>.  This is simplified to the
+workspace identifier com_github_google_protobuf.  Similarly, by
+convention the jar artifact <code>io.grpc:grpc-netty:jar:1.0.0-pre1</code>
+becomes <code>io_grpc_grpc_netty</code>.</p>
+</blockquote>
+<h3 id="141-workspace-rules-that-require-a-pre-existing-workspace">1.4.1: Workspace Rules that require a pre-existing WORKSPACE</h3>
+<p>These rules assume that the remote resource or URL contains a
+WORKSPACE file at the top of the file tree and BUILD files that define
+rule targets.  These are referred to as <em>bazel repositories</em>.</p>
+<ul>
+<li>
+<p><a href="https://bazel.io/docs/be/workspace.html#git_repository" target="_blank" rel="noopener">git_repository<i class="fas fa-external-link-alt"></i></a>:
+external bazel dependency from a git repository.  The rule requires
+<code>commit</code> (or <code>tag</code>).</p>
+</li>
+<li>
+<p><a href="https://bazel.io/docs/be/workspace.html#http_archive" target="_blank" rel="noopener">http_archive<i class="fas fa-external-link-alt"></i></a>:
+an external zip or tar.gz dependency from a URL. It is highly
+recommended to name a sha265 for security.</p>
+</li>
+</ul>
+<blockquote>
+<p>Note: although you don&rsquo;t interact directly with the bazel
+execution_root, you can peek at what these external dependencies
+look like when unpacked at <code>$(bazel info execution_root)/external/WORKSPACE_NAME</code>.</p>
+</blockquote>
+<h3 id="142-workspace-rules-that-autogenerate-a-workspace-file-for-you">1.4.2: Workspace Rules that autogenerate a WORKSPACE file for you</h3>
+<p>The implementation of these repository rules contain logic to
+autogenerate a WORKSPACE file and BUILD file(s) to make resources
+available. As always, it is recommended to provide a known sha265 for
+security to prevent a malicious agent from slipping in tainted code
+via a compromised network.</p>
+<ul>
+<li>
+<p><a href="https://bazel.io/docs/be/workspace.html#http_jar" target="_blank" rel="noopener">http_jar<i class="fas fa-external-link-alt"></i></a>:
+external jar from a URL. The jar file is available as a
+<code>java_library</code> dependency as <code>@WORKSPACE_NAME//jar</code>.</p>
+</li>
+<li>
+<p><a href="https://bazel.io/docs/be/workspace.html#maven_jar" target="_blank" rel="noopener">maven_jar<i class="fas fa-external-link-alt"></i></a>:
+external jar from a URL. The jar file is available as a
+<code>java_library</code> dependency as <code>@WORKSPACE_NAME//jar</code>.</p>
+</li>
+<li>
+<p><a href="https://bazel.io/docs/be/workspace.html#http_file" target="_blank" rel="noopener">http_file<i class="fas fa-external-link-alt"></i></a>:
+external file from a URL. The resource is available as a <code>filegroup</code>
+via <code>@WORKSPACE_NAME//file</code>.</p>
+</li>
+</ul>
+<p>For example, we can peek at the generated BUILD file for the
+<code>maven_jar</code> guava dependency via:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/rules_protobuf$ cat <span style="color:#069;font-weight:bold">$(</span>bazel info execution_root<span style="color:#069;font-weight:bold">)</span>/external/com_google_guava_guava/jar/BUILD
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># DO NOT EDIT: automatically generated BUILD file for maven_jar rule com_google_guava_guava</span>
+</span></span><span style="display:flex;"><span>java_import(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#39;jar&#39;</span>,
+</span></span><span style="display:flex;"><span>    jars <span style="color:#555">=</span> [<span style="color:#c30">&#39;guava-19.0.jar&#39;</span>],
+</span></span><span style="display:flex;"><span>    visibility <span style="color:#555">=</span> [<span style="color:#c30">&#39;//visibility:public&#39;</span>]
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>filegroup(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#39;file&#39;</span>,
+</span></span><span style="display:flex;"><span>    srcs <span style="color:#555">=</span> [<span style="color:#c30">&#39;guava-19.0.jar&#39;</span>],
+</span></span><span style="display:flex;"><span>    visibility <span style="color:#555">=</span> [<span style="color:#c30">&#39;//visibility:public&#39;</span>]
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><blockquote>
+<p>Note: the external workspace directory won&rsquo;t exist until you
+actually need it, so you&rsquo;ll have to have built a target that
+requires it, such as <code>bazel build examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/client</code></p>
+</blockquote>
+<h3 id="143-workspace-rules-that-accept-a-build-file-as-an-argument">1.4.3: Workspace Rules that accept a BUILD file as an argument</h3>
+<p>If a repository has no BUILD file(s), you can put one into its
+filesystem root to adapt the external resource into bazel&rsquo;s worldview
+and make those resources available to your project.</p>
+<p>For example, consider
+<a href="https://github.com/madler/zlib" target="_blank" rel="noopener">Mark Adler&rsquo;s zlib library<i class="fas fa-external-link-alt"></i></a>. To start,
+let&rsquo;s learn what depends on this code.  This query says &ldquo;<em>Ok bazel,
+for all targets in examples, find all dependencies (a transitive
+closure set), then tell me which ones depend on the zlib target in the
+root package of the external workspace com_github_madler_zlib.</em>&rdquo; Bazel
+reports this reverse dependency set.  We request the output in
+graphviz format and pipe this to dot to generate the figure:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/rules_protobuf$ bazel query <span style="color:#c30">&#34;rdeps(deps(//examples/...), @com_github_madler_zlib//:zlib)&#34;</span> <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>                  --output graph | dot -Tpng -O
+</span></span></code></pre></div><p>
+
+<figure class="text-center">
+  <img class="modal-trigger" src="/img/zlib-deps.png"  id="zlib-deps" data-toggle="modal" data-target="#modal-zlib-deps"/>
+
+  <div class="modal" id="modal-zlib-deps">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-body">
+        <img src="/img/zlib-deps.png" />
+      </div>
+  </div>
+</figure>
+</p>
+<p>So we can see that all grpc-related C code ultimately depends on this
+library.  But, there is no BUILD file in Mark&rsquo;s repo&hellip; where did it
+come from?</p>
+<p>By using the variant workspace rule <code>new_git_repository</code>, we can
+provide our
+<a href="https://github.com/pubref/rules_protobuf/blob/master/protobuf/build_file/com_github_madler_zlib.BUILD" target="_blank" rel="noopener">own BUILD file<i class="fas fa-external-link-alt"></i></a>
+(which defines the <code>cc_library</code> target) as follows:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>new_git_repository(
+</span></span><span style="display:flex;"><span>  name <span style="color:#555">=</span> <span style="color:#c30">&#34;com_github_madler_zlib&#34;</span>,
+</span></span><span style="display:flex;"><span>  remote <span style="color:#555">=</span> <span style="color:#c30">&#34;https://github.com/madler/zlib&#34;</span>,
+</span></span><span style="display:flex;"><span>  tag: <span style="color:#c30">&#34;v1.2.8&#34;</span>,
+</span></span><span style="display:flex;"><span>  build_file: <span style="color:#c30">&#34;//bzl:build_file/com_github_madler_zlib.BUILD&#34;</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>This <code>new_*</code> family of workspace rules keeps your repository lean and
+allows you to vendor in pretty much any type of network-available
+resource.  Awesome!</p>
+<ul>
+<li><a href="https://bazel.io/docs/be/workspace.html#new_git_repository" target="_blank" rel="noopener">new_git_repository<i class="fas fa-external-link-alt"></i></a></li>
+<li><a href="https://bazel.io/docs/be/workspace.html#new_local_repository" target="_blank" rel="noopener">new_local_repository<i class="fas fa-external-link-alt"></i></a></li>
+<li><a href="https://bazel.io/docs/be/workspace.html#new_http_archive" target="_blank" rel="noopener">new_http_archive<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+<blockquote>
+<p>You can also
+<a href="https://bazel.io/docs/skylark/repository_rules.html" target="_blank" rel="noopener">write your own repository rules<i class="fas fa-external-link-alt"></i></a>
+that have custom logic to pull resources from the net and bind it
+into bazel&rsquo;s view of the universe.</p>
+</blockquote>
+<h2 id="15-bazel-summary">1.5: Bazel Summary</h2>
+<p>When presented with a command and a target-pattern, bazel goes through
+the following three phases:</p>
+<ol>
+<li>
+<p>Loading: Read the WORKSPACE and required BUILD files. Generate a
+dependency graph.</p>
+</li>
+<li>
+<p>Analysis: for all nodes in the graph, which nodes are actually
+required for this build? Do we have all the necessary
+resources available?</p>
+</li>
+<li>
+<p>Execution: execute each required node in the dependency graph and
+generate outputs.</p>
+</li>
+</ol>
+<p>Hopefully you now have enough conceptual knowledge of bazel to be
+productive.</p>
+<h2 id="16-rules_protobuf">1.6: rules_protobuf</h2>
+<p><a href="https://github.com/pubref/rules_protobuf" target="_blank" rel="noopener">rules_protobuf<i class="fas fa-external-link-alt"></i></a> is an
+extension to bazel that takes care of:</p>
+<ol>
+<li>
+<p>Building the protocol buffer compiler <code>protoc</code>,</p>
+</li>
+<li>
+<p>Downloading and/or building all the necessary protoc-gen plugins.</p>
+</li>
+<li>
+<p>Downloading and/or building all the necessary gRPC-related support
+libraries.</p>
+</li>
+<li>
+<p>Invoking protoc for you (on demand), smoothing out the
+idiosyncracies of different protoc plugins.</p>
+</li>
+</ol>
+<p>It works by passing one or more <code>proto_language</code> specifications to the
+<code>proto_compile</code> rule.  A <code>proto_language</code> rule contains the metadata
+about how to invoke the plugin and the predicted file outputs, while
+the <code>proto_compile</code> rule interprets a <code>proto_language</code> spec and builds
+the appropriate command-line arguments to <code>protoc</code>.  For example,
+here&rsquo;s how we can generate outputs for multiple languages
+simultaneously:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span> proto_compile(
+</span></span><span style="display:flex;"><span>   name <span style="color:#555">=</span> <span style="color:#c30">&#34;pluriproto&#34;</span>,
+</span></span><span style="display:flex;"><span>   protos <span style="color:#555">=</span> [<span style="color:#c30">&#34;:protos&#34;</span>],
+</span></span><span style="display:flex;"><span>   langs <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//cpp&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//csharp&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//closure&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//ruby&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//java&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//java:nano&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//python&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//objc&#34;</span>,
+</span></span><span style="display:flex;"><span>       <span style="color:#c30">&#34;//node&#34;</span>,
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   verbose <span style="color:#555">=</span> <span style="color:#f60">1</span>,
+</span></span><span style="display:flex;"><span>   with_grpc <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">True</span>,
+</span></span><span style="display:flex;"><span> )
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bazel build :pluriproto
+</span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># ************************************************************</span>
+</span></span><span style="display:flex;"><span><span style="color:#366">cd</span> <span style="color:#069;font-weight:bold">$(</span>bazel info execution_root<span style="color:#069;font-weight:bold">)</span> <span style="color:#555">&amp;&amp;</span> bazel-out/host/bin/external/com_github_google_protobuf/protoc <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--plugin<span style="color:#555">=</span>protoc-gen-grpc-java<span style="color:#555">=</span>bazel-out/host/genfiles/third_party/protoc_gen_grpc_java/protoc_gen_grpc_java <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--plugin<span style="color:#555">=</span>protoc-gen-grpc<span style="color:#555">=</span>bazel-out/host/bin/external/com_github_grpc_grpc/grpc_cpp_plugin <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--plugin<span style="color:#555">=</span>protoc-gen-grpc-nano<span style="color:#555">=</span>bazel-out/host/genfiles/third_party/protoc_gen_grpc_java/protoc_gen_grpc_java <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--plugin<span style="color:#555">=</span>protoc-gen-grpc-csharp<span style="color:#555">=</span>bazel-out/host/genfiles/external/nuget_grpc_tools/protoc-gen-grpc-csharp <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--plugin<span style="color:#555">=</span>protoc-gen-go<span style="color:#555">=</span>bazel-out/host/bin/external/com_github_golang_protobuf/protoc_gen_go <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--descriptor_set_out<span style="color:#555">=</span>bazel-genfiles/examples/proto/pluriproto.descriptor_set <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--ruby_out<span style="color:#555">=</span>bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--python_out<span style="color:#555">=</span>bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--cpp_out<span style="color:#555">=</span>bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--grpc_out<span style="color:#555">=</span>bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--objc_out<span style="color:#555">=</span>bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--csharp_out<span style="color:#555">=</span>bazel-genfiles/examples/proto <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--java_out<span style="color:#555">=</span>bazel-genfiles/examples/proto/pluriproto_java.jar <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--javanano_out<span style="color:#555">=</span><span style="color:#033">ignore_services</span><span style="color:#555">=</span>true:bazel-genfiles/examples/proto/pluriproto_nano.jar <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--js_out<span style="color:#555">=</span><span style="color:#033">import_style</span><span style="color:#555">=</span>closure,error_on_name_conflict,binary,library<span style="color:#555">=</span>examples/proto/pluriproto:bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--js_out<span style="color:#555">=</span><span style="color:#033">import_style</span><span style="color:#555">=</span>commonjs,error_on_name_conflict,binary:bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--go_out<span style="color:#555">=</span><span style="color:#033">plugins</span><span style="color:#555">=</span>grpc,Mexamples/proto/common.proto<span style="color:#555">=</span>github.com/pubref/rules_protobuf/examples/proto/pluriproto:bazel-genfiles <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--grpc-java_out<span style="color:#555">=</span>bazel-genfiles/examples/proto/pluriproto_java.jar <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--grpc-nano_out<span style="color:#555">=</span><span style="color:#033">ignore_services</span><span style="color:#555">=</span>true:bazel-genfiles/examples/proto/pluriproto_nano.jar <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--grpc-csharp_out<span style="color:#555">=</span>bazel-genfiles/examples/proto <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>--proto_path<span style="color:#555">=</span>. <span style="color:#c30;font-weight:bold">\
+</span></span></span><span style="display:flex;"><span><span style="color:#c30;font-weight:bold"></span>examples/proto/common.proto
+</span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># ************************************************************</span>
+</span></span><span style="display:flex;"><span>examples/proto/common_pb.rb
+</span></span><span style="display:flex;"><span>examples/proto/pluriproto_java.jar
+</span></span><span style="display:flex;"><span>examples/proto/pluriproto_nano.jar
+</span></span><span style="display:flex;"><span>examples/proto/common_pb2.py
+</span></span><span style="display:flex;"><span>examples/proto/common.pb.h
+</span></span><span style="display:flex;"><span>examples/proto/common.pb.cc
+</span></span><span style="display:flex;"><span>examples/proto/common.grpc.pb.h
+</span></span><span style="display:flex;"><span>examples/proto/common.grpc.pb.cc
+</span></span><span style="display:flex;"><span>examples/proto/Common.pbobjc.h
+</span></span><span style="display:flex;"><span>examples/proto/Common.pbobjc.m
+</span></span><span style="display:flex;"><span>examples/proto/pluriproto.js
+</span></span><span style="display:flex;"><span>examples/proto/Common.cs
+</span></span><span style="display:flex;"><span>examples/proto/CommonGrpc.cs
+</span></span><span style="display:flex;"><span>examples/proto/common.pb.go
+</span></span><span style="display:flex;"><span>examples/proto/common_pb.js
+</span></span><span style="display:flex;"><span>examples/proto/pluriproto.descriptor_set
+</span></span></code></pre></div><p>The various <code>*_proto_library</code> rules (that we&rsquo;ll be using below)
+internally invoke this <code>proto_compile</code> rule, then consume the
+generated outputs and compile them with the requisite libraries into
+<code>.class</code>, <code>.so</code>, <code>.a</code> (or whatever) objects.</p>
+<p>So let&rsquo;s <em>make something</em> already! We&rsquo;ll use bazel and rules_protobuf
+to build a gRPC application.</p>
+<h1 id="building">2: Building a gRPC service with rules_protobuf</h1>
+<p>The application will involve communication between two
+different gRPC services:</p>
+<h2 id="21-services">2.1: Services</h2>
+<ol>
+<li>
+<p><strong>The Greeter service</strong>: This is the familiar &ldquo;Hello World&rdquo; starter
+example that accepts a request with a <code>user</code> argument and replies
+back with the string <code>Hello {user}</code>.</p>
+</li>
+<li>
+<p><strong>The GreeterTimer service</strong>: This gRPC service will repeatedly
+call a Greeter service in batches and report back aggregate batch
+times (in milliseconds).  In this way we can compare some average
+rpc times for the different Greeter service implementations.</p>
+</li>
+</ol>
+<blockquote>
+<p>This is an informal benchmark intended only for demonstration of
+building gRPC applications.  For more formal performance testing,
+consult the
+<a href="https://performance-dot-grpc-testing.appspot.com/explore?dashboard=5760820306771968" target="_blank" rel="noopener">gRPC performance dashboard<i class="fas fa-external-link-alt"></i></a>.</p>
+</blockquote>
+<h2 id="22-compiled-programs">2.2: Compiled Programs</h2>
+<p>For the demo, we&rsquo;ll use 6 different compiled programs written in 4
+languages:</p>
+<ul>
+<li>
+<p>A <code>GreeterTimer</code> client (go).  This command-line interface requires
+the <code>greetertimer.proto</code> service definition defined locally in the
+<code>//proto:greetertimer.proto</code> file.</p>
+</li>
+<li>
+<p>A <code>GreeterTimer</code> server (java).  This netty-based server requires
+both the <code>//proto/greetertimer.proto</code> file and the proto definition
+defined externally in
+<code>@org_pubref_rules_protobuf//examples/helloworld/proto:helloworld.proto</code>.</p>
+</li>
+<li>
+<p>Four <code>Greeter</code> server implementations (C++, java, go, and C#).
+rules_protobuf already provides these example implementations, so
+we&rsquo;ll just use them directly.</p>
+</li>
+</ul>
+<h2 id="23-protobuf-definitions">2.3: Protobuf Definitions</h2>
+<p>GreeterTimer accepts a unary <code>TimerRequest</code> and streams back a
+sequence of <code>BatchReponse</code> until all messages have been processed, at
+which point the remote procedure call is complete.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>service GreeterTimer {
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// Unary request followed by multiple streamed responses.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  <span style="color:#09f;font-style:italic">// Response granularity will be set by the request batch size.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  rpc timeHello(TimerRequest) returns (stream BatchResponse);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>TimerRequest</code> includes metadata about where to contact the Greeter
+service, how many total RPC calls to make, and how frequent to stream
+back a BatchResponse (configured via the batch size).</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>message TimerRequest {
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// the host where the grpc server is running
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  string host <span style="color:#555">=</span> <span style="color:#f60">1</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The port of the grpc server
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 port <span style="color:#555">=</span> <span style="color:#f60">2</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The total number of hellos
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 total <span style="color:#555">=</span> <span style="color:#f60">3</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The number of hellos before sending a BatchResponse.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 batchSize <span style="color:#555">=</span> <span style="color:#f60">4</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>BatchResponse</code> reports the number of calls made in the batch, how
+long the batch run took, and the number of remaining calls.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>message BatchResponse {
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The number of checks that are remaining, calculated relative to
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  <span style="color:#09f;font-style:italic">// totalChecks in the request.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 remaining <span style="color:#555">=</span> <span style="color:#f60">1</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The number of checks actually performed in this batch.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 batchCount <span style="color:#555">=</span> <span style="color:#f60">2</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The number of checks that failed.
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int32 errCount <span style="color:#555">=</span> <span style="color:#f60">3</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#09f;font-style:italic">// The total time spent, expressed as a number of milliseconds per
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  <span style="color:#09f;font-style:italic">// request batch size (total time spent performing batchSize number
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  <span style="color:#09f;font-style:italic">// of health checks).
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>  int64 batchTimeMillis <span style="color:#555">=</span> <span style="color:#f60">4</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The non-streaming <code>Greeter</code> service takes a unary <code>HelloRequest</code> and
+responds with a single <code>HelloReply</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>service Greeter {
+</span></span><span style="display:flex;"><span>  rpc SayHello (HelloRequest) returns (HelloReply) {}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message HelloRequest {
+</span></span><span style="display:flex;"><span>  string name <span style="color:#555">=</span> <span style="color:#f60">1</span>;
+</span></span><span style="display:flex;"><span>  common.Config config <span style="color:#555">=</span> <span style="color:#f60">2</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message HelloReply {
+</span></span><span style="display:flex;"><span>  string message <span style="color:#555">=</span> <span style="color:#f60">1</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>The <code>common.Config</code> message type is not particularly functional here
+but serves to demonstrate the use of imports.  rules_protobuf can
+help with more complex setups having multiple proto → proto
+dependencies.</p>
+</blockquote>
+<h2 id="24-build-the-grpc_greetertimer-example-application">2.4: Build the grpc_greetertimer example application.</h2>
+<p>This demo application can be cloned at
+<a href="https://github.com/pubref/grpc_greetertimer" target="_blank" rel="noopener">https://github.com/pubref/grpc_greetertimer<i class="fas fa-external-link-alt"></i></a>.</p>
+<h3 id="241-create-the-project-layout">2.4.1: Create the Project Layout</h3>
+<p>Here&rsquo;s the directory layout and relevant BUILD files we&rsquo;ll be using:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>mkdir grpc_greetertimer <span style="color:#555">&amp;&amp;</span> <span style="color:#366">cd</span> grpc_greetertimer
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ mkdir -p proto/ go/ java/org/pubref/grpc/greetertimer/
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch WORKSPACE
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch proto/BUILD
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch proto/greetertimer.proto
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch go/BUILD
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch go/main.go
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch java/org/pubref/grpc/greetertimer/BUILD
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ touch java/org/pubref/grpc/greetertimer/GreeterTimerServer.java
+</span></span></code></pre></div><h3 id="242-the-workspace">2.4.2: The WORKSPACE</h3>
+<p>We&rsquo;ll begin by creating the <a href="https://github.com/pubref/grpc_greetertimer" target="_blank" rel="noopener">WORKSPACE<i class="fas fa-external-link-alt"></i></a> file with a
+reference to the rules_protobuf repository.  We load the main
+entrypoint skylark file
+<a href="https://github.com/pubref/rules_protobuf/blob/master/protobuf/rules.bzl" target="_blank" rel="noopener">rules.bzl<i class="fas fa-external-link-alt"></i></a>
+in the <code>//bzl</code> package and call its <code>protobuf_repositories</code> function
+with the languages to we want to use (in this case <code>java</code> and <code>go</code>).
+We also load <a href="https://github.com/bazelbuild/rules_go" target="_blank" rel="noopener">rules_go<i class="fas fa-external-link-alt"></i></a> for go
+compile support (not shown).</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># File //:WORKSPACE</span>
+</span></span><span style="display:flex;"><span>workspace(name <span style="color:#555">=</span> <span style="color:#c30">&#34;org_pubref_grpc_greetertimer&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>git_repository(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#34;org_pubref_rules_protobuf&#34;</span>,
+</span></span><span style="display:flex;"><span>    remote <span style="color:#555">=</span> <span style="color:#c30">&#34;https://github.com/pubref/rules_protobuf.git&#34;</span>,
+</span></span><span style="display:flex;"><span>    tag <span style="color:#555">=</span> <span style="color:#c30">&#34;v0.6.0&#34;</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># Load language-specific dependencies</span>
+</span></span><span style="display:flex;"><span>load(<span style="color:#c30">&#34;@org_pubref_rules_protobuf//java:rules.bzl&#34;</span>, <span style="color:#c30">&#34;java_proto_repositories&#34;</span>)
+</span></span><span style="display:flex;"><span>java_proto_repositories()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>load(<span style="color:#c30">&#34;@org_pubref_rules_protobuf//go:rules.bzl&#34;</span>, <span style="color:#c30">&#34;go_proto_repositories&#34;</span>)
+</span></span><span style="display:flex;"><span>go_proto_repositories()
+</span></span></code></pre></div><blockquote>
+<p>Refer to the
+<a href="https://github.com/pubref/rules_protobuf/protobuf/internal/repositories.bzl" target="_blank" rel="noopener">repositories.bzl file<i class="fas fa-external-link-alt"></i></a>,
+if you are interested in inspecting the dependencies.</p>
+</blockquote>
+<p>Bazel won&rsquo;t actually <em>fetch</em> something unless we actually need it by
+some other rule later, so let&rsquo;s go ahead and write some code.  We&rsquo;ll
+store our protocol buffer sources in <code>//proto</code>, our java sources in
+<code>//java</code>, and go source in <code>//go</code>.</p>
+<blockquote>
+<p>Note: go development within a bazel workspace is a little different
+than vanilla go.  In particular, one does not have to adhere to a
+typical <code>GOCODE</code> layout having a <code>src/</code>, <code>pkg/</code>, <code>bin/</code>
+subdirectories.</p>
+</blockquote>
+<h3 id="243-the-greetertimer-server">2.4.3: The GreeterTimer Server</h3>
+<p>The <a href="https://github.com/pubref/grpc_greetertimer/blob/master/java/org/pubref/grpc/greetertimer/GreeterTimerServer.java" target="_blank" rel="noopener">Java server&rsquo;s<i class="fas fa-external-link-alt"></i></a>
+main job is to accept requests and then connect to the requested
+Greeter service as a client.  The implementation counts down the
+number of remaining messages and does a blocking <code>sayHello(request)</code>
+for each one.  If the batchSize limit is met, the
+<code>observer.onNext(response)</code> message is invoked, streaming back a
+response to the client.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#09f;font-style:italic">/* File //java/org/pubref/grpc/greetertimer:GreeterTimerServer.java */</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#069;font-weight:bold">while</span> <span style="color:#555">(</span>remaining<span style="color:#555">--</span> <span style="color:#555">&gt;</span> 0<span style="color:#555">)</span> <span style="color:#555">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#069;font-weight:bold">if</span> <span style="color:#555">(</span>batchCount<span style="color:#555">++</span> <span style="color:#555">==</span> batchSize<span style="color:#555">)</span> <span style="color:#555">{</span>
+</span></span><span style="display:flex;"><span>      BatchResponse response <span style="color:#555">=</span> BatchResponse<span style="color:#555">.</span><span style="color:#309">newBuilder</span><span style="color:#555">()</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#555">.</span><span style="color:#309">setRemaining</span><span style="color:#555">(</span>remaining<span style="color:#555">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#555">.</span><span style="color:#309">setBatchCount</span><span style="color:#555">(</span>batchCount<span style="color:#555">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#555">.</span><span style="color:#309">setBatchTimeMillis</span><span style="color:#555">(</span>batchTime<span style="color:#555">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#555">.</span><span style="color:#309">setErrCount</span><span style="color:#555">(</span>errCount<span style="color:#555">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#555">.</span><span style="color:#309">build</span><span style="color:#555">();</span>
+</span></span><span style="display:flex;"><span>      observer<span style="color:#555">.</span><span style="color:#309">onNext</span><span style="color:#555">(</span>response<span style="color:#555">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#555">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    blockingStub<span style="color:#555">.</span><span style="color:#309">sayHello</span><span style="color:#555">(</span>HelloRequest<span style="color:#555">.</span><span style="color:#309">newBuilder</span><span style="color:#555">()</span>
+</span></span><span style="display:flex;"><span>                          <span style="color:#555">.</span><span style="color:#309">setName</span><span style="color:#555">(</span><span style="color:#c30">&#34;#&#34;</span> <span style="color:#555">+</span> remaining<span style="color:#555">)</span>
+</span></span><span style="display:flex;"><span>                          <span style="color:#555">.</span><span style="color:#309">build</span><span style="color:#555">());</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#555">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#555">}</span>
+</span></span></code></pre></div><h3 id="244-the-greetertimer-client">2.4.4: The GreeterTimer Client</h3>
+<p>The <a href="https://github.com/pubref/grpc_greetertimer/blob/master/go/main.go" target="_blank" rel="noopener">Go client<i class="fas fa-external-link-alt"></i></a>
+prepares a <code>TimerRequest</code> and gets back a stream interface from the
+<code>client.TimeHello</code> method.  We call its <code>Recv()</code> method until EOF, at
+which point the call is complete.  A summary of each BatchResponse is
+simply printed out to the terminal.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#09f;font-style:italic">// File: //go:main.go
+</span></span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#069;font-weight:bold">func</span> <span style="color:#c0f">submit</span>(client greeterTimer.GreeterTimerClient, request <span style="color:#555">*</span>greeterTimer.TimerRequest) <span style="color:#078;font-weight:bold">error</span> {
+</span></span><span style="display:flex;"><span>	stream, err <span style="color:#555">:=</span> client.<span style="color:#c0f">TimeHello</span>(context.<span style="color:#c0f">Background</span>(), request)
+</span></span><span style="display:flex;"><span>	<span style="color:#069;font-weight:bold">if</span> err <span style="color:#555">!=</span> <span style="color:#069;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>		log.<span style="color:#c0f">Fatalf</span>(<span style="color:#c30">&#34;could not submit request: %v&#34;</span>, err)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#069;font-weight:bold">for</span> {
+</span></span><span style="display:flex;"><span>		batchResponse, err <span style="color:#555">:=</span> stream.<span style="color:#c0f">Recv</span>()
+</span></span><span style="display:flex;"><span>		<span style="color:#069;font-weight:bold">if</span> err <span style="color:#555">==</span> io.EOF {
+</span></span><span style="display:flex;"><span>			<span style="color:#069;font-weight:bold">return</span> <span style="color:#069;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#069;font-weight:bold">if</span> err <span style="color:#555">!=</span> <span style="color:#069;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>			log.<span style="color:#c0f">Fatalf</span>(<span style="color:#c30">&#34;error during batch recv: %v&#34;</span>, err)
+</span></span><span style="display:flex;"><span>			<span style="color:#069;font-weight:bold">return</span> err
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#c0f">reportBatchResult</span>(batchResponse)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="245-generate-the-go-protobufgrpc-code">2.4.5: Generate the go protobuf+gRPC code</h3>
+<p>In our <code>//proto:BUILD</code> file, we have a <code>go_proto_library</code> rule loaded
+from the rules_protobuf repository.  Internally, the rule declares to
+bazel that it is responsible for creating <code>greetertimer.pb.go</code> output
+file. This rule won&rsquo;t actually <em>do</em> anything unless we depend on it
+somewhere else.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># File: //proto:BUILD</span>
+</span></span><span style="display:flex;"><span>load(<span style="color:#c30">&#34;@org_pubref_rules_protobuf//go:rules.bzl&#34;</span>, <span style="color:#c30">&#34;go_proto_library&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>go_proto_library(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#34;go_default_library&#34;</span>,
+</span></span><span style="display:flex;"><span>    protos <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;greetertimer.proto&#34;</span>,
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    with_grpc <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">True</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>The go client implementation depends on the <code>go_proto_library</code> as
+source file provider to the <code>go_binary</code> rule.  We also pass in some
+compile-time dependencies named in the
+<code>GRPC_COMPILE_DEPS</code> list.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>load(<span style="color:#c30">&#34;@io_bazel_rules_go//go:def.bzl&#34;</span>, <span style="color:#c30">&#34;go_binary&#34;</span>)
+</span></span><span style="display:flex;"><span>load(<span style="color:#c30">&#34;@org_pubref_rules_protobuf//go:rules.bzl&#34;</span>, <span style="color:#c30">&#34;GRPC_COMPILE_DEPS&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>go_binary(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#34;hello_client&#34;</span>,
+</span></span><span style="display:flex;"><span>    srcs <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;main.go&#34;</span>,
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    deps <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;//proto:go_default_library&#34;</span>,
+</span></span><span style="display:flex;"><span>    ] <span style="color:#555">+</span> GRPC_COMPILE_DEPS,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/grpc_greetertimer$ bazel build //go:client
+</span></span></code></pre></div><p>Here&rsquo;s what happens when we invoke bazel to actually build the client
+binary:</p>
+<ol>
+<li>
+<p>Bazel checks to see if the inputs (files) that the binary depends
+on have changed (by content hash and filestamps).  Bazel recognizes
+that the output files for the <code>//proto:go_default_library</code> have not
+been built.</p>
+</li>
+<li>
+<p>Bazel checks to see if all the necessary inputs (including tools)
+for the <code>go_proto_library</code> are available.  If not, download and
+build all the necessary tools.  Then, invoke the rule.</p>
+<ol>
+<li>
+<p>Fetch the <code>google/protobuf</code> repository and build <code>protoc</code> from
+source (via a cc_binary rule).</p>
+</li>
+<li>
+<p>Build the <code>protoc-gen-go</code> plugin from source (via a go_binary
+rule).</p>
+</li>
+<li>
+<p>Invoke <code>protoc</code> with the <code>protoc-gen-go</code> plugin with the
+appropriate options and arguments.</p>
+</li>
+<li>
+<p>Confirm that all the declared outputs of the <code>go_proto_library</code>
+where actually built (should be in <code>bazel-bin/proto/greetertimer.pb.go</code>).</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Compile the generated <code>greetertimer.pb.go</code> with the client
+<code>main.go</code> file, creating the <code>bazel-bin/go/client</code> executable.</p>
+</li>
+</ol>
+<h3 id="246-generate-the-java-protobuf-libraries">2.4.6: Generate the java protobuf libraries</h3>
+<p>The <code>java_proto_library</code> rule is functionally identical to the
+<code>go_proto_library</code> rule.  However, instead of providing a <code>*.pb.go</code>
+file, it bundles up all the generated outputs into a <code>*.srcjar</code> file
+(which is then used as an input to the <code>java_library</code> rule).  This an
+implementation detail of the java rule.  Here is how we build the
+final java binary:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>java_binary(
+</span></span><span style="display:flex;"><span>    name <span style="color:#555">=</span> <span style="color:#c30">&#34;server&#34;</span>,
+</span></span><span style="display:flex;"><span>    main_class <span style="color:#555">=</span> <span style="color:#c30">&#34;org.pubref.grpc.greetertimer.GreeterTimerServer&#34;</span>,
+</span></span><span style="display:flex;"><span>    srcs <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;GreeterTimerServer.java&#34;</span>,
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    deps <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;:timer_protos&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;@org_pubref_rules_protobuf//examples/helloworld/proto:java&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;@org_pubref_rules_protobuf//java:grpc_compiletime_deps&#34;</span>,
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    runtime_deps <span style="color:#555">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#c30">&#34;@org_pubref_rules_protobuf//java:netty_runtime_deps&#34;</span>,
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><ol>
+<li>
+<p>The <code>:timer_protos</code> is a locally defined <code>java_proto_library</code> rule.</p>
+</li>
+<li>
+<p>The <code>@org_pubref_rules_protobuf//examples/helloworld/proto:java</code> is
+an external <code>java_proto_library</code> rule that generates the greeter service
+client stub in our own workspace.</p>
+</li>
+<li>
+<p>Finally, we name the compile-time and run-time dependencies for the
+executable jar.  If these jar files have not yet been downloaded from
+maven central, they will be fetch as soon as we need them:</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/grpc_greetertimer$ bazel build java/org/pubref/grpc/greetertimer:server
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ bazel build java/org/pubref/grpc/greetertimer:server_deploy.jar
+</span></span></code></pre></div><p>This last form (having the extra <code>_deploy.jar</code>) is called an <em>implicit
+target</em> of the <code>:server</code> rule.  When invoked this way, bazel will pack
+up all the required classes and generate a standalone executable jar
+that can be run independently in a jvm.</p>
+<h3 id="247-run-it">2.4.7: Run it!</h3>
+<p>First, we&rsquo;ll start a greeter server (one at a time):</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/grpc_greetertimer$ <span style="color:#366">cd</span> ~/rules_protobuf
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/go/server
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/cpp/server
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/server:netty
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/csharp/GreeterServer
+</span></span><span style="display:flex;"><span>INFO: Server started, listening on <span style="color:#f60">50051</span>
+</span></span></code></pre></div><p>In a separate terminal, start the greetertimer server:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>~/grpc_greetertimer$ bazel build //java/org/pubref/grpc/greetertimer:server_deploy.jar
+</span></span><span style="display:flex;"><span>~/grpc_greetertimer$ java -jar bazel-bin/java/org/pubref/grpc/greetertimer/server_deploy.jar
+</span></span></code></pre></div><p>Finally, in a third terminal, invoke the greetertimer client:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># Timings for the java server</span>
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/java/org/pubref/rules_protobuf/examples/helloworld/server:netty
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~/grpc_greeterclient$ bazel run //go:client -- -total_size <span style="color:#f60">10000</span> -batch_size <span style="color:#f60">1000</span>
+</span></span><span style="display:flex;"><span>17:31:04 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">8999</span> remaining<span style="color:#555">)</span>: 1.7 hellos/ms or ~590µs per hello
+</span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># ... plus a few runs to warm up the jvm...</span>
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">8999</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~149µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">7998</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">6997</span> remaining<span style="color:#555">)</span>: 8.9 hellos/ms or ~112µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">5996</span> remaining<span style="color:#555">)</span>: 9.2 hellos/ms or ~109µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">4995</span> remaining<span style="color:#555">)</span>: 9.4 hellos/ms or ~106µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">3994</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">2993</span> remaining<span style="color:#555">)</span>: 9.4 hellos/ms or ~107µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">1992</span> remaining<span style="color:#555">)</span>: 9.4 hellos/ms or ~107µs per hello
+</span></span><span style="display:flex;"><span>17:31:13 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">991</span> remaining<span style="color:#555">)</span>: 9.1 hellos/ms or ~110µs per hello
+</span></span><span style="display:flex;"><span>17:31:14 <span style="color:#f60">991</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, -1 remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello<span style="color:#c30">```</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#c30">```</span>sh
+</span></span><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># Timings for the go server</span>
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/go/server
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~/grpc_greeterclient$ bazel run //go:client -- -total_size <span style="color:#f60">10000</span> -batch_size <span style="color:#f60">1000</span>
+</span></span><span style="display:flex;"><span>17:32:33 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">8999</span> remaining<span style="color:#555">)</span>: 7.5 hellos/ms or ~134µs per hello
+</span></span><span style="display:flex;"><span>17:32:33 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">7998</span> remaining<span style="color:#555">)</span>: 7.9 hellos/ms or ~127µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">6997</span> remaining<span style="color:#555">)</span>: 7.8 hellos/ms or ~128µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">5996</span> remaining<span style="color:#555">)</span>: 7.7 hellos/ms or ~130µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">4995</span> remaining<span style="color:#555">)</span>: 7.9 hellos/ms or ~126µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">3994</span> remaining<span style="color:#555">)</span>: 8.0 hellos/ms or ~125µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">2993</span> remaining<span style="color:#555">)</span>: 7.6 hellos/ms or ~132µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">1992</span> remaining<span style="color:#555">)</span>: 7.9 hellos/ms or ~126µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">991</span> remaining<span style="color:#555">)</span>: 7.9 hellos/ms or ~127µs per hello
+</span></span><span style="display:flex;"><span>17:32:34 <span style="color:#f60">991</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, -1 remaining<span style="color:#555">)</span>: 7.8 hellos/ms or ~128µs per hello
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># Timings for the C++ server</span>
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/cpp:server
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~/grpc_greeterclient$ bazel run //go:client -- -total_size <span style="color:#f60">10000</span> -batch_size <span style="color:#f60">1000</span>
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">8999</span> remaining<span style="color:#555">)</span>: 9.1 hellos/ms or ~110µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">7998</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">6997</span> remaining<span style="color:#555">)</span>: 9.1 hellos/ms or ~110µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">5996</span> remaining<span style="color:#555">)</span>: 8.6 hellos/ms or ~116µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">4995</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">3994</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">2993</span> remaining<span style="color:#555">)</span>: 9.1 hellos/ms or ~110µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">1992</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:33:10 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">991</span> remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span><span style="display:flex;"><span>17:33:11 <span style="color:#f60">991</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, -1 remaining<span style="color:#555">)</span>: 9.0 hellos/ms or ~111µs per hello
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#09f;font-style:italic"># Timings for the C# server</span>
+</span></span><span style="display:flex;"><span>~/rules_protobuf$ bazel run examples/helloworld/csharp/GreeterServer
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>~/grpc_greeterclient$ bazel run //go:client -- -total_size <span style="color:#f60">10000</span> -batch_size <span style="color:#f60">1000</span>
+</span></span><span style="display:flex;"><span>17:34:37 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">8999</span> remaining<span style="color:#555">)</span>: 6.0 hellos/ms or ~166µs per hello
+</span></span><span style="display:flex;"><span>17:34:37 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">7998</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~150µs per hello
+</span></span><span style="display:flex;"><span>17:34:37 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">6997</span> remaining<span style="color:#555">)</span>: 6.8 hellos/ms or ~148µs per hello
+</span></span><span style="display:flex;"><span>17:34:37 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">5996</span> remaining<span style="color:#555">)</span>: 6.8 hellos/ms or ~147µs per hello
+</span></span><span style="display:flex;"><span>17:34:37 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">4995</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~150µs per hello
+</span></span><span style="display:flex;"><span>17:34:38 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">3994</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~150µs per hello
+</span></span><span style="display:flex;"><span>17:34:38 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">2993</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~149µs per hello
+</span></span><span style="display:flex;"><span>17:34:38 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">1992</span> remaining<span style="color:#555">)</span>: 6.7 hellos/ms or ~149µs per hello
+</span></span><span style="display:flex;"><span>17:34:38 <span style="color:#f60">1001</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, <span style="color:#f60">991</span> remaining<span style="color:#555">)</span>: 6.8 hellos/ms or ~148µs per hello
+</span></span><span style="display:flex;"><span>17:34:38 <span style="color:#f60">991</span> hellos <span style="color:#555">(</span><span style="color:#f60">0</span> errs, -1 remaining<span style="color:#555">)</span>: 6.8 hellos/ms or ~147µs per hello
+</span></span></code></pre></div><p>The informal analysis demonstrated comparable timings for c++, go, and
+java greeter service implementations.  The c++ server had the overall
+fastest and most consistent performance.  The go implementation was
+also very consistent, but slightly slower than C++.  Java demonstrated
+some initial relative slowness likely due to the JVM warming up but
+soon converged on timings similar to the C++ implementation.  C# has
+consistent performance but marginally slower.</p>
+<h2 id="25-summary">2.5: Summary</h2>
+<p>Bazel assists in the construction of gRPC applications by providing a
+capable build environment for services built in a multitude of
+languages.  <a href="https://github.com/pubref/rules_protobuf/" target="_blank" rel="noopener">rules_protobuf<i class="fas fa-external-link-alt"></i></a> complements bazel by packaging up all the
+dependencies needed and abstracting away the need to call protoc
+directly.</p>
+<p>In this workflow one does not need to check in the generated source code
+(it is always generated on-demand within your workspace).  For
+projects that <em>do</em> require this, one can use the <code>output_to_workspace</code> option to place the generated
+files alongside the protobuf definitions.</p>
+<p>Finally, rules_protobuf has full support for the
+<a href="https://github.com/grpc-ecosystem/grpc-gateway" target="_blank" rel="noopener">grpc-gateway<i class="fas fa-external-link-alt"></i></a> project
+via the
+<a href="https://github.com/pubref/rules_protobuf/tree/master/grpc_gateway#grpc_gateway_proto_library" target="_blank" rel="noopener">grpc_gateway_proto_library<i class="fas fa-external-link-alt"></i></a>
+and
+<a href="https://github.com/pubref/rules_protobuf/tree/master/grpc_gateway#grpc_gateway_binary" target="_blank" rel="noopener">grpc_gateway_binary<i class="fas fa-external-link-alt"></i></a> rules, so you can easily bridge your gRPC apps with HTTP/1.1 gateways.</p>
+<p>Refer to the <a href="https://github.com/pubref/rules_protobuf/#rules" target="_blank" rel="noopener">complete list of supported languages and gRPC versions<i class="fas fa-external-link-alt"></i></a> for more information.</p>
+<p>And&hellip; that&rsquo;s a wrap.  Happy procedure calling!</p>
+<blockquote>
+<p>Paul Johnston is the principal at <a href="https://pubref.org" target="_blank" rel="noopener">PubRef<i class="fas fa-external-link-alt"></i></a>
+(<a href="https://twitter.com/pub_ref" target="_blank" rel="noopener">@pub_ref<i class="fas fa-external-link-alt"></i></a>), a solutions provider for
+scientific communications workflows.  If you have an organizational
+need for assistance with Bazel, gRPC, or related technologies,
+please contact <a href="mailto:pcj@pubref.org">pcj@pubref.org</a>.  Thanks!</p>
+</blockquote>
+	
+
+	<ul class="list-unstyled d-flex justify-content-between align-items-center mb-0 pt-5">
+  <li>
+    <a href="/blog/vsco/" aria-label="Previous - gRPC at VSCO" class="btn btn-primary"><span class="mr-1">←</span>Previous</a>
+  </li>
+    <a href="/blog/yikyak/" aria-label="Next - Migration to Google Cloud Platform — gRPC &amp; grpc-gateway" class="btn btn-primary">Next<span class="ml-1">→</span></a>
+  </li>
+</ul>
+
+	<div class="c-global-meta-links">
+		
+<div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/grpc/grpc.io/tree/main/content/en/blog/bazel-rules-protobuf.md" class="td-page-meta--view" target="_blank" rel="noopener"><i class="fa fa-file-alt fa-fw"></i> View page source</a>
+  <a href="https://github.com/grpc/grpc.io/edit/main/content/en/blog/bazel-rules-protobuf.md" class="td-page-meta--edit" target="_blank" rel="noopener"><i class="fa fa-edit fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/grpc/grpc.io/new/main/content/en/blog/bazel-rules-protobuf.md?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child" target="_blank" rel="noopener"><i class="fa fa-edit fa-fw"></i> Create child page</a>
+  <a href="https://github.com/grpc/grpc.io/issues/new?title=Building%20gRPC%20services%20with%20bazel%20and%20rules_protobuf" class="td-page-meta--issue" target="_blank" rel="noopener"><i class="fas fa-tasks fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/grpc/grpc.io/issues/new" class="td-page-meta--project-issue" target="_blank" rel="noopener"><i class="fas fa-tasks fa-fw"></i> Create project issue</a>
+  
+</div>
+
+	</div>
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      
+<footer class="bg-dark py-5 row d-print-none">
+  <div class="container-fluid mx-sm-5">
+    <div class="row">
+      <div class="col-6 col-sm-4 text-xs-center order-sm-2">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Twitter" aria-label="Twitter">
+    <a class="text-white" target="_blank" rel="noopener" href="https://twitter.com/grpcio" aria-label="Twitter">
+      <i class="fab fa-twitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Google Groups" aria-label="Google Groups">
+    <a class="text-white" target="_blank" rel="noopener" href="https://groups.google.com/g/grpc-io" aria-label="Google Groups">
+      <i class="fab fa-google"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="Gitter" aria-label="Gitter">
+    <a class="text-white" target="_blank" rel="noopener" href="https://gitter.im/grpc/grpc" aria-label="Gitter">
+      <i class="fab fa-gitter"></i>
+    </a>
+  </li>
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="YouTube" aria-label="YouTube">
+    <a class="text-white" target="_blank" rel="noopener" href="https://www.youtube.com/@grpcio" aria-label="YouTube">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-6 col-sm-4 text-right text-xs-center order-sm-3">
+        
+        
+        
+<ul class="list-inline mb-0">
+  
+  <li class="list-inline-item mx-2 h3" data-toggle="tooltip" data-placement="top" title="GitHub" aria-label="GitHub">
+    <a class="text-white" target="_blank" rel="noopener" href="https://github.com/grpc" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+        
+        
+      </div>
+      <div class="col-12 col-sm-4 text-center py-2 order-sm-2">
+        <small class="text-white">&copy; 2024 gRPC Authors
+          
+        </small>
+        
+        
+      </div>
+    </div>
+    <div class="row text-center text-white small">
+      <div class="col-12 text-center py-2 order-sm-2">
+        <a href="https://www.linuxfoundation.org/terms" target="_blank" rel="noopener">Terms</a> |
+        <a href="https://www.linuxfoundation.org/privacy" target="_blank" rel="noopener">Privacy</a> |
+        <a href="https://www.linuxfoundation.org/trademark-usage" target="_blank" rel="noopener">Trademarks</a> |
+        <a href="https://github.com/grpc/grpc.io/blob/main/LICENSE" target="_blank" rel="noopener">License</a> |
+        <a href="/about/">About</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"
+    integrity="sha512-UR25UO94eTnCVwjbXozyeVd6ZqpaAE9naiEUBK/A+QDbfSTQFhPGj5lOR6d8tsgbBk84Ggb5A3EkjsOgPRPcKA=="
+    crossorigin="anonymous"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@8.13.4/dist/mermaid.min.js" integrity="sha512-JERecFUBbsm75UpkVheAuDOE8NdHjQBrPACfEQYPwvPG+fjgCpHAz1Jw2ci9EXmd3DdfiWth3O3CQvcfEg8gsA==" crossorigin="anonymous"></script>
+
+
+
+
+<script src='/js/tabpane-persist.js'></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js"></script>
+
+
+
+ 
+
+
+  </body>
+</html>
