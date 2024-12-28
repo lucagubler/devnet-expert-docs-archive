@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>WebSocket proxying</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/http/websocket.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>WebSocket proxying</h2><p>
+To turn a connection between a client and server from HTTP/1.1 into WebSocket,
+the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-14.42">protocol
+switch</a> mechanism available in HTTP/1.1 is used.
+</p><p>
+There is one subtlety however: since the “Upgrade” is a
+<a href="https://datatracker.ietf.org/doc/html/rfc2616#section-13.5.1">hop-by-hop</a>
+header, it is not passed from a client to proxied server.
+With forward proxying, clients may use the <code>CONNECT</code>
+method to circumvent this issue.
+This does not work with reverse proxying however,
+since clients are not aware of any proxy servers,
+and special processing on a proxy server is required.
+</p><p>
+Since version 1.3.13,
+nginx implements special mode of operation
+that allows setting up a tunnel between a client and proxied
+server if the proxied server returned a response with the code
+101 (Switching Protocols),
+and the client asked for a protocol switch via the “Upgrade”
+header in a request.
+</p><p>
+As noted above, hop-by-hop headers including “Upgrade”
+and “Connection” are not passed from a client to proxied
+server, therefore in order for the proxied server to know about the client’s
+intention to switch a protocol to WebSocket, these headers have to be
+passed explicitly:
+</p> <blockquote class="example"><pre>
+location /chat/ {
+    proxy_pass http://backend;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+</pre></blockquote><p> 
+A more sophisticated example
+in which a value of the “Connection” header field
+in a request to the proxied server depends on the presence of
+the “Upgrade” field in the client request header:
+</p> <blockquote class="example"><pre>
+http {
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
+    server {
+        ...
+
+        location /chat/ {
+            proxy_pass http://backend;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
+    }
+</pre></blockquote><p> 
+</p><p>
+By default, the connection will be closed
+if the proxied server does not transmit any data within 60 seconds.
+This timeout can be increased with the
+<a href="ngx_http_proxy_module.html#proxy_read_timeout">proxy_read_timeout</a> directive.
+Alternatively, the proxied server can be configured
+to periodically send WebSocket ping frames to reset the timeout
+and check if the connection is still alive.
+</p></div></div></body></html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_mgmt_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a class="notrans">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="index.html">documentation</a></li><li><a href="faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_mgmt_module</h2><table width="100%"><tr><td align="left"><a href="ngx_mgmt_module.html#example">Example Configuration</a><br><a href="ngx_mgmt_module.html#directives">Directives</a><br>     <a href="ngx_mgmt_module.html#mgmt">mgmt</a><br>     <a href="ngx_mgmt_module.html#enforce_initial_report">enforce_initial_report</a><br>     <a href="ngx_mgmt_module.html#license_token">license_token</a><br>     <a href="ngx_mgmt_module.html#resolver">resolver</a><br>     <a href="ngx_mgmt_module.html#ssl_crl">ssl_crl</a><br>     <a href="ngx_mgmt_module.html#ssl_trusted_certificate">ssl_trusted_certificate</a><br>     <a href="ngx_mgmt_module.html#ssl_verify">ssl_verify</a><br>     <a href="ngx_mgmt_module.html#state_path">state_path</a><br>     <a href="ngx_mgmt_module.html#usage_report">usage_report</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_mgmt_module</code> module enables
+NGINX Plus license verification and usage reporting.
+This is mandatory for each
+<a href="https://docs.nginx.com/nginx/releases/#nginxplusrelease-33-r33"><code>nginx/1.27.2
+(nginx-plus-r33)</code></a> instance.
+</p><p>
+A JWT license file named <code>license.jwt</code>
+should be located at
+<code>/etc/nginx/</code> for Linux or
+<code>/usr/local/etc/nginx/</code> for FreeBSD
+or at the path specified by the <a href="ngx_mgmt_module.html#license_token">license_token</a> directive.
+The license file is available from
+<a href="https://my.f5.com">MyF5</a>.
+</p><p>
+Usage report is sent to F5 licensing endpoint
+<a href="ngx_mgmt_module.html#usage_report">every hour</a> using the
+<a href="ngx_mgmt_module.html#ssl_verify">secure</a> connection.
+Optionally, in network-restricted environments
+reporting can be <a href="ngx_mgmt_module.html#usage_report">configured</a> to
+<a href="https://docs.nginx.com/nginx-management-suite/about/">F5 NGINX
+Instance Manager</a> from which the report can be sent
+to F5 licensing endpoint.
+</p><p>
+By default, if the <a href="ngx_mgmt_module.html#enforce_initial_report">initial usage report</a>
+is not received by F5 licensing endpoint, nginx will stop processing traffic.
+</p><p>
+</p> <blockquote class="note">
+This module is available as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>.
+</blockquote><p> 
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+mgmt {
+    # in case if custom path is required
+    license_token custom/file/path/license.jwt;
+
+    # in case of reporting to NGINX Instance Manager
+    usage_report endpoint=NIM_FQDN;
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="mgmt"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>mgmt</strong> { ... }</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>main</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Provides the configuration file context in which
+usage reporting and license management directives
+are specified.
+</p><a name="enforce_initial_report"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>enforce_initial_report</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>enforce_initial_report on;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Enables or disables the 180-day grace period
+for sending the initial usage report.
+</p><p>
+The initial usage report is sent immediately
+upon nginx first start after installation.
+By default, if the initial report is not received by F5 licensing endpoint,
+nginx stops processing traffic until the report is successfully delivered.
+Setting the directive value to <code>off</code> enables
+the 180-day grace period during which
+the initial usage report must be received by F5 licensing endpoint.
+</p><a name="license_token"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>license_token</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>license_token license.jwt;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Specifies a JWT license <code><i>file</i></code>.
+By default, the <code><i>license.jwt</i></code> file is expected to be at
+<code>/etc/nginx/</code> for Linux or at
+<code>/usr/local/etc/nginx/</code> for FreeBSD.
+</p><a name="resolver"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>resolver</strong> 
+    <code><i>address</i></code> ...
+    [<code>valid</code>=<code><i>time</i></code>]
+    [<code>ipv4</code>=<code>on</code>|<code>off</code>]
+    [<code>ipv6</code>=<code>on</code>|<code>off</code>]
+    [<code>status_zone</code>=<code><i>zone</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Configures name servers used to resolve usage reporting endpoint name.
+By default, the system resolver is used.
+</p><p>
+See <a href="http/ngx_http_core_module.html#resolver">resolver</a> for details.
+</p><a name="ssl_crl"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_crl</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with revoked certificates (CRL)
+in the PEM format used to <a href="ngx_mgmt_module.html#ssl_verify">verify</a>
+the certificate of the usage reporting endpoint.
+</p><a name="ssl_trusted_certificate"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_trusted_certificate</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_trusted_certificate system CA bundle;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with trusted CA certificates in the PEM format
+used to <a href="ngx_mgmt_module.html#ssl_verify">verify</a>
+the certificate of the usage reporting endpoint.
+</p><a name="ssl_verify"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_verify</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_verify on;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables or disables verification of the usage reporting endpoint certificate.
+</p><p>
+</p> <blockquote class="note">
+Before 1.27.2, the default value was <code>off</code>.
+</blockquote><p> 
+</p><a name="state_path"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>state_path</strong> <code><i>path</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Defines a directory for storing state files
+(<code>nginx-mgmt-*</code>)
+created by the <code>ngx_mgmt_module</code> module.
+The default directory
+for Linux is <code>/var/lib/nginx/state</code>,
+for FreeBSD is <code>/var/db/nginx/state</code>.
+</p><a name="usage_report"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>usage_report</strong>  [<code>endpoint</code>=<code><i>address</i></code>]
+         [<code>interval</code>=<code><i>time</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>usage_report endpoint=product.connect.nginx.com interval=1h;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mgmt</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the <code><i>address</i></code> and <code><i>port</i></code>
+of the usage reporting endpoint.
+The <code>interval</code> parameter sets an interval between
+two consecutive reports.
+</p> <blockquote class="note">
+Before 1.27.2, the default values were
+<code>nginx-mgmt.local</code> and
+<code>30m</code>.
+</blockquote><p> 
+</p>
+
+</div></div></body></html>

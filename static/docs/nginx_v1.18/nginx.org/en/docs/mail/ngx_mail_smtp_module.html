@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_mail_smtp_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/mail/ngx_mail_smtp_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_mail_smtp_module</h2><table width="100%"><tr><td align="left"><a href="ngx_mail_smtp_module.html#directives">Directives</a><br>     <a href="ngx_mail_smtp_module.html#smtp_auth">smtp_auth</a><br>     <a href="ngx_mail_smtp_module.html#smtp_capabilities">smtp_capabilities</a><br>     <a href="ngx_mail_smtp_module.html#smtp_client_buffer">smtp_client_buffer</a><br>     <a href="ngx_mail_smtp_module.html#smtp_greeting_delay">smtp_greeting_delay</a><br></td></tr></table>
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="smtp_auth"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>smtp_auth</strong> <code><i>method</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>smtp_auth plain login;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mail</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets permitted methods of
+<a href="https://datatracker.ietf.org/doc/html/rfc2554">SASL authentication</a>
+for SMTP clients.
+Supported methods are:
+</p> <dl class="compact">
+
+<dt><code>plain</code></dt>
+<dd>
+<a href="https://datatracker.ietf.org/doc/html/rfc4616">AUTH PLAIN</a>
+</dd>
+
+<dt><code>login</code></dt>
+<dd>
+<a href="https://datatracker.ietf.org/doc/html/draft-murchison-sasl-login-00">AUTH LOGIN</a>
+</dd>
+
+<dt><code>cram-md5</code></dt>
+<dd>
+<a href="https://datatracker.ietf.org/doc/html/rfc2195">AUTH CRAM-MD5</a>.
+In order for this method to work, the password must be stored unencrypted.
+</dd>
+
+<dt><code>external</code></dt>
+<dd>
+<a href="https://datatracker.ietf.org/doc/html/rfc4422">AUTH EXTERNAL</a> (1.11.6).
+</dd>
+
+<dt><code>none</code></dt>
+<dd>
+Authentication is not required.
+</dd>
+
+</dl><p> 
+</p><p>
+Plain text authentication methods
+(<code>AUTH PLAIN</code> and <code>AUTH LOGIN</code>)
+are always enabled,
+though if the <code>plain</code> and <code>login</code> methods
+are not specified,
+<code>AUTH PLAIN</code> and <code>AUTH LOGIN</code>
+will not be automatically included in <a href="ngx_mail_smtp_module.html#smtp_capabilities">smtp_capabilities</a>.
+</p><a name="smtp_capabilities"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>smtp_capabilities</strong> <code><i>extension</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mail</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the SMTP protocol extensions list
+that is passed to the client in response to the
+<code>EHLO</code> command.
+The authentication methods specified in the <a href="ngx_mail_smtp_module.html#smtp_auth">smtp_auth</a> directive and
+<a href="https://datatracker.ietf.org/doc/html/rfc3207">STARTTLS</a>
+are automatically added to this list depending on the
+<a href="ngx_mail_ssl_module.html#starttls">starttls</a> directive value.
+</p><p>
+It makes sense to specify the extensions
+supported by the MTA
+to which the clients are proxied (if these extensions are related to commands
+used after the authentication, when nginx transparently proxies the client
+connection to the backend).
+</p><p>
+The current list of standardized extensions is published at
+<a href="http://www.iana.org/assignments/mail-parameters">www.iana.org</a>.
+</p><a name="smtp_client_buffer"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>smtp_client_buffer</strong> <code><i>size</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>smtp_client_buffer 4k|8k;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mail</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the <code><i>size</i></code> of the buffer used for reading SMTP commands.
+By default, the buffer size is equal to one memory page.
+This is either 4K or 8K, depending on a platform.
+</p><a name="smtp_greeting_delay"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>smtp_greeting_delay</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>smtp_greeting_delay 0;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>mail</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Allows setting a delay before sending an SMTP greeting
+in order to reject clients who fail to wait for the greeting before
+sending SMTP commands.
+</p>
+
+</div></div></body></html>

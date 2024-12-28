@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_stream_keyval_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a class="notrans">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_stream_keyval_module</h2><table width="100%"><tr><td align="left"><a href="ngx_stream_keyval_module.html#example">Example Configuration</a><br><a href="ngx_stream_keyval_module.html#directives">Directives</a><br>     <a href="ngx_stream_keyval_module.html#keyval">keyval</a><br>     <a href="ngx_stream_keyval_module.html#keyval_zone">keyval_zone</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_stream_keyval_module</code> module (1.13.7) creates variables
+with values taken from key-value pairs managed by the
+<a href="../http/ngx_http_api_module.html#stream_keyvals_">API</a>
+or a variable that can also be set with
+<a href="https://github.com/nginx/njs-examples/">njs</a>.
+</p><p>
+</p> <blockquote class="note">
+This module is available as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>.
+</blockquote><p> 
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+http {
+
+    server {
+        ...
+        location /api {
+            api write=on;
+        }
+    }
+}
+
+stream {
+
+    keyval_zone zone=one:32k state=/var/lib/nginx/state/one.keyval;
+    keyval      $ssl_server_name $name zone=one;
+
+    server {
+        listen              12345 ssl;
+        proxy_pass          $name;
+        ssl_certificate     /usr/local/nginx/conf/cert.pem;
+        ssl_certificate_key /usr/local/nginx/conf/cert.key;
+    }
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="keyval"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>keyval</strong> 
+    <code><i>key</i></code>
+    <code><i>$variable</i></code>
+    <code>zone</code>=<code><i>name</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Creates a new <code><i>$variable</i></code> whose value
+is looked up by the <code><i>key</i></code> in the key-value database.
+Matching rules are defined by the
+<a href="ngx_stream_keyval_module.html#keyval_type"><code>type</code></a> parameter of the
+<a href="ngx_stream_keyval_module.html#keyval_zone"><code>keyval_zone</code></a> directive.
+The database is stored in a shared memory zone
+specified by the <code>zone</code> parameter.
+</p><a name="keyval_zone"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>keyval_zone</strong> 
+    <code>zone</code>=<code><i>name</i></code>:<code><i>size</i></code>
+    [<code>state</code>=<code><i>file</i></code>]
+    [<code>timeout</code>=<code><i>time</i></code>]
+    [<code>type</code>=<code>string</code>|<code>ip</code>|<code>prefix</code>]
+    [<code>sync</code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the <code><i>name</i></code> and <code><i>size</i></code> of the shared memory zone
+that keeps the key-value database.
+Key-value pairs are managed by the
+<a href="../http/ngx_http_api_module.html#stream_keyvals_">API</a>.
+</p><a name="keyval_state"></a><p>
+The optional <code>state</code> parameter specifies a <code><i>file</i></code>
+that keeps the current state of the key-value database in the JSON format
+and makes it persistent across nginx restarts.
+Changing the file content directly should be avoided.
+</p><p>
+Examples:
+</p> <blockquote class="example"><pre>
+keyval_zone zone=one:32k state=/var/lib/nginx/state/one.keyval; # path for Linux
+keyval_zone zone=one:32k state=/var/db/nginx/state/one.keyval;  # path for FreeBSD
+</pre></blockquote><p> 
+</p><a name="keyval_timeout"></a><p>
+The optional <code>timeout</code> parameter (1.15.0) sets
+the time after which key-value pairs are removed from the zone.
+</p><a name="keyval_type"></a><p>
+The optional <code>type</code> parameter (1.17.1) activates
+an extra index optimized for matching the key of a certain type
+and defines matching rules when evaluating
+a <a href="ngx_stream_keyval_module.html#keyval">keyval</a> <code>$variable</code>.
+</p> <blockquote class="note">
+The index is stored in the same shared memory zone
+and thus requires additional storage.
+</blockquote><p> 
+
+</p> <dl class="compact">
+
+<dt id="keyval_type_string"><code>type=string</code></dt>
+<dd>
+default, no index is enabled;
+variable lookup is performed using exact match
+of the record key and a search key
+</dd>
+
+<dt id="keyval_type_ip"><code>type=ip</code></dt>
+<dd>
+the search key is the textual representation of IPv4 or IPv6 address
+or CIDR range;
+to match a record key, the search key must belong to a subnet
+specified by a record key or exactly match an IP address
+</dd>
+
+<dt id="keyval_type_prefix"><code>type=prefix</code></dt>
+<dd>
+variable lookup is performed using prefix match
+of a record key and a search key (1.17.5);
+to match a record key, the record key must be a prefix of the search key
+</dd>
+
+</dl><p> 
+</p><a name="keyval_sync"></a><p>
+The optional <code>sync</code> parameter (1.15.0) enables
+<a href="ngx_stream_zone_sync_module.html#zone_sync">synchronization</a>
+of the shared memory zone.
+The synchronization requires the
+<code>timeout</code> parameter to be set.
+</p> <blockquote class="note">
+If the synchronization is enabled, removal of key-value pairs (no matter
+<a href="../http/ngx_http_api_module.html#patchStreamKeyvalZoneKeyValue">one</a>
+or
+<a href="../http/ngx_http_api_module.html#deleteStreamKeyvalZoneData">all</a>)
+will be performed only on a target cluster node.
+The same key-value pairs on other cluster nodes
+will be removed upon <code>timeout</code>.
+</blockquote><p> 
+</p>
+
+</div></div></body></html>

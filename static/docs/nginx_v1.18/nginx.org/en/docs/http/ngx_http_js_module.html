@@ -1,0 +1,1147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_http_js_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/http/ngx_http_js_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_http_js_module</h2><table width="100%"><tr><td align="left"><a href="ngx_http_js_module.html#example">Example Configuration</a><br><a href="ngx_http_js_module.html#directives">Directives</a><br>     <a href="ngx_http_js_module.html#js_body_filter">js_body_filter</a><br>     <a href="ngx_http_js_module.html#js_content">js_content</a><br>     <a href="ngx_http_js_module.html#js_context_reuse">js_context_reuse</a><br>     <a href="ngx_http_js_module.html#js_engine">js_engine</a><br>     <a href="ngx_http_js_module.html#js_fetch_buffer_size">js_fetch_buffer_size</a><br>     <a href="ngx_http_js_module.html#js_fetch_ciphers">js_fetch_ciphers</a><br>     <a href="ngx_http_js_module.html#js_fetch_max_response_buffer_size">js_fetch_max_response_buffer_size</a><br>     <a href="ngx_http_js_module.html#js_fetch_protocols">js_fetch_protocols</a><br>     <a href="ngx_http_js_module.html#js_fetch_timeout">js_fetch_timeout</a><br>     <a href="ngx_http_js_module.html#js_fetch_trusted_certificate">js_fetch_trusted_certificate</a><br>     <a href="ngx_http_js_module.html#js_fetch_verify">js_fetch_verify</a><br>     <a href="ngx_http_js_module.html#js_fetch_verify_depth">js_fetch_verify_depth</a><br>     <a href="ngx_http_js_module.html#js_header_filter">js_header_filter</a><br>     <a href="ngx_http_js_module.html#js_import">js_import</a><br>     <a href="ngx_http_js_module.html#js_include">js_include</a><br>     <a href="ngx_http_js_module.html#js_path">js_path</a><br>     <a href="ngx_http_js_module.html#js_periodic">js_periodic</a><br>     <a href="ngx_http_js_module.html#js_preload_object">js_preload_object</a><br>     <a href="ngx_http_js_module.html#js_set">js_set</a><br>     <a href="ngx_http_js_module.html#js_shared_dict_zone">js_shared_dict_zone</a><br>     <a href="ngx_http_js_module.html#js_var">js_var</a><br><a href="ngx_http_js_module.html#arguments">Request Argument</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_http_js_module</code> module is used to implement
+location and variable handlers
+in <a href="../njs/index.html">njs</a> —
+a subset of the JavaScript language.
+</p><p>
+Download and install instructions are available
+<a href="../njs/install.html">here</a>.
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+The example works since
+<a href="../njs/changes.html#njs0.4.0">0.4.0</a>.
+</p> <blockquote class="example"><pre>
+http {
+    js_import http.js;
+
+    js_set $foo     http.foo;
+    js_set $summary http.summary;
+    js_set $hash    http.hash;
+
+    resolver 10.0.0.1;
+
+    server {
+        listen 8000;
+
+        location / {
+            add_header X-Foo $foo;
+            js_content http.baz;
+        }
+
+        location = /summary {
+            return 200 $summary;
+        }
+
+        location = /hello {
+            js_content http.hello;
+        }
+
+        # since 0.7.0
+        location = /fetch {
+            js_content                   http.fetch;
+            js_fetch_trusted_certificate /path/to/ISRG_Root_X1.pem;
+        }
+
+        # since 0.7.0
+        location = /crypto {
+            add_header Hash $hash;
+            return     200;
+        }
+    }
+}
+</pre></blockquote><p> 
+</p><p>
+The <code>http.js</code> file:
+</p> <blockquote class="example"><pre>
+function foo(r) {
+    r.log("hello from foo() handler");
+    return "foo";
+}
+
+function summary(r) {
+    var a, s, h;
+
+    s = "JS summary\n\n";
+
+    s += "Method: " + r.method + "\n";
+    s += "HTTP version: " + r.httpVersion + "\n";
+    s += "Host: " + r.headersIn.host + "\n";
+    s += "Remote Address: " + r.remoteAddress + "\n";
+    s += "URI: " + r.uri + "\n";
+
+    s += "Headers:\n";
+    for (h in r.headersIn) {
+        s += "  header '" + h + "' is '" + r.headersIn[h] + "'\n";
+    }
+
+    s += "Args:\n";
+    for (a in r.args) {
+        s += "  arg '" + a + "' is '" + r.args[a] + "'\n";
+    }
+
+    return s;
+}
+
+function baz(r) {
+    r.status = 200;
+    r.headersOut.foo = 1234;
+    r.headersOut['Content-Type'] = "text/plain; charset=utf-8";
+    r.headersOut['Content-Length'] = 15;
+    r.sendHeader();
+    r.send("nginx");
+    r.send("java");
+    r.send("script");
+
+    r.finish();
+}
+
+function hello(r) {
+    r.return(200, "Hello world!");
+}
+
+// since 0.7.0
+async function fetch(r) {
+    let results = await Promise.all([ngx.fetch('https://nginx.org/'),
+                                     ngx.fetch('https://nginx.org/en/')]);
+
+    r.return(200, JSON.stringify(results, undefined, 4));
+}
+
+// since 0.7.0
+async function hash(r) {
+    let hash = await crypto.subtle.digest('SHA-512', r.headersIn.host);
+    r.setReturnValue(Buffer.from(hash).toString('hex'));
+}
+
+export default {foo, summary, baz, hello, fetch, hash};
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="js_body_filter"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_body_filter</strong> <code><i>function</i></code> | <code><i>module.function</i></code>
+[<code><i>buffer_type</i></code>=<code><i>string</i></code> | <code><i>buffer</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>location</code>, <code>if in location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.5.2.
+            </p></div><p>
+Sets an njs function as a response body filter.
+The filter function is called for each data chunk of a response body
+with the following arguments:
+
+</p> <dl class="compact">
+<dt><code>r</code></dt>
+<dd>
+the <a href="../njs/reference.html#http">HTTP request</a> object
+</dd>
+
+<dt><code>data</code></dt>
+<dd>
+the incoming data chunk,
+may be a string or Buffer
+depending on the <code>buffer_type</code> value,
+by default is a string.
+Since <a href="../njs/changes.html#njs0.8.5">0.8.5</a>, the
+<code>data</code> value is implicitly converted to a valid UTF-8 string
+by default.
+For binary data, the <code>buffer_type</code> value
+should be set to <code>buffer</code>.
+</dd>
+
+<dt><code>flags</code></dt>
+<dd>
+an object with the following properties:
+<dl class="compact">
+<dt><code>last</code></dt>
+<dd>
+a boolean value, true if data is a last buffer.
+</dd>
+
+</dl>
+</dd>
+
+</dl><p> 
+</p><p>
+The filter function can pass its own modified version
+of the input data chunk to the next body filter by calling
+<a href="../njs/reference.html#r_sendbuffer"><code>r.sendBuffer()</code></a>.
+For example, to transform all the lowercase letters in the response body:
+</p> <blockquote class="example"><pre>
+function filter(r, data, flags) {
+    r.sendBuffer(data.toLowerCase(), flags);
+}
+</pre></blockquote><p> 
+To stop filtering (following data chunks will be passed to client
+without calling <code>js_body_filter</code>),
+<a href="../njs/reference.html#r_done"><code>r.done()</code></a>
+can be used.
+</p><p>
+If the filter function changes the length of the response body, then
+it is required to clear out the “Content-Length” response header
+(if any) in
+<a href="ngx_http_js_module.html#js_header_filter"><code>js_header_filter</code></a>
+to enforce chunked transfer encoding.
+</p><p>
+</p> <blockquote class="note">
+As the <code>js_body_filter</code> handler
+returns its result immediately, it supports
+only synchronous operations.
+Thus, asynchronous operations such as
+<a href="../njs/reference.html#r_subrequest">r.subrequest()</a>
+or
+<a href="../njs/reference.html#settimeout">setTimeout()</a>
+are not supported.
+</blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified inside the
+<a href="ngx_http_rewrite_module.html#if">if</a> block
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_content"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_content</strong> <code><i>function</i></code> | <code><i>module.function</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>location</code>, <code>if in location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets an njs function as a location content handler.
+Since <a href="../njs/changes.html#njs0.4.0">0.4.0</a>,
+a module function can be referenced.
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified inside the
+<a href="ngx_http_rewrite_module.html#if">if</a> block
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_context_reuse"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_context_reuse</strong> <code><i>number</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_context_reuse 128;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.8.6.
+            </p></div><p>
+Sets a maximum number of JS context to be reused for
+<a href="../njs/engine.html">QuickJS engine</a>.
+Each context is used for a single request.
+The finished context is put into a pool of reusable contexts.
+If the pool is full, the context is destroyed.
+</p><a name="js_engine"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_engine</strong> <code>njs</code> | <code>qjs</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_engine njs;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.8.6.
+            </p></div><p>
+Sets a <a href="../njs/engine.html">JavaScript engine</a>
+to be used for njs scripts.
+The <code>njs</code> parameter sets the njs engine, also used by default.
+The <code>qjs</code> parameter sets the QuickJS engine.
+</p><a name="js_fetch_buffer_size"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_buffer_size</strong> <code><i>size</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_buffer_size 16k;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.4.
+            </p></div><p>
+Sets the <code><i>size</i></code> of the buffer used for reading and writing
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_fetch_ciphers"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_ciphers</strong> <code><i>ciphers</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_ciphers HIGH:!aNULL:!MD5;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.0.
+            </p></div><p>
+Specifies the enabled ciphers for HTTPS requests
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+The ciphers are specified in the format understood by the
+OpenSSL library.
+</p><p>
+The full list can be viewed using the
+“<code>openssl ciphers</code>” command.
+</p><a name="js_fetch_max_response_buffer_size"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_max_response_buffer_size</strong> <code><i>size</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_max_response_buffer_size 1m;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.4.
+            </p></div><p>
+Sets the maximum <code><i>size</i></code> of the response received
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_fetch_protocols"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_protocols</strong> 
+    [<code>TLSv1</code>]
+    [<code>TLSv1.1</code>]
+    [<code>TLSv1.2</code>]
+    [<code>TLSv1.3</code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_protocols TLSv1 TLSv1.1 TLSv1.2;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.0.
+            </p></div><p>
+Enables the specified protocols for HTTPS requests
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_fetch_timeout"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_timeout</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_timeout 60s;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.4.
+            </p></div><p>
+Defines a timeout for reading and writing
+for <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+The timeout is set only between two successive read/write operations,
+not for the whole response.
+If no data is transmitted within this time, the connection is closed.
+</p><a name="js_fetch_trusted_certificate"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_trusted_certificate</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.0.
+            </p></div><p>
+Specifies a <code><i>file</i></code> with trusted CA certificates in the PEM format
+used to
+<a href="../njs/reference.html#fetch_verify">verify</a>
+the HTTPS certificate
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_fetch_verify"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_verify</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_verify on;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.4.
+            </p></div><p>
+Enables or disables verification of the HTTPS server certificate
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_fetch_verify_depth"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_fetch_verify_depth</strong> <code><i>number</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>js_fetch_verify_depth 100;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.0.
+            </p></div><p>
+Sets the verification depth in the HTTPS server certificates chain
+with <a href="../njs/reference.html#ngx_fetch">Fetch API</a>.
+</p><a name="js_header_filter"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_header_filter</strong> <code><i>function</i></code> | <code><i>module.function</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>location</code>, <code>if in location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.5.1.
+            </p></div><p>
+Sets an njs function as a response header filter.
+The directive allows changing arbitrary header fields of a response header.
+</p><p>
+</p> <blockquote class="note">
+As the <code>js_header_filter</code> handler
+returns its result immediately, it supports
+only synchronous operations.
+Thus, asynchronous operations such as
+<a href="../njs/reference.html#r_subrequest">r.subrequest()</a>
+or
+<a href="../njs/reference.html#settimeout">setTimeout()</a>
+are not supported.
+</blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified inside the
+<a href="ngx_http_rewrite_module.html#if">if</a> block
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_import"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_import</strong> <code><i>module.js</i></code> |
+<code><i>export_name from module.js</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.4.0.
+            </p></div><p>
+Imports a module that implements location and variable handlers in njs.
+The <code>export_name</code> is used as a namespace
+to access module functions.
+If the <code>export_name</code> is not specified,
+the module name will be used as a namespace.
+</p> <blockquote class="example"><pre>
+js_import http.js;
+</pre></blockquote><p> 
+Here, the module name <code>http</code> is used as a namespace
+while accessing exports.
+If the imported module exports <code>foo()</code>,
+<code>http.foo</code> is used to refer to it.
+</p><p>
+Several <code>js_import</code> directives can be specified.
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified on the
+<code>server</code> and <code>location</code> level
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_include"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_include</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a file that implements location and variable handlers in njs:
+</p> <blockquote class="example"><pre>
+nginx.conf:
+js_include http.js;
+location   /version {
+    js_content version;
+}
+
+http.js:
+function version(r) {
+    r.return(200, njs.version);
+}
+</pre></blockquote><p> 
+</p><p>
+The directive was made obsolete in version
+<a href="../njs/changes.html#njs0.4.0">0.4.0</a>
+and was removed in version
+<a href="../njs/changes.html#njs0.7.1">0.7.1</a>.
+The <a href="ngx_http_js_module.html#js_import">js_import</a> directive should be used instead.
+</p><a name="js_path"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_path</strong> 
+<code><i>path</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.3.0.
+            </p></div><p>
+Sets an additional path for njs modules.
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified on the
+<code>server</code> and <code>location</code> level
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_periodic"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_periodic</strong> <code><i>function</i></code> |
+        <code><i>module.function</i></code>
+        [<code>interval</code>=<code><i>time</i></code>]
+        [<code>jitter</code>=<code><i>number</i></code>]
+        [<code>worker_affinity</code>=<code><i>mask</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.8.1.
+            </p></div><p>
+Specifies a content handler to run at regular interval.
+The handler receives a
+<a href="../njs/reference.html#periodic_session">session object</a>
+as its first argument,
+it also has access to global objects such as
+<a href="../njs/reference.html#ngx">ngx</a>.
+</p><p>
+The optional <code>interval</code> parameter
+sets the interval between two consecutive runs,
+by default, 5 seconds.
+</p><p>
+The optional <code>jitter</code> parameter sets the time within which
+the location content handler will be randomly delayed,
+by default, there is no delay.
+</p><p>
+By default, the <code>js_handler</code> is executed on worker process 0.
+The optional <code>worker_affinity</code> parameter
+allows specifying particular worker processes
+where the location content handler should be executed.
+Each worker process set is represented by a bitmask of allowed worker processes.
+The <code>all</code> mask allows the handler to be executed
+in all worker processes.
+</p><p>
+Example:
+</p> <blockquote class="example"><pre>
+example.conf:
+
+location @periodics {
+    # to be run at 1 minute intervals in worker process 0
+    js_periodic main.handler interval=60s;
+
+    # to be run at 1 minute intervals in all worker processes
+    js_periodic main.handler interval=60s worker_affinity=all;
+
+    # to be run at 1 minute intervals in worker processes 1 and 3
+    js_periodic main.handler interval=60s worker_affinity=0101;
+
+    resolver 10.0.0.1;
+    js_fetch_trusted_certificate /path/to/ISRG_Root_X1.pem;
+}
+
+example.js:
+
+async function handler(s) {
+    let reply = await ngx.fetch('https://nginx.org/en/docs/njs/');
+    let body = await reply.text();
+
+    ngx.log(ngx.INFO, body);
+}
+</pre></blockquote><p> 
+</p><a name="js_preload_object"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_preload_object</strong> <code><i>name.json</i></code> |
+<code><i>name</i></code> from <code><i>file.json</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.7.8.
+            </p></div><p>
+Preloads an
+<a href="../njs/preload_objects.html">immutable object</a>
+at configure time.
+The <code>name</code> is used as a name of the global variable
+though which the object is available in njs code.
+If the <code>name</code> is not specified,
+the file name will be used instead.
+</p> <blockquote class="example"><pre>
+js_preload_object map.json;
+</pre></blockquote><p> 
+Here, the <code>map</code> is used as a name
+while accessing the preloaded object.
+</p><p>
+Several <code>js_preload_object</code> directives can be specified.
+</p><a name="js_set"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_set</strong> 
+    <code><i>$variable</i></code>
+    <code><i>function</i></code> | <code><i>module.function</i></code>
+    [<code>nocache</code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets an njs <code>function</code>
+for the specified <code>variable</code>.
+Since <a href="../njs/changes.html#njs0.4.0">0.4.0</a>,
+a module function can be referenced.
+</p><p>
+The function is called when
+the variable is referenced for the first time for a given request.
+The exact moment depends on a
+<a href="../dev/development_guide.html#http_phases">phase</a>
+at which the variable is referenced.
+This can be used to perform some logic
+not related to variable evaluation.
+For example, if the variable is referenced only in the
+<a href="ngx_http_log_module.html#log_format">log_format</a> directive,
+its handler will not be executed until the log phase.
+This handler can be used to do some cleanup
+right before the request is freed.
+</p><p>
+Since <a href="../njs/changes.html#njs0.8.6">0.8.6</a>,
+if an optional argument <code>nocache</code> is specified,
+the handler is called every time it is referenced.
+Due to current limitations
+of the <a href="ngx_http_rewrite_module.html">rewrite</a> module,
+when a <code>nocache</code> variable is referenced by the
+<a href="ngx_http_rewrite_module.html#set">set</a> directive
+its handler should always return a fixed-length value.
+</p><p>
+</p> <blockquote class="note">
+As the <code>js_set</code> handler
+returns its result immediately, it supports
+only synchronous operations.
+Thus, asynchronous operations such as
+<a href="../njs/reference.html#r_subrequest">r.subrequest()</a>
+or
+<a href="../njs/reference.html#settimeout">setTimeout()</a>
+are not supported.
+</blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified on the
+<code>server</code> and <code>location</code> level
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p><a name="js_shared_dict_zone"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_shared_dict_zone</strong> 
+    <code>zone</code>=<code><i>name</i></code>:<code><i>size</i></code>
+    [<code>timeout</code>=<code><i>time</i></code>]
+    [<code>type</code>=<code>string</code>|<code>number</code>]
+    [<code>evict</code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.8.0.
+            </p></div><p>
+Sets the <code><i>name</i></code> and <code><i>size</i></code> of the shared memory zone
+that keeps the
+key-value <a href="../njs/reference.html#dict">dictionary</a>
+shared between worker processes.
+</p><p>
+By default the shared dictionary uses a string as a key and a value.
+The optional <code>type</code> parameter
+allows redefining the value type to number.
+</p><p>
+The optional <code>timeout</code> parameter sets
+the time in milliseconds
+after which all shared dictionary entries are removed from the zone.
+If some entries require a different removal time, it can be set
+with the <code>timeout</code> argument of the
+<a href="../njs/reference.html#dict_add">add</a>,
+<a href="../njs/reference.html#dict_incr">incr</a>, and
+<a href="../njs/reference.html#dict_set">set</a>
+methods
+(<a href="../njs/changes.html#njs0.8.5">0.8.5</a>).
+</p><p>
+The optional <code>evict</code> parameter removes the oldest
+key-value pair when the zone storage is exhausted.
+</p><p>
+Example:
+</p> <blockquote class="example"><pre>
+example.conf:
+    # Creates a 1Mb dictionary with string values,
+    # removes key-value pairs after 60 seconds of inactivity:
+    js_shared_dict_zone zone=foo:1M timeout=60s;
+
+    # Creates a 512Kb dictionary with string values,
+    # forcibly removes oldest key-value pairs when the zone is exhausted:
+    js_shared_dict_zone zone=bar:512K timeout=30s evict;
+
+    # Creates a 32Kb permanent dictionary with number values:
+    js_shared_dict_zone zone=num:32k type=number;
+
+example.js:
+    function get(r) {
+        r.return(200, ngx.shared.foo.get(r.args.key));
+    }
+
+    function set(r) {
+        r.return(200, ngx.shared.foo.set(r.args.key, r.args.value));
+    }
+
+    function del(r) {
+        r.return(200, ngx.shared.bar.delete(r.args.key));
+    }
+
+    function increment(r) {
+        r.return(200, ngx.shared.num.incr(r.args.key, 2));
+    }
+</pre></blockquote><p> 
+</p><a name="js_var"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>js_var</strong> <code><i>$variable</i></code> [<code><i>value</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 0.5.3.
+            </p></div><p>
+Declares
+a <a href="../njs/reference.html#r_variables">writable</a>
+variable.
+The value can contain text, variables, and their combination.
+The variable is not overwritten after a redirect
+unlike variables created with the
+<a href="ngx_http_rewrite_module.html#set">set</a> directive.
+</p><p>
+</p> <blockquote class="note">
+The directive can be specified on the
+<code>server</code> and <code>location</code> level
+since <a href="../njs/changes.html#njs0.7.7">0.7.7</a>.
+</blockquote><p> 
+</p>
+
+
+<a name="arguments"></a><center><h4>Request Argument</h4></center><p>
+Each HTTP njs handler receives one argument, a request
+<a href="../njs/reference.html#http">object</a>.
+</p>
+
+</div></div></body></html>

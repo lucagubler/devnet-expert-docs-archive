@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Setting up hashes</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/hash.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="index.html">documentation</a></li><li><a href="faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Setting up hashes</h2><p>
+To quickly process static sets of data such as server names,
+<a href="http/ngx_http_map_module.html#map">map</a> directive’s values,
+MIME types, names of request header strings,
+nginx uses hash tables.
+During the start and each re-configuration nginx selects the
+minimum possible sizes of hash tables such that the bucket size
+that stores keys with identical hash values does not exceed the
+configured parameter (hash bucket size).
+The size of a table is expressed in buckets.
+The adjustment is continued until the table size exceeds the
+hash max size parameter.
+Most hashes have the corresponding directives that allow changing
+these parameters, for example, for the server names hash they are
+<a href="http/ngx_http_core_module.html#server_names_hash_max_size">server_names_hash_max_size</a>
+and <a href="http/ngx_http_core_module.html#server_names_hash_bucket_size">server_names_hash_bucket_size</a>.
+</p><p>
+The hash bucket size parameter is aligned to the size that is a
+multiple of the processor’s cache line size.  This speeds up
+key search in a hash on modern processors by reducing the number
+of memory accesses.
+If hash bucket size is equal to one processor’s cache line size
+then the number of memory accesses during the key search will be
+two in the worst case — first to compute the bucket address,
+and second during the key search inside the bucket.
+Therefore, if nginx emits the message requesting to increase
+either hash max size or hash bucket size then the first parameter
+should first be increased.
+</p></div></div></body></html>

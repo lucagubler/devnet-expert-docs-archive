@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>How nginx processes a TCP/UDP session</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/stream/stream_processing.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>How nginx processes a TCP/UDP session</h2><p>
+A TCP/UDP session from a client is processed
+in successive steps called <b>phases</b>:
+
+</p> <dl class="compact">
+
+<dt id="postaccept_phase">
+<code>Post-accept</code>
+</dt>
+<dd>
+The first phase after accepting a client connection.
+The <a href="ngx_stream_realip_module.html">ngx_stream_realip_module</a>
+module is invoked at this phase.
+</dd>
+
+<dt id="preaccess_phase">
+<code>Pre-access</code>
+</dt>
+<dd>
+Preliminary check for access.
+The
+<a href="ngx_stream_limit_conn_module.html">ngx_stream_limit_conn_module</a>
+and
+<a href="ngx_stream_set_module.html">ngx_stream_set_module</a>
+modules are invoked at this phase.
+</dd>
+
+<dt id="access_phase">
+<code>Access</code>
+</dt>
+<dd>
+Client access limitation before actual data processing.
+At this phase,
+the <a href="ngx_stream_access_module.html">ngx_stream_access_module</a>
+module is invoked,
+for <a href="../njs/index.html">njs</a>,
+the <a href="ngx_stream_js_module.html#js_access">js_access</a> directive
+is invoked.
+</dd>
+
+<dt id="ssl_phase">
+<code>SSL</code>
+</dt>
+<dd>
+TLS/SSL termination.
+The <a href="ngx_stream_ssl_module.html">ngx_stream_ssl_module</a>
+module is invoked at this phase.
+</dd>
+
+<dt id="preread_phase">
+<code>Preread</code>
+</dt>
+<dd>
+Reading initial bytes of data into the
+<a href="ngx_stream_core_module.html#preread_buffer_size">preread buffer</a>
+to allow modules such as
+<a href="ngx_stream_ssl_preread_module.html">ngx_stream_ssl_preread_module</a>
+analyze the data before its processing.
+For <a href="../njs/index.html">njs</a>,
+the <a href="ngx_stream_js_module.html#js_preread">js_preread</a> directive
+is invoked at this phase.
+</dd>
+
+<dt id="content_phase">
+<code>Content</code>
+</dt>
+<dd>
+Mandatory phase where data is actually processed, usually
+<a href="ngx_stream_proxy_module.html">proxied</a> to
+<a href="ngx_stream_upstream_module.html">upstream</a> servers,
+or a specified value
+is <a href="ngx_stream_return_module.html">returned</a> to a client.
+For <a href="../njs/index.html">njs</a>,
+the <a href="ngx_stream_js_module.html#js_filter">js_filter</a> directive
+is invoked at this phase.
+</dd>
+
+<dt id="log_phase">
+<code>Log</code>
+</dt>
+<dd>
+The final phase
+where the result of a client session processing is recorded.
+The <a href="ngx_stream_log_module.html">ngx_stream_log_module</a>
+module is invoked at this phase.
+</dd>
+</dl><p> 
+
+</p></div></div></body></html>

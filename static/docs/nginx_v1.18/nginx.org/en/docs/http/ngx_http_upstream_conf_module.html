@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_http_upstream_conf_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/http/ngx_http_upstream_conf_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_http_upstream_conf_module</h2><table width="100%"><tr><td align="left"><a href="ngx_http_upstream_conf_module.html#example">Example Configuration</a><br><a href="ngx_http_upstream_conf_module.html#directives">Directives</a><br>     <a href="ngx_http_upstream_conf_module.html#upstream_conf">upstream_conf</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_http_upstream_conf_module</code> module
+allows configuring upstream server groups on-the-fly
+via a simple HTTP interface without the need of restarting nginx.
+The
+<a href="ngx_http_upstream_module.html#zone">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#zone">stream</a>
+server group must reside in the shared memory.
+</p> <blockquote class="note">
+This module was available as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>
+until 1.13.10.
+It was superseded by the
+<a href="ngx_http_api_module.html">ngx_http_api_module</a> module
+in 1.13.3.
+</blockquote><p> 
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+upstream backend {
+    zone upstream_backend 64k;
+
+    ...
+}
+
+server {
+    location /upstream_conf {
+        <strong>upstream_conf</strong>;
+        allow 127.0.0.1;
+        deny all;
+    }
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="upstream_conf"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>upstream_conf</strong>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Turns on the HTTP interface of upstream configuration in the surrounding
+location.
+Access to this location should be
+<a href="ngx_http_core_module.html#satisfy">limited</a>.
+</p><p>
+Configuration commands can be used to:
+</p> <ul class="compact">
+
+<li>view the group configuration;</li>
+
+<li>view, modify, or remove a server;</li>
+
+<li>add a new server.</li>
+
+</ul><p> 
+</p> <blockquote class="note">
+Since addresses in a group are not required to be unique, specific
+servers in a group are referenced by their IDs.
+IDs are assigned automatically and shown when adding a new server
+or viewing the group configuration.
+</blockquote><p> 
+</p><p>
+A configuration command consists of parameters passed as request arguments,
+for example:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend
+</pre></blockquote><p> 
+</p><p>
+The following parameters are supported:
+
+</p> <dl>
+
+<dt>
+<code>stream=</code></dt>
+<dd>
+Selects a
+<a href="../stream/ngx_stream_upstream_module.html">stream</a>
+upstream server group.
+Without this parameter, selects an
+<a href="ngx_http_upstream_module.html">http</a>
+upstream server group.
+</dd>
+
+<dt>
+<code>upstream=</code><code><i>name</i></code></dt>
+<dd>
+Selects a group to work with.
+This parameter is mandatory.
+</dd>
+
+<dt>
+<code>id=</code><code><i>number</i></code></dt>
+<dd>
+Selects a server for viewing, modifying, or removing.
+</dd>
+
+<dt>
+<code>remove=</code></dt>
+<dd>
+Removes a server from the group.
+</dd>
+
+<dt>
+<code>add=</code></dt>
+<dd>
+Adds a new server to the group.
+</dd>
+
+<dt>
+<code>backup=</code></dt>
+<dd>
+Required to add a backup server.
+<blockquote class="note">
+Before version 1.7.2, <code>backup=</code>
+was also required to view, modify, or remove existing backup servers.
+</blockquote>
+</dd>
+
+<dt>
+<code>server=</code><code><i>address</i></code></dt>
+<dd>
+Same as the “<code>address</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#server">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#server">stream</a>
+upstream server.
+<p>
+When adding a server, it is possible to specify it as a domain name.
+In this case, changes of the IP addresses that correspond to a domain name
+will be monitored and automatically applied to the upstream
+configuration without the need of restarting nginx (1.7.2).
+This requires the “<code>resolver</code>” directive in the
+<a href="ngx_http_core_module.html#resolver">http</a>
+or
+<a href="../stream/ngx_stream_core_module.html#resolver">stream</a>
+block.
+See also the “<code>resolve</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#resolve">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#resolve">stream</a>
+upstream server.
+</p>
+</dd>
+
+<dt>
+<code>service=</code><code><i>name</i></code></dt>
+<dd>
+Same as the “<code>service</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#service">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#service">stream</a>
+upstream server (1.9.13).
+</dd>
+
+<dt>
+<code>weight=</code><code><i>number</i></code></dt>
+<dd>
+Same as the “<code>weight</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#weight">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#weight">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>max_conns=</code><code><i>number</i></code></dt>
+<dd>
+Same as the “<code>max_conns</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#max_conns">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#max_conns">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>max_fails=</code><code><i>number</i></code></dt>
+<dd>
+Same as the “<code>max_fails</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#max_fails">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#max_fails">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>fail_timeout=</code><code><i>time</i></code></dt>
+<dd>
+Same as the “<code>fail_timeout</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#fail_timeout">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#fail_timeout">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>slow_start=</code><code><i>time</i></code></dt>
+<dd>
+Same as the “<code>slow_start</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#slow_start">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#slow_start">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>down=</code></dt>
+<dd>
+Same as the “<code>down</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#down">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#down">stream</a>
+upstream server.
+</dd>
+
+<dt id="drain"><code>drain=</code></dt>
+<dd>
+Puts the
+<a href="ngx_http_upstream_module.html">http</a>
+upstream server into the “draining” mode (1.7.5).
+In this mode, only requests
+<a href="ngx_http_upstream_module.html#sticky">bound</a> to the server
+will be proxied to it.
+</dd>
+
+<dt>
+<code>up=</code></dt>
+<dd>
+The opposite of the “<code>down</code>” parameter
+of the
+<a href="ngx_http_upstream_module.html#down">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#down">stream</a>
+upstream server.
+</dd>
+
+<dt>
+<code>route=</code><code><i>string</i></code></dt>
+<dd>
+Same as the “<code>route</code>” parameter of the
+<a href="ngx_http_upstream_module.html#route">http</a>
+upstream server.
+</dd>
+
+</dl><p> 
+
+The first three parameters select an object.
+This can be either the whole http or stream upstream server group,
+or a specific server.
+Without other parameters, the configuration of the selected
+group or server is shown.
+</p><p>
+For example, to view the configuration of the whole group, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend
+</pre></blockquote><p> 
+
+To view the configuration of a specific server, also specify its ID:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend&amp;id=42
+</pre></blockquote><p> 
+</p><p>
+To add a new server,
+specify its address in the “<code>server=</code>” parameter.
+Without other parameters specified, a server will be added with other
+parameters set to their default values (see the
+<a href="ngx_http_upstream_module.html#server">http</a>
+or
+<a href="../stream/ngx_stream_upstream_module.html#server">stream</a>
+“<code>server</code>” directive).
+</p><p>
+For example, to add a new primary server, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?add=&amp;upstream=backend&amp;server=127.0.0.1:8080
+</pre></blockquote><p> 
+
+To add a new backup server, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?add=&amp;upstream=backend&amp;backup=&amp;server=127.0.0.1:8080
+</pre></blockquote><p> 
+
+To add a new primary server,
+set its parameters to non-default values
+and mark it as “<code>down</code>”, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?add=&amp;upstream=backend&amp;server=127.0.0.1:8080&amp;weight=2&amp;down=
+</pre></blockquote><p> 
+
+To remove a server, specify its ID:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?remove=&amp;upstream=backend&amp;id=42
+</pre></blockquote><p> 
+
+To mark an existing server as “<code>down</code>”, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend&amp;id=42&amp;down=
+</pre></blockquote><p> 
+
+To modify the address of an existing server, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend&amp;id=42&amp;server=192.0.2.3:8123
+</pre></blockquote><p> 
+
+To modify other parameters of an existing server, send:
+</p> <blockquote class="example"><pre>
+http://127.0.0.1/upstream_conf?upstream=backend&amp;id=42&amp;max_fails=3&amp;weight=4
+</pre></blockquote><p> 
+
+The above examples are for an
+<a href="ngx_http_upstream_module.html">http</a>
+upstream server group.
+Similar examples for a
+<a href="../stream/ngx_stream_upstream_module.html">stream</a>
+upstream server group require the “<code>stream=</code>” parameter.
+</p>
+
+</div></div></body></html>

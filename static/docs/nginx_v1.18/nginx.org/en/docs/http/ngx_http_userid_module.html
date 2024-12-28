@@ -1,0 +1,394 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_http_userid_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/http/ngx_http_userid_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_http_userid_module</h2><table width="100%"><tr><td align="left"><a href="ngx_http_userid_module.html#example">Example Configuration</a><br><a href="ngx_http_userid_module.html#directives">Directives</a><br>     <a href="ngx_http_userid_module.html#userid">userid</a><br>     <a href="ngx_http_userid_module.html#userid_domain">userid_domain</a><br>     <a href="ngx_http_userid_module.html#userid_expires">userid_expires</a><br>     <a href="ngx_http_userid_module.html#userid_flags">userid_flags</a><br>     <a href="ngx_http_userid_module.html#userid_mark">userid_mark</a><br>     <a href="ngx_http_userid_module.html#userid_name">userid_name</a><br>     <a href="ngx_http_userid_module.html#userid_p3p">userid_p3p</a><br>     <a href="ngx_http_userid_module.html#userid_path">userid_path</a><br>     <a href="ngx_http_userid_module.html#userid_service">userid_service</a><br><a href="ngx_http_userid_module.html#variables">Embedded Variables</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_http_userid_module</code> module sets cookies
+suitable for client identification.
+Received and set cookies can be logged using the embedded variables
+<a href="ngx_http_userid_module.html#var_uid_got">$uid_got</a> and
+<a href="ngx_http_userid_module.html#var_uid_set">$uid_set</a>.
+This module is compatible with the
+<a href="http://www.lexa.ru/programs/mod-uid-eng.html">mod_uid</a>
+module for Apache.
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+userid         on;
+userid_name    uid;
+userid_domain  example.com;
+userid_path    /;
+userid_expires 365d;
+userid_p3p     'policyref="/w3c/p3p.xml", CP="CUR ADM OUR NOR STA NID"';
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="userid"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid</strong> 
+    <code>on</code> |
+    <code>v1</code> |
+    <code>log</code> |
+    <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables or disables setting cookies and logging the received cookies:
+</p> <dl class="compact">
+
+<dt><code>on</code></dt>
+<dd>
+enables the setting of version 2 cookies
+and logging of the received cookies;
+</dd>
+
+<dt><code>v1</code></dt>
+<dd>
+enables the setting of version 1 cookies
+and logging of the received cookies;
+</dd>
+
+<dt><code>log</code></dt>
+<dd>
+disables the setting of cookies,
+but enables logging of the received cookies;
+</dd>
+
+<dt><code>off</code></dt>
+<dd>
+disables the setting of cookies and logging of the received cookies.
+</dd>
+
+</dl><p> 
+</p><a name="userid_domain"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_domain</strong> <code><i>name</i></code> | <code>none</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_domain none;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Defines a domain for which the cookie is set.
+The <code>none</code> parameter disables setting of a domain for the
+cookie.
+</p><a name="userid_expires"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_expires</strong> <code><i>time</i></code> | <code>max</code> |
+    <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_expires off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets a time during which a browser should keep the cookie.
+The parameter <code>max</code> will cause the cookie to expire on
+“<code>31 Dec 2037 23:55:55 GMT</code>”.
+The parameter <code>off</code> will cause the cookie to expire at
+the end of a browser session.
+</p><a name="userid_flags"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_flags</strong> 
+    <code>off</code> |
+    <code><i>flag</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_flags off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.19.3.
+            </p></div><p>
+If the parameter is not <code>off</code>,
+defines one or more additional flags for the cookie:
+<code>secure</code>,
+<code>httponly</code>,
+<code>samesite=strict</code>,
+<code>samesite=lax</code>,
+<code>samesite=none</code>.
+</p><a name="userid_mark"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_mark</strong> 
+    <code><i>letter</i></code> | <code><i>digit</i></code> |
+    <code>=</code> |
+    <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_mark off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+If the parameter is not <code>off</code>, enables the cookie marking
+mechanism and sets the character used as a mark.
+This mechanism is used to add or change
+<a href="ngx_http_userid_module.html#userid_p3p">userid_p3p</a> and/or a cookie expiration time while
+preserving the client identifier.
+A mark can be any letter of the English alphabet (case-sensitive),
+digit, or the “<code>=</code>” character.
+</p><p>
+If the mark is set, it is compared with the first padding symbol
+in the base64 representation of the client identifier passed in a cookie.
+If they do not match, the cookie is resent with the specified mark,
+expiration time, and “P3P” header.
+</p><a name="userid_name"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_name</strong> <code><i>name</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_name uid;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the cookie name.
+</p><a name="userid_p3p"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_p3p</strong> <code><i>string</i></code> | <code>none</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_p3p none;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets a value for the “P3P” header field that will be
+sent along with the cookie.
+If the directive is set to the special value <code>none</code>,
+the “P3P” header will not be sent in a response.
+</p><a name="userid_path"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_path</strong> <code><i>path</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_path /;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Defines a path for which the cookie is set.
+</p><a name="userid_service"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>userid_service</strong> <code><i>number</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>userid_service IP address of the server;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+If identifiers are issued by multiple servers (services),
+each service should be assigned its own <code><i>number</i></code>
+to ensure that client identifiers are unique.
+For version 1 cookies, the default value is zero.
+For version 2 cookies, the default value is the number composed from the last
+four octets of the server’s IP address.
+</p>
+
+
+<a name="variables"></a><center><h4>Embedded Variables</h4></center><p>
+The <code>ngx_http_userid_module</code> module
+supports the following embedded variables:
+</p> <dl class="compact">
+
+<dt id="var_uid_got"><code>$uid_got</code></dt>
+<dd>
+The cookie name and received client identifier.
+</dd>
+
+<dt id="var_uid_reset"><code>$uid_reset</code></dt>
+<dd>
+If the variable is set to a non-empty string that is not “<code>0</code>”,
+the client identifiers are reset.
+The special value “<code>log</code>” additionally leads to the output of
+messages about the reset identifiers to the
+<a href="../ngx_core_module.html#error_log">error_log</a>.
+</dd>
+
+<dt id="var_uid_set"><code>$uid_set</code></dt>
+<dd>
+The cookie name and sent client identifier.
+</dd>
+
+</dl><p> 
+</p>
+
+</div></div></body></html>

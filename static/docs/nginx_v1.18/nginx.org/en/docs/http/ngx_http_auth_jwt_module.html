@@ -1,0 +1,563 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_http_auth_jwt_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/http/ngx_http_auth_jwt_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_http_auth_jwt_module</h2><table width="100%"><tr><td align="left"><a href="ngx_http_auth_jwt_module.html#algorithms">Supported Algorithms</a><br><a href="ngx_http_auth_jwt_module.html#example">Example Configuration</a><br><a href="ngx_http_auth_jwt_module.html#directives">Directives</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt">auth_jwt</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_claim_set">auth_jwt_claim_set</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_header_set">auth_jwt_header_set</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_key_cache">auth_jwt_key_cache</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_key_file">auth_jwt_key_file</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_key_request">auth_jwt_key_request</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_leeway">auth_jwt_leeway</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_type">auth_jwt_type</a><br>     <a href="ngx_http_auth_jwt_module.html#auth_jwt_require">auth_jwt_require</a><br><a href="ngx_http_auth_jwt_module.html#variables">Embedded Variables</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_http_auth_jwt_module</code> module (1.11.3)
+implements client authorization by validating the provided
+<a href="https://datatracker.ietf.org/doc/html/rfc7519">JSON Web Token</a> (JWT)
+using the specified keys.
+The module supports
+<a href="https://datatracker.ietf.org/doc/html/rfc7515">JSON Web Signature</a> (JWS),
+<a href="https://datatracker.ietf.org/doc/html/rfc7516">JSON Web Encryption</a> (JWE)
+(1.19.7), and Nested JWT (1.21.0).
+The module can be used for
+<a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect</a>
+authentication.
+</p><p>
+The module may be combined with
+other access modules, such as
+<a href="ngx_http_access_module.html">ngx_http_access_module</a>,
+<a href="ngx_http_auth_basic_module.html">ngx_http_auth_basic_module</a>,
+and
+<a href="ngx_http_auth_request_module.html">ngx_http_auth_request_module</a>,
+via the <a href="ngx_http_core_module.html#satisfy">satisfy</a> directive.
+</p><p>
+</p> <blockquote class="note">
+This module is available as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>.
+</blockquote><p> 
+</p>
+
+
+<a name="algorithms"></a><center><h4>Supported Algorithms</h4></center><p>
+The module supports the following JSON Web
+<a href="https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms">Algorithms</a>.
+</p><p>
+JWS algorithms:
+</p> <ul class="compact">
+
+<li>
+HS256, HS384, HS512
+</li>
+
+<li>
+RS256, RS384, RS512
+</li>
+
+<li>
+ES256, ES384, ES512
+</li>
+
+<li>
+EdDSA (Ed25519 and Ed448 signatures) (1.15.7)
+</li>
+
+</ul><p> 
+
+</p> <blockquote class="note">
+Prior to version 1.13.7,
+only HS256, RS256, ES256 algorithms were supported.
+</blockquote><p> 
+</p><p>
+JWE content encryption algorithms (1.19.7):
+</p> <ul class="compact">
+
+<li>
+A128CBC-HS256, A192CBC-HS384, A256CBC-HS512
+</li>
+
+<li>
+A128GCM, A192GCM, A256GCM
+</li>
+
+</ul><p> 
+</p><p>
+JWE key management algorithms (1.19.9):
+</p> <ul class="compact">
+
+<li>
+A128KW, A192KW, A256KW
+</li>
+
+<li>
+A128GCMKW, A192GCMKW, A256GCMKW
+</li>
+
+<li>
+dir - direct use of a shared symmetric key as the content encryption key
+</li>
+
+<li>
+RSA-OAEP, RSA-OAEP-256, RSA-OAEP-384, RSA-OAEP-512 (1.21.0)
+</li>
+
+</ul><p> 
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+location / {
+    auth_jwt          "closed site";
+    auth_jwt_key_file conf/keys.json;
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="auth_jwt"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt</strong> 
+    <code><i>string</i></code>
+    [<code>token=</code><code><i>$variable</i></code>] |
+    <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>auth_jwt off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables validation of JSON Web Token.
+The specified <code><i>string</i></code> is used as a <code>realm</code>.
+Parameter value can contain variables.
+</p><p>
+The optional <code>token</code> parameter specifies a variable
+that contains JSON Web Token.
+By default, JWT is passed in the “Authorization” header
+as a
+<a href="https://datatracker.ietf.org/doc/html/rfc6750">Bearer Token</a>.
+JWT may be also passed as a cookie or a part of a query string:
+</p> <blockquote class="example"><pre>
+auth_jwt "closed site" token=$cookie_auth_token;
+</pre></blockquote><p> 
+</p><p>
+The special value <code>off</code> cancels the effect
+of the <code>auth_jwt</code> directive
+inherited from the previous configuration level.
+</p><a name="auth_jwt_claim_set"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_claim_set</strong> <code><i>$variable</i></code> <code><i>name</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.10.
+            </p></div><p>
+Sets the <code><i>variable</i></code> to a JWT claim parameter
+identified by key names.
+Name matching starts from the top level of the JSON tree.
+For arrays, the variable keeps a list of array elements separated by commas.
+</p> <blockquote class="example"><pre>
+auth_jwt_claim_set $email info e-mail;
+auth_jwt_claim_set $job info "job title";
+</pre></blockquote><p> 
+</p> <blockquote class="note">
+Prior to version 1.13.7, only one key name could be specified,
+and the result was undefined for arrays.
+</blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+Variable values for tokens encrypted with JWE
+are available only after decryption which occurs during the
+<a href="../dev/development_guide.html#http_phases">Access</a> phase.
+</blockquote><p> 
+</p><a name="auth_jwt_header_set"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_header_set</strong> <code><i>$variable</i></code> <code><i>name</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.10.
+            </p></div><p>
+Sets the <code><i>variable</i></code> to a JOSE header parameter
+identified by key names.
+Name matching starts from the top level of the JSON tree.
+For arrays, the variable keeps a list of array elements separated by commas.
+</p> <blockquote class="note">
+Prior to version 1.13.7, only one key name could be specified,
+and the result was undefined for arrays.
+</blockquote><p> 
+</p><a name="auth_jwt_key_cache"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_key_cache</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>auth_jwt_key_cache 0;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.21.4.
+            </p></div><p>
+Enables or disables caching of keys
+obtained from a <a href="ngx_http_auth_jwt_module.html#auth_jwt_key_file">file</a>
+or from a <a href="ngx_http_auth_jwt_module.html#auth_jwt_key_request">subrequest</a>,
+and sets caching time for them.
+Caching of keys obtained from variables is not supported.
+By default, caching of keys is disabled.
+</p><a name="auth_jwt_key_file"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_key_file</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> in
+<a href="https://datatracker.ietf.org/doc/html/rfc7517#section-5">JSON Web Key Set</a>
+format for validating JWT signature.
+Parameter value can contain variables.
+</p><p>
+Several <code>auth_jwt_key_file</code> directives
+can be specified on the same level (1.21.1):
+</p> <blockquote class="example"><pre>
+auth_jwt_key_file conf/keys.json;
+auth_jwt_key_file conf/key.jwk;
+</pre></blockquote><p> 
+If at least one of the specified keys cannot be loaded or processed,
+nginx will return the
+500 (Internal Server Error) error.
+</p><a name="auth_jwt_key_request"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_key_request</strong> <code><i>uri</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.15.6.
+            </p></div><p>
+Allows retrieving a
+<a href="https://datatracker.ietf.org/doc/html/rfc7517#section-5">JSON Web Key Set</a>
+file from a subrequest for validating JWT signature and
+sets the URI where the subrequest will be sent to.
+Parameter value can contain variables.
+To avoid validation overhead,
+it is recommended to cache the key file:
+</p> <blockquote class="example"><pre>
+proxy_cache_path /data/nginx/cache levels=1 keys_zone=foo:10m;
+
+server {
+    ...
+
+    location / {
+        auth_jwt             "closed site";
+        auth_jwt_key_request /jwks_uri;
+    }
+
+    location = /jwks_uri {
+        internal;
+        proxy_cache foo;
+        proxy_pass  http://idp.example.com/keys;
+    }
+}
+</pre></blockquote><p> 
+Several <code>auth_jwt_key_request</code> directives
+can be specified on the same level (1.21.1):
+</p> <blockquote class="example"><pre>
+auth_jwt_key_request /jwks_uri;
+auth_jwt_key_request /jwks2_uri;
+</pre></blockquote><p> 
+If at least one of the specified keys cannot be loaded or processed,
+nginx will return the
+500 (Internal Server Error) error.
+</p><a name="auth_jwt_leeway"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_leeway</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>auth_jwt_leeway 0s;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.13.10.
+            </p></div><p>
+Sets the maximum allowable leeway to compensate
+clock skew when verifying the
+<a href="https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4">exp</a>
+and
+<a href="https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5">nbf</a>
+JWT claims.
+</p><a name="auth_jwt_type"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_type</strong> <code>signed</code> |
+        <code>encrypted</code> |
+        <code>nested</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>auth_jwt_type signed;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.19.7.
+            </p></div><p>
+Specifies which type of JSON Web Token to expect:
+JWS (<code>signed</code>),
+JWE (<code>encrypted</code>),
+or signed and then encrypted
+Nested JWT (<code>nested</code>) (1.21.0).
+</p><a name="auth_jwt_require"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>auth_jwt_require</strong> 
+    <code><i>$value</i></code> ...
+    [<code>error</code>=<code>401</code> |
+                              <code>403</code>]
+;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code>, <code>limit_except</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.21.2.
+            </p></div><p>
+Specifies additional checks for JWT validation.
+The value can contain text, variables, and their combination,
+and must start with a variable (1.21.7).
+The authentication will succeed only
+if all the values are not empty and are not equal to “0”.
+</p> <blockquote class="example"><pre>
+map $jwt_claim_iss $valid_jwt_iss {
+    "good" 1;
+}
+...
+
+auth_jwt_require $valid_jwt_iss;
+</pre></blockquote><p> 
+</p><p>
+If any of the checks fails,
+the <code>401</code> error code is returned.
+The optional <code>error</code> parameter (1.21.7)
+allows redefining the error code to <code>403</code>.
+</p>
+
+
+<a name="variables"></a><center><h4>Embedded Variables</h4></center><p>
+The <code>ngx_http_auth_jwt_module</code> module
+supports embedded variables:
+</p><p>
+</p> <dl class="compact">
+<dt id="var_jwt_header_"><code>$jwt_header_</code><code><i>name</i></code></dt>
+<dd>
+returns the value of a specified
+<a href="https://datatracker.ietf.org/doc/html/rfc7515#section-4">JOSE header</a>
+</dd>
+
+<dt id="var_jwt_claim_"><code>$jwt_claim_</code><code><i>name</i></code></dt>
+<dd>
+returns the value of a specified
+<a href="https://datatracker.ietf.org/doc/html/rfc7519#section-4">JWT claim</a>
+
+<p>
+For nested claims and claims including a dot (“.”),
+the value of the variable cannot be evaluated;
+the <a href="ngx_http_auth_jwt_module.html#auth_jwt_claim_set">auth_jwt_claim_set</a> directive should be used instead.
+</p>
+
+<p>
+Variable values for tokens encrypted with JWE
+are available only after decryption which occurs during the
+<a href="../dev/development_guide.html#http_phases">Access</a> phase.
+</p>
+</dd>
+
+<dt id="var_jwt_payload"><code>$jwt_payload</code></dt>
+<dd>
+returns the decrypted top-level payload
+of <code>nested</code>
+or <code>encrypted</code> tokens (1.21.2).
+For nested tokens returns the enclosed JWS token.
+For encrypted tokens returns JSON with claims.
+</dd>
+
+</dl><p> 
+</p>
+
+</div></div></body></html>

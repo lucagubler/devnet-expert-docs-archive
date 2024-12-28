@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_stream_ssl_preread_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/stream/ngx_stream_ssl_preread_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_stream_ssl_preread_module</h2><table width="100%"><tr><td align="left"><a href="ngx_stream_ssl_preread_module.html#example">Example Configuration</a><br><a href="ngx_stream_ssl_preread_module.html#directives">Directives</a><br>     <a href="ngx_stream_ssl_preread_module.html#ssl_preread">ssl_preread</a><br><a href="ngx_stream_ssl_preread_module.html#variables">Embedded Variables</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_stream_ssl_preread_module</code> module (1.11.5) allows
+extracting information from the
+<a href="https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2">ClientHello</a>
+message without terminating SSL/TLS,
+for example, the server name requested through
+<a href="https://datatracker.ietf.org/doc/html/rfc6066#section-3">SNI</a>
+or protocols advertised in
+<a href="https://datatracker.ietf.org/doc/html/rfc7301">ALPN</a>.
+This module is not built by default, it should be enabled with the
+<code>--with-stream_ssl_preread_module</code>
+configuration parameter.
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+Selecting an upstream based on server name:
+</p> <blockquote class="example"><pre>
+map $ssl_preread_server_name $name {
+    backend.example.com      backend;
+    default                  backend2;
+}
+
+upstream backend {
+    server 192.168.0.1:12345;
+    server 192.168.0.2:12345;
+}
+
+upstream backend2 {
+    server 192.168.0.3:12345;
+    server 192.168.0.4:12345;
+}
+
+server {
+    listen      12346;
+    proxy_pass  $name;
+    ssl_preread on;
+}
+</pre></blockquote><p> 
+</p><p>
+Selecting an upstream based on protocol:
+</p> <blockquote class="example"><pre>
+map $ssl_preread_alpn_protocols $proxy {
+    ~\bh2\b           127.0.0.1:8001;
+    ~\bhttp/1.1\b     127.0.0.1:8002;
+    ~\bxmpp-client\b  127.0.0.1:8003;
+}
+
+server {
+    listen      9000;
+    proxy_pass  $proxy;
+    ssl_preread on;
+}
+</pre></blockquote><p> 
+</p><p>
+Selecting an upstream based on SSL protocol version:
+</p> <blockquote class="example"><pre>
+map $ssl_preread_protocol $upstream {
+    ""        ssh.example.com:22;
+    "TLSv1.2" new.example.com:443;
+    default   tls.example.com:443;
+}
+
+# ssh and https on the same port
+server {
+    listen      192.168.0.1:443;
+    proxy_pass  $upstream;
+    ssl_preread on;
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="ssl_preread"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_preread</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_preread off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables extracting information from the ClientHello message at
+the <a href="stream_processing.html#preread_phase">preread</a> phase.
+</p>
+
+
+<a name="variables"></a><center><h4>Embedded Variables</h4></center><p>
+</p> <dl class="compact">
+
+<dt id="var_ssl_preread_protocol"><code>$ssl_preread_protocol</code></dt>
+<dd>
+the highest SSL protocol version supported by the client (1.15.2)
+</dd>
+
+<dt id="var_ssl_preread_server_name"><code>$ssl_preread_server_name</code></dt>
+<dd>
+server name requested through SNI
+</dd>
+
+<dt id="var_ssl_preread_alpn_protocols"><code>$ssl_preread_alpn_protocols</code></dt>
+<dd>
+list of protocols advertised by the client through ALPN (1.13.10).
+The values are separated by commas.
+</dd>
+
+</dl><p> 
+</p>
+
+</div></div></body></html>

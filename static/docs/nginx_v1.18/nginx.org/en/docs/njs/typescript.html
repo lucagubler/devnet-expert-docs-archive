@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Writing njs code using TypeScript definition files</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/njs/typescript.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Writing njs code using TypeScript definition files</h2><table width="100%"><tr><td align="left"><a href="typescript.html#get">Compiling TypeScript definition files</a><br><a href="typescript.html#autocomplete">API checks and autocompletions</a><br><a href="typescript.html#write">Writing njs type-safe code</a><br></td></tr></table><p>
+<a href="https://www.typescriptlang.org">TypeScript</a> is
+a typed superset of JavaScript
+that compiles to plain JavaScript.
+</p><p>
+TypeScript supports definition files that contain
+type information of existing JavaScript libraries.
+This enables other programs to use the values defined in the files
+as if they were statically typed TypeScript entities.
+</p><p>
+njs provides TypeScript definition files for its
+<a href="reference.html">API</a> which can be used to:
+</p> <ul class="compact">
+
+<li>
+Get autocompletion and API check in an editor
+</li>
+
+<li>
+Write njs type-safe code
+</li>
+
+</ul><p> 
+</p><a name="get"></a><center><h4>Compiling TypeScript definition files</h4></center><p>
+</p> <blockquote class="example"><pre>
+$ git clone https://github.com/nginx/njs
+$ cd njs &amp;&amp; ./configure &amp;&amp; make ts
+$ ls build/ts/
+njs_core.d.ts
+njs_shell.d.ts
+ngx_http_js_module.d.ts
+ngx_stream_js_module.d.ts
+</pre></blockquote><p> 
+</p><a name="autocomplete"></a><center><h4>API checks and autocompletions</h4></center><p>
+Put <code>*.d.ts</code> files to a place where you editor can find it.
+</p><p>
+<code>test.js</code>:
+</p> <blockquote class="example"><pre>
+/// &lt;reference path="ngx_http_js_module.d.ts" /&gt;
+/**
+ * @param {NginxHTTPRequest} r
+ * */
+function content_handler(r) {
+    r.headersOut['content-type'] = 'text/plain';
+    r.return(200, "Hello");
+}
+</pre></blockquote><p> 
+</p><a name="write"></a><center><h4>Writing njs type-safe code</h4></center><p>
+<code>test.ts</code>:
+</p> <blockquote class="example"><pre>
+/// &lt;reference path="ngx_http_js_module.d.ts" /&gt;
+function content_handler(r: NginxHTTPRequest) {
+    r.headersOut['content-type'] = 'text/plain';
+    r.return(200, "Hello from TypeScript");
+}
+</pre></blockquote><p> 
+TypeScript installation:
+</p> <blockquote class="example"><pre>
+# npm install -g typescript
+</pre></blockquote><p> 
+TypeScript compilation:
+</p> <blockquote class="example"><pre>
+$ tsc test.ts
+$ cat test.js
+</pre></blockquote><p> 
+The resulting <code>test.js</code> file can be used directly with njs.
+</p></div></div></body></html>

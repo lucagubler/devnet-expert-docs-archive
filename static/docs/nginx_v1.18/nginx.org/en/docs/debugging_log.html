@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>A debugging log</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/debugging_log.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="index.html">documentation</a></li><li><a href="faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>A debugging log</h2><table width="100%"><tr><td align="left"><a href="debugging_log.html#clients">Debugging log for selected clients</a><br><a href="debugging_log.html#memory">Logging to a cyclic memory buffer</a><br></td></tr></table><p>
+To enable a debugging log, nginx needs to be configured to support
+debugging during the build:
+
+</p> <blockquote class="example"><pre>
+./configure --with-debug ...
+</pre></blockquote><p> 
+
+Then the <code>debug</code> level should be set with the
+<a href="ngx_core_module.html#error_log">error_log</a> directive:
+
+</p> <blockquote class="example"><pre>
+error_log /path/to/log debug;
+</pre></blockquote><p> 
+
+To verify that nginx is configured to support debugging,
+run the <code>nginx -V</code> command:
+
+</p> <blockquote class="example"><pre>
+configure arguments: --with-debug ...
+</pre></blockquote><p> 
+
+Pre-built <a href="https://nginx.org/en/linux_packages.html">Linux</a> packages
+provide out-of-the-box support for debugging log with
+the <code>nginx-debug</code> binary (1.9.8)
+which can be run using commands
+
+</p> <blockquote class="example"><pre>
+service nginx stop
+service nginx-debug start
+</pre></blockquote><p> 
+
+and then set the <code>debug</code> level.
+The nginx binary version for Windows is always built with the debugging log
+support, so only setting the <code>debug</code> level will suffice.
+</p><p>
+Note that redefining the log without also specifying the
+<code>debug</code>
+level will disable the debugging log.
+In the example below, redefining the log on the
+<a href="http/ngx_http_core_module.html#server">server</a>
+level disables the debugging log for this server:
+</p> <blockquote class="example"><pre>
+error_log /path/to/log debug;
+
+http {
+    server {
+        error_log /path/to/log;
+        ...
+</pre></blockquote><p> 
+To avoid this, either the line redefining the log should be
+commented out, or the <code>debug</code> level specification should
+also be added:
+</p> <blockquote class="example"><pre>
+error_log /path/to/log debug;
+
+http {
+    server {
+        error_log /path/to/log debug;
+        ...
+</pre></blockquote><p> 
+</p><a name="clients"></a><center><h4>Debugging log for selected clients</h4></center><p>
+It is also possible to enable the debugging log for
+<a href="ngx_core_module.html#debug_connection">selected
+client addresses</a> only:
+
+</p> <blockquote class="example"><pre>
+error_log /path/to/log;
+
+events {
+    debug_connection 192.168.1.1;
+    debug_connection 192.168.10.0/24;
+}
+</pre></blockquote><p> 
+</p><a name="memory"></a><center><h4>Logging to a cyclic memory buffer</h4></center><p>
+The debugging log can be written to a cyclic memory buffer:
+</p> <blockquote class="example"><pre>
+error_log memory:32m debug;
+</pre></blockquote><p> 
+Logging to the memory buffer on the <code>debug</code> level
+does not have significant impact on performance even under high load.
+In this case, the log can be extracted using
+a <code>gdb</code> script like the following one:
+</p> <blockquote class="example"><pre>
+set $log = ngx_cycle-&gt;log
+
+while $log-&gt;writer != ngx_log_memory_writer
+    set $log = $log-&gt;next
+end
+
+set $buf = (ngx_log_memory_buf_t *) $log-&gt;wdata
+dump binary memory debug_log.txt $buf-&gt;start $buf-&gt;end
+</pre></blockquote><p> 
+Or using an <code>lldb</code> script as follows:
+</p> <blockquote class="example"><pre>
+expr ngx_log_t *$log = ngx_cycle-&gt;log
+expr while ($log-&gt;writer != ngx_log_memory_writer) { $log = $log-&gt;next; }
+expr ngx_log_memory_buf_t *$buf = (ngx_log_memory_buf_t *) $log-&gt;wdata
+memory read --force --outfile debug_log.txt --binary $buf-&gt;start $buf-&gt;end
+</pre></blockquote><p> 
+</p></div></div></body></html>

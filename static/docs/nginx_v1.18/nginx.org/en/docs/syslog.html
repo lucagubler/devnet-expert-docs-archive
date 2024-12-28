@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Logging to syslog</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/syslog.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="index.html">documentation</a></li><li><a href="faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Logging to syslog</h2><p>
+The
+<a href="ngx_core_module.html#error_log">error_log</a>
+and
+<a href="http/ngx_http_log_module.html#access_log">access_log</a>
+directives support logging to syslog.
+The following parameters configure logging to syslog:
+</p> <dl class="compact">
+
+<dt><code>server=</code><code><i>address</i></code></dt>
+<dd>
+Defines the address of a syslog server.
+The address can be specified as a domain name or IP address,
+with an optional port, or as a UNIX-domain socket path
+specified after the “<code>unix:</code>” prefix.
+If port is not specified, the UDP port 514 is used.
+If a domain name resolves to several IP addresses, the first resolved
+address is used.
+</dd>
+
+<dt><code>facility=</code><code><i>string</i></code></dt>
+<dd>
+Sets facility of syslog messages, as defined in
+<a href="https://datatracker.ietf.org/doc/html/rfc3164#section-4.1.1">RFC 3164</a>.
+Facility can be one of “<code>kern</code>”, “<code>user</code>”,
+“<code>mail</code>”, “<code>daemon</code>”,
+“<code>auth</code>”, “<code>intern</code>”,
+“<code>lpr</code>”, “<code>news</code>”, “<code>uucp</code>”,
+“<code>clock</code>”, “<code>authpriv</code>”,
+“<code>ftp</code>”, “<code>ntp</code>”, “<code>audit</code>”,
+“<code>alert</code>”, “<code>cron</code>”,
+“<code>local0</code>”..“<code>local7</code>”.
+Default is “<code>local7</code>”.
+</dd>
+
+<dt><code>severity=</code><code><i>string</i></code></dt>
+<dd>
+Sets severity of syslog messages for
+<a href="http/ngx_http_log_module.html#access_log">access_log</a>,
+as defined in
+<a href="https://datatracker.ietf.org/doc/html/rfc3164#section-4.1.1">RFC 3164</a>.
+Possible values are the same as for the second parameter (level) of the
+<a href="ngx_core_module.html#error_log">error_log</a> directive.
+Default is “<code>info</code>”.
+<blockquote class="note">
+Severity of error messages is determined by nginx, thus the parameter
+is ignored in the <code>error_log</code> directive.
+</blockquote>
+</dd>
+
+<dt><code>tag=</code><code><i>string</i></code></dt>
+<dd>
+Sets the tag of syslog messages.
+Default is “<code>nginx</code>”.
+</dd>
+
+<dt><code>nohostname</code></dt>
+<dd>
+Disables adding the “hostname” field into the syslog message header (1.9.7).
+</dd>
+
+
+
+</dl><p> 
+Example syslog configuration:
+</p> <blockquote class="example"><pre>
+error_log syslog:server=192.168.1.1 debug;
+
+access_log syslog:server=unix:/var/log/nginx.sock,nohostname;
+access_log syslog:server=[2001:db8::1]:12345,facility=local7,tag=nginx,severity=info combined;
+</pre></blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+Logging to syslog is available since version 1.7.1.
+As part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>
+logging to syslog is available since version 1.5.3.
+</blockquote><p> 
+</p></div></div></body></html>

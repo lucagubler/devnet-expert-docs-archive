@@ -1,0 +1,1489 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_stream_ssl_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="../css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a href="https://nginx.org/ru/docs/stream/ngx_stream_ssl_module.html">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="../index.html">documentation</a></li><li><a href="../faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="../njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_stream_ssl_module</h2><table width="100%"><tr><td align="left"><a href="ngx_stream_ssl_module.html#example">Example Configuration</a><br><a href="ngx_stream_ssl_module.html#directives">Directives</a><br>     <a href="ngx_stream_ssl_module.html#ssl_alpn">ssl_alpn</a><br>     <a href="ngx_stream_ssl_module.html#ssl_certificate">ssl_certificate</a><br>     <a href="ngx_stream_ssl_module.html#ssl_certificate_key">ssl_certificate_key</a><br>     <a href="ngx_stream_ssl_module.html#ssl_ciphers">ssl_ciphers</a><br>     <a href="ngx_stream_ssl_module.html#ssl_client_certificate">ssl_client_certificate</a><br>     <a href="ngx_stream_ssl_module.html#ssl_conf_command">ssl_conf_command</a><br>     <a href="ngx_stream_ssl_module.html#ssl_crl">ssl_crl</a><br>     <a href="ngx_stream_ssl_module.html#ssl_dhparam">ssl_dhparam</a><br>     <a href="ngx_stream_ssl_module.html#ssl_ecdh_curve">ssl_ecdh_curve</a><br>     <a href="ngx_stream_ssl_module.html#ssl_handshake_timeout">ssl_handshake_timeout</a><br>     <a href="ngx_stream_ssl_module.html#ssl_key_log">ssl_key_log</a><br>     <a href="ngx_stream_ssl_module.html#ssl_ocsp">ssl_ocsp</a><br>     <a href="ngx_stream_ssl_module.html#ssl_ocsp_cache">ssl_ocsp_cache</a><br>     <a href="ngx_stream_ssl_module.html#ssl_ocsp_responder">ssl_ocsp_responder</a><br>     <a href="ngx_stream_ssl_module.html#ssl_password_file">ssl_password_file</a><br>     <a href="ngx_stream_ssl_module.html#ssl_prefer_server_ciphers">ssl_prefer_server_ciphers</a><br>     <a href="ngx_stream_ssl_module.html#ssl_protocols">ssl_protocols</a><br>     <a href="ngx_stream_ssl_module.html#ssl_reject_handshake">ssl_reject_handshake</a><br>     <a href="ngx_stream_ssl_module.html#ssl_session_cache">ssl_session_cache</a><br>     <a href="ngx_stream_ssl_module.html#ssl_session_ticket_key">ssl_session_ticket_key</a><br>     <a href="ngx_stream_ssl_module.html#ssl_session_tickets">ssl_session_tickets</a><br>     <a href="ngx_stream_ssl_module.html#ssl_session_timeout">ssl_session_timeout</a><br>     <a href="ngx_stream_ssl_module.html#ssl_stapling">ssl_stapling</a><br>     <a href="ngx_stream_ssl_module.html#ssl_stapling_file">ssl_stapling_file</a><br>     <a href="ngx_stream_ssl_module.html#ssl_stapling_responder">ssl_stapling_responder</a><br>     <a href="ngx_stream_ssl_module.html#ssl_stapling_verify">ssl_stapling_verify</a><br>     <a href="ngx_stream_ssl_module.html#ssl_trusted_certificate">ssl_trusted_certificate</a><br>     <a href="ngx_stream_ssl_module.html#ssl_verify_client">ssl_verify_client</a><br>     <a href="ngx_stream_ssl_module.html#ssl_verify_depth">ssl_verify_depth</a><br><a href="ngx_stream_ssl_module.html#variables">Embedded Variables</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_stream_ssl_module</code> module (1.9.0)
+provides the necessary support for a stream proxy server to work with
+the SSL/TLS protocol.
+This module is not built by default, it should be enabled with the
+<code>--with-stream_ssl_module</code>
+configuration parameter.
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+To reduce the processor load, it is recommended to
+</p> <ul class="compact">
+
+<li>
+set the number of
+<a href="../ngx_core_module.html#worker_processes">worker processes</a>
+equal to the number of processors,
+</li>
+
+<li>
+enable the <a href="ngx_stream_ssl_module.html#ssl_session_cache_shared">shared</a> session cache,
+</li>
+
+<li>
+disable the <a href="ngx_stream_ssl_module.html#ssl_session_cache_builtin">built-in</a> session cache,
+</li>
+
+<li>
+and possibly increase the session <a href="ngx_stream_ssl_module.html#ssl_session_timeout">lifetime</a>
+(by default, 5 minutes):
+</li>
+
+</ul><p> 
+
+</p> <blockquote class="example"><pre>
+<strong>worker_processes auto;</strong>
+
+stream {
+
+    ...
+
+    server {
+        listen              12345 ssl;
+
+        ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+        ssl_ciphers         AES128-SHA:AES256-SHA:RC4-SHA:DES-CBC3-SHA:RC4-MD5;
+        ssl_certificate     /usr/local/nginx/conf/cert.pem;
+        ssl_certificate_key /usr/local/nginx/conf/cert.key;
+        <strong>ssl_session_cache   shared:SSL:10m;</strong>
+        <strong>ssl_session_timeout 10m;</strong>
+
+        ...
+    }
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="ssl_alpn"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_alpn</strong> <code><i>protocol</i></code> ...;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.21.4.
+            </p></div><p>
+Specifies the list of supported
+<a href="https://datatracker.ietf.org/doc/html/rfc7301">ALPN</a> protocols.
+One of the protocols must be
+<a href="ngx_stream_ssl_module.html#var_ssl_alpn_protocol">negotiated</a> if the client uses ALPN:
+</p> <blockquote class="example"><pre>
+map $ssl_alpn_protocol $proxy {
+    h2                127.0.0.1:8001;
+    http/1.1          127.0.0.1:8002;
+}
+
+server {
+    listen      12346;
+    proxy_pass  $proxy;
+    ssl_alpn    h2 http/1.1;
+}
+</pre></blockquote><p> 
+</p><a name="ssl_certificate"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_certificate</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with the certificate in the PEM format
+for the given server.
+If intermediate certificates should be specified in addition to a primary
+certificate, they should be specified in the same file in the following
+order: the primary certificate comes first, then the intermediate certificates.
+A secret key in the PEM format may be placed in the same file.
+</p><p>
+Since version 1.11.0,
+this directive can be specified multiple times
+to load certificates of different types, for example, RSA and ECDSA:
+</p> <blockquote class="example"><pre>
+server {
+    listen              12345 ssl;
+
+    ssl_certificate     example.com.rsa.crt;
+    ssl_certificate_key example.com.rsa.key;
+
+    ssl_certificate     example.com.ecdsa.crt;
+    ssl_certificate_key example.com.ecdsa.key;
+
+    ...
+}
+</pre></blockquote><p> 
+</p> <blockquote class="note">
+Only OpenSSL 1.0.2 or higher supports separate certificate chains
+for different certificates.
+With older versions, only one certificate chain can be used.
+</blockquote><p> 
+</p><p>
+Since version 1.15.9, variables can be used in the <code><i>file</i></code> name
+when using OpenSSL 1.0.2 or higher:
+</p> <blockquote class="example"><pre>
+ssl_certificate     $ssl_server_name.crt;
+ssl_certificate_key $ssl_server_name.key;
+</pre></blockquote><p> 
+Note that using variables implies that
+a certificate will be loaded for each SSL handshake,
+and this may have a negative impact on performance.
+</p><a name="ssl_certificate_data"></a><p>
+The value
+<code>data</code>:<code><i>$variable</i></code>
+can be specified instead of the <code><i>file</i></code> (1.15.10),
+which loads a certificate from a variable without using intermediate files.
+Note that inappropriate use of this syntax may have its security implications,
+such as writing secret key data to
+<a href="../ngx_core_module.html#error_log">error log</a>.
+</p><a name="ssl_certificate_key"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_certificate_key</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with the secret key in the PEM format
+for the given server.
+</p><p>
+The value
+<code>engine</code>:<code><i>name</i></code>:<code><i>id</i></code>
+can be specified instead of the <code><i>file</i></code>,
+which loads a secret key with a specified <code><i>id</i></code>
+from the OpenSSL engine <code><i>name</i></code>.
+</p><a name="ssl_certificate_key_data"></a><p>
+The value
+<code>data</code>:<code><i>$variable</i></code>
+can be specified instead of the <code><i>file</i></code> (1.15.10),
+which loads a secret key from a variable without using intermediate files.
+Note that inappropriate use of this syntax may have its security implications,
+such as writing secret key data to
+<a href="../ngx_core_module.html#error_log">error log</a>.
+</p><p>
+Since version 1.15.9, variables can be used in the <code><i>file</i></code> name
+when using OpenSSL 1.0.2 or higher.
+</p><a name="ssl_ciphers"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_ciphers</strong> <code><i>ciphers</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_ciphers HIGH:!aNULL:!MD5;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies the enabled ciphers.
+The ciphers are specified in the format understood by the
+OpenSSL library, for example:
+</p> <blockquote class="example"><pre>
+ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+</pre></blockquote><p> 
+</p><p>
+The full list can be viewed using the
+“<code>openssl ciphers</code>” command.
+</p><a name="ssl_client_certificate"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_client_certificate</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.8.
+            </p></div><p>
+Specifies a <code><i>file</i></code> with trusted CA certificates in the PEM format
+used to <a href="ngx_stream_ssl_module.html#ssl_verify_client">verify</a> client certificates and
+OCSP responses if <a href="ngx_stream_ssl_module.html#ssl_stapling">ssl_stapling</a> is enabled.
+</p><p>
+The list of certificates will be sent to clients.
+If this is not desired, the <a href="ngx_stream_ssl_module.html#ssl_trusted_certificate">ssl_trusted_certificate</a>
+directive can be used.
+</p><a name="ssl_conf_command"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_conf_command</strong> <code><i>name</i></code> <code><i>value</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.19.4.
+            </p></div><p>
+Sets arbitrary OpenSSL configuration
+<a href="https://www.openssl.org/docs/man1.1.1/man3/SSL_CONF_cmd.html">commands</a>.
+</p> <blockquote class="note">
+The directive is supported when using OpenSSL 1.0.2 or higher.
+</blockquote><p> 
+</p><p>
+Several <code>ssl_conf_command</code> directives
+can be specified on the same level:
+</p> <blockquote class="example"><pre>
+ssl_conf_command Options PrioritizeChaCha;
+ssl_conf_command Ciphersuites TLS_CHACHA20_POLY1305_SHA256;
+</pre></blockquote><p> 
+These directives are inherited from the previous configuration level
+if and only if there are no <code>ssl_conf_command</code> directives
+defined on the current level.
+</p><p>
+</p> <blockquote class="note">
+Note that configuring OpenSSL directly
+might result in unexpected behavior.
+</blockquote><p> 
+</p><a name="ssl_crl"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_crl</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.8.
+            </p></div><p>
+Specifies a <code><i>file</i></code> with revoked certificates (CRL)
+in the PEM format used to <a href="ngx_stream_ssl_module.html#ssl_verify_client">verify</a>
+client certificates.
+</p><a name="ssl_dhparam"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_dhparam</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with DH parameters for DHE ciphers.
+</p><p>
+By default no parameters are set,
+and therefore DHE ciphers will not be used.
+</p> <blockquote class="note">
+Prior to version 1.11.0, builtin parameters were used by default.
+</blockquote><p> 
+</p><a name="ssl_ecdh_curve"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_ecdh_curve</strong> <code><i>curve</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_ecdh_curve auto;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>curve</i></code> for ECDHE ciphers.
+</p><p>
+When using OpenSSL 1.0.2 or higher,
+it is possible to specify multiple curves (1.11.0), for example:
+</p> <blockquote class="example"><pre>
+ssl_ecdh_curve prime256v1:secp384r1;
+</pre></blockquote><p> 
+</p><p>
+The special value <code>auto</code> (1.11.0) instructs nginx to use
+a list built into the OpenSSL library when using OpenSSL 1.0.2 or higher,
+or <code>prime256v1</code> with older versions.
+</p><p>
+</p> <blockquote class="note">
+Prior to version 1.11.0,
+the <code>prime256v1</code> curve was used by default.
+</blockquote><p> 
+</p><p>
+</p> <blockquote class="note">
+When using OpenSSL 1.0.2 or higher,
+this directive sets the list of curves supported by the server.
+Thus, in order for ECDSA certificates to work,
+it is important to include the curves used in the certificates.
+</blockquote><p> 
+</p><a name="ssl_handshake_timeout"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_handshake_timeout</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_handshake_timeout 60s;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a timeout for the SSL handshake to complete.
+</p><a name="ssl_key_log"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_key_log</strong> path;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Enables logging of client connection SSL keys
+and specifies the path to the key log file.
+Keys are logged in the
+<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-keylogfile">SSLKEYLOGFILE</a>
+format compatible with Wireshark.
+</p><p>
+</p> <blockquote class="note">
+This directive is available as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>.
+</blockquote><p> 
+</p><a name="ssl_ocsp"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_ocsp</strong> <code>on</code> |
+        <code>off</code> |
+        <code>leaf</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_ocsp off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Enables OCSP validation of the client certificate chain.
+The <code>leaf</code> parameter
+enables validation of the client certificate only.
+</p><p>
+For the OCSP validation to work,
+the <a href="ngx_stream_ssl_module.html#ssl_verify_client">ssl_verify_client</a> directive should be set to
+<code>on</code> or <code>optional</code>.
+</p><p>
+To resolve the OCSP responder hostname,
+the <a href="ngx_stream_core_module.html#resolver">resolver</a> directive
+should also be specified.
+</p><p>
+Example:
+</p> <blockquote class="example"><pre>
+ssl_verify_client on;
+ssl_ocsp          on;
+resolver          192.0.2.1;
+</pre></blockquote><p> 
+</p><a name="ssl_ocsp_cache"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_ocsp_cache</strong> 
+    <code>off</code> |
+    [<code>shared</code>:<code><i>name</i></code>:<code><i>size</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_ocsp_cache off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Sets <code>name</code> and <code>size</code> of the cache
+that stores client certificates status for OCSP validation.
+The cache is shared between all worker processes.
+A cache with the same name can be used in several virtual servers.
+</p><p>
+The <code>off</code> parameter prohibits the use of the cache.
+</p><a name="ssl_ocsp_responder"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_ocsp_responder</strong> <code><i>url</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Overrides the URL of the OCSP responder specified in the
+“<a href="https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.2.1">Authority
+Information Access</a>” certificate extension
+for <a href="ngx_stream_ssl_module.html#ssl_ocsp">validation</a> of client certificates.
+</p><p>
+Only “<code>http://</code>” OCSP responders are supported:
+</p> <blockquote class="example"><pre>
+ssl_ocsp_responder http://ocsp.example.com/;
+</pre></blockquote><p> 
+</p><a name="ssl_password_file"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_password_file</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a <code><i>file</i></code> with passphrases for
+<a href="ngx_stream_ssl_module.html#ssl_certificate_key">secret keys</a>
+where each passphrase is specified on a separate line.
+Passphrases are tried in turn when loading the key.
+</p><p>
+Example:
+</p> <blockquote class="example"><pre>
+stream {
+    ssl_password_file /etc/keys/global.pass;
+    ...
+
+    server {
+        listen 127.0.0.1:12345;
+        ssl_certificate_key /etc/keys/first.key;
+    }
+
+    server {
+        listen 127.0.0.1:12346;
+
+        # named pipe can also be used instead of a file
+        ssl_password_file /etc/keys/fifo;
+        ssl_certificate_key /etc/keys/second.key;
+    }
+}
+</pre></blockquote><p> 
+</p><a name="ssl_prefer_server_ciphers"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_prefer_server_ciphers</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_prefer_server_ciphers off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies that server ciphers should be preferred over client ciphers
+when the SSLv3 and TLS protocols are used.
+</p><a name="ssl_protocols"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_protocols</strong> 
+    [<code>SSLv2</code>]
+    [<code>SSLv3</code>]
+    [<code>TLSv1</code>]
+    [<code>TLSv1.1</code>]
+    [<code>TLSv1.2</code>]
+    [<code>TLSv1.3</code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables the specified protocols.
+</p><p>
+If the directive is specified
+on the <a href="ngx_stream_core_module.html#server">server</a> level,
+the value from the default server can be used.
+</p><p>
+</p> <blockquote class="note">
+The <code>TLSv1.1</code> and <code>TLSv1.2</code> parameters work
+only when OpenSSL 1.0.1 or higher is used.
+</blockquote><p> 
+</p> <blockquote class="note">
+The <code>TLSv1.3</code> parameter (1.13.0) works only when
+OpenSSL 1.1.1 or higher is used.
+</blockquote><p> 
+</p> <blockquote class="note">
+The <code>TLSv1.3</code> parameter is used by default
+since 1.23.4.
+</blockquote><p> 
+</p><a name="ssl_reject_handshake"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_reject_handshake</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_reject_handshake off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.25.5.
+            </p></div><p>
+If enabled, SSL handshakes in
+the <a href="ngx_stream_core_module.html#server">server</a> block will be rejected.
+</p><p>
+For example, in the following configuration, SSL handshakes with
+server names other than <code>example.com</code> are rejected:
+</p> <blockquote class="example"><pre>
+server {
+    listen               443 ssl default_server;
+    ssl_reject_handshake on;
+}
+
+server {
+    listen              443 ssl;
+    server_name         example.com;
+    ssl_certificate     example.com.crt;
+    ssl_certificate_key example.com.key;
+}
+</pre></blockquote><p> 
+</p><a name="ssl_session_cache"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_session_cache</strong> 
+    <code>off</code> |
+    <code>none</code> |
+    [<code>builtin</code>[:<code><i>size</i></code>]]
+    [<code>shared</code>:<code><i>name</i></code>:<code><i>size</i></code>];</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_session_cache none;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the types and sizes of caches that store session parameters.
+A cache can be of any of the following types:
+</p> <dl class="compact">
+
+<dt><code>off</code></dt>
+<dd>
+the use of a session cache is strictly prohibited:
+nginx explicitly tells a client that sessions may not be reused.
+</dd>
+
+<dt><code>none</code></dt>
+<dd>
+the use of a session cache is gently disallowed:
+nginx tells a client that sessions may be reused, but does not
+actually store session parameters in the cache.
+</dd>
+
+<dt id="ssl_session_cache_builtin"><code>builtin</code></dt>
+<dd>
+a cache built in OpenSSL; used by one worker process only.
+The cache size is specified in sessions.
+If size is not given, it is equal to 20480 sessions.
+Use of the built-in cache can cause memory fragmentation.
+</dd>
+
+<dt id="ssl_session_cache_shared"><code>shared</code></dt>
+<dd>
+a cache shared between all worker processes.
+The cache size is specified in bytes; one megabyte can store
+about 4000 sessions.
+Each shared cache should have an arbitrary name.
+A cache with the same name can be used in several
+servers.
+It is also used to automatically generate, store, and
+periodically rotate TLS session ticket keys (1.23.2)
+unless configured explicitly
+using the <a href="ngx_stream_ssl_module.html#ssl_session_ticket_key">ssl_session_ticket_key</a> directive.
+</dd>
+
+</dl><p> 
+</p><p>
+Both cache types can be used simultaneously, for example:
+</p> <blockquote class="example"><pre>
+ssl_session_cache builtin:1000 shared:SSL:10m;
+</pre></blockquote><p> 
+but using only shared cache without the built-in cache should
+be more efficient.
+</p><a name="ssl_session_ticket_key"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_session_ticket_key</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets a <code><i>file</i></code> with the secret key used to encrypt
+and decrypt TLS session tickets.
+The directive is necessary if the same key has to be shared between
+multiple servers.
+By default, a randomly generated key is used.
+</p><p>
+If several keys are specified, only the first key is
+used to encrypt TLS session tickets.
+This allows configuring key rotation, for example:
+</p> <blockquote class="example"><pre>
+ssl_session_ticket_key current.key;
+ssl_session_ticket_key previous.key;
+</pre></blockquote><p> 
+</p><p>
+The <code><i>file</i></code> must contain 80 or 48 bytes
+of random data and can be created using the following command:
+</p> <blockquote class="example"><pre>
+openssl rand 80 &gt; ticket.key
+</pre></blockquote><p> 
+Depending on the file size either AES256 (for 80-byte keys, 1.11.8)
+or AES128 (for 48-byte keys) is used for encryption.
+</p><a name="ssl_session_tickets"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_session_tickets</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_session_tickets on;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables or disables session resumption through
+<a href="https://datatracker.ietf.org/doc/html/rfc5077">TLS session tickets</a>.
+</p><a name="ssl_session_timeout"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_session_timeout</strong> <code><i>time</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_session_timeout 5m;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies a time during which a client may reuse the
+session parameters.
+</p><a name="ssl_stapling"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_stapling</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_stapling off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Enables or disables
+<a href="https://datatracker.ietf.org/doc/html/rfc6066#section-8">stapling
+of OCSP responses</a> by the server.
+Example:
+</p> <blockquote class="example"><pre>
+ssl_stapling on;
+resolver 192.0.2.1;
+</pre></blockquote><p> 
+</p><p>
+For the OCSP stapling to work, the certificate of the server certificate
+issuer should be known.
+If the <a href="ngx_stream_ssl_module.html#ssl_certificate">ssl_certificate</a> file does
+not contain intermediate certificates,
+the certificate of the server certificate issuer should be
+present in the
+<a href="ngx_stream_ssl_module.html#ssl_trusted_certificate">ssl_trusted_certificate</a> file.
+</p><p>
+For a resolution of the OCSP responder hostname,
+the <a href="ngx_stream_core_module.html#resolver">resolver</a> directive
+should also be specified.
+</p><a name="ssl_stapling_file"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_stapling_file</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+When set, the stapled OCSP response will be taken from the
+specified <code><i>file</i></code> instead of querying
+the OCSP responder specified in the server certificate.
+</p><p>
+The file should be in the DER format as produced by the
+“<code>openssl ocsp</code>” command.
+</p><a name="ssl_stapling_responder"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_stapling_responder</strong> <code><i>url</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Overrides the URL of the OCSP responder specified in the
+“<a href="https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.2.1">Authority
+Information Access</a>” certificate extension.
+</p><p>
+Only “<code>http://</code>” OCSP responders are supported:
+</p> <blockquote class="example"><pre>
+ssl_stapling_responder http://ocsp.example.com/;
+</pre></blockquote><p> 
+</p><a name="ssl_stapling_verify"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_stapling_verify</strong> <code>on</code> | <code>off</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_stapling_verify off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.27.2.
+            </p></div><p>
+Enables or disables verification of OCSP responses by the server.
+</p><p>
+For verification to work, the certificate of the server certificate
+issuer, the root certificate, and all intermediate certificates
+should be configured as trusted using the
+<a href="ngx_stream_ssl_module.html#ssl_trusted_certificate">ssl_trusted_certificate</a> directive.
+</p><a name="ssl_trusted_certificate"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_trusted_certificate</strong> <code><i>file</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.8.
+            </p></div><p>
+Specifies a <code><i>file</i></code> with trusted CA certificates in the PEM format
+used to <a href="ngx_stream_ssl_module.html#ssl_verify_client">verify</a> client certificates and
+OCSP responses if <a href="ngx_stream_ssl_module.html#ssl_stapling">ssl_stapling</a> is enabled.
+</p><p>
+In contrast to the certificate set by <a href="ngx_stream_ssl_module.html#ssl_client_certificate">ssl_client_certificate</a>,
+the list of these certificates will not be sent to clients.
+</p><a name="ssl_verify_client"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_verify_client</strong> 
+    <code>on</code> | <code>off</code> |
+    <code>optional</code> | <code>optional_no_ca</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_verify_client off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.8.
+            </p></div><p>
+Enables verification of client certificates.
+The verification result is stored in the
+<a href="ngx_stream_ssl_module.html#var_ssl_client_verify">$ssl_client_verify</a> variable.
+If an error has occurred during the client certificate verification
+or a client has not presented the required certificate,
+the connection is closed.
+</p><p>
+The <code>optional</code> parameter requests the client
+certificate and verifies it if the certificate is present.
+</p><p>
+The <code>optional_no_ca</code> parameter
+requests the client
+certificate but does not require it to be signed by a trusted CA certificate.
+This is intended for the use in cases when a service that is external to nginx
+performs the actual certificate verification.
+The contents of the certificate is accessible through the
+<a href="ngx_stream_ssl_module.html#var_ssl_client_cert">$ssl_client_cert</a> variable.
+</p><a name="ssl_verify_depth"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>ssl_verify_depth</strong> <code><i>number</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>ssl_verify_depth 1;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>stream</code>, <code>server</code><br>
+                </td>
+                </tr>
+            </table><p>This directive appeared in version 1.11.8.
+            </p></div><p>
+Sets the verification depth in the client certificates chain.
+</p>
+
+
+<a name="variables"></a><center><h4>Embedded Variables</h4></center><p>
+The <code>ngx_stream_ssl_module</code> module supports variables
+since 1.11.2.
+</p> <dl class="compact">
+
+<dt id="var_ssl_alpn_protocol"><code>$ssl_alpn_protocol</code></dt>
+<dd>
+returns the protocol selected by ALPN during the SSL handshake,
+or an empty string otherwise (1.21.4);
+</dd>
+
+<dt id="var_ssl_cipher"><code>$ssl_cipher</code></dt>
+<dd>
+returns the name of the cipher used
+for an established SSL connection;
+</dd>
+
+<dt id="var_ssl_ciphers"><code>$ssl_ciphers</code></dt>
+<dd>
+returns the list of ciphers supported by the client (1.11.7).
+Known ciphers are listed by names, unknown are shown in hexadecimal,
+for example:
+<blockquote class="example"><pre>
+AES128-SHA:AES256-SHA:0x00ff
+</pre></blockquote>
+<blockquote class="note">
+The variable is fully supported only when using OpenSSL version 1.0.2 or higher.
+With older versions, the variable is available
+only for new sessions and lists only known ciphers.
+</blockquote>
+</dd>
+
+<dt id="var_ssl_client_cert"><code>$ssl_client_cert</code></dt>
+<dd>
+returns the client certificate in the PEM format
+for an established SSL connection, with each line except the first
+prepended with the tab character (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_fingerprint"><code>$ssl_client_fingerprint</code></dt>
+<dd>
+returns the SHA1 fingerprint of the client certificate
+for an established SSL connection (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_i_dn"><code>$ssl_client_i_dn</code></dt>
+<dd>
+returns the “issuer DN” string of the client certificate
+for an established SSL connection according to
+<a href="https://datatracker.ietf.org/doc/html/rfc2253">RFC 2253</a> (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_raw_cert"><code>$ssl_client_raw_cert</code>
+</dt>
+<dd>
+returns the client certificate in the PEM format
+for an established SSL connection (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_s_dn"><code>$ssl_client_s_dn</code></dt>
+<dd>
+returns the “subject DN” string of the client certificate
+for an established SSL connection according to
+<a href="https://datatracker.ietf.org/doc/html/rfc2253">RFC 2253</a> (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_serial"><code>$ssl_client_serial</code></dt>
+<dd>
+returns the serial number of the client certificate
+for an established SSL connection (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_v_end"><code>$ssl_client_v_end</code></dt>
+<dd>
+returns the end date of the client certificate (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_v_remain"><code>$ssl_client_v_remain</code></dt>
+<dd>
+returns the number of days
+until the client certificate expires (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_v_start"><code>$ssl_client_v_start</code></dt>
+<dd>
+returns the start date of the client certificate (1.11.8);
+</dd>
+
+<dt id="var_ssl_client_verify"><code>$ssl_client_verify</code></dt>
+<dd>
+returns the result of client certificate verification (1.11.8):
+“<code>SUCCESS</code>”, “<code>FAILED:</code><code><i>reason</i></code>”,
+and “<code>NONE</code>” if a certificate was not present;
+</dd>
+
+<dt id="var_ssl_curve"><code>$ssl_curve</code></dt>
+<dd>
+returns the negotiated curve used for
+SSL handshake key exchange process (1.21.5).
+Known curves are listed by names, unknown are shown in hexadecimal,
+for example:
+<blockquote class="example"><pre>
+prime256v1
+</pre></blockquote>
+<blockquote class="note">
+The variable is supported only when using OpenSSL version 3.0 or higher.
+With older versions, the variable value will be an empty string.
+</blockquote>
+</dd>
+
+<dt id="var_ssl_curves"><code>$ssl_curves</code></dt>
+<dd>
+returns the list of curves supported by the client (1.11.7).
+Known curves are listed by names, unknown are shown in hexadecimal,
+for example:
+<blockquote class="example"><pre>
+0x001d:prime256v1:secp521r1:secp384r1
+</pre></blockquote>
+<blockquote class="note">
+The variable is supported only when using OpenSSL version 1.0.2 or higher.
+With older versions, the variable value will be an empty string.
+</blockquote>
+<blockquote class="note">
+The variable is available only for new sessions.
+</blockquote>
+</dd>
+
+<dt id="var_ssl_protocol"><code>$ssl_protocol</code></dt>
+<dd>
+returns the protocol of an established SSL connection;
+</dd>
+
+<dt id="var_ssl_server_name"><code>$ssl_server_name</code></dt>
+<dd>
+returns the server name requested through
+<a href="http://en.wikipedia.org/wiki/Server_Name_Indication">SNI</a>;
+</dd>
+
+<dt id="var_ssl_session_id"><code>$ssl_session_id</code></dt>
+<dd>
+returns the session identifier of an established SSL connection;
+</dd>
+
+<dt id="var_ssl_session_reused"><code>$ssl_session_reused</code></dt>
+<dd>
+returns “<code>r</code>” if an SSL session was reused,
+or “<code>.</code>” otherwise.
+</dd>
+
+</dl><p> 
+</p>
+
+</div></div></body></html>

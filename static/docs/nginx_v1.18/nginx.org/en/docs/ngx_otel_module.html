@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Module ngx_otel_module</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/style_en.css"></head><body><div id="banner"><div id="banner-content">
+
+Celebrating <a href="https://github.com/nginx/nginx/commit/0e8348c50">20 years</a>
+of nginx!
+Read about our journey and milestones in the
+<a href="https://blog.nginx.org/blog/celebrating-20-years-of-nginx">latest blog</a>.
+
+</div></div><div id="main"><div id="menu"><input class="side-menu" type="checkbox" id="side-menu"><label class="hamb" for="side-menu"><span class="hamb-line"></span></label><nav class="nav"><h1><a href="https://nginx.org/"><img src="../../img/nginx_logo.png" alt="NGINX" class="lightimage" style="display: block; height: auto;"><div class="darkimageWrapper" style="mso-hide: all; display: none"><img src="../../img/nginx_logo_dark.png" alt="NGINX" class="darkimage" style="display: none;"></div></a></h1><div><ul class="mobilemenu"><li>english<br></li><li><a class="notrans">русский</a></li><li><br></li><li><a href="https://nginx.org/news.html">news</a></li><li><a href="https://nginx.org/en/">about</a></li><li><a href="https://nginx.org/en/download.html">download</a></li><li><a href="https://nginx.org/en/security_advisories.html">security</a></li><li><a href="index.html">documentation</a></li><li><a href="faq.html">faq</a></li><li><a href="https://nginx.org/en/books.html">books</a></li><li><a href="https://nginx.org/en/community.html">community</a></li><li><a href="https://nginx.org/en/enterprise.html">enterprise</a></li><li><br></li><li><a href="https://x.com/nginxorg">x.com</a></li><li><a href="https://blog.nginx.org/">blog</a></li><li><br></li><li><a href="https://unit.nginx.org/">unit</a></li><li><a href="njs/index.html">njs</a></li></ul></div></nav></div><div id="content"><h2>Module ngx_otel_module</h2><table width="100%"><tr><td align="left"><a href="ngx_otel_module.html#example">Example Configuration</a><br><a href="ngx_otel_module.html#directives">Directives</a><br>     <a href="ngx_otel_module.html#otel_exporter">otel_exporter</a><br>     <a href="ngx_otel_module.html#otel_service_name">otel_service_name</a><br>     <a href="ngx_otel_module.html#otel_trace">otel_trace</a><br>     <a href="ngx_otel_module.html#otel_trace_context">otel_trace_context</a><br>     <a href="ngx_otel_module.html#otel_span_name">otel_span_name</a><br>     <a href="ngx_otel_module.html#otel_span_attr">otel_span_attr</a><br><a href="ngx_otel_module.html#span">Default span attributes</a><br><a href="ngx_otel_module.html#variables">Embedded Variables</a><br></td></tr></table>
+
+<a name="summary"></a><p>
+The <code>ngx_otel_module</code> module (1.23.4) provides
+<a href="https://opentelemetry.io">OpenTelemetry</a>
+distributed tracing support.
+The module supports
+<a href="https://w3c.github.io/trace-context">W3C</a>
+context propagation and OTLP/gRPC export protocol.
+</p><p>
+The source code of the module is available
+<a href="https://github.com/nginxinc/nginx-otel">here</a>.
+Download and install instructions are available
+<a href="https://github.com/nginxinc/nginx-otel/blob/main/README.md">here</a>.
+</p><p>
+The module is also available in a prebuilt
+<code>nginx-module-otel</code>
+<a href="https://nginx.org/en/linux_packages.html#dynmodules">package</a>
+since 1.25.3
+and in <code>nginx-plus-module-otel</code> package
+as part of our
+<a href="https://www.f5.com/products/nginx">commercial subscription</a>.
+</p>
+
+
+<a name="example"></a><center><h4>Example Configuration</h4></center><p>
+</p> <blockquote class="example"><pre>
+load_module modules/ngx_otel_module.so;
+
+events {
+}
+
+http {
+
+    otel_exporter {
+        endpoint localhost:4317;
+    }
+
+    server {
+        listen 127.0.0.1:8080;
+
+        location / {
+            otel_trace         on;
+            otel_trace_context inject;
+
+            proxy_pass http://backend;
+        }
+    }
+}
+</pre></blockquote><p> 
+</p>
+
+
+<a name="directives"></a><center><h4>Directives</h4></center><a name="otel_exporter"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_exporter</strong> { ... }</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies OTel data export parameters:
+
+</p> <dl class="compact">
+
+<dt id="endpoint"><code>endpoint</code></dt>
+<dd>
+the address of OTLP/gRPC endpoint that will accept telemetry data.
+</dd>
+
+<dt id="interval"><code>interval</code></dt>
+<dd>
+the maximum interval between two exports,
+by default is <code>5</code> seconds.
+</dd>
+
+<dt id="batch_size"><code>batch_size</code></dt>
+<dd>
+the maximum number of spans to be sent in one batch per worker,
+by default is <code>512</code>.
+</dd>
+
+<dt id="batch_count"><code>batch_count</code></dt>
+<dd>
+the number of pending batches per worker,
+spans exceeding the limit are dropped,
+by default is <code>4</code>.
+</dd>
+
+</dl><p> 
+Example:
+</p> <blockquote class="example"><pre>
+otel_exporter {
+    endpoint    localhost:4317;
+    interval    5s;
+    batch_size  512;
+    batch_count 4;
+}
+</pre></blockquote><p> 
+</p><a name="otel_service_name"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_service_name</strong> <code><i>name</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>otel_service_name unknown_service:nginx;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Sets the
+“<a href="https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/#service"><code>service.name</code></a>”
+attribute of the OTel resource.
+</p><a name="otel_trace"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_trace</strong> <code>on</code> |
+        <code>off</code> |
+        <code>$variable</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>otel_trace off;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Enables or disables OpenTelemetry tracing.
+The directive can also be enabled by specifying a variable:
+</p> <blockquote class="example"><pre>
+split_clients "$otel_trace_id" $ratio_sampler {
+              10%              on;
+              *                off;
+}
+
+server {
+    location / {
+        otel_trace         $ratio_sampler;
+        otel_trace_context inject;
+        proxy_pass         http://backend;
+    }
+}
+</pre></blockquote><p> 
+</p><a name="otel_trace_context"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_trace_context</strong> <code>extract</code> |
+        <code>inject</code> |
+        <code>propagate</code> |
+        <code>ignore</code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            <pre>otel_trace_context ignore;</pre>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Specifies how to propagate
+<a href="https://www.w3.org/TR/trace-context/#design-overview">traceparent/tracestate</a> headers:
+
+</p> <dl class="compact">
+
+<dt id="extract"><code>extract</code></dt>
+<dd>
+uses an existing trace context from the request,
+so that the identifiers of
+a <a href="ngx_otel_module.html#var_otel_trace_id">trace</a> and
+the <a href="ngx_otel_module.html#var_otel_parent_id">parent span</a>
+are inherited from the incoming request.
+</dd>
+
+<dt id="inject"><code>inject</code></dt>
+<dd>
+adds a new context to the request, overwriting existing headers, if any.
+</dd>
+
+<dt id="propagate"><code>propagate</code></dt>
+<dd>
+updates the existing context
+(combines <a href="ngx_otel_module.html#extract">extract</a> and <a href="ngx_otel_module.html#inject">inject</a>).
+</dd>
+
+<dt id="ignore"><code>ignore</code></dt>
+<dd>
+skips context headers processing.
+</dd>
+
+</dl><p> 
+</p><a name="otel_span_name"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_span_name</strong> <code><i>name</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Defines the name of the OTel
+<a href="https://opentelemetry.io/docs/concepts/observability-primer/#spans">span</a>.
+By default, it is a name of the location for a request.
+The name can contain variables.
+</p><a name="otel_span_attr"></a><div class="directive"><table cellspacing="0">
+                <tr>
+                <th>
+            Syntax:
+                </th>
+                <td>
+            <code><strong>otel_span_attr</strong> <code><i>name</i></code> <code><i>value</i></code>;</code><br>
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Default:
+                </th>
+                <td>
+            
+            —
+        
+                </td>
+                </tr>
+            
+                <tr>
+                <th>
+            Context:
+                </th>
+                <td>
+            <code>http</code>, <code>server</code>, <code>location</code><br>
+                </td>
+                </tr>
+            </table></div><p>
+Adds a custom OTel span attribute.
+The value can contain variables.
+</p>
+
+
+<a name="span"></a><center><h4>Default span attributes</h4></center><p>
+The following <a href="https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/http.md">span attributes</a>
+are added automatically:
+
+</p> <ul class="compact">
+
+<li>
+<code>http.method</code>
+</li>
+
+<li>
+<code>http.target</code>
+</li>
+
+<li>
+<code>http.route</code>
+</li>
+
+<li>
+<code>http.scheme</code>
+</li>
+
+<li>
+<code>http.flavor</code>
+</li>
+
+<li>
+<code>http.user_agent</code>
+</li>
+
+<li>
+<code>http.request_content_length</code>
+</li>
+
+<li>
+<code>http.response_content_length</code>
+</li>
+
+<li>
+<code>http.status_code</code>
+</li>
+
+<li>
+<code>net.host.name</code>
+</li>
+
+<li>
+<code>net.host.port</code>
+</li>
+
+<li>
+<code>net.sock.peer.addr</code>
+</li>
+
+<li>
+<code>net.sock.peer.port</code>
+</li>
+
+</ul><p> 
+</p>
+
+
+<a name="variables"></a><center><h4>Embedded Variables</h4></center><p>
+</p> <dl class="compact">
+
+<dt id="var_otel_trace_id"><code>$otel_trace_id</code></dt>
+<dd>
+the identifier of the trace the current span belongs to,
+for example, <code>56552bc4daa3bf39c08362527e1dd6c4</code>
+</dd>
+
+<dt id="var_otel_span_id"><code>$otel_span_id</code></dt>
+<dd>
+the identifier of the current span,
+for example, <code>4c0b8531ec38ca59</code>
+</dd>
+
+<dt id="var_otel_parent_id"><code>$otel_parent_id</code></dt>
+<dd>
+the identifier of the parent span,
+for example, <code>dc94d281b0f884ea</code>
+</dd>
+
+<dt id="var_otel_parent_sampled"><code>$otel_parent_sampled</code></dt>
+<dd>
+the “<code>sampled</code>” flag of the parent span,
+can be “<code>1</code>” or “<code>0</code>”
+</dd>
+
+</dl><p> 
+</p>
+
+</div></div></body></html>
