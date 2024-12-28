@@ -6,42 +6,90 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
         .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
             background-color: #fff;
-            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            display: inline-block;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
             color: #333;
         }
         p {
+            text-align: center;
             color: #555;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        .categories {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .category-card {
+            background-color: #d1cdcd;
+            color: #333333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+        .category-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 10px;
+            color: #5974e3;
         }
         .docs-list {
             list-style-type: none;
             padding: 0;
+            flex-grow: 1;
         }
         .docs-list li {
             margin: 10px 0;
         }
         .docs-list a {
-            display: inline-block;
-            padding: 12px 25px;
-            background-color: #007BFF;
-            color: #fff;
+            display: block;
+            padding: 10px 15px;
+            background-color: #e0e0e0;
+            color: #333;
             text-decoration: none;
             border-radius: 5px;
             transition: background-color 0.3s ease;
+            text-align: center;
         }
         .docs-list a:hover {
-            background-color: #0056b3;
+            background-color: #c0c0c0;
+        }
+        @media (max-width: 992px) {
+            .categories {
+                flex-direction: column;
+            }
+            .column {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -50,13 +98,50 @@
         <h1>Welcome to DevNet Academy</h1>
         <p>Your hub for Cisco Certified DevNet Expert exam preparation.</p>
         <h2>Available Documentation</h2>
-        <ul class="docs-list">
-            {% for doc in docs %}
-                <li>
-                    <a href="{{ url_for('serve_docs', doc_name=doc.name) }}">{{ doc.display_name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="categories">
+            <div class="column">
+                {% for category in grouped_docs.column1.categories %}
+                    <div class="category-card">
+                        <div class="category-title">{{ category.title }}</div>
+                        <ul class="docs-list">
+                            {% for doc in category.docs %}
+                                <li>
+                                    <a href="{{ url_for('serve_docs', doc_name=doc.name) }}">{{ doc.display_name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="column">
+                {% for category in grouped_docs.column2.categories %}
+                    <div class="category-card">
+                        <div class="category-title">{{ category.title }}</div>
+                        <ul class="docs-list">
+                            {% for doc in category.docs %}
+                                <li>
+                                    <a href="{{ url_for('serve_docs', doc_name=doc.name) }}">{{ doc.display_name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="column">
+                {% for category in grouped_docs.column3.categories %}
+                    <div class="category-card">
+                        <div class="category-title">{{ category.title }}</div>
+                        <ul class="docs-list">
+                            {% for doc in category.docs %}
+                                <li>
+                                    <a href="{{ url_for('serve_docs', doc_name=doc.name) }}">{{ doc.display_name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </body>
 </html>
