@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>netmiko example</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="grpc-network-management-interface-gnmi">gRPC Network Management Interface (gNMI)</h1>
+<p><strong>Contributors:</strong><br>
+Paul Borman, Marcus Hines, Carl Lebsack, Chris Morrow, Anees Shaikh, Rob Shakir</p>
+<p><strong>Date:</strong><br>
+January 30, 2018</p>
+<p><strong>Version:</strong><br>
+0.6.0</p>
+<h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+<li><a href="#1-introduction">1 Introduction</a></li>
+<li><a href="#2-common-message-types-and-encodings">2 Common Message Types and Encodings</a>
+<ul>
+<li><a href="#21-reusable-notification-message-format">2.1 Reusable Notification Message Format</a></li>
+<li><a href="#22-common-data-types">2.2 Common Data Types</a>
+<ul>
+<li><a href="#221-timestamps">2.2.1 Timestamps</a></li>
+<li><a href="#222-paths">2.2.2 Paths</a>
+<ul>
+<li><a href="#2221-path-target">2.2.2.1 Path Target</a></li>
+</ul>
+</li>
+<li><a href="#223-node-values">2.2.3 Node Values</a></li>
+</ul>
+</li>
+<li><a href="#23-structured-data-types">2.3 Structured data types</a>
+<ul>
+<li><a href="#231-json-and-json_ietf">2.3.1 JSON and JSON_IETF</a></li>
+<li><a href="#232-bytes">2.3.2 Bytes</a></li>
+<li><a href="#233-protobuf">2.3.3 Protobuf</a></li>
+<li><a href="#234-ascii">2.3.4 ASCII</a></li>
+</ul>
+</li>
+<li><a href="#24-use-of-data-schema-paths">2.4 Use of Data Schema Paths</a>
+<ul>
+<li><a href="#241-path-prefixes">2.4.1 Path Prefixes</a></li>
+<li><a href="#242-path-aliases">2.4.2 Path Aliases</a></li>
+<li><a href="#243-interpretation-of-paths-used-in-rpcs">2.4.3 Interpretation of Paths Used in RPCs</a></li>
+</ul>
+</li>
+<li><a href="#25-error-handling">2.5 Error handling</a></li>
+<li><a href="#26-schema-definition-models">2.6 Schema Definition Models</a>
+<ul>
+<li><a href="#261-the-modeldata-message">2.6.1 The ModelData message</a></li>
+</ul>
+</li>
+<li><a href="#27-extensions-to-gnmi">2.7 Extensions to gNMI</a></li>
+</ul>
+</li>
+<li><a href="#3-service-definition">3 Service Definition</a>
+<ul>
+<li><a href="#31-session-security-authentication-and-rpc-authorization">3.1 Session Security, Authentication and RPC Authorization</a></li>
+<li><a href="#32-capability-discovery">3.2 Capability Discovery</a>
+<ul>
+<li><a href="#321-the-capabilityrequest-message">3.2.1 The CapabilityRequest message</a></li>
+<li><a href="#322-the-capabilityresponse-message">3.2.2 The CapabilityResponse message</a></li>
+</ul>
+</li>
+<li><a href="#33-retrieving-snapshots-of-state-information">3.3 Retrieving Snapshots of State Information</a>
+<ul>
+<li><a href="#331-the-getrequest-message">3.3.1 The GetRequest Message</a></li>
+<li><a href="#332-the-getresponse-message">3.3.2 The GetResponse message</a></li>
+<li><a href="#333-considerations-for-using-get">3.3.3 Considerations for using Get</a></li>
+</ul>
+</li>
+<li><a href="#34-modifying-state">3.4 Modifying State</a>
+<ul>
+<li><a href="#341-the-setrequest-message">3.4.1 The SetRequest Message</a></li>
+<li><a href="#342-the-setresponse-message">3.4.2 The SetResponse Message</a></li>
+<li><a href="#343-transactions">3.4.3 Transactions</a></li>
+<li><a href="#344-modes-of-update-replace-versus-update">3.4.4 Modes of Update: Replace versus Update</a></li>
+<li><a href="#345-modifying-paths-identified-by-attributes">3.4.5 Modifying Paths Identified by Attributes</a></li>
+<li><a href="#346-deleting-configuration">3.4.6 Deleting Configuration</a></li>
+<li><a href="#347-error-handling">3.4.7 Error Handling</a></li>
+</ul>
+</li>
+<li><a href="#35-subscribing-to-telemetry-updates">3.5 Subscribing to Telemetry Updates</a>
+<ul>
+<li><a href="#351-managing-subscriptions">3.5.1 Managing Subscriptions</a>
+<ul>
+<li><a href="#3511-the-subscriberequest-message">3.5.1.1 The SubscribeRequest Message</a></li>
+<li><a href="#3512-the-subscriptionlist-message">3.5.1.2 The SubscriptionList Message</a></li>
+<li><a href="#3513-the-subscription-message">3.5.1.3 The Subscription Message</a></li>
+<li><a href="#3514-the-subscriberesponse-message">3.5.1.4 The SubscribeResponse Message</a></li>
+<li><a href="#3515-creating-subscriptions">3.5.1.5 Creating Subscriptions</a>
+<ul>
+<li><a href="#35151-once-subscriptions">3.5.1.5.1 ONCE Subscriptions</a></li>
+<li><a href="#35152-stream-subscriptions">3.5.1.5.2 STREAM Subscriptions</a></li>
+<li><a href="#35153-poll-subscriptions">3.5.1.5.3 POLL Subscriptions</a></li>
+</ul>
+</li>
+<li><a href="#3516-client-defined-aliases-within-a-subscription">3.5.1.6 Client-defined Aliases within a Subscription</a></li>
+</ul>
+</li>
+<li><a href="#352-sending-telemetry-updates">3.5.2 Sending Telemetry Updates</a>
+<ul>
+<li><a href="#3521-bundling-of-telemetry-updates">3.5.2.1 Bundling of Telemetry Updates</a></li>
+<li><a href="#3522-target-defined-aliases-within-a-subscription">3.5.2.2 Target-defined Aliases within a Subscription</a></li>
+<li><a href="#3523-sending-telemetry-updates">3.5.2.3 Sending Telemetry Updates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#4-appendix-current-protobuf-message-and-service-specification">4 Appendix: Current Protobuf Message and Service Specification</a></li>
+<li><a href="#5-appendix-current-outstanding-issuesfuture-features">5 Appendix: Current Outstanding Issues/Future Features</a></li>
+<li><a href="#6-copyright">6 Copyright</a></li>
+<li><a href="#7-revision-history">7 Revision History</a>
+<ul>
+<li><a href="#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="introduction">1 Introduction</h1>
+<p>This document defines a <a href="http://grpc.io">gRPC</a>-based protocol for the<br>
+modification and retrieval of configuration from a target device, as well as the<br>
+control and generation of telemetry streams from a target device to a data<br>
+collection system. The intention is that a single gRPC service definition can<br>
+cover both configuration and telemetry - allowing a single implementation on the<br>
+target, as well as a single NMS element to interact with the device via<br>
+telemetry and configuration RPCs.</p>
+<p>All messages within the gRPC service definition are defined as <a href="https://developers.google.com/protocol-buffers/">protocol<br>
+buffers</a> (specifically proto3).<br>
+gRPC service definitions are expected to be described using the relevant<br>
+features of the protobuf IDL.  The <a href="https://github.com/openconfig/gnmi/blob/master/proto/gnmi/gnmi.proto">protobuf definition of<br>
+gNMI</a> is<br>
+maintained in the <a href="https://github.com/openconfig/gnmi">openconfig/gnmi</a> GitHub<br>
+repository.</p>
+<p>The service defined within this document is assumed to carry payloads that<br>
+contain data instances of <a href="http://www.openconfig.net/">OpenConfig</a> YANG schemas,<br>
+but can be used for any data with the following characteristics:</p>
+<ol>
+<li>structure can be represented by a tree structure where nodes can be uniquely<br>
+identified by a path consisting of node names, or node names coupled with<br>
+attributes;</li>
+<li>values can be serialised into a scalar object.</li>
+</ol>
+<p>Currently, values may be serialised to a scalar object through encoding as a<br>
+JSON string or a Protobuf type - although the definition of new serialisations<br>
+is possible.</p>
+<p>Throughout this specification the following terminology is used:</p>
+<ul>
+<li><em>Telemetry</em> - refers to streaming data relating to underlying<br>
+characteristics of the device - either operational state or configuration.</li>
+<li><em>Configuration</em> - elements within the data schema which are read/write and<br>
+can be manipulated by the client.</li>
+<li><em>Target</em> - the device within the protocol which acts as the owner of the<br>
+data that is being manipulated or reported on. Typically this will be a<br>
+network device.</li>
+<li><em>Client</em> - the device or system using the protocol described in this<br>
+document to query/modify data on the target, or act as a collector for<br>
+streamed data. Typically this will be a network management system.</li>
+</ul>
+<h1 id="common-message-types-and-encodings">2 Common Message Types and Encodings</h1>
+<h2 id="reusable-notification-message-format">2.1 Reusable Notification Message Format</h2>
+<p>When a target wishes to communicate data relating to the state of its internal<br>
+database to an interested client, it does so via means of a common<br>
+<code>Notification</code> message.  <code>Notification</code> messages are reused in other<br>
+higher-layer messages for various purposes. The exact use of the <code>Notification</code><br>
+message is described on a per-RPC basis.</p>
+<p>The fields of the Notification message are as follows:</p>
+<ul>
+<li><code>timestamp</code> - The time at which the data was collected by the device from<br>
+the underlying source, or the time that the target generated the<br>
+Notification message (in the case that the data does not reflect an<br>
+underlying data source). This value is always represented according to the<br>
+definition in <a href="#221-timestamps">2.2.1</a>.</li>
+<li><code>prefix</code> - a prefix which is applied to all path fields (encoded as per<br>
+<a href="#222-paths">2.2.2</a>) included in the <code>Notification</code> message. The paths<br>
+expressed within the message are formed by the concatenation of <code>prefix + path</code>. The <code>prefix</code> always precedes the <code>path</code> elements. Further semantics<br>
+of prefixes are described in <a href="#241-path-prefixes">2.4.1</a>.</li>
+<li><code>alias</code> - a string providing an alias for the prefix specified within the<br>
+notification message. The encoding of an alias, and the procedure for their<br>
+creation  is described in <a href="#242-path-aliases">2.4.2</a>.</li>
+<li><code>update</code> - a list of update messages that indicate changes in the underlying<br>
+data of the target. Both modification and creation of data is expressed<br>
+through the update message.
+<ul>
+<li>An <code>Update</code> message has three subfields:
+<ul>
+<li><code>path</code> - a path encoded as per <a href="#222-paths">2.2.2</a>.</li>
+<li><code>val</code> - a value encoded as per <a href="#223-node-values">2.2.3</a>.</li>
+<li><code>duplicates</code> - a counter value that indicates the number of<br>
+coalesced duplicates. If a client is unable to keep up with the<br>
+server, coalescion can occur on a per update (i.e., per path) basis<br>
+such that the server can discard previous values for a given update<br>
+and return only the latest. In this case the server SHOULD increment<br>
+a count associated with the update such that a client can detect<br>
+that transitions in the state of the path have occurred, but were<br>
+suppressed due to its inability to keep up.</li>
+</ul>
+</li>
+<li>The set of paths that are specified within the list of updates MUST be<br>
+unique. In this context, the path is defined to be the fully resolved<br>
+path (including the prefix). In the case that there is a duplicate path<br>
+specified within an update, only the final update should be processed by<br>
+the receiving entity.</li>
+</ul>
+</li>
+<li><code>delete</code> -  a list of paths (encoded as per <a href="#222-paths">2.2.2</a>) that<br>
+indicate the deletion of data nodes on the target.</li>
+</ul>
+<p>The creator of a Notification message MUST include the <code>timestamp</code> field. All<br>
+other fields are optional.</p>
+<h2 id="common-data-types">2.2 Common Data Types</h2>
+<h3 id="timestamps">2.2.1 Timestamps</h3>
+<p>Timestamp values MUST be represented as the number of nanoseconds since the Unix<br>
+epoch (January 1st 1970 00:00:00 UTC). The value MUST be encoded as a signed<br>
+64-bit integer (<code>int64</code>)<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup>.</p>
+<h3 id="paths">2.2.2 Paths</h3>
+<p>Paths are represented according to <a href="https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md">gNMI Path<br>
+Conventions</a>,<br>
+which defines a structured format for path elements, and any associated key<br>
+values. Rather than utilising a single string to represent the path - with the<br>
+<code>/</code> character separating each element of the path, the path is represented by an<br>
+ordered list of <code>PathElem</code> messages, starting at the root node, and ending at<br>
+the most specific path element. Each <code>PathElem</code> message contains the name of the<br>
+node within the data tree, along with any associated keys/attributes that may be<br>
+required for it. Keys are contained within a <code>map&lt;string, string&gt;</code> where the key<br>
+of the map is the name of the key element, and the value is the key’s value<br>
+encoded as a string.</p>
+<p>A path is represented by the <code>Path</code> message with the following fields:</p>
+<ul>
+<li><code>origin</code> - a field which MAY be used to disambiguate the path if necessary.<br>
+For example, the origin may be used to indicate which organization defined<br>
+the schema to which the path belongs.</li>
+<li><code>elem</code> - an array of <code>PathElem</code> messages, each containing the name of the<br>
+element, and any associated keys.</li>
+<li><code>target</code> - the name of the target for which the path is a member. Only set<br>
+in <code>prefix</code> for a path. Elaboration of this field is in<br>
+<a href="#2221-path-target">2.2.2.1</a>.</li>
+</ul>
+<p>Each <code>Path</code> element should correspond to a node in the data tree. For example,<br>
+the path <code>/a/b/c/d</code> is encoded as:</p>
+<pre><code>path: &lt;
+  elem: &lt;
+    name: "a"
+  &gt;
+  elem: &lt;
+    name: "b"
+  &gt;
+  elem: &lt;
+    name: "c"
+  &gt;
+  elem: &lt;
+    name: "d"
+  &gt;
+&gt;
+</code></pre>
+<p>Where attributes are to be specified, these are encoded alongside the node name<br>
+within the path element, for example a node specified by <code>/a/e[key=k1]/f/g</code><br>
+would have the path encoded as:</p>
+<pre><code>path: &lt;
+  elem: &lt;
+    name: "a"
+  &gt;
+  elem: &lt;
+    name: "e"
+    key: &lt;
+      key: "key"
+      value: "k1"
+    &gt;
+  &gt;
+  elem: &lt;
+    name: "f"
+  &gt;
+  elem: &lt;
+    name: "g"
+  &gt;
+&gt;
+</code></pre>
+<p>The root node (<code>/</code>) is encoded as a zero-length array (slice) of <code>PathElem</code><br>
+messages within the <code>elem</code> field.</p>
+<pre><code>path: &lt;
+&gt;
+</code></pre>
+<p>Paths (defined to be the concatenation of the <code>prefix</code> and <code>path</code> within the<br>
+message) specified within a message MUST be absolute - no messages with relative<br>
+paths should be generated.</p>
+<h4 id="path-target">2.2.2.1 Path Target</h4>
+<p>The <code>target</code> field within a path is name for the target. This field MUST only<br>
+ever be present on <code>prefix</code> paths in the corresponding request and response<br>
+messages.  This field is optional for clients. When set in the <code>prefix</code> in a<br>
+request, <code>GetRequest</code>, <code>SetRequest</code> or <code>SubscribeRequest</code>, the field MUST be<br>
+reflected in the <code>prefix</code> of the corresponding <code>GetResponse</code>, <code>SetResponse</code> or<br>
+<code>SubscribeResponse</code> by a server. This field is used to allow a name to be<br>
+associated with all the data for a given stream if requested by a client. If a<br>
+client does not set this field in the <code>prefix</code> of a request, it MUST NOT be set<br>
+in the <code>prefix</code> of the corresponding response messages. The value for <code>target</code><br>
+is tied to the context of a client RPC and not persisted or shared among<br>
+multiple clients.</p>
+<h3 id="node-values">2.2.3 Node Values</h3>
+<p>The value of a data node (or subtree) is encoded in a <code>TypedValue</code> message as a<br>
+<a href="https://developers.google.com/protocol-buffers/docs/proto3#oneof"><code>oneof</code></a><br>
+field to allow selection of the data type by setting exactly one of the member<br>
+fields.  The possible data types include:</p>
+<ul>
+<li>scalar types</li>
+<li>additional types used in some schema languages</li>
+<li>structured data types (e.g., to encode objects or subtrees)</li>
+</ul>
+<p>Several native scalar protobuf types are included in the <code>TypedValue</code> message:</p>
+<ul>
+<li><code>string</code> in the <code>string_val</code> field - defined to carry all string values<br>
+(including enumerated values represented as a string)</li>
+<li><code>int64</code> in the <code>int_val</code> field (storing all signed integer types - i.e.,<br>
+<code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code>).</li>
+<li><code>uint64</code> in the <code>uint_val</code> field (used to store all unsigned integer types -<br>
+i.e., <code>uint8</code>, <code>uint16</code>, <code>uint32</code>, <code>uint64</code>).</li>
+<li><code>bool</code> in the <code>bool_val</code> field, used to store boolean values.</li>
+<li><code>bytes</code> (see <a href="#232-bytes">2.3.2</a>)</li>
+<li><code>float</code> in the <code>float_val</code> field, used to store floating-point values (i.e.,<br>
+<code>float32</code>, <code>float64</code>).</li>
+</ul>
+<p>Additional defined data types include:</p>
+<ul>
+<li>
+<p><code>Decimal64</code> in the <code>decimal_val</code> field – a message encoding a fixed-precision<br>
+decimal number consisting of a total number of digits and a precision<br>
+indicating the number of digits following the decimal point.  It has two<br>
+subfields:</p>
+<ul>
+<li><code>digits</code> - the set of digits</li>
+<li><code>precision</code> - number of digits following the decimal point</li>
+</ul>
+</li>
+<li>
+<p><code>ScalarArray</code> in the <code>leaflist_val</code> field – a message encoding a mixed-type<br>
+scalar array; contains single repeated field:</p>
+<ul>
+<li><code>element</code> – a <code>TypedValue</code> element within the array.  The type of each<br>
+element MUST be a scalar type (i.e., one of the scalar types or<br>
+<code>Decimal64</code>).</li>
+</ul>
+</li>
+</ul>
+<p>The remaining fields in the <code>TypedValue</code> message define structured data types.<br>
+Section <a href="#23-structured-data-types">2.3</a> describes these further.</p>
+<h2 id="structured-data-types">2.3 Structured data types</h2>
+<p>When structured data is sent by the client or the target in an <code>Update</code> message,<br>
+it MUST be serialized according to one of the supported encodings listed in the<br>
+<code>Encoding</code> enumeration.  The table below lists the supported encodings and their<br>
+corresponding <code>TypedValue</code> fields, followed by further details on each encoding<br>
+type. It should be noted that the target never utilises the <code>Encoding</code><br>
+enumeration to declare to the client the type of encoding utilised, hence the<br>
+client must infer the encoding from the populated <code>TypedValue</code> field.</p>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th><code>TypedValue</code> field</th>
+<th><code>Encoding</code> Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON</td>
+<td>A JSON encoded string as per <a href="#231-json-and-json_ietf">2.3.1</a>.</td>
+<td><code>json_val</code></td>
+<td>0</td>
+</tr>
+<tr>
+<td>Bytes</td>
+<td>An arbitrary sequence of bytes as per <a href="#232-bytes">2.3.2</a>.</td>
+<td><code>bytes_val</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Proto</td>
+<td>A <a href="https://developers.google.com/protocol-buffers/">Protobuf</a> encoded message using <a href="https://developers.google.com/protocol-buffers/docs/proto3#any"><code>protobuf.any</code></a>, as per <a href="#233-protobuf">2.3.3</a>.</td>
+<td><code>any_val</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>ASCII</td>
+<td>An ASCII encoded string representing text formatted according to a target-defined convention (described in <a href="#234-ascii">Section 2.3.4</a>).</td>
+<td><code>ascii_val</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td>JSON_IETF</td>
+<td>A JSON encoded string as per <a href="#231-json-and-json_ietf">2.3.1</a> using JSON encoding compatible with <a href="https://tools.ietf.org/html/rfc7951">RFC 7951</a>.</td>
+<td><code>json_ietf_val</code></td>
+<td>4</td>
+</tr>
+</tbody>
+</table><h3 id="json-and-json_ietf">2.3.1 JSON and JSON_IETF</h3>
+<p>The <code>JSON</code> type indicates that the value is encoded as a JSON string. This<br>
+format utilises the specification in<br>
+<a href="https://tools.ietf.org/html/rfc7159">RFC7159</a>. Additional types (e.g.,<br>
+<code>JSON_IETF</code>) are utilised to indicate specific additional characteristics of the<br>
+encoding of the JSON data (particularly where they relate to serialisation of<br>
+YANG-modeled data).</p>
+<p>For any JSON encoding:</p>
+<ul>
+<li>In the case that the data item at the specified path is a leaf node (i.e.,<br>
+has no children, and an associated value) the value of that leaf is encoded<br>
+directly - i.e., the “bare” value is specified (i.e., a JSON object is not<br>
+required, and a bare JSON value is included).</li>
+<li>Where the data item referred to has child nodes, the <code>val</code> field contains a<br>
+serialised JSON entity (object or array) corresponding to the referenced<br>
+item.</li>
+</ul>
+<p>Using the following example data tree:</p>
+<pre><code> root +
+      |
+      +-- a +
+            |
+            +-- b[name=b1] +
+                           |
+                           +-- c +
+                                 |
+                                 +-- d (string)
+                                 +-- e (uint32)
+</code></pre>
+<p>The following serialisations would be used (note that the examples below follow<br>
+the conventions for textproto, and Go-style backticks are used for string<br>
+literals that would otherwise require escaping):</p>
+<p>For <code>/a/b[name=b1]/c/d</code>:</p>
+<pre><code>update: &lt;
+  path: &lt;
+    elem: &lt;
+      name: "a"
+    &gt;
+    elem: &lt;
+      name: "b"
+      key: &lt;
+        key: "name"
+        value: "b1"
+      &gt;
+    &gt;
+    elem: &lt;
+      name: "c"
+    &gt;
+    elem: &lt;
+      name: "d"
+    &gt;
+  &gt;
+  val: &lt;
+    json_val: "AStringValue"
+  &gt;
+&gt;
+</code></pre>
+<p>For <code>/a/b[name=b1]/c/e</code>:</p>
+<pre><code>update: &lt;
+  path: &lt;
+    elem: &lt;
+      name: "a"
+    &gt;
+    elem: &lt;
+      name: "b"
+      key: &lt;
+        key: "name"
+        value: "b1"
+      &gt;
+    &gt;
+    elem: &lt;
+      name: "c"
+    &gt;
+    elem: &lt;
+      name: "e"
+    &gt;
+  &gt;
+  val: &lt;
+    json_val: 10042    // decoded byte array
+  &gt;
+&gt;
+</code></pre>
+<p>For <code>/a/b[name=b1]/c</code>:</p>
+<pre><code>update: &lt;
+  path: &lt;
+    elem: &lt;
+      name: "a"
+    &gt;
+    elem: &lt;
+      name: "b"
+      key: &lt;
+        key: "name"
+        value: "b1"
+      &gt;
+    &gt;
+    elem: &lt;
+      name: "c"
+    &gt;
+  &gt;
+  val: &lt;
+    json_val: `{ "d": "AStringValue", "e": 10042 }`
+  &gt;
+&gt;
+</code></pre>
+<p>For <code>/a</code> :</p>
+<pre><code>update: &lt;
+  path: &lt;
+    elem: &lt;
+      name: "a'
+    &gt;
+  &gt;
+  val: &lt;
+    json_ietf_val: `{ "b": [
+                      {
+                        "name": "b1",
+                        "c": {
+                        "d": "AStringValue",
+                          "e": 10042
+                        }
+                       }
+                   ]
+            }`
+  &gt;
+&gt;
+</code></pre>
+<p>Note that all JSON values MUST be valid JSON. That is to say, while a value or<br>
+object may be included in the message, the relevant quoting according to the<br>
+JSON specification in <a href="https://tools.ietf.org/html/rfc7159">RFC7159</a> must be<br>
+used. This results in quoted string values, and unquoted number values.</p>
+<p><code>JSON_IETF</code> encoded data MUST conform with the rules for JSON serialisation<br>
+described in <a href="https://tools.ietf.org/html/rfc7951">RFC7951</a>. Data specified with<br>
+a type of JSON MUST be valid JSON, but no additional constraints are placed upon<br>
+it. An implementation MUST NOT serialise data with mixed <code>JSON</code> and <code>JSON_IETF</code><br>
+encodings.</p>
+<p>Both the client and target MUST support the <code>JSON</code> encoding as a minimum.</p>
+<h3 id="bytes">2.3.2 Bytes</h3>
+<p>Data encoded using the <code>BYTES</code> type (i.e., with the <code>byte_val</code> field) contains a<br>
+byte sequence whose semantics is opaque to the protocol.</p>
+<h3 id="protobuf">2.3.3 Protobuf</h3>
+<!-- TODO(robjs): should we say that protobuf can be within `bytes_val` as well&#10;as `any_val`, or rather in the future do we add a `protomsg_val`/`agg_val`&#10;field?) -->
+<p>Data encoded using the <code>PROTOBUF</code> type (i.e., within the <code>any_val</code> field)<br>
+contains a serialised protobuf message using<br>
+<a href="https://developers.google.com/protocol-buffers/docs/proto3#any">protobuf.Any</a>.<br>
+Note that in the case that the sender utilises this type, the receiver must<br>
+understand the schema (and hence the type of protobuf message that is<br>
+serialised) in order to decode the value. Such agreement is not guaranteed by<br>
+the protocol and hence must be established out-of-band.</p>
+<h3 id="ascii">2.3.4 ASCII</h3>
+<p>The <code>ASCII</code> type indicates that the data contains system-formatted ASCII encoded<br>
+text.  For configuration data, for example, this may consist of semi-structured<br>
+CLI configuration data formatted according to the target platform.  The gNMI<br>
+protocol does not define the format of the text – this must be established<br>
+out-of-band.</p>
+<h2 id="use-of-data-schema-paths">2.4 Use of Data Schema Paths</h2>
+<h3 id="path-prefixes">2.4.1 Path Prefixes</h3>
+<p>In a number of messages, a prefix can be specified to reduce the lengths of path<br>
+fields within the message. In this case, a <code>prefix</code> field is specified within a<br>
+message - comprising of a valid path encoded according to Section<br>
+<a href="#222-paths">2.2.2.</a> In the case that a prefix is specified, the absolute path<br>
+is comprised of the concatenation of the list of path elements representing the<br>
+prefix and the list of path elements in the <code>path</code> field.</p>
+<p>For example, again considering the data tree shown in Section<br>
+<a href="#231-json-and-json_ietf">2.3.1</a> if a <code>Notification</code> message updating values, a<br>
+prefix could be used to refer to the <code>/a/b[name=b1]/c/d</code> and <code>/a/b[name=b1]/c/e</code>data nodes:</p>
+<pre><code>notification: &lt;
+  timestamp: (timestamp)      // timestamp as int64
+  prefix: &lt;
+    elem: &lt;
+        name: "a"
+      &gt;
+    elem: &lt;
+      name: "b"
+      key: &lt;
+          key: "name"
+         value: "b1"
+        &gt;
+      &gt;
+     elem: &lt;
+       name: "c"
+     &gt;
+  &gt;
+  update: &lt;
+    path: &lt;
+      elem: &lt;
+        name: "d"
+      &gt;
+    &gt;
+    value: &lt;
+      val: &lt;
+        json_val: "AStringValue"
+      &gt;
+    &gt;
+  &gt;
+  update: &lt;
+    path: &lt;
+      elem: &lt;
+       name: "e"
+      &gt;
+    &gt;
+    val: &lt;
+      json_val: 10042      // converted to int representation
+    &gt;
+  &gt;
+&gt;
+</code></pre>
+<h3 id="path-aliases">2.4.2 Path Aliases</h3>
+<p>In some cases, a client or target MAY desire to utilise aliases for a particular<br>
+path - such that subsequent messages can be compressed by utilising the alias,<br>
+rather than using a complete representation of the path. Doing so reduces total<br>
+message length, by ensuring that redundant information can be removed.</p>
+<p>Support for path aliases MAY be provided by a target. In a case where a target<br>
+does not support aliases, the maximum message length SHOULD be considered,<br>
+especially in terms of bandwidth utilisation, and the efficiency of message<br>
+generation.</p>
+<p>A path alias is encoded as a string. In order to avoid valid data paths clashing<br>
+with aliases (e.g., <code>a</code> in the above example), an alias name MUST be prefixed<br>
+with a <code>#</code> character.</p>
+<p>The means by which an alias is created is defined on a per-RPC basis. In order<br>
+to delete an alias, the alias name is sent with the path corresponding to the<br>
+alias empty.</p>
+<p>Aliases MUST be specified as a fully expanded path, and hence MUST NOT reference<br>
+other aliases within their definition, such that a single alias lookup is<br>
+sufficient to resolve the absolute path.</p>
+<h3 id="interpretation-of-paths-used-in-rpcs">2.4.3 Interpretation of Paths Used in RPCs</h3>
+<p>When a client specifies a path within an RPC message which indicates a read, or<br>
+retrieval of data, the path MUST be interpreted such that it refers to the node<br>
+directly corresponding with the path <strong>and</strong> all its children.  The path refers<br>
+to the direct node and all descendent branches which originate from the node,<br>
+recursively down to each leaf element.  If specific nodes are expected to be<br>
+excluded then an RPC MAY provide means to filter nodes, such as<br>
+regular-expression based filtering, lists of excluded paths, or metadata-based<br>
+filtering (based on annotations of the data schema being manipulated, should<br>
+such annotations be available and understood by both client and target).</p>
+<p>For example, consider the following data tree:</p>
+<pre><code>root +
+     |
+     +-- childA +
+     |          |
+     |          +-- leafA1
+     |          +-- leafA2
+     |          +-- childA3 --+
+     |                        |
+     |                        +-- leafA31
+     |                        +-- leafA32
+     |
+     +-- childB +
+                |
+                +-- leafB1
+                +-- leafB2
+</code></pre>
+<p>A path referring to “root” (which is represented by a <code>path</code> consisting of an<br>
+empty set of elements) should result in the nodes <code>childA</code> and <code>childB</code> and all<br>
+of their children (<code>leafA1, leafA2, leafB1, leafB2, childA3, leafA31</code> and<br>
+<code>leafA32</code>) being considered by the relevant operation.</p>
+<p>In the case that the RPC is modifying the state of data (i.e., a write<br>
+operation), such recursion is not required - rather the modification operation<br>
+should be considered to be targeted at the node within the schema that is<br>
+specified by the path, and the value should be deserialized such that it<br>
+modifies the content of any child nodes if required to do so.</p>
+<h2 id="error-handling">2.5 Error handling</h2>
+<p>Errors MUST be represented by a canonical gRPC error code<br>
+(<a href="http://www.grpc.io/grpc-java/javadoc/index.html">Java</a>,<br>
+<a href="https://godoc.org/google.golang.org/grpc/codes#Code">Go</a>,<br>
+<a href="http://www.grpc.io/grpc/cpp/classgrpc_1_1_status.html">C++</a>). The entity<br>
+generating the error MUST specify a free-text string which indicates the context<br>
+of the error, allowing the receiving entity to generate log entries that allow a<br>
+human operator to understand the exact error that occurred, and its context, and<br>
+MAY supply structured data encoded as <code>protobuf.Any</code>. Each RPC defines the<br>
+meaning of the relevant canonical error codes within the context of the<br>
+operation it performs.</p>
+<p>The canonical error code that is chosen MUST consider the expected behavior of<br>
+the client on receipt of the message. For example, error codes which indicate<br>
+that a client may subsequently retry SHOULD only be used where retrying the RPC<br>
+is expected to result in a different outcome.</p>
+<p>Where the client or target wishes to indicate an error, it MUST use the <code>Status</code><br>
+message in the RPC return <a href="http://www.grpc.io/docs/guides/wire.html">trailers</a>.</p>
+<!-- TODO(robjs): Add a link to the helper methods for the status proto&#10;documentation -->
+<p>The <code>Status</code> message consists of three fields:</p>
+<ul>
+<li><code>code</code> - a 32-bit integer value corresponding to the canonical gRPC error<br>
+code</li>
+<li><code>message</code> - a human-readable string describing the error condition. This<br>
+string is not expected to be machine-parsable, but rather provide contextual<br>
+information which may be passed to upstream systems.</li>
+<li><code>details</code> - a repeated field of <code>protobuf.Any</code> messages that carry error<br>
+details.</li>
+</ul>
+<!-- TODO(robjs): Do we need to consider the warning case being discussed here? -->
+<h2 id="schema-definition-models">2.6 Schema Definition Models</h2>
+<p>The data tree supported by the target is expected to be defined by a set of<br>
+schemas. The definition and format of these models is out of scope of this<br>
+specification (YANG-modeled data is one example). In the case that such schema<br>
+definitions are used, the client should be able to determine the models that are<br>
+supported by the target, so that it can generate valid modifications to the data<br>
+tree, and interpret the data returned by <code>Get</code> and <code>Subscribe</code> RPC calls.</p>
+<p>Additionally, the client may wish to restrict the set of models that are<br>
+utilised by the target so that it can validate the data returned to it against a<br>
+specific set of data models. This is particularly relevant where the target may<br>
+otherwise add new values to restricted value data elements (e.g., those<br>
+representing an enumerated type), or augment new data elements into the data<br>
+tree.</p>
+<p>In order to allow the client to restrict the set of data models to be used when<br>
+interacting with the target, the client MAY discover the set of models that are<br>
+supported by the target using the <code>Capabilities</code> RPC described in <a href="#32-capability-discovery">Section<br>
+3.2</a>. For subsequent <code>Get</code> and <code>Subscribe</code> RPCs, the<br>
+client MAY specify the models to be used by the target.  The set of models to<br>
+use is expressed as a <code>ModelData</code> message, as specified in <a href="#261-the-modeldata-message">Section<br>
+2.6.1</a>.</p>
+<p>If the client specifies a set of models in a <code>Get</code> or <code>Subscribe</code> RPC, the<br>
+target MUST NOT utilize data tree elements that are defined in schema modules<br>
+outside the specified set. In addition, where there are data tree elements that<br>
+have restricted value sets (e.g., enumerated types), and the set is extended by<br>
+a module which is outside of the set, such values MUST NOT be used in data<br>
+instances that are sent to the client. Where there are other elements of the<br>
+schema that depend on the existence of such enumerated values, the target MUST<br>
+NOT include such values in data instances sent to the client.</p>
+<h3 id="the-modeldata-message">2.6.1 The ModelData message</h3>
+<p>The <code>ModelData</code> message describes a specific model that is supported by the<br>
+target and used by the client. The fields of the <code>ModelData</code> message identify a<br>
+data model registered in a model catalog, as described in<br>
+<a href="https://datatracker.ietf.org/doc/draft-openconfig-netmod-model-catalog/">[MODEL_CATALOG_DOC]</a><br>
+(the schema of the catalog itself - expressed in YANG - is described in<br>
+[<a href="https://github.com/openconfig/public/tree/master/release/models/catalog">MODEL_CATALOG_YANG</a>]).<br>
+Each model specified by a <code>ModelData</code> message may refer to a specific schema<br>
+module, a bundle of modules, or an augmentation or deviation, as described by<br>
+the catalog entry.</p>
+<p>Each <code>ModelData</code> message contains the following fields:</p>
+<ul>
+<li><code>name</code> - name of the model expressed as a string.</li>
+<li><code>organization</code> - the organization publishing the model, expressed as a<br>
+string.</li>
+<li><code>version</code> - the supported (or requested) version of the model, expressed as<br>
+a string which represents the semantic version of the catalog entry.</li>
+</ul>
+<p>The combination of <code>name</code>, <code>organization</code>, and <code>version</code> uniquely identifies an entry in the model catalog.</p>
+<h2 id="extensions-to-gnmi">2.7 Extensions to gNMI</h2>
+<p>Each top-level RPC message (e.g., <code>SubscribeRequest</code> and <code>SubscribeResponse</code> for<br>
+the <code>Subscribe</code> RPC) defines an <code>extensions</code> field which can be used to carry<br>
+additional parameters for a gNMI RPC.<br>
+<a href="https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-extensions.md">[GNMI-EXT]</a><br>
+defines the mechanisms to define such extensions. It must be noted that the base<br>
+operation of the RPCs as described in this specification MUST NOT be modified by<br>
+an extension.</p>
+<h1 id="service-definition">3 Service Definition</h1>
+<p>A single gRPC service is defined - future revisions of this specification MAY<br>
+result in additional services being introduced, and hence an implementation MUST<br>
+NOT make assumptions that limit to a single service definition.</p>
+<p>The service consists of the following RPCs:</p>
+<ul>
+<li><code>Capabilities</code> - defined in <a href="#32-capability-discovery">Section 3.2</a> and used<br>
+by the client and target as an initial handshake to exchange capability<br>
+information</li>
+<li><code>Get</code> - defined in <a href="#33-retrieving-snapshots-of-state-information">Section<br>
+3.3</a>, used to retrieve<br>
+snapshots of the data on the target by the client.</li>
+<li><code>Set</code> - defined in <a href="#34-modifying-state">Section 3.4</a> and used by the client<br>
+to modify the state of the target.</li>
+<li><code>Subscribe</code> - defined in <a href="#35-subscribing-to-telemetry-updates">Section 3.5</a><br>
+and used to control subscriptions to data on the target by the client.</li>
+</ul>
+<p>A target implementing the gNMI service SHOULD register against the gRPC server<br>
+<a href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">reflection<br>
+service</a> to<br>
+allow clients to determine that gNMI is available on the target.</p>
+<h2 id="session-security-authentication-and-rpc-authorization">3.1 Session Security, Authentication and RPC Authorization</h2>
+<p>The session between the client and server MUST be encrypted using TLS - and a<br>
+target or client MUST NOT fall back to unencrypted sessions. The target and<br>
+client SHOULD implement TLS &gt;= 1.2.</p>
+<p>New connections are mutually authenticated – each entity validates the X.509<br>
+certificate of the remote entity to ensure that the remote entity is both known,<br>
+and authorized to connect to the local system.</p>
+<p>If the target is expected to authenticate an RPC operation, the client MUST<br>
+supply a username and password in the metadata of the RPC message (e.g.,<br>
+<code>SubscribeRequest</code>, <code>GetRequest</code> or <code>SetRequest</code>).  If the client supplies<br>
+username/password credentials, the target MUST authenticate the RPC per its<br>
+local authentication functionality.</p>
+<p>Authorization is also performed per-RPC by the server, through validating<br>
+client-provided metadata. The client MAY include the appropriate AAA metadata,<br>
+which MUST contain a username, and MAY include a password in the context of each<br>
+RPC call it generates.  If the client includes both username and password, the<br>
+target MUST authenticate and authorize the request.  If the client only supplies<br>
+the username, the target MUST authorize the RPC request.</p>
+<p>A more detailed discussion of the requirements for authentication and encryption<br>
+used for gNMI is in<br>
+<a href="https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-authentication.md">[GNMI-AUTH]</a>.</p>
+<h2 id="capability-discovery">3.2 Capability Discovery</h2>
+<p>A client MAY discover the  capabilities of the target using the <code>Capabilities</code><br>
+RPC.  The <code>CapabilityRequest</code> message is sent by the client to interrogate the<br>
+target.   The target MUST reply with a <code>CapabilityResponse</code> message that<br>
+includes its gNMI service version, the versioned data models it supports, and<br>
+the supported data encodings.   This information is used in subsequent RPC<br>
+messages from the client to indicate the set of models that the client will use<br>
+(for <code>Get</code>, <code>Subscribe</code> as described in <a href="#26-schema-definition-models">Section<br>
+2.6</a>) , and the encoding to be used for the data.</p>
+<p>When the client does not specify the models it is using, the target SHOULD use<br>
+all data schema modules that it supports when considering the data tree to be<br>
+addressed.  If the client does not specify the encoding in an RPC message, it<br>
+MUST send JSON encoded values (the default encoding).</p>
+<h3 id="the-capabilityrequest-message">3.2.1 The CapabilityRequest message</h3>
+<p>The <code>CapabilityRequest</code> message is sent by the client to request capability<br>
+information from the target.  The <code>CapabilityRequest</code> message carries a single<br>
+repeated <code>extension</code> field, which is used as per the definition in <a href="#27-extensions-to-gnmi">Section<br>
+2.7</a>.</p>
+<h3 id="the-capabilityresponse-message">3.2.2 The CapabilityResponse message</h3>
+<p>The <code>CapabilityResponse</code> message has the following fields:</p>
+<ul>
+<li><code>supported_models</code> - a set of <code>ModelData</code> messages (as defined in <a href="#261-the-modeldata-message">Section<br>
+2.6.1</a>) describing each of the models supported<br>
+by the target</li>
+<li><code>supported_encodings</code> - an enumeration field describing the data encodings<br>
+supported by the target, as described in <a href="#23-structured-data-types">Section<br>
+2.3</a>.</li>
+<li><code>gNMI_version</code> - the semantic version of the gNMI service supported by the<br>
+target, specified as a string. The version should be interpreted as per<br>
+[<a href="http://www.openconfig.net/documentation/semantic-versioning/">OPENCONFIG-SEMVER</a>].</li>
+<li><code>extension</code> - a repeated field to carry gNMI extensions, which is used as<br>
+per the definition in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<h2 id="retrieving-snapshots-of-state-information">3.3 Retrieving Snapshots of State Information</h2>
+<p>In some cases, a client may require a snapshot of the state that exists on the<br>
+target. In such cases, a client desires some subtree of the data tree to be<br>
+serialized by the target and transmitted to it. It is expected that the values<br>
+that are retrieved (whether writeable by the client or not) are collected<br>
+immediately and provided to the client.</p>
+<p>The <code>Get</code> RPC provides an interface by which a client can request a set of paths<br>
+to be serialized and transmitted to it by the target. The client sends a<br>
+<code>GetRequest</code> message to the target, specifying the data that is to be retrieved.<br>
+The fields of the <code>GetRequest</code> message are described in <a href="#331-the-getrequest-message">Section<br>
+3.3.1</a>.</p>
+<p>Upon reception of a <code>GetRequest</code>, the target serializes the requested paths, and<br>
+returns a <code>GetResponse</code> message. The target MUST reflect the values of the<br>
+specified leaves at a particular collection time, which MAY be different for<br>
+each path specified within the <code>GetRequest</code> message.</p>
+<p>The target closes the <code>Get</code> RPC following the transmission of the <code>GetResponse</code><br>
+message.</p>
+<h3 id="the-getrequest-message">3.3.1 The GetRequest Message</h3>
+<p>The <code>GetRequest</code> message contains the following fields:</p>
+<ul>
+<li><code>prefix</code> - a path (specified as per <a href="#222-paths">Section 2.2.2</a>), and used<br>
+as described in <a href="#241-path-prefixes">Section 2.4.1</a>. The prefix is applied<br>
+to all paths within the <code>GetRequest</code> message.</li>
+<li><code>path</code> - a set of paths (expressed as per <a href="#222-paths">Section 2.2.2</a>) for<br>
+which the client is requesting a data snapshot from the target. The path<br>
+specified MAY utilize wildcards. In the case that the path specified is not<br>
+valid, the target MUST return an RPC response indicating an error code of<br>
+<code>InvalidArgument</code> and SHOULD provide information about the invalid path in<br>
+the error message or details.</li>
+<li><code>type</code> - the type of data that is requested from the target. The valid<br>
+values for type are described below.</li>
+<li><code>encoding</code> - the encoding that the target should utilise to serialise the<br>
+subtree of the data tree requested. The type MUST be one of the encodings<br>
+specified in <a href="#23-structured-data-types">Section 2.3</a>. If the<br>
+<code>Capabilities</code> RPC has been utilised, the client SHOULD use an encoding<br>
+advertised as supported by the target. If the encoding is not specified,<br>
+JSON MUST be used. If the target does not support the specified encoding,<br>
+the target MUST return an error of <code>Unimplemented</code>. The error message MUST<br>
+indicate that the specified encoding is unsupported.</li>
+<li><code>use_models</code> - a set of <code>ModelData</code> messages (defined in <a href="#261-the-modeldata-message">Section<br>
+2.6.1</a>) indicating the schema definition modules<br>
+that define the data elements that should be returned in response to the Get<br>
+RPC call. The semantics of the <code>use_models</code> field are defined in <a href="#26-schema-definition-models">Section<br>
+2.6</a>.</li>
+<li><code>extension</code> - a repeated field to carry gNMI extensions, used as per the<br>
+definition in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<p>Since the data tree stored by the target may consist of different types of data<br>
+(e.g., values that are operational in nature, such as protocol statistics) - the<br>
+client MAY specify that a subset of values in the tree are of interest. In order<br>
+for such filtering to be implemented, the data schema on the target MUST be<br>
+annotated in a manner which specifies the type of data for individual leaves, or<br>
+subtrees of the data tree.</p>
+<p>The types of data currently defined are:</p>
+<ul>
+<li><code>CONFIG</code> - specified to be data that the target considers to be read/write.<br>
+If the data schema is described in YANG, this corresponds to the “config<br>
+true” set of leaves on the target.</li>
+<li><code>STATE</code> - specified to be the read-only data on the target. If the data<br>
+schema is described in YANG, <code>STATE</code> data is the “config false” set of<br>
+leaves on the target.</li>
+<li><code>OPERATIONAL</code> - specified to be the read-only data on the target that is<br>
+related to software processes operating on the device, or external<br>
+interactions of the device.</li>
+</ul>
+<p>If the <code>type</code> field is not specified, the target MUST return CONFIG, STATE  and<br>
+OPERATIONAL data fields in the tree resulting from the client’s query.</p>
+<h3 id="the-getresponse-message">3.3.2 The GetResponse message</h3>
+<p>The <code>GetResponse</code> message consists of:</p>
+<ul>
+<li><code>notification</code> -  a set of <code>Notification</code> messages, as defined in <a href="#21-reusable-notification-message-format">Section<br>
+2.1</a>. The target MUST generate a<br>
+<code>Notification</code> message for each path specified in the client’s <code>GetRequest</code>,<br>
+and hence MUST NOT collapse data from multiple paths into a single<br>
+<code>Notification</code> within the response. The <code>timestamp</code> field of the<br>
+<code>Notification</code> message MUST be set to the time at which the target’s<br>
+snapshot of the relevant path was taken.</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<h3 id="considerations-for-using-get">3.3.3 Considerations for using Get</h3>
+<p>The <code>Get</code> RPC is intended for clients to retrieve relatively small sets of data<br>
+as complete objects, for example a part of the configuration. Such requests are<br>
+not expected to put a significant resource burden on the target. Since the<br>
+target is expected to return the entire snapshot in the <code>GetResponse</code> message,<br>
+<code>Get</code> is not well-suited for retrieving very large data sets, such as the full<br>
+contents of the routing table, or the entire component inventory. For such<br>
+operations, the <code>Subscribe</code> RPC is the recommended mechanism, e.g. using the<br>
+<code>ONCE</code> mode as described in <a href="#35-subscribing-to-telemetry-updates">Section 3.5</a>.</p>
+<p>Another consideration for <code>Get</code> is that the timestamp returned is associated<br>
+with entire set of data requested, although individual data items may have been<br>
+sampled by the target at different times.  If the client requires higher<br>
+accuracy for individual data items, the <code>Subscribe</code> RPC is recommended to<br>
+request a telemetry stream (see <a href="#352-sending-telemetry-updates">Section<br>
+3.5.2</a>).</p>
+<h2 id="modifying-state">3.4 Modifying State</h2>
+<p>Modifications to the state of the target are made through the <code>Set</code> RPC. A<br>
+client sends a <code>SetRequest</code> message to the target indicating the modifications<br>
+it desires.</p>
+<p>A target receiving a <code>SetRequest</code> message processes the operations specified<br>
+within it - which are treated as a transaction (see <a href="#343-transactions">Section<br>
+3.4.3</a>). The server MUST process deleted paths (within the<br>
+<code>delete</code> field of the <code>SetRequest</code>), followed by paths to be replaced (within<br>
+the <code>replace</code> field), and finally updated paths (within the <code>update</code> field). The<br>
+order of the replace and update fields MUST be treated as significant within a<br>
+single <code>SetRequest</code> message.  If a single path is specified multiple times for a<br>
+single operation (i.e., within <code>update</code> or <code>replace</code>), then the state of the<br>
+target MUST reflect the application of all of the operations in order, even if<br>
+they overwrite each other. A <code>SetRequest</code> specifying an empty set of paths MUST<br>
+NOT be treated as an error by the target. For example, a <code>SetRequest</code> message<br>
+carrying only extensions is valid.</p>
+<p>In response to a <code>SetRequest</code>, the target MUST respond with a <code>SetResponse</code><br>
+message. For each operation specified in the <code>SetRequest</code> message, an<br>
+<code>UpdateResult</code> message MUST be included in the response field of the<br>
+<code>SetResponse</code>. The order in which the operations are applied MUST be maintained<br>
+such that <code>UpdateResult</code> messages can be correlated to the <code>SetRequest</code><br>
+operations. In the case of a failure of an operation, the status of the<br>
+<code>UpdateResult</code> message MUST be populated with error information as per the<br>
+specification in <a href="#347-error-handling">Section 3.4.7</a>. In addition, the status<br>
+of the <code>SetResponse</code> message MUST be populated with an error message indicating<br>
+the success or failure of the set of operations within the <code>SetRequest</code> message<br>
+(again using the error handling behavior defined in <a href="#347-error-handling">Section<br>
+3.4.7</a>).</p>
+<h3 id="the-setrequest-message">3.4.1 The SetRequest Message</h3>
+<p>A <code>SetRequest</code> message consists of the following fields:</p>
+<ul>
+<li><code>prefix</code> - specified as per <a href="#241-path-prefixes">Section 2.4.1</a>. The prefix<br>
+specified is applied to all paths defined within other fields of the<br>
+message.</li>
+<li><code>delete</code> - A set of paths, specified as per <a href="#222-paths">Section 2.2.2</a>,<br>
+which are to be removed from the data tree. A specification of the behavior<br>
+of a delete is defined in <a href="#346-deleting-configuration">Section 3.4.6</a>.</li>
+<li><code>replace</code>  - A set of <code>Update</code> messages indicating elements of the data tree<br>
+whose content is to be replaced.</li>
+<li><code>update</code> - A set of <code>Update</code> messages indicating elements of the data tree<br>
+whose content is to be updated.</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<p>The semantics of “updating” versus “replacing” content are defined in <a href="#344-modes-of-update-replace-versus-update">Section<br>
+3.4.4.</a></p>
+<p>A re-usable <code>Update</code> message is utilised to indicate changes to paths where a<br>
+new value is required. The <code>Update</code> message contains two fields:</p>
+<ul>
+<li><code>path</code> - a path encoded as per <a href="#222-paths">Section 2.2.2</a> indicating the<br>
+path of the element to be modified.</li>
+<li><code>value</code> - a value encoded as per <a href="#223-node-values">Section 2.2.3</a><br>
+indicating the value applied to the specified node. The semantics of how the<br>
+node is updated is dependent upon the context of the update message, as<br>
+specified in <a href="#344-modes-of-update-replace-versus-update">Section 3.4.4</a>.</li>
+</ul>
+<h3 id="the-setresponse-message">3.4.2 The SetResponse Message</h3>
+<p>A <code>SetResponse</code> consists of the following fields:</p>
+<ul>
+<li><code>prefix</code> - specified as per <a href="#241-path-prefixes">Section 2.4.1</a>. The prefix<br>
+specified is applied to all paths defined within other fields of the<br>
+message. The target MUST return an RPC response when the change is<br>
+successfully applied. In cases where an update was not successfully applied,<br>
+the contents of the status message used in the RPC response MUST be<br>
+specified as per <a href="#347-error-handling">Section 3.4.7</a>.</li>
+<li><code>response</code>  - containing a list of responses, one per operation specified<br>
+within the <code>SetRequest</code> message. Each response consists of an <code>UpdateResult</code><br>
+message with the following fields:
+<ul>
+<li><code>timestamp</code> - a timestamp (encoded as per <a href="#221-timestamps">Section<br>
+2.2.1</a>) at which the set request message was accepted<br>
+by the system.</li>
+<li><code>path</code> - the path (encoded as per <a href="#222-paths">Section 2.2.2</a>) specified<br>
+within the <code>SetRequest</code>. In the case that a common prefix was not used<br>
+within the <code>SetRequest</code>, the target MAY specify a <code>prefix</code> to reduce<br>
+repetition of path elements within multiple <code>UpdateResult</code> messages in<br>
+the <code>request</code> field.</li>
+<li><code>op</code> - the operation corresponding to the path. This value MUST be one<br>
+of <code>DELETE</code>, <code>REPLACE</code>, or <code>UPDATE</code>.</li>
+<li><code>message</code> - a status message (as specified in <a href="#25-error-handling">Section<br>
+2.5</a>). This field follows the same rules as the<br>
+status field returned with the <code>SetResponse</code> message specified above.</li>
+</ul>
+</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<h3 id="transactions">3.4.3 Transactions</h3>
+<p>All changes to the state of the target that are included in an individual<br>
+<code>SetRequest</code> message are considered part of a transaction. That is, either all<br>
+modifications within the request are applied, or the target MUST rollback the<br>
+state changes to reflect its state before any changes were applied. The state of<br>
+the target MUST NOT appear to be changed until such time as all changes have<br>
+been accepted successfully.  Hence, telemetry update messages  MUST NOT reflect<br>
+a change in state  until such time as the intended modifications have been<br>
+accepted.</p>
+<p>As per the specification in <a href="#34-modifying-state">Section 3.4</a>, within an<br>
+individual transaction (<code>SetRequest</code>) the order of operations is <code>delete</code>,<br>
+<code>replace</code>, <code>update</code>.</p>
+<p>As the scope of a “transaction” is a single <code>SetRequest</code> message, a client<br>
+desiring a set of changes to be applied together MUST ensure that they are<br>
+encapsulated within a single <code>SetRequest</code> message.</p>
+<h3 id="modes-of-update-replace-versus-update">3.4.4 Modes of Update: Replace versus Update</h3>
+<p>Changes to read-write values on the target are applied based on the <code>replace</code><br>
+and <code>update</code> fields of the <code>SetRequest</code> message.</p>
+<p>For both replace and update operations, if the path specified does not exist,<br>
+the target MUST create the data tree element and populate it with the data in<br>
+the <code>Update</code> message, provided the path is valid according to the data tree<br>
+schema. If invalid values are specified, the target MUST cease processing<br>
+updates within the <code>SetRequest</code> method, return the data tree to the state prior<br>
+to any changes, and return a <code>SetResponse</code> status indicating the error<br>
+encountered.</p>
+<p>For replace operations:</p>
+<ul>
+<li>If a particular path-value is specified in the client-supplied data, it is<br>
+replaced with the client-specified value.</li>
+<li>If a particular path-value is NOT specified in the client-supplied data and<br>
+the path does not have a specified default value in the corresponding schema,<br>
+it should be deleted.</li>
+<li>If a path-value is NOT specified in the client-supplied data and the path does<br>
+have a default value, it takes on the schema-specified default value.</li>
+</ul>
+<p>For example, consider the following tree, where a schema defines the boolean <code>b</code><br>
+as having a default value of True and boolean <code>c</code> as having no default value.<br>
+Both <code>b</code> and <code>c</code> have been previously set as False.</p>
+<pre><code>root +
+     |
+     + a --+
+     |     |
+     |     +-- b
+     |     |
+     |     +-- c
+     |
+     |
+     + d --+
+           +-- e
+           |
+           +-- f
+</code></pre>
+<p>A <code>replace</code> operation is issued where <code>e</code> and <code>f</code> are set, and all other<br>
+elements are omitted. In this scenario, <code>b</code> MUST be reverted to its default<br>
+setting of True and the configuration of <code>c</code> MUST be deleted from the tree,<br>
+and returned to its original un-configured setting.</p>
+<p>For <code>update</code> operations, only the value of those data elements that are<br>
+specified explicitly should be treated as changed.</p>
+<h3 id="modifying-paths-identified-by-attributes">3.4.5 Modifying Paths Identified by Attributes</h3>
+<p>The path convention defined in <a href="#222-paths">Section 2.2.2</a> allows nodes in the<br>
+data tree to be identified by a unique set of node names (e.g.,<code>/a/b/c/d</code>) or<br>
+paths that consist of node names coupled with attributes (e.g., <code>/a/e[key=10]</code>).<br>
+In the case where where a node name plus attribute name is required to uniquely<br>
+identify an element (i.e., the path within the schema represents a list, map, or<br>
+array), the following considerations apply:</p>
+<ul>
+<li>In the case that multiple attribute values are required to uniquely address<br>
+an element - e.g., <code>/a/f[k1=10][k2=20]</code>- and a replace or update<br>
+operation’s path specifies  a subset of the attributes (e.g., <code>/a/f[k1=10]</code>)<br>
+then this MUST be considered an error by the target system - and an status<br>
+code of<code>InvalidArgument (3)</code> specified.</li>
+<li>Where the path specified refers to a node which itself represents the<br>
+collection of objects (list, map, or array) a replace operation MUST remove<br>
+all collection entries that are not supplied in the value provided in the<br>
+<code>SetRequest</code>. An update operation MUST be considered to add new entries to<br>
+the collection if they do not exist.</li>
+<li>In the case that key values are specified both as attributes of a node, and<br>
+as their own elements within the data tree, update or replace operations<br>
+that modify instances of the key in conflicting ways MUST be considered an<br>
+error. The target MUST return a status code of <code>InvalidArgument (3)</code>.</li>
+</ul>
+<p>For example, consider a tree corresponding to the examples above, as illustrated<br>
+below.</p>
+<pre><code>root +
+     |
+     + a --+
+             |
+             +-- f[k1=10][k2=20] --+
+             |                     |
+             |                     +-- k1 = 10
+             |                     +-- k2 = 20
+             |
+             +-- f[k1=10][k2=21] --+
+                                   |
+                                   +-- k1 = 10
+                                   +-- k2 = 21
+</code></pre>
+<p>In this case, nodes <code>k1</code> and <code>k2</code> are standalone nodes within the schema, but<br>
+also correspond to attribute values for the node “<code>f</code>”. In this case, an update<br>
+or replace message specifying a path of <code>/a/f[k1=10][k2=20]</code> setting the value<br>
+of <code>k1</code> to 100 MUST be considered erroneous, and a status code of<br>
+<code>InvalidArgument (3)</code> specified.</p>
+<h3 id="deleting-configuration">3.4.6 Deleting Configuration</h3>
+<p>Where a path is contained within the <code>delete</code> field of the <code>SetRequest</code> message,<br>
+it should be removed from the target’s data tree. In the case that the path<br>
+specified is to an element that has children, these children MUST be recursively<br>
+deleted. If a wildcard path is utilised, the wildcards MUST be expanded by the<br>
+target, and the corresponding elements of the data tree deleted. Such wildcards<br>
+MUST support paths specifying a subset of attributes required to identify<br>
+entries within a collection (list, array, or map) of the data schema.</p>
+<p>In the case that a path specifies an element within the data tree that does not<br>
+exist, these deletes MUST be silently accepted.</p>
+<h3 id="error-handling-1">3.4.7 Error Handling</h3>
+<p>When a client issues a <code>SetRequest</code>, and the target is unable to apply the<br>
+specified changes, an error status MUST be reported to the client. The error is<br>
+specified in multiple places:</p>
+<ul>
+<li>The status returned with the <code>SetResponse</code> message indicates the completion<br>
+status of the entire transaction.</li>
+<li>With a <code>UpdateResult</code> message, where the message field indicates the<br>
+completion status of the individual operation.</li>
+</ul>
+<p>The RPC status supplied with the <code>SetResponse</code> message MUST reflect the overall<br>
+result of the transaction.</p>
+<p>In the case that any operation within the <code>SetRequest</code> message fails, then (as<br>
+per <a href="#343-transactions">Section 3.4.3</a>), the target MUST NOT apply any of the<br>
+specified changes, and MUST consider the transaction as failed. The target<br>
+SHOULD set the status code of the <code>SetResponse</code> message to <code>Aborted (10)</code>, along<br>
+with an appropriate error message, and MUST set the <code>message</code> field of the<br>
+<code>UpdateResult</code> corresponding to the failed operation to an <code>Error</code> message<br>
+indicating failure.  In the case that the processed operation is not the only<br>
+operation within the <code>SetRequest</code> the target MUST set the <code>message</code> field of the<br>
+<code>UpdateResult</code> messages for all other operations, setting the code field to<br>
+<code>Aborted (10)</code>.</p>
+<p>For the operation that the target is unable to process, the code indicated in<br>
+the status message returned within the RPC response MUST be set to a specific<br>
+error code indicating the reason for failure based on the following mappings to<br>
+canonical gRPC error codes:</p>
+<ul>
+<li>When the client has specified metadata requiring authentication (see<br>
+<a href="#31-session-security-authentication-and-rpc-authorization">Section 3.1</a>),<br>
+and the authentication fails -  <code>Unauthenticated (16)</code>.</li>
+<li>When the client does not have permission to modify the path specified by the<br>
+operation - <code>PermissionDenied (7)</code>.</li>
+<li>When the operation specifies a path that cannot be parsed by the target -<br>
+<code>InvalidArgument (3)</code>. In this case, the <code>message</code> field of the returned<br>
+status specified SHOULD specify human-readable text indicating that the path<br>
+could not be parsed.</li>
+<li>When the operation is an update or replace operation that corresponds to a<br>
+path that is not valid - <code>NotFound (5)</code>. In this case the <code>message</code> field of<br>
+the returned status message SHOULD specify human-readable text indicating<br>
+the path that was invalid.</li>
+<li>When the operation is an update or replace operation that includes an<br>
+invalid value within the <code>Update</code> message specified - <code>InvalidArgument (3)</code>.<br>
+This error SHOULD be used in cases where the payload specifies scalar values<br>
+that do not correspond to the correct schema type.</li>
+<li>When the client specifies a payload utilising an encoding that is not<br>
+supported by the target (e.g., JSON) - <code>Unimplemented (12)</code> SHOULD be used to<br>
+indicate that the encoding is not supported.</li>
+</ul>
+<h2 id="subscribing-to-telemetry-updates">3.5 Subscribing to Telemetry Updates</h2>
+<p>When a client wishes to receive updates relating to the state of data instances<br>
+on a target, it creates a subscription via the <code>Subscribe</code> RPC. A subscription<br>
+consists of one or more paths, with a specified subscription mode. The mode of<br>
+each subscription determines the triggers for updates for data sent from the<br>
+target to the client.</p>
+<p>All requests for new subscriptions are encapsulated within a <code>SubscribeRequest</code><br>
+message - which itself has a mode which describes the longevity of the<br>
+subscription. A client may create a subscription which has a dedicated stream to<br>
+return one-off data (<code>ONCE</code>); a subscription that utilizes a stream to<br>
+periodically request a set of data (<code>POLL</code>); or a long-lived subscription that<br>
+streams data according to the triggers specified within the individual<br>
+subscription’s mode (<code>STREAM</code>).</p>
+<p>The target generates messages according to the type of subscription that has<br>
+been created, at the frequency requested by the client. The methods to create<br>
+subscriptions are described in <a href="#351-managing-subscriptions">Section 3.5.1</a>.</p>
+<p>Subscriptions are created for a set of paths - which cannot be modified<br>
+throughout the lifetime of the subscription. In order to cancel a subscription,<br>
+the client cancels the <code>Subscribe</code> RPC associated with the subscription, or<br>
+terminates the entire gRPC session.</p>
+<p>Subscriptions are fundamentally a set of independent update messages relating to<br>
+the state of the data tree. That is, it is not possible for a client requesting<br>
+a subscription to assume that the set of update messages received represent a<br>
+snapshot of the data tree at a particular point in time. Subscriptions therefore<br>
+allow a client to:</p>
+<ul>
+<li>Receive ongoing updates from a target which allow synchronization between<br>
+the client and target for the state of elements within the data tree. In<br>
+this case (i.e., a <code>STREAM</code> subscription), a client creating a subscription<br>
+receives an initial set of updates, terminated by a message indicating that<br>
+initial synchronisation has completed, and then receives subsequent updates<br>
+indicating changes to the initial state of those elements.</li>
+<li>Receive a single view (polled, or one-off) for elements of the data tree on<br>
+a per-data element basis according to the state that they are in at the time<br>
+that the message is transmitted.  This can be more resource efficient for<br>
+both target and client than a <code>GetRequest</code> for large subtrees within the<br>
+data tree.  The target does not need to coalesce values into a single<br>
+snapshot view, or create an in-memory representation of the subtree at the<br>
+time of the request, and subsequently transmit this entire view to the<br>
+client.</li>
+</ul>
+<p>Based on the fact that subsequent update messages are considered to be<br>
+independent, and to ensure that the efficiencies described above can be<br>
+achieved, by default a target MUST NOT aggregate values within an update<br>
+message.</p>
+<p>In some cases, however, elements of the data tree may be known to change<br>
+together, or need to be interpreted by the subscriber together. Such data MUST<br>
+be explicitly marked in the schema as being eligible to be aggregated when being<br>
+published. Additionally, the subscribing client MUST explicitly request<br>
+aggregation of eligible schema elements for the subscription - by means of the<br>
+<code>allow_aggregation</code> flag within a <code>SubscriptionList</code> message. For elements<br>
+covered by a subscription that are not explicitly marked within the schema as<br>
+being eligible for aggregation the target MUST NOT coalesce these values,<br>
+regardless of the value of the <code>allow_aggregation</code> flag.</p>
+<p>When aggregation is not permitted by the client or the schema each update<br>
+message MUST contain a (key, value) pair - where the key MUST be a path to a<br>
+single leaf element within the data tree (encoded according to <a href="#222-paths">Section<br>
+2.2.2</a>). The value MUST encode only the value of the leaf specified.<br>
+In most cases, this will be a scalar value (i.e., a JSON value if a JSON<br>
+encoding is utilised), but in some cases, where an individual leaf element<br>
+within the schema represents an object, it MAY represent a set of values (i.e.,<br>
+a JSON object or Protobuf message).</p>
+<p>Where aggregation is permitted by both the client and schema, each update<br>
+message MUST contain a key value pair, where the key MUST be the path to the<br>
+element within the data tree which is explicitly marked as being eligible for<br>
+aggregation. The value MUST be an object which encodes the children of the data<br>
+tree element specified. For JSON, the value is therefore a JSON object, and for<br>
+Protobuf is a binary-encoded Protobuf message (along with any child messages).</p>
+<h3 id="managing-subscriptions">3.5.1 Managing Subscriptions</h3>
+<h4 id="the-subscriberequest-message">3.5.1.1 The SubscribeRequest Message</h4>
+<p>A <code>SubscribeRequest</code> message is sent by a client to request updates from the<br>
+target for a specified set of paths.</p>
+<p>The fields of the <code>SubscribeRequest</code> are as follows:</p>
+<ul>
+<li>A group of fields, only one of which may be specified, which indicate the<br>
+type of operation that the <code>SubscribeRequest</code> relates to. These are:
+<ul>
+<li><code>subscribe</code> - a <code>SubscriptionList</code> message specifying a new set of paths<br>
+that the client wishes to subscribe to.</li>
+<li><code>poll</code>- a <code>Poll</code> message used to specify (on an existing RPC) that the<br>
+client wishes to receive a polled update for the paths specified within<br>
+the subscription.  The semantics of the <code>Poll</code> message are described in<br>
+<a href="#35153-poll-subscriptions">Section 3.5.1.5.3</a>.</li>
+<li><code>aliases</code> - used by a client to define (on an existing RPC) a new path<br>
+alias (as described in <a href="#242-path-aliases">Section 2.4.2</a>). The use of<br>
+the aliases message is described in <a href="#3516-client-defined-aliases-within-a-subscription">Section<br>
+3.5.1.6</a>.</li>
+</ul>
+</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<p>In order to create a new subscription a client MUST initiate a <code>Subscribe</code> RPC<br>
+with a <code>SubscribeRequest</code> message specifying the <code>subscribe</code> field. The<br>
+<code>SubscriptionList</code> may create a one-off subscription, a poll-only subscription,<br>
+or a streaming subscription. In the case of ONCE subscriptions, the RPC MUST be<br>
+closed following the initial response generation with the relevant status code.</p>
+<p>Subscriptions are set once, and subsequently not modified by a client. If a<br>
+client wishes to subscribe to additional paths from a target, it MUST do so by<br>
+sending an additional <code>Subscribe</code> RPC call, specifying a new <code>SubscriptionList</code><br>
+message. In order to end an existing subscription, a client simply cancels the<br>
+<code>Subscribe</code> RPC that relates to that subscription.  If an RPC is initiated with<br>
+a <code>SubscribeRequest</code> message that does not specify a <code>SubscriptionList</code> message<br>
+with the <code>request</code> field, the target MUST consider this an error. If an<br>
+additional <code>SubscribeRequest</code> message specifying a <code>SubscriptionList</code> is sent<br>
+via an existing RPC, the target MUST respond to this message with<br>
+<code>SubscribeResponse</code> message indicating an error status, with a code of<br>
+<code>InvalidArgument (4)</code>; other <code>Subscribe</code> RPCs on the gRPC session MUST not be<br>
+modified or terminated.</p>
+<p>If a client initiates a <code>Subscribe</code> RPC with a <code>SubscribeRequest</code> message which<br>
+does not contain a <code>SubscriptionList</code> message, this is an error.  A<br>
+<code>SubscribeResponse</code> message with the status indicating a error code of<br>
+<code>InvalidArgument</code> MUST be sent, and the RPC closed. The status message SHOULD<br>
+indicate that an out-of-order operation was requested on a non-existent<br>
+subscription.</p>
+<h4 id="the-subscriptionlist-message">3.5.1.2 The SubscriptionList Message</h4>
+<p>A <code>SubscriptionList</code> message is used to indicate a set of paths for which common<br>
+subscription behavior are required. The fields of the message are:</p>
+<ul>
+<li><code>subscription</code> - a set of <code>Subscription</code> messages that indicate the set of<br>
+paths associated with the subscription list.</li>
+<li><code>mode</code> -  the type of subscription that is being created. This may be <code>ONCE</code><br>
+(described in <a href="#35151-once-subscriptions">3.5.1.5.1</a>); <code>STREAM</code> (described<br>
+in <a href="#35152-stream-subscriptions">3.5.1.5.2</a>); or <code>POLL</code> (described in<br>
+<a href="#35153-poll-subscriptions">3.5.1.5.3</a>). The default value for the mode<br>
+field is <code>STREAM</code>.</li>
+<li><code>prefix</code>-  a common prefix that is applied to all paths specified within the<br>
+message as per the definition in <a href="#241-path-prefixes">Section 2.4.1</a>. The<br>
+default prefix is null.</li>
+<li><code>use_aliases</code>- a boolean flag indicating whether the client accepts target<br>
+aliases via the subscription RPC. In the case that such aliases are<br>
+accepted, the logic described in <a href="#242-path-aliases">Section 2.4.2</a> is<br>
+utilised.  By default, path aliases created by the target are not supported.</li>
+<li><code>qos</code> - a field describing the packet marking that is to be utilised for the<br>
+responses to the subscription that is being created. This field has a single<br>
+sub-value, <code>marking</code>, which indicates the DSCP value as a 32-bit unsigned<br>
+integer. If the <code>qos</code> field is not specified, the device should export<br>
+telemetry traffic using its default DSCP marking for management-plane<br>
+traffic.</li>
+<li><code>allow_aggregation</code> - a boolean value used by the client to allow schema<br>
+elements that are marked as eligible for aggregation to be combined into<br>
+single telemetry update messages. By default, aggregation MUST NOT be used.</li>
+<li><code>use_models</code> - a <code>ModelData</code> message (as specified in <a href="#261-the-modeldata-message">Section<br>
+2.6.1</a>) specifying the schema definition modules<br>
+that the target should use when creating a subscription. When specified, the<br>
+target MUST only consider data elements within the defined set of schema<br>
+models as defined in <a href="#26-schema-definition-models">Section 2.6</a>. When<br>
+<code>use_models</code> is not specified, the target MUST consider all data elements<br>
+that are defined in all schema modules that it supports.</li>
+<li><code>updates_only</code> - a boolean that causes the server to send only updates to<br>
+the current state. When set to true, the target MUST not transmit the<br>
+current state of the paths that the client has subscribed to, but rather<br>
+should send only updates to them. For <code>STREAM</code> subscriptions, an update<br>
+occurs upon the next sample (in the case of <code>SAMPLE</code> subscriptions), or upon<br>
+the next value change for <code>ON_CHANGE</code> subscriptions. For <code>POLL</code> and <code>ONCE</code><br>
+subscriptions, the target should send only the <code>sync_response</code> message,<br>
+before proceeding to process poll requests (in the case of <code>POLL</code>) or<br>
+closing the RPC (in the case of <code>ONCE</code>)."</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<p>A client generating a <code>SubscriptionList</code> message MUST include the <code>subscription</code><br>
+field - which MUST be a non-empty set of <code>Subscription</code> messages, all other<br>
+fields are optional.</p>
+<h4 id="the-subscription-message">3.5.1.3 The Subscription Message</h4>
+<p>A <code>Subscription</code> message generically describes a set of data that is to be<br>
+subscribed to by a client. It contains a <code>path</code>, specified as per the definition<br>
+in <a href="#222-paths">Section 2.2.2</a>.</p>
+<p>There is no requirement that the path specified in the message must exist within<br>
+the current data tree on the server. While the path within the subscription<br>
+SHOULD be a valid path within the set of schema modules that the target<br>
+supports, subscribing to any syntactically valid path within such modules MUST<br>
+be allowed. In the case that a particular path does not (yet) exist, the target<br>
+MUST NOT close the RPC, and instead should continue to monitor for the existence<br>
+of the path, and transmit telemetry updates should it exist in the future.</p>
+<!-- TODO(robjs): Need a way to be able to send this information. Previously&#10;said:&#10;&#10;The target MAY send a `SubscribeResponse` message populating the status code&#10;with `NotFound (5)` to inform the client that the path does not exist at the&#10;time of subscription creation. -->
+<p>For <code>POLL</code> and <code>STREAM</code> subscriptions, a client may optionally specify<br>
+additional parameters within the <code>Subscription</code> message. The semantics of these<br>
+additional fields are described in the relevant section of this document.</p>
+<h4 id="the-subscriberesponse-message">3.5.1.4 The SubscribeResponse Message</h4>
+<p>A <code>SubscribeResponse</code> message is transmitted by a target to a client over an<br>
+established <code>Subscribe</code> RPC. The message contains the following fields:</p>
+<ul>
+<li>A set of fields referred to as the <code>response</code> fields, only one of which can<br>
+be specified per <code>SubscribeResponse</code> message:
+<ul>
+<li><code>update</code> - a <code>Notification</code> message providing an update value for a<br>
+subscribed data entity as described in <a href="#3523-sending-telemetry-updates">Section<br>
+3.5.2.3</a>. The <code>update</code> field is also<br>
+utilised when a target wishes to create an alias within a subscription,<br>
+as described in <a href="#3522-target-defined-aliases-within-a-subscription">Section<br>
+3.5.2.2</a>.</li>
+<li><code>sync_response</code>  - a boolean field indicating that all data values<br>
+corresponding to the path(s) specified in the <code>SubscriptionList</code> has<br>
+been transmitted at least once, used for <code>POLL</code> and <code>STREAM</code><br>
+subscriptions.</li>
+</ul>
+</li>
+<li><code>extension</code> - a repeated field used to carry gNMI extensions, as per the<br>
+description in <a href="#27-extensions-to-gnmi">Section 2.7</a>.</li>
+</ul>
+<h4 id="creating-subscriptions">3.5.1.5 Creating Subscriptions</h4>
+<h5 id="once-subscriptions">3.5.1.5.1 ONCE Subscriptions</h5>
+<p>A subscription operating in the <code>ONCE</code> mode acts as a single request/response<br>
+channel. The target creates the relevant update messages, transmits them, and<br>
+subsequently closes the RPC.</p>
+<p>In order to create a one-off subscription, a client sends a <code>SubscribeRequest</code><br>
+message to the target. The <code>subscribe</code> field within this message specifies a<br>
+<code>SubscriptionList</code> with the mode field set to <code>ONCE</code>. Updates corresponding to<br>
+the subscription are generated as per the semantics described in <a href="#352-sending-telemetry-updates">Section<br>
+3.5.2</a>.</p>
+<p>Following the transmission of all updates which correspond to data items within<br>
+the set of paths specified within the subscription list, a <code>SubscribeResponse</code><br>
+message with the <code>sync_response</code> field set to <code>true</code> MUST be transmitted, and<br>
+the RPC via which the <code>SubscribeRequest</code> was received MUST be closed.</p>
+<h5 id="stream-subscriptions">3.5.1.5.2 STREAM Subscriptions</h5>
+<p>Stream subscriptions are long-lived subscriptions which continue to transmit<br>
+updates relating to the set of paths that are covered within the subscription<br>
+indefinitely.</p>
+<p>A <code>STREAM</code> subscription is created by sending a <code>SubscribeRequest</code> message with<br>
+the subscribe field containing a <code>SubscriptionList</code> message with the type<br>
+specified as <code>STREAM</code>. Each entry within the <code>Subscription</code> message is specified<br>
+with one of the following <code>modes</code>:</p>
+<ul>
+<li><strong>On Change (<code>ON_CHANGE</code>)</strong> - when a subscription is defined to be “on<br>
+change”, data updates are only sent when the value of the data item changes.
+<ul>
+<li>For all <code>ON_CHANGE</code> subscriptions, the target MUST first generate updates<br>
+for all paths that match the subscription path(s), and transmit them.<br>
+Following this initial set of updates, updated values SHOULD only be<br>
+transmitted when their value changes.</li>
+<li>A heartbeat interval MAY be specified along with an “on change”<br>
+subscription - in this case, the value of the data item(s) MUST be re-sent<br>
+once per heartbeat interval regardless of whether the value has changed or<br>
+not.</li>
+</ul>
+</li>
+<li><strong>Sampled (<code>SAMPLE</code>)</strong> - a subscription that is defined to be sampled MUST<br>
+be specified along with a <code>sample_interval</code> encoded as an unsigned 64-bit<br>
+integer representing nanoseconds between samples.  The value of the data<br>
+item(s) MUST be sent once per sample interval to the client.  If the target<br>
+is unable to support the desired <code>sample_interval</code> it MUST reject the<br>
+subscription by closing the <code>Subscribe</code> RPC specifying an <code>InvalidArgument (3)</code> error code. If the <code>sample_interval</code> is set to 0, the target MUST<br>
+create the subscription and send the data with the lowest interval possible<br>
+for the target.
+<ul>
+<li>Optionally, the <code>suppress_redundant</code> field of the <code>Subscription</code> message<br>
+may be set for a sampled subscription. In the case that it is set to<br>
+<code>true</code>, the target SHOULD NOT generate a telemetry update message unless<br>
+the value of the path being reported on has changed since the last<br>
+update was generated. Updates MUST only be generated for those<br>
+individual leaf nodes in the subscription that have changed. That is to<br>
+say that for a subscription to <code>/a/b</code> - where there are leaves <code>c</code> and<br>
+<code>d</code> branching from the <code>b</code> node - if the value of <code>c</code> has changed, but<br>
+<code>d</code> remains unchanged, an update for <code>d</code> MUST NOT be generated, whereas<br>
+an update for <code>c</code> MUST be generated.</li>
+<li>A <code>heartbeat_interval</code> MAY be specified to modify the behavior of<br>
+<code>suppress_redundant</code> in a sampled subscription.  In this case, the<br>
+target MUST generate one telemetry update  per heartbeat interval,<br>
+regardless of whether the <code>suppress_redundant</code> flag is set to <code>true</code>.<br>
+This value is specified as an unsigned 64-bit integer in nanoseconds.</li>
+</ul>
+</li>
+<li><strong>Target Defined <code>(TARGET_DEFINED)</code></strong> - when a client creates a subscription<br>
+specifying the target defined mode, the target MUST determine the best type<br>
+of subscription to be created on a per-leaf basis. That is to say, if the<br>
+path specified within the message refers to some leaves which are event<br>
+driven (e.g., the changing of state of an entity based on an external<br>
+trigger) then an <code>ON_CHANGE</code> subscription may be created, whereas if other<br>
+data represents counter values, a <code>SAMPLE</code> subscription may be created.</li>
+</ul>
+<h5 id="poll-subscriptions">3.5.1.5.3 POLL Subscriptions</h5>
+<p>Polling subscriptions are used for on-demand retrieval of data items via<br>
+long-lived RPCs. A poll subscription relates to a certain set of subscribed<br>
+paths, and is initiated by sending a <code>SubscribeRequest</code> message with<br>
+encapsulated <code>SubscriptionList</code>. <code>Subscription</code> messages contained within the<br>
+<code>SubscriptionList</code> indicate the set of paths that are of interest to the polling<br>
+client.</p>
+<p>To retrieve data from the target, a client sends a <code>SubscribeRequest</code>  message<br>
+to the target, containing a <code>poll</code> field, specified to be an empty <code>Poll</code><br>
+message. On reception of such a message, the target MUST generate updates for<br>
+all the corresponding paths within the <code>SubscriptionList</code>. Updates MUST be<br>
+generated according to <a href="#3523-sending-telemetry-updates">Section 3.5.2.3</a>.</p>
+<h4 id="client-defined-aliases-within-a-subscription">3.5.1.6 Client-defined Aliases within a Subscription</h4>
+<p>When a client wishes to create an alias that a target should use for a path, the<br>
+client should send a <code>SubscribeRequest</code> message specifying the <code>aliases</code> field.<br>
+The <code>aliases</code> field consists of an <code>AliasList</code> message. An <code>AliasList</code> specifies<br>
+a list of aliases, each of which consists of:</p>
+<ul>
+<li><code>path</code> - the target path for the alias - encoded as per <a href="#222-paths">Section<br>
+2.2.2</a>.</li>
+<li><code>alias</code> - the (client-defined) alias for the path, encoded as per <a href="#242-path-aliases">Section<br>
+2.4.2</a>.</li>
+</ul>
+<p>Where a target is unable to support a client-defined alias it SHOULD respond<br>
+with a <code>SubscribeResponse</code> message with the status code indicating an error of<br>
+the following types:</p>
+<ul>
+<li><code>InvalidArgument (3)</code> where the specified alias is not acceptable to the<br>
+target.</li>
+<li><code>AlreadyExists (6)</code> where the alias defined is a duplicate of an existing<br>
+alias for the client.</li>
+<li><code>ResourceExhausted (8)</code> where the target has insufficient memory or<br>
+processing resources to support the alias.</li>
+<li><code>Unknown (2)</code> in all other cases.</li>
+</ul>
+<p>Thus, for a client to create an alias corresponding to the path<code>/a/b/c/d[id=10]/e</code> with the name <code>shortPath</code>, it sends a <code>SubscribeRequest</code><br>
+message with the following fields specified:</p>
+<pre><code>subscriberequest: &lt;
+  aliases: &lt;
+    alias: &lt;
+      path: &lt;
+        elem: &lt;
+          name: "a"
+        &gt;
+        elem: &lt;
+          name: "b"
+        &gt;
+        elem: &lt;
+          name: "c"
+        &gt;
+        elem: &lt;
+          name: "d"
+          key: &lt;
+            name: "id"
+            value: "10"
+          &gt;
+        elem: &lt;
+          name: "e"
+        &gt;
+      &gt;
+      alias: "#shortPath"
+    &gt;
+  &gt;
+&gt;
+</code></pre>
+<p>If the alias is acceptable to the target, subsequent updates are transmitted<br>
+using the <code>#shortPath</code> alias in the same manner as described in <a href="#3522-target-defined-aliases-within-a-subscription">Section<br>
+3.5.2.2</a>.</p>
+<h3 id="sending-telemetry-updates">3.5.2 Sending Telemetry Updates</h3>
+<h4 id="bundling-of-telemetry-updates">3.5.2.1 Bundling of Telemetry Updates</h4>
+<p>Since multiple <code>Update</code> messages can be included in the <code>Notification</code> message<br>
+of a <code>SubscribeResponse</code>, it is possible for a target to bundle messages such<br>
+that fewer messages are sent to the client. The advantage of such bundling is<br>
+clearly to reduce the number of bytes on the wire (caused by message overhead);<br>
+however, since only <code>Notification</code> messages contain the timestamp at which an<br>
+event occurred, or a sample was taken, such bundling assigns a single timestamp<br>
+for all bundled <code>Update</code> values. As such, it has the downside of negatively<br>
+affecting the sample accuracy and freshness to the client, and as a result, on<br>
+the client’s ability to react to events on the target.</p>
+<p>Since it is not possible for the target to infer whether its clients are<br>
+sensitive to the latency introduced by bundling, if a target implements<br>
+optimizations such that multiple <code>Update</code> messages are bundled together,<br>
+it MUST provide an ability to disable this functionality within the<br>
+configuration of the gNMI service. Additionally, a target SHOULD provide means<br>
+by which the operator can control the maximum number of updates that are to be<br>
+bundled into a single message,  This configuration is expected to be implemented<br>
+out-of-band to the gNMI protocol itself.</p>
+<h4 id="target-defined-aliases-within-a-subscription">3.5.2.2 Target-defined Aliases within a Subscription</h4>
+<p>Where the <code>use_aliases</code> field of a <code>SubscriptionList</code> message has been set to<br>
+<code>true</code>, a target MAY create aliases for paths within a subscription. A<br>
+target-defined alias MUST be created separately from an update to the<br>
+corresponding data item(s).</p>
+<p>To create a target-defined alias, a <code>SubscribeResponse</code> message is generated<br>
+with the <code>update</code> field set to a <code>Notification</code> message. The <code>Notification</code><br>
+message specifies the aliased path within the <code>prefix</code> field, and a non-null<br>
+<code>alias</code> field, specified according to <a href="#242-path-aliases">Section 2.4.2</a>.</p>
+<p>Thus, a target wishing to create an alias relating to the path <code>/a/b/c[id=10]</code><br>
+and subsequently update children of the <code>c[id=10]</code>entity must:</p>
+<ul>
+<li>Generate a <code>SubscribeResponse</code> message and transmit it over the RPC to the<br>
+client:</li>
+</ul>
+<pre><code>subscriberesponse: &lt;
+  update: &lt;
+    timestamp: (timestamp)
+    prefix: &lt;
+      elem: &lt;
+        name: "a"
+      &gt;
+      elem: &lt;
+        name: "b"
+      &gt;
+      elem: &lt;
+        name: "c"
+        key: &lt;
+          name: "id"
+          value: "10"
+        &gt;
+      &gt;
+    &gt;
+    alias: "#42"
+  &gt;
+&gt;
+</code></pre>
+<ul>
+<li>Subsequently, this alias can be used to provide updates for the <code>child1</code> leaf<br>
+corresponding to <code>/a/b/c[id=10]/child1</code>:</li>
+</ul>
+<pre><code>subscriberesponse: &lt;
+  update: &lt;
+    timestamp: (timestamp)
+    prefix: &lt;
+      element: "#42"
+    &gt;
+    update: &lt;
+      path: &lt;
+        elem: &lt;
+          name: "child1"
+        &gt;
+      &gt;
+      value: &lt;
+        val: &lt;
+          int_val: 32
+        &gt;
+      &gt;
+    &gt;
+  &gt;
+&gt;
+</code></pre>
+<h4 id="sending-telemetry-updates-1">3.5.2.3 Sending Telemetry Updates</h4>
+<p>When an update for a subscribed telemetry path is to be sent, a<br>
+<code>SubscribeResponse</code> message is sent from the target to the client, on the RPC<br>
+associated with the subscription. The <code>update</code> field of the message contains a<br>
+<code>Notification</code> message as per the description in <a href="#21-reusable-notification-message-format">Section<br>
+2.1</a>. The <code>timestamp</code> field of the<br>
+<code>Notification</code> message MUST be set to the time at which the value of the path<br>
+that is being updated was collected from the underlying data source, or the<br>
+event being reported on (in the case of <code>ON_CHANGE</code> occurred).</p>
+<p>Where a leaf node’s value has changed, or a new node has been created, an <code>Update</code> message specifying the path and value for the updated data item MUST be appended to the <code>update</code> field of the message.</p>
+<p>Where a node within the subscribed paths has been removed, the <code>delete</code> field of<br>
+the <code>Notification</code> message MUST have the path of the node that has been removed<br>
+appended to it.</p>
+<p>To replace the contents of an entire node within the tree, the target populates<br>
+the <code>delete</code> field with the path of the node being removed, along with the new<br>
+contents within the <code>update</code> field.</p>
+<p>When the target has transmitted the initial updates for all paths specified<br>
+within the subscription, a <code>SubscribeResponse</code> message with the <code>sync_response</code><br>
+field set to <code>true</code> MUST be transmitted to the client to indicate that the<br>
+initial transmission of updates has concluded.  This provides an indication to<br>
+the client that all of the existing data for the subscription has been sent at<br>
+least once.  For <code>STREAM</code> subscriptions, such messages are not required for<br>
+subsequent updates. For <code>POLL</code> subscriptions, after each set of updates for<br>
+individual poll request, a <code>SubscribeResponse</code> message with the <code>sync_response</code><br>
+field set to <code>true</code> MUST be generated.</p>
+<p>In the case where the <code>updates_only</code> field in the <code>SubscribeRequest</code> message has<br>
+been set, a <code>sync_response</code> is sent as the first message on the stream, followed<br>
+by any updates representing subsequent changes to current state. For a <code>POLL</code> or<br>
+<code>ONCE</code> mode, this means that only a <code>sync_response</code> will be sent. The<br>
+<code>updates_only</code> field allows a client to only watch for changes, e.g. an update<br>
+to configuration.</p>
+<h1 id="appendix-current-protobuf-message-and-service-specification">4 Appendix: Current Protobuf Message and Service Specification</h1>
+<p>The latest Protobuf IDL gNMI specification is found in GitHub at<br>
+<a href="https://github.com/openconfig/gnmi/blob/master/proto/gnmi/gnmi.proto">openconfig/gnmi</a>.</p>
+<h1 id="appendix-current-outstanding-issuesfuture-features">5 Appendix: Current Outstanding Issues/Future Features</h1>
+<ul>
+<li>Ability for the client to exclude paths from a subscription or get.</li>
+<li>“Dial out” for the target to register with an NMS and publish pre-configured<br>
+subscriptions.</li>
+</ul>
+<h1 id="copyright">6 Copyright</h1>
+<pre><code>Copyright 2016 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License
+</code></pre>
+<h1 id="revision-history">7 Revision History</h1>
+<ul>
+<li>
+<p>v0.6.0: January 25, 2018</p>
+<ul>
+<li>Add <code>extension</code> fields to the top-level RPCs of the gNMI service.</li>
+<li>Add recommendation that the gNMI service registers with the gRPC reflection<br>
+service.</li>
+<li>Clarifying wording for ‘channel’ such that it refers to a specific RPC,<br>
+adopting gRPC nomenclature.</li>
+<li>Editorial amendments.</li>
+</ul>
+</li>
+<li>
+<p>v0.5.0: November 14, 2017</p>
+<ul>
+<li>Add <code>target</code> field within <code>Path</code> message with description in <a href="#2221-path-target">Section<br>
+2.2.2.1</a></li>
+<li>Add <code>updates_only</code> field within <code>SubscribeRequest</code> message.</li>
+<li>Add <code>duplicates</code> field withing <code>Update</code> message.</li>
+</ul>
+</li>
+<li>
+<p>v0.4.0: June 16, 2017</p>
+<ul>
+<li>Deprecate the old <code>value</code> field within the <code>Update</code> message, in favour of<br>
+the new <code>TypedValue</code> field.</li>
+<li>Clarify error handling should use <code>google/rpc/status.proto</code> rather than<br>
+embedded messages within successful response codes.</li>
+<li>Update references to the <code>path</code> message’s encoding of the root path.</li>
+<li>Update encoding of <code>Path</code> to use the <code>PathElem</code> message rather than to use a<br>
+repeated <code>string</code>.</li>
+</ul>
+</li>
+<li>
+<p>v0.2.2: March 7, 2017</p>
+<ul>
+<li>Add clarifications of <code>ON_CHANGE</code> subscriptions and the requirement for an<br>
+initial sync of matching subscription paths.</li>
+<li>Correct responses to an unsupported encoding error to be <code>Unimplemented</code><br>
+(fixes <a href="https://github.com/openconfig/reference/issues/36">#36</a>).</li>
+</ul>
+</li>
+<li>
+<p>v0.2.1: November 10, 2016</p>
+</li>
+<li>
+<p>Correct reference to <code>TEXT</code> vs. <code>ASCII</code> encoding type.</p>
+</li>
+<li>
+<p>Ensure that the encodings enumeration is numbered consistently.</p>
+</li>
+<li>
+<p>Fix broken links.</p>
+</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>This matches the types that Go UnixNano and Java TimeUnit toNanos return,<br>
+and hence is used rather than an unsigned integer. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+</div>
+</body>
+
+</html>
