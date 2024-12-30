@@ -6,19 +6,23 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
-# Configure logging for debugging
 logging.basicConfig(level=logging.DEBUG)
 
 CONFIG_FILE = os.path.join(app.root_path, 'docs_config.json')
 
 BANNER_HTML = '''
 <div style="width: 100%; text-align: center; background-color: #335afb; color: #ffffff; padding: 5px; font-weight: bold;">
-    Archived documentation version for the DevNet Expert exam. Learn more at 
+    Archived documentation version for the DevNet Expert exam. Learn more at
     <a href="https://www.devnet-academy.com" style="color: #ffffff; text-decoration: underline" target="_blank">DevNet Academy</a> |
     <a href="/" style="color: #ffffff; text-decoration: underline">Docs Home</a>
 </div>
 '''
 
+COLUMN_ASSIGNMENTS = {
+    "column1": ["python_libraries"],
+    "column2": ["3rd_party_software", "terraform_aci"],
+    "column3": ["standards_and_specification", "cisco_docs"]
+}
 def load_config():
     """
     Loads the JSON configuration file.
@@ -31,11 +35,6 @@ def load_config():
         logging.error(f"Error loading configuration: {e}")
         return {}
 
-COLUMN_ASSIGNMENTS = {
-    "column1": ["python_libraries"],
-    "column2": ["3rd_party_software", "terraform_aci"],
-    "column3": ["standards_and_specification", "cisco_docs"]
-}
 
 docs_config = load_config()
 
@@ -51,6 +50,85 @@ for column, categories in COLUMN_ASSIGNMENTS.items():
             grouped_docs[column]["title"] = category.get("title", "")
             grouped_docs[column]["categories"].append(category)
 
+
+def inject_banner_and_fix_links(soup, route_prefix=None, doc_name=None):
+    """
+    Injects the exam banner and fixes both external links and internal references.
+
+    :param soup: A BeautifulSoup object representing the parsed HTML.
+    :param route_prefix: URL prefix to fix absolute paths (e.g. "/docs/vault_v1.8.x/").
+    :param doc_name: The documentation name, if needed for building url_for.
+    :return: Modified BeautifulSoup object.
+    """
+    body = soup.body
+    if not body:
+        return soup
+
+    # Inject banner if not already present
+    existing_banner = body.find('div', style=lambda v: v and 'background-color: #335afb' in v)
+    if not existing_banner:
+        banner = BeautifulSoup(BANNER_HTML, 'html.parser')
+        body.insert(0, banner)
+        logging.debug("Inserted banner into HTML.")
+
+    # Disable external links & fix internal absolute paths
+    for link in soup.find_all('a', href=True):
+        href = link['href']
+        if href.startswith('https://www.devnet-academy.com'):
+            continue
+        if href.startswith('http://') or href.startswith('https://'):
+            link['href'] = '#'
+            link['onclick'] = "alert('External links are disabled during the exam.'); return false;"
+            logging.debug(f"Disabled external link: {href}")
+        elif href.startswith('/') and route_prefix:
+            relative_path = href.lstrip('/')
+            if doc_name:
+                link['href'] = url_for('serve_docs', doc_name=doc_name, filename=relative_path)
+            else:
+                link['href'] = os.path.join(route_prefix, relative_path)
+            logging.debug(f"Fixed internal link: {href} -> {link['href']}")
+
+    for tag in soup.find_all(['link', 'script', 'img']):
+        if tag.name == 'link' and tag.has_attr('href'):
+            href = tag['href']
+            if href.startswith('/') and route_prefix:
+                relative_path = href.lstrip('/')
+                if doc_name:
+                    tag['href'] = url_for('serve_docs', doc_name=doc_name, filename=relative_path)
+                else:
+                    tag['href'] = os.path.join(route_prefix, relative_path)
+                logging.debug(f"Fixed CSS link: {href} -> {tag['href']}")
+
+        if tag.name in ['script', 'img'] and tag.has_attr('src'):
+            src = tag['src']
+            if src.startswith('/') and route_prefix:
+                relative_path = src.lstrip('/')
+                if doc_name:
+                    tag['src'] = url_for('serve_docs', doc_name=doc_name, filename=relative_path)
+                else:
+                    tag['src'] = os.path.join(route_prefix, relative_path)
+                logging.debug(f"Fixed JS/img source: {src} -> {tag['src']}")
+
+    return soup
+
+
+def serve_html_file(file_path, route_prefix=None, doc_name=None):
+    """
+    Reads and parses an HTML file, then calls inject_banner_and_fix_links().
+    Returns a Flask Response with the modified HTML.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f, 'html.parser')
+        logging.debug(f"Opened HTML file: {file_path}")
+    except Exception as e:
+        logging.error(f"Error reading file '{file_path}': {e}")
+        abort(500, description=f"Error reading file: {e}")
+
+    soup = inject_banner_and_fix_links(soup, route_prefix=route_prefix, doc_name=doc_name)
+    return Response(str(soup), mimetype='text/html')
+
+
 @app.route('/')
 def home():
     """
@@ -58,85 +136,34 @@ def home():
     """
     return render_template('home.html', grouped_docs=grouped_docs)
 
+
 @app.route('/docs/vault_v1.8.x/', defaults={'path': 'index.html'})
 @app.route('/docs/vault_v1.8.x/<path:path>')
 def serve_vault(path):
     """
-    Serves the Vault documentation without modifying the HTML files.
+    Serves the Vault documentation by injecting the banner and rewriting links.
     """
-    # Define the path to the exported Vault static files
-    vault_dir = os.path.join(app.static_folder, 'docs', 'vault_v1.8.x')  # Adjust if necessary
+    vault_dir = os.path.join(app.static_folder, 'docs', 'vault_v1.8.x')
 
-    # If the path is a directory, append 'index.html'
-    if os.path.isdir(os.path.join(vault_dir, path)):
-        path = os.path.join(path, 'index.html')
+    full_path = os.path.join(vault_dir, path)
+    if os.path.isdir(full_path):
+        full_path = os.path.join(full_path, 'index.html')
 
-    if not path.endswith('.html'):
-        # Serve non-HTML files directly
-        serve_dir = vault_dir
-        serve_file = path
-        if os.path.exists(os.path.join(serve_dir, serve_file)):
-            return send_from_directory(serve_dir, serve_file)
-        else:
-            logging.warning(f"File '{serve_file}' not found in Vault documentation.")
-            abort(404, description="File not found.")
+    if not os.path.exists(full_path):
+        logging.warning(f"File '{path}' not found in Vault documentation.")
+        abort(404, description="File not found.")
 
-    try:
-        with open(os.path.join(vault_dir, path), 'r', encoding='utf-8') as f:
-            soup = BeautifulSoup(f, 'html.parser')
-        logging.debug(f"Opened Vault HTML file: {path}")
-    except Exception as e:
-        logging.error(f"Error reading Vault file '{path}': {e}")
-        abort(500, description=f"Error reading file: {e}")
+    if not full_path.endswith('.html'):
+        return send_from_directory(os.path.dirname(full_path), os.path.basename(full_path))
 
-    body = soup.body
-    if body:
-        # Inject the banner
-        existing_banner = body.find('div', style=lambda value: value and 'background-color: #335afb' in value)
-        if not existing_banner:
-            banner = BeautifulSoup(BANNER_HTML, 'html.parser')
-            body.insert(0, banner)
-            logging.debug("Inserted banner into Vault HTML.")
+    return serve_html_file(full_path, route_prefix='/docs/vault_v1.8.x/')
 
-        # Disable external links except specified ones
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            if href.startswith('https://www.devnet-academy.com'):
-                continue
-            if href.startswith('http://') or href.startswith('https://'):
-                link['href'] = '#'
-                link['onclick'] = "alert('External links are disabled during the exam.'); return false;"
-                logging.debug(f"Disabled external link in Vault: {href}")
-            elif href.startswith('/'):
-                # Fix internal absolute paths by prepending the documentation route
-                relative_path = href.lstrip('/')
-                # Since we're in the Vault route, adjust the URL accordingly
-                link['href'] = f"/docs/vault_v1.8.x/{relative_path}"
-                logging.debug(f"Fixed internal link in Vault: {href} -> {link['href']}")
 
-        # Fix 'link' tags for CSS and 'script' tags for JS
-        for tag in soup.find_all(['link', 'script', 'img']):
-            if tag.name == 'link' and tag.has_attr('href'):
-                href = tag['href']
-                if href.startswith('/'):
-                    relative_path = href.lstrip('/')
-                    tag['href'] = f"/docs/vault_v1.8.x/{relative_path}"
-                    logging.debug(f"Fixed CSS link in Vault: {href} -> {tag['href']}")
-            if tag.name in ['script', 'img'] and tag.has_attr('src'):
-                src = tag['src']
-                if src.startswith('/'):
-                    relative_path = src.lstrip('/')
-                    tag['src'] = f"/docs/vault_v1.8.x/{relative_path}"
-                    logging.debug(f"Fixed JS/img source in Vault: {src} -> {tag['src']}")
-
-    return Response(str(soup), mimetype='text/html')
-
-@app.route('/docs/<doc_name>/')
+@app.route('/docs/<doc_name>/', defaults={'filename': 'index.html'})
 @app.route('/docs/<doc_name>/<path:filename>')
-def serve_docs(doc_name, filename=None):
+def serve_docs(doc_name, filename):
     """
-    Serves the requested documentation files based on the configuration
-    and injects the banner into HTML files.
+    Serves documentation files based on the configuration, injecting the banner and rewriting links.
     """
     doc = None
     for category in docs_config.values():
@@ -151,111 +178,43 @@ def serve_docs(doc_name, filename=None):
         logging.warning(f"Documentation set '{doc_name}' not found.")
         abort(404, description="Documentation set not found.")
 
-    # If the documentation set is Vault, redirect to the separate Vault route
     if 'vault' in doc_name.lower():
         return redirect('/docs/vault_v1.8.x/docs')
 
     docs_base_path = os.path.join(app.static_folder, 'docs')
+    index_dir = os.path.dirname(doc['index_path'])
 
-    if filename is None or filename == 'index.html':
-        file_path = os.path.join(docs_base_path, doc['index_path'])
-        logging.debug(f"Serving main index.html for '{doc_name}': {file_path}")
-    else:
-        index_dir = os.path.dirname(doc['index_path'])
-        file_path = os.path.join(docs_base_path, index_dir, filename)
+    file_path = os.path.join(docs_base_path, index_dir, filename)
+    file_path = os.path.normpath(file_path)
 
-        logging.debug(f"Serving documentation for: {doc_name}")
-        logging.debug(f"Requested file: {filename}")
-        logging.debug(f"Resolved file path: {file_path}")
+    if not file_path.startswith(os.path.normpath(docs_base_path)):
+        logging.warning(f"Attempted to access file outside allowed docs path: {file_path}")
+        abort(404, description="File not found.")
 
-        file_path = os.path.normpath(file_path)
+    if os.path.isdir(file_path):
+        file_path = os.path.join(file_path, 'index.html')
 
-        if not file_path.startswith(os.path.normpath(docs_base_path)) or not os.path.exists(file_path):
-            logging.warning(f"File path '{file_path}' is invalid or does not exist.")
-            abort(404, description="File not found.")
+    if not os.path.exists(file_path):
+        logging.warning(f"File '{file_path}' not found.")
+        abort(404, description="File not found.")
 
-        if os.path.isdir(file_path):
-            file_path = os.path.join(file_path, 'index.html')
-            logging.debug(f"Requested path is a directory. Serving index.html: {file_path}")
-
-            if not os.path.exists(file_path):
-                logging.warning(f"Index file '{file_path}' not found in the directory.")
-                abort(404, description="File not found.")
-
-        is_html = file_path.endswith('.html')
-
-        if not is_html:
-            logging.debug(f"Serving non-HTML file: {file_path}")
-            serve_dir = os.path.dirname(file_path)
-            serve_file = os.path.basename(file_path)
-            return send_from_directory(serve_dir, serve_file)
-    
     if not file_path.endswith('.html'):
-        serve_dir = os.path.dirname(file_path)
-        serve_file = os.path.basename(file_path)
-        if os.path.exists(file_path):
-            logging.debug(f"Serving non-HTML file as fallback: {file_path}")
-            return send_from_directory(serve_dir, serve_file)
-        else:
-            logging.warning(f"File '{file_path}' not found.")
-            abort(404, description="File not found.")
+        return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
 
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            soup = BeautifulSoup(f, 'html.parser')
-        logging.debug(f"Opened HTML file: {file_path}")
-    except Exception as e:
-        logging.error(f"Error reading file '{file_path}': {e}")
-        abort(500, description=f"Error reading file: {e}")
+    return serve_html_file(file_path, doc_name=doc_name, route_prefix=f'/docs/{doc_name}/')
 
-    body = soup.body
-    if body:
-        existing_banner = body.find('div', style=lambda value: value and 'background-color: #335afb' in value)
-        if not existing_banner:
-            banner = BeautifulSoup(BANNER_HTML, 'html.parser')
-            body.insert(0, banner)
-            logging.debug("Inserted banner into HTML.")
-
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            if href.startswith('https://www.devnet-academy.com'):
-                continue
-            if href.startswith('http://') or href.startswith('https://'):
-                link['href'] = '#'
-                link['onclick'] = "alert('External links are disabled during the exam.'); return false;"
-                logging.debug(f"Disabled external link: {href}")
-            elif href.startswith('/'):
-                # Fix internal absolute paths by prepending the documentation route
-                relative_path = href.lstrip('/')
-                link['href'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
-                logging.debug(f"Fixed internal link: {href} -> {link['href']}")
-
-        # Fix 'link' tags for CSS and 'script' tags for JS
-        for tag in soup.find_all(['link', 'script', 'img']):
-            if tag.name == 'link' and tag.has_attr('href'):
-                href = tag['href']
-                if href.startswith('/'):
-                    relative_path = href.lstrip('/')
-                    tag['href'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
-                    logging.debug(f"Fixed CSS link: {href} -> {tag['href']}")
-            if tag.name in ['script', 'img'] and tag.has_attr('src'):
-                src = tag['src']
-                if src.startswith('/'):
-                    relative_path = src.lstrip('/')
-                    tag['src'] = url_for('serve_docs', doc_name=doc['name'], filename=relative_path)
-                    logging.debug(f"Fixed JS/img source: {src} -> {tag['src']}")
-
-    return Response(str(soup), mimetype='text/html')
 
 @app.errorhandler(404)
 def page_not_found(e):
     logging.warning(f"404 Error: {e}")
     return render_template('404.html', error=e), 404
 
+
 @app.errorhandler(500)
 def internal_error(e):
     logging.error(f"500 Error: {e}")
     return render_template('500.html', error=e), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
