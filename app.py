@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import random
 from flask import (
     Flask,
     render_template,
@@ -32,6 +33,14 @@ COLUMN_ASSIGNMENTS = {
     "column2": ["3rd_party_software", "terraform_aci"],
     "column3": ["standards_and_specification", "cisco_docs"],
 }
+
+DISABLED_LINK_MESSAGES = [
+    "Breakout detected! Arrest him!",
+    "Nope, external links are off-limits during the exam!",
+    "Uh-oh! External links have been disabled!",
+    "External links? Not on my watch!",
+    "Access denied to external links. Stay focused!",
+]
 
 
 def load_config():
@@ -91,11 +100,10 @@ def inject_banner_and_fix_links(soup, route_prefix=None, doc_name=None):
         if href.startswith("https://www.devnet-academy.com"):
             continue
         if href.startswith("http://") or href.startswith("https://"):
+            message = random.choice(DISABLED_LINK_MESSAGES)
+            escaped_message = message.replace("'", "\\'")
             link["href"] = "#"
-            link["onclick"] = (
-                "alert('External links are disabled during the exam.'); return false;"
-            )
-            logging.debug(f"Disabled external link: {href}")
+            link["onclick"] = f"alert('{escaped_message}'); return false;"
         elif href.startswith("/") and route_prefix:
             relative_path = href.lstrip("/")
             if doc_name:
