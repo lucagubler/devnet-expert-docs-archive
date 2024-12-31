@@ -23,7 +23,7 @@ BANNER_HTML = """
 <div style="width: 100%; text-align: center; background-color: #335afb; color: #ffffff; padding: 5px; font-weight: bold;">
     Archived documentation version for the DevNet Expert exam. Learn more at
     <a href="https://www.devnet-academy.com" style="color: #ffffff; text-decoration: underline" target="_blank">DevNet Academy</a> |
-    <a href="/" style="color: #ffffff; text-decoration: underline">Docs Home</a>
+    <a href="/" class="docs-home-link" style="color: #ffffff; text-decoration: underline">Docs Home</a>
 </div>
 """
 
@@ -83,6 +83,10 @@ def inject_banner_and_fix_links(soup, route_prefix=None, doc_name=None):
 
     # Disable external links & fix internal absolute paths
     for link in soup.find_all("a", href=True):
+        link_classes = link.get("class", [])
+        if "docs-home-link" in link_classes:
+            continue
+
         href = link["href"]
         if href.startswith("https://www.devnet-academy.com"):
             continue
